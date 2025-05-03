@@ -1,7 +1,7 @@
 import React from 'react'
 import Select from 'react-select'
 
-const countries = [
+export const countries = [
   { value: 'US', label: 'United States', code: 'US' },
   { value: 'GB', label: 'United Kingdom', code: 'GB' },
   { value: 'CA', label: 'Canada', code: 'CA' },
@@ -24,24 +24,75 @@ const countries = [
 ]
 
 const customStyles = {
-  control: (provided) => ({
+  control: (provided, state) => ({
     ...provided,
-    height: '46px',
-    borderColor: '#e5e7eb',
+    minHeight: '48px',
+    padding: '0.25rem 0.75rem',
+    backgroundColor: 'var(--color-background)',
+    borderColor: state.isFocused ? 'var(--color-primary)' : '#e5e7eb',
+    borderRadius: '0.375rem',
     '&:hover': {
-      borderColor: '#e5e7eb'
-    }
+      borderColor: 'var(--color-primary)'
+    },
+    boxShadow: state.isFocused ? '0 0 0 2px var(--color-primary-light)' : 'none',
   }),
-  option: (provided) => ({
+  valueContainer: (provided) => ({
+    ...provided,
+    padding: '0',
+  }),
+  input: (provided) => ({
+    ...provided,
+    margin: '0',
+    padding: '0',
+    color: 'var(--color-text-primary)',
+  }),
+  placeholder: (provided) => ({
+    ...provided,
+    color: 'var(--color-tertiary)',
+  }),
+  singleValue: (provided) => ({
+    ...provided,
+    color: 'var(--color-text-primary)',
+  }),
+  option: (provided, state) => ({
     ...provided,
     display: 'flex',
     alignItems: 'center',
-    padding: '8px 12px'
-  })
+    padding: '0.75rem 1rem',
+    backgroundColor: state.isSelected 
+      ? 'var(--color-primary-light)'
+      : state.isFocused 
+        ? 'var(--color-background-alt)'
+        : 'var(--color-background)',
+    color: state.isSelected 
+      ? 'var(--color-primary)'
+      : 'var(--color-text-primary)',
+    cursor: 'pointer',
+    '&:hover': {
+      backgroundColor: 'var(--color-background-alt)',
+    }
+  }),
+  menu: (provided) => ({
+    ...provided,
+    backgroundColor: 'var(--color-background)',
+    borderRadius: '0.375rem',
+    border: '1px solid #e5e7eb',
+    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+  }),
+  dropdownIndicator: (provided, state) => ({
+    ...provided,
+    color: state.isFocused ? 'var(--color-primary)' : 'var(--color-tertiary)',
+    '&:hover': {
+      color: 'var(--color-primary)',
+    }
+  }),
+  indicatorSeparator: () => ({
+    display: 'none'
+  }),
 }
 
-const CustomOption = ({ data, ...props }) => (
-  <div {...props} className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 cursor-pointer">
+const CustomOption = ({ innerProps, data }) => (
+  <div {...innerProps} className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 cursor-pointer">
     <img
       src={`https://purecatamphetamine.github.io/country-flag-icons/3x2/${data.code}.svg`}
       alt={data.label}
@@ -51,27 +102,21 @@ const CustomOption = ({ data, ...props }) => (
   </div>
 )
 
-const CountrySelect = ({ value, onChange, placeholder = "Select Country", className = "w-full" }) => {
+const CountrySelect = ({ value, onChange, placeholder = "Select Country" }) => {
+  const selectedCountry = countries.find(option => option.value === value);
+  
   return (
     <Select
       options={countries}
-      value={countries.find(option => option.value === value)}
-      onChange={(selectedOption) => {
-        onChange({
-          target: {
-            name: 'country',
-            value: selectedOption.value
-          }
-        })
-      }}
+      value={selectedCountry}
+      onChange={option => onChange(option ? option.value : '')}
+      components={{ Option: CustomOption }}
       styles={customStyles}
-      components={{
-        Option: CustomOption
-      }}
       placeholder={placeholder}
-      className={className}
+      className="w-full "
+      isClearable={true}
     />
-  )
+  );
 }
 
 export default CountrySelect 

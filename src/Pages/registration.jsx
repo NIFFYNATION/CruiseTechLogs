@@ -6,8 +6,20 @@ import { FaCity } from 'react-icons/fa'
 import { HiIdentification } from 'react-icons/hi'
 import PhoneInput, { getCountries, getCountryData } from 'react-phone-input-2'
 import 'react-phone-input-2/lib/style.css'
-import Select from 'react-select'
 import CountrySelect from '../components/CountrySelect'
+
+
+
+const CustomOption = ({ innerProps, data }) => (
+  <div {...innerProps} className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 cursor-pointer">
+    <img
+      src={`https://purecatamphetamine.github.io/country-flag-icons/3x2/${data.value}.svg`}
+      alt={data.label}
+      className="w-6 h-4 object-cover"
+    />
+    {data.label}
+  </div>
+);
 
 const Registration = () => {
   const [step, setStep] = useState(1)
@@ -40,17 +52,19 @@ const Registration = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-gray-50">
+    <div className="min-h-screen flex flex-col lg:flex-row bg-background">
       {/* Left Sidebar - Progress */}
-      <div className="w-full lg:w-1/3 lg:max-w-xs bg-background p-4 sm:p-6 lg:p-8">
-        <div className="mb-6 lg:mb-12">
-          <img src="/light_logo.png" alt="CruiseTech" className="h-6 sm:h-8" />
+      <div className="w-full lg:w-1/3 lg:max-w-xs bg-[#0A52661A] m-0 sm:m-2 lg:m-6 p-4 sm:p-6 lg:p-8">
+        {/* Logo - Make it centered on mobile */}
+        <div className="mb-6 lg:mb-12 text-center lg:text-left">
+          <img src="/light_logo.png" alt="CruiseTech" className="h-6 sm:h-8 inline-block" />
         </div>
 
-        <h2 className="text-xl sm:text-2xl font-bold mb-6 lg:mb-8">Create Account</h2>
+        {/* Title - Center on mobile */}
+        <h2 className="text-xl sm:text-2xl font-bold mb-6 lg:mb-8 text-center lg:text-left">Create Account</h2>
 
         {/* Progress Steps */}
-        <div className="flex justify-between lg:block lg:space-y-8">
+        <div className="flex justify-center lg:justify-start lg:block lg:space-y-8">
           {/* Personal Details Step */}
           <div className="flex items-center">
             <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center ${step === 1 ? 'bg-primary text-white' : 'bg-gray-200'}`}>
@@ -65,7 +79,7 @@ const Registration = () => {
           <div className="w-0.5 h-12 bg-gray-200 ml-5 hidden lg:block"></div>
 
           {/* Horizontal Line - Shown on mobile, hidden on desktop */}
-          <div className="flex-1 h-0.5 bg-gray-200 mx-2 lg:hidden"></div>
+          <div className="flex-1 h-0.5 bg-gray-200 mx-4 sm:mx-6 lg:hidden"></div>
 
           {/* Email Verification Step */}
           <div className="flex items-center">
@@ -79,7 +93,7 @@ const Registration = () => {
 
           {/* Vertical/Horizontal Lines */}
           <div className="w-0.5 h-12 bg-gray-200 ml-5 hidden lg:block"></div>
-          <div className="flex-1 h-0.5 bg-gray-200 mx-2 lg:hidden"></div>
+          <div className="flex-1 h-0.5 bg-gray-200 mx-4 sm:mx-6 lg:hidden"></div>
 
           {/* Set Account Password Step */}
           <div className="flex items-center">
@@ -93,7 +107,7 @@ const Registration = () => {
         </div>
 
         {/* Login Link */}
-        <div className="mt-6 lg:mt-auto lg:pt-8 text-sm text-center lg:text-left">
+        <div className="mt-6 lg:mt-auto lg:pt-8 text-sm text-center">
           <p className="text-gray-600">
             Already have an account?{' '}
             <Link to="/login" className="text-primary font-medium">
@@ -104,8 +118,8 @@ const Registration = () => {
       </div>
 
       {/* Right Section - Form */}
-      <div className="flex-1 p-4 sm:p-6 lg:p-8">
-        <div className="max-w-2xl mx-auto">
+      <div className="container-fluid mx-auto flex-1 p-4 sm:p-6 lg:p-8">
+        <div className="">
           {step === 1 && (
             <>
               <h3 className="text-xl font-semibold mb-6">Your Personal Details</h3>
@@ -210,10 +224,16 @@ const Registration = () => {
                         onChange={handleChange}
                       />
                     </div>
-                    <div className="relative">
+                    <div>
                       <CountrySelect
                         value={formData.country}
-                        onChange={handleChange}
+                        onChange={(countryValue) => {
+                          setFormData(prev => ({
+                            ...prev,
+                            country: countryValue
+                          }))
+                        }}
+                        placeholder="Select Country"
                       />
                     </div>
                   </div>
