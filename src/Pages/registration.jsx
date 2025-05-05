@@ -2,11 +2,11 @@ import React, { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { MdEmail, MdPerson, MdPhone, MdLocationOn } from 'react-icons/md'
 import { IoMdMale } from 'react-icons/io'
-import { FaCity } from 'react-icons/fa'
-import { HiIdentification } from 'react-icons/hi'
+import { FaCity, FaCheckCircle, FaTimesCircle } from 'react-icons/fa'
 import PhoneInput, { getCountries, getCountryData } from 'react-phone-input-2'
 import 'react-phone-input-2/lib/style.css'
 import CountrySelect from '../components/CountrySelect'
+import { AiOutlineLock, AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai'
 
 
 
@@ -23,6 +23,7 @@ const CustomOption = ({ innerProps, data }) => (
 
 const Registration = () => {
   const [step, setStep] = useState(1)
+  const [completedSteps, setCompletedSteps] = useState([])
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -38,6 +39,15 @@ const Registration = () => {
   })
 
   const [phone, setPhone] = useState('')
+  const [verificationCode, setVerificationCode] = useState(['', '', '', '', '']);
+  const [isCodeVerified, setIsCodeVerified] = useState(false);
+  const [isCodeValid, setIsCodeValid] = useState(null);
+
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState(0);
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -48,13 +58,56 @@ const Registration = () => {
   }
 
   const handleNext = () => {
+    setCompletedSteps(prev => [...prev, step])
     setStep(prev => prev + 1)
   }
+
+  const isStepCompleted = (stepNumber) => completedSteps.includes(stepNumber)
+
+  const validateVerificationCode = (code) => {
+    const expectedCode = '12345';
+    return code.join('') === expectedCode;
+  };
+
+  const handleVerificationCodeChange = (index, value) => {
+    if (value.length <= 1 && /^[0-9]*$/.test(value)) {
+      const newCode = [...verificationCode];
+      newCode[index] = value;
+      setVerificationCode(newCode);
+
+      if (value !== '' && index < 4) {
+        const nextInput = document.querySelector(`input[name=code-${index + 1}]`);
+        if (nextInput) nextInput.focus();
+      }
+
+      if (index === 4 && value !== '') {
+        const isValid = validateVerificationCode(newCode);
+        setIsCodeValid(isValid);
+        setIsCodeVerified(isValid);
+      } else {
+        setIsCodeValid(null);
+      }
+    }
+  };
+
+  const handleResendCode = () => {
+    console.log('Resending verification code...');
+  };
+
+  const checkPasswordStrength = (pass) => {
+    let strength = 0;
+    if (pass.length >= 8) strength++; // Length
+    if (/[A-Z]/.test(pass)) strength++; // Uppercase
+    if (/[a-z]/.test(pass)) strength++; // Lowercase
+    if (/[0-9]/.test(pass)) strength++; // Numbers
+    if (/[^A-Za-z0-9]/.test(pass)) strength++; // Special characters
+    return strength;
+  };
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-background">
       {/* Left Sidebar - Progress */}
-      <div className="w-full lg:w-1/3 lg:max-w-xs bg-[#0A52661A] m-0 sm:m-2 lg:m-6 p-4 sm:p-6 lg:p-8">
+      <div className="w-full lg:w-1/3 items-center lg:max-w-xs bg-[#0A52661A] m-0 sm:m-2 lg:m-6 px-6 py-6 lg:px-8 lg:py-18 ">
         {/* Logo - Make it centered on mobile */}
         <div className="mb-6 lg:mb-12 text-center lg:text-left">
           <img src="/light_logo.png" alt="CruiseTech" className="h-6 sm:h-8 inline-block" />
@@ -67,41 +120,67 @@ const Registration = () => {
         <div className="flex justify-center lg:justify-start lg:block lg:space-y-8">
           {/* Personal Details Step */}
           <div className="flex items-center">
-            <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center ${step === 1 ? 'bg-primary text-white' : 'bg-gray-200'}`}>
-              <HiIdentification className="w-4 h-4 sm:w-5 sm:h-5" />
+            <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center ${
+              step === 1 ? 'bg-primary text-white' : isStepCompleted(1) ? 'bg-primary text-white' : 'bg-gray-300'
+            }`}>
+              {isStepCompleted(1) ? (
+                <FaCheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+              ) : (
+                <span className="text-base sm:text-lg">1</span>
+              )}
             </div>
             <div className="ml-2 sm:ml-4 hidden sm:block">
-              <p className={`font-medium text-sm sm:text-base ${step === 1 ? 'text-primary' : 'text-gray-600'}`}>Personal Details</p>
+              <p className={`font-medium text-sm sm:text-base ${
+                step === 1 || isStepCompleted(1) ? 'text-primary' : 'text-gray-600'
+              }`}>Personal Details</p>
             </div>
           </div>
 
           {/* Vertical Line - Hidden on mobile, shown on desktop */}
-          <div className="w-0.5 h-12 bg-gray-200 ml-5 hidden lg:block"></div>
+          <div className={`w-1.5 h-16 ${isStepCompleted(1) ? 'bg-primary' : 'bg-gray-300'} ml-5 hidden lg:block`}></div>
 
           {/* Horizontal Line - Shown on mobile, hidden on desktop */}
-          <div className="flex-1 h-0.5 bg-gray-200 mx-4 sm:mx-6 lg:hidden"></div>
+          <div className={`flex-1 self-center h-1.5 ${isStepCompleted(1) ? 'bg-primary' : 'bg-gray-300'} mx-4 sm:mx-6 lg:hidden`}></div>
 
           {/* Email Verification Step */}
           <div className="flex items-center">
-            <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center ${step === 2 ? 'bg-primary text-white' : 'bg-gray-200'}`}>
-              <span className="text-base sm:text-lg">2</span>
+            <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center ${
+              step === 2 ? 'bg-primary text-white' : isStepCompleted(2) ? 'bg-primary text-white' : 'bg-gray-300'
+            }`}>
+              {isStepCompleted(2) ? (
+                <FaCheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+              ) : (
+                <span className="text-base sm:text-lg">2</span>
+              )}
             </div>
             <div className="ml-2 sm:ml-4 hidden sm:block">
-              <p className={`font-medium text-sm sm:text-base ${step === 2 ? 'text-primary' : 'text-gray-600'}`}>Email Verification</p>
+              <p className={`font-medium text-sm sm:text-base ${
+                step === 2 || isStepCompleted(2) ? 'text-primary' : 'text-gray-600'
+              }`}>Email Verification</p>
             </div>
           </div>
 
-          {/* Vertical/Horizontal Lines */}
-          <div className="w-0.5 h-12 bg-gray-200 ml-5 hidden lg:block"></div>
-          <div className="flex-1 h-0.5 bg-gray-200 mx-4 sm:mx-6 lg:hidden"></div>
+          {/* Vertical Line - Hidden on mobile, shown on desktop */}
+          <div className={`w-1.5 h-16 ${isStepCompleted(2) ? 'bg-primary' : 'bg-gray-300'} ml-5 hidden lg:block`}></div>
+
+          {/* Horizontal Line - Shown on mobile, hidden on desktop */}
+          <div className={`flex-1 h-1.5 self-center ${isStepCompleted(2) ? 'bg-primary' : 'bg-gray-300'} mx-4 sm:mx-6 lg:hidden`}></div>
 
           {/* Set Account Password Step */}
           <div className="flex items-center">
-            <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center ${step === 3 ? 'bg-primary text-white' : 'bg-gray-200'}`}>
-              <span className="text-base sm:text-lg">3</span>
+            <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center ${
+              step === 3 ? 'bg-primary text-white' : isStepCompleted(3) ? 'bg-primary text-white' : 'bg-gray-300'
+            }`}>
+              {isStepCompleted(3) ? (
+                <FaCheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+              ) : (
+                <span className="text-base sm:text-lg">3</span>
+              )}
             </div>
             <div className="ml-2 sm:ml-4 hidden sm:block">
-              <p className={`font-medium text-sm sm:text-base ${step === 3 ? 'text-primary' : 'text-gray-600'}`}>Set Account Password</p>
+              <p className={`font-medium text-sm sm:text-base ${
+                step === 3 || isStepCompleted(3) ? 'text-primary' : 'text-gray-600'
+              }`}>Set Account Password</p>
             </div>
           </div>
         </div>
@@ -302,7 +381,188 @@ const Registration = () => {
             </>
           )}
 
-          {/* Add Email Verification and Password Setup steps here */}
+          {step === 2 && (
+            <div className="container-fluid px-2 sm:px-10 py-6 sm:py-10">
+              <h3 className="text-2xl font-semibold mb-8">Check your email <br /> for a verification code</h3>
+             
+
+              <div className="mb-6">
+                <p className="text-sm text-gray-600 mb-4">Enter code</p>
+                <div className="flex gap-2">
+                  {[0, 1, 2, 3, 4].map((index) => (
+                    <input
+                      key={index}
+                      type="text"
+                      maxLength="1"
+                      name={`code-${index}`}
+                      value={verificationCode[index]}
+                      onChange={(e) => handleVerificationCodeChange(index, e.target.value)}
+                      className={`w-12 h-12 text-center border-2 rounded focus:outline-none transition-colors
+                        ${isCodeValid === null ? 'border-gray-200 focus:border-primary' :
+                          isCodeValid ? 'border-green-500' : 'border-red-500'}`}
+                    />
+                  ))}
+                  <div className="flex items-center ml-2">
+                    {verificationCode.every(digit => digit !== '') && (
+                      isCodeValid ? (
+                        <FaCheckCircle className="text-green-500 text-xl" />
+                      ) : (
+                        <FaTimesCircle className="text-red-500 text-xl" />
+                      )
+                    )}
+                  </div>
+                </div>
+                {isCodeValid === false && (
+                  <p className="text-red-500 text-sm mt-2">Invalid verification code. Please try again.</p>
+                )}
+              </div>
+
+              <div className="text-sm text-gray-600">
+                Didn't receive code? Check your spam folder or{' '}
+                <button 
+                  onClick={handleResendCode}
+                  className="text-primary font-medium hover:underline"
+                >
+                  Resend Code
+                </button>
+              </div>
+
+              <div className="mt-16 sm:mt-80 flex justify-between">
+                <button
+                  onClick={() => setStep(1)}
+                  className="px-6 py-2 bg-gray-200 text-gray-700 rounded-full hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2"
+                >
+                  Previous
+                </button>
+                <button
+                  onClick={handleNext}
+                  disabled={!isCodeValid}
+                  className={`px-6 py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2
+                    ${isCodeValid 
+                      ? 'bg-primary text-white hover:bg-primary-dark focus:ring-primary' 
+                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
+
+          {step === 3 && (
+            <div className="container-fluid px-2 sm:px-10 py-6 sm:py-10">
+              <h3 className="text-2xl font-semibold mb-8">Creat a password</h3>
+
+              <div className="space-y-6 container">
+                {/* Password Input */}
+                <div className="relative max-w-md">
+                  <div className="absolute inset-y-0 left-3 flex items-center">
+                    <AiOutlineLock className="text-gray-400 text-xl" />
+                  </div>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Your Password"
+                    value={password}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      setPasswordStrength(checkPasswordStrength(e.target.value));
+                    }}
+                    className="w-full pl-10 pr-10 py-3 bg-white border border-gray-200 rounded-md focus:ring-primary focus:border-primary"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-3 flex items-center"
+                  >
+                    {showPassword ? (
+                      <AiOutlineEyeInvisible className="text-gray-400 text-xl" />
+                    ) : (
+                      <AiOutlineEye className="text-gray-400 text-xl" />
+                    )}
+                  </button>
+                </div>
+
+                {/* Password Strength Indicator */}
+                <div className="flex gap-2 max-w-md">
+                  {[1, 2, 3, 4, 5].map((segment) => (
+                    <div
+                      key={segment}
+                      className={`h-1 flex-1 rounded-full ${
+                        passwordStrength >= segment
+                          ? 'bg-primary'
+                          : 'bg-gray-200'
+                      }`}
+                    />
+                  ))}
+                </div>
+
+                {/* Confirm Password Input with responsive check mark placement */}
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
+                  <div className="relative w-full sm:max-w-md">
+                    <div className="absolute inset-y-0 left-3 flex items-center">
+                      <AiOutlineLock className="text-gray-400 text-xl" />
+                    </div>
+                    <input
+                      type={showConfirmPassword ? "text" : "password"}
+                      placeholder="Confirm Password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="w-full pl-10 pr-16 sm:pr-10 py-2 sm:py-3 bg-white border border-gray-200 rounded-md focus:ring-primary focus:border-primary"
+                    />
+                    {/* Show check mark inside input on mobile */}
+                    <div className="absolute inset-y-0 right-10 sm:hidden flex items-center">
+                      {password && confirmPassword && (
+                        password === confirmPassword ? (
+                          <FaCheckCircle className="text-green-500 text-xl" />
+                        ) : (
+                          <FaTimesCircle className="text-red-500 text-xl" />
+                        )
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute inset-y-0 right-3 flex items-center"
+                    >
+                      {showConfirmPassword ? (
+                        <AiOutlineEyeInvisible className="text-gray-400 text-xl" />
+                      ) : (
+                        <AiOutlineEye className="text-gray-400 text-xl" />
+                      )}
+                    </button>
+                  </div>
+                  {/* Show check mark outside input on larger screens */}
+                  <div className="hidden sm:flex flex-shrink-0">
+                    {password && confirmPassword && (
+                      password === confirmPassword ? (
+                        <FaCheckCircle className="text-green-500 text-xl" />
+                      ) : (
+                        <FaTimesCircle className="text-red-500 text-xl" />
+                      )
+                    )}
+                  </div>
+                </div>
+                   
+                <div className="mt-16 sm:mt-80 flex justify-between">
+                  <button
+                    onClick={() => setStep(2)}
+                    className="px-6 py-2 bg-gray-200 text-gray-700 rounded-full hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2"
+                  >
+                    Previous
+                  </button>
+                  <button
+                    onClick={handleNext}
+                    disabled={!password || password !== confirmPassword || passwordStrength < 3}
+                    className={`px-6 py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2
+                      ${password && password === confirmPassword && passwordStrength >= 3
+                        ? 'bg-primary text-white hover:bg-primary-dark focus:ring-primary'
+                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
+                  >
+                    Get Started
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
