@@ -107,21 +107,23 @@ const Registration = () => {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-background">
       {/* Left Sidebar - Progress */}
-      <div className="w-full lg:w-1/3 items-center lg:max-w-xs bg-[#0A52661A] m-0 sm:m-2 lg:m-6 px-6 py-6 lg:px-8 lg:py-18 ">
+      <div className="w-full lg:w-1/3 items-center lg:max-w-xs bg-background-alt m-0 sm:m-2 lg:m-6 px-6 py-6 lg:px-8 lg:py-18 ">
         {/* Logo - Make it centered on mobile */}
         <div className="mb-6 lg:mb-12 text-center lg:text-left">
           <img src="/light_logo.png" alt="CruiseTech" className="h-6 sm:h-8 inline-block" />
         </div>
 
         {/* Title - Center on mobile */}
-        <h2 className="text-xl sm:text-2xl font-bold mb-6 lg:mb-8 text-center lg:text-left">Create Account</h2>
+        <h2 className="text-xl sm:text-2xl font-bold mb-6 lg:mb-8 text-center lg:text-left text-text-primary">Create Account</h2>
 
         {/* Progress Steps */}
         <div className="flex justify-center lg:justify-start lg:block lg:space-y-8">
           {/* Personal Details Step */}
           <div className="flex items-center">
             <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center ${
-              step === 1 ? 'bg-primary text-white' : isStepCompleted(1) ? 'bg-primary text-white' : 'bg-gray-300'
+              step === 1 ? 'bg-primary text-background' : 
+              isStepCompleted(1) ? 'bg-primary text-background' : 
+              'bg-tertiary'
             }`}>
               {isStepCompleted(1) ? (
                 <FaCheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -131,21 +133,25 @@ const Registration = () => {
             </div>
             <div className="ml-2 sm:ml-4 hidden sm:block">
               <p className={`font-medium text-sm sm:text-base ${
-                step === 1 || isStepCompleted(1) ? 'text-primary' : 'text-gray-600'
+                step === 1 || isStepCompleted(1) ? 'text-primary' : 'text-text-secondary'
               }`}>Personal Details</p>
             </div>
           </div>
 
           {/* Vertical Line - Hidden on mobile, shown on desktop */}
-          <div className={`w-1.5 h-16 ${isStepCompleted(1) ? 'bg-primary' : 'bg-gray-300'} ml-5 hidden lg:block`}></div>
+          <div className={`w-1.5 h-16 ${
+            isStepCompleted(1) ? 'bg-primary' : 'bg-tertiary'
+          } ml-5 hidden lg:block`}></div>
 
           {/* Horizontal Line - Shown on mobile, hidden on desktop */}
-          <div className={`flex-1 self-center h-1.5 ${isStepCompleted(1) ? 'bg-primary' : 'bg-gray-300'} mx-4 sm:mx-6 lg:hidden`}></div>
+          <div className={`flex-1 self-center h-1.5 ${isStepCompleted(1) ? 'bg-primary' : 'bg-tertiary'} mx-4 sm:mx-6 lg:hidden`}></div>
 
           {/* Email Verification Step */}
           <div className="flex items-center">
             <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center ${
-              step === 2 ? 'bg-primary text-white' : isStepCompleted(2) ? 'bg-primary text-white' : 'bg-gray-300'
+              step === 2 ? 'bg-primary text-background' : 
+              isStepCompleted(2) ? 'bg-primary text-background' : 
+              'bg-tertiary'
             }`}>
               {isStepCompleted(2) ? (
                 <FaCheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -155,21 +161,25 @@ const Registration = () => {
             </div>
             <div className="ml-2 sm:ml-4 hidden sm:block">
               <p className={`font-medium text-sm sm:text-base ${
-                step === 2 || isStepCompleted(2) ? 'text-primary' : 'text-gray-600'
+                step === 2 || isStepCompleted(2) ? 'text-primary' : 'text-text-secondary'
               }`}>Email Verification</p>
             </div>
           </div>
 
           {/* Vertical Line - Hidden on mobile, shown on desktop */}
-          <div className={`w-1.5 h-16 ${isStepCompleted(2) ? 'bg-primary' : 'bg-gray-300'} ml-5 hidden lg:block`}></div>
+          <div className={`w-1.5 h-16 ${
+            isStepCompleted(2) ? 'bg-primary' : 'bg-tertiary'
+          } ml-5 hidden lg:block`}></div>
 
           {/* Horizontal Line - Shown on mobile, hidden on desktop */}
-          <div className={`flex-1 h-1.5 self-center ${isStepCompleted(2) ? 'bg-primary' : 'bg-gray-300'} mx-4 sm:mx-6 lg:hidden`}></div>
+          <div className={`flex-1 h-1.5 self-center ${isStepCompleted(2) ? 'bg-primary' : 'bg-tertiary'} mx-4 sm:mx-6 lg:hidden`}></div>
 
           {/* Set Account Password Step */}
           <div className="flex items-center">
             <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center ${
-              step === 3 ? 'bg-primary text-white' : isStepCompleted(3) ? 'bg-primary text-white' : 'bg-gray-300'
+              step === 3 ? 'bg-primary text-background' : 
+              isStepCompleted(3) ? 'bg-primary text-background' : 
+              'bg-tertiary'
             }`}>
               {isStepCompleted(3) ? (
                 <FaCheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -179,7 +189,7 @@ const Registration = () => {
             </div>
             <div className="ml-2 sm:ml-4 hidden sm:block">
               <p className={`font-medium text-sm sm:text-base ${
-                step === 3 || isStepCompleted(3) ? 'text-primary' : 'text-gray-600'
+                step === 3 || isStepCompleted(3) ? 'text-primary' : 'text-text-secondary'
               }`}>Set Account Password</p>
             </div>
           </div>
@@ -187,9 +197,9 @@ const Registration = () => {
 
         {/* Login Link */}
         <div className="mt-6 lg:mt-auto lg:pt-8 text-sm text-center">
-          <p className="text-gray-600">
+          <p className="text-text-secondary">
             Already have an account?{' '}
-            <Link to="/login" className="text-primary font-medium">
+            <Link to="/login" className="text-primary hover:text-text-secondary font-medium">
               Log in
             </Link>
           </p>
@@ -201,7 +211,7 @@ const Registration = () => {
         <div className="">
           {step === 1 && (
             <>
-              <h3 className="text-xl font-semibold mb-6">Your Personal Details</h3>
+              <h3 className="text-xl font-semibold mb-6 text-text-primary">Your Personal Details</h3>
               <div className="space-y-6">
                 {/* Personal Details Section */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -210,7 +220,7 @@ const Registration = () => {
                       type="text"
                       name="firstName"
                       placeholder="First Name"
-                      className="w-full px-4 py-3 bg-white border border-gray-200 rounded-md focus:ring-primary focus:border-primary"
+                      className="w-full px-4 py-3 bg-background text-text-primary placeholder-text-secondary/70 border border-secondary rounded-md focus:ring-primary focus:border-primary"
                       value={formData.firstName}
                       onChange={handleChange}
                     />
@@ -220,7 +230,7 @@ const Registration = () => {
                       type="text"
                       name="lastName"
                       placeholder="Last Name"
-                      className="w-full px-4 py-3 bg-white border border-gray-200 rounded-md focus:ring-primary focus:border-primary"
+                      className="w-full px-4 py-3 bg-background text-text-primary placeholder-text-secondary/70 border border-secondary rounded-md focus:ring-primary focus:border-primary"
                       value={formData.lastName}
                       onChange={handleChange}
                     />
@@ -230,7 +240,7 @@ const Registration = () => {
                       type="email"
                       name="email"
                       placeholder="Email Address"
-                      className="w-full px-4 py-3 bg-white border border-gray-200 rounded-md focus:ring-primary focus:border-primary"
+                      className="w-full px-4 py-3 bg-background text-text-primary placeholder-text-secondary/70 border border-secondary rounded-md focus:ring-primary focus:border-primary"
                       value={formData.email}
                       onChange={handleChange}
                     />
@@ -238,17 +248,17 @@ const Registration = () => {
                   <div className="relative">
                     <select
                       name="gender"
-                      className="w-full px-4 py-3 bg-white border border-gray-200 rounded-md focus:ring-primary focus:border-primary appearance-none"
+                      className="w-full px-4 py-3 bg-background text-text-primary border border-secondary rounded-md focus:ring-primary focus:border-primary appearance-none"
                       value={formData.gender}
                       onChange={handleChange}
                     >
-                      <option value="">Gender</option>
-                      <option value="male">Male</option>
-                      <option value="female">Female</option>
-                      <option value="other">Other</option>
+                      <option value="" className="text-text-primary">Gender</option>
+                      <option value="male" className="text-text-primary">Male</option>
+                      <option value="female" className="text-text-primary">Female</option>
+                      <option value="other" className="text-text-primary">Other</option>
                     </select>
                     <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                      <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                       </svg>
                     </div>
@@ -256,7 +266,7 @@ const Registration = () => {
                 </div>
 
                 {/* Residential Address Section */}
-                <h3 className="text-xl font-semibold mb-6 pt-4">Your Residential Address</h3>
+                <h3 className="text-xl font-semibold mb-6 pt-4 text-text-primary">Your Residential Address</h3>
                 <div className="space-y-6">
                   <div className="flex gap-6">
                     <div className="flex-1">
@@ -264,7 +274,7 @@ const Registration = () => {
                         type="text"
                         name="streetAddress"
                         placeholder="Street Address"
-                        className="w-full px-4 py-3 bg-white border border-gray-200 rounded-md focus:ring-primary focus:border-primary"
+                        className="w-full px-4 py-3 bg-background text-text-primary placeholder-text-secondary/70 border border-secondary rounded-md focus:ring-primary focus:border-primary"
                         value={formData.streetAddress}
                         onChange={handleChange}
                       />
@@ -274,7 +284,7 @@ const Registration = () => {
                         type="text"
                         name="streetAddressOptional"
                         placeholder="Street Address (Optional)"
-                        className="w-full px-4 py-3 bg-white border border-gray-200 rounded-md focus:ring-primary focus:border-primary"
+                        className="w-full px-4 py-3 bg-background text-text-primary placeholder-text-secondary/70 border border-secondary rounded-md focus:ring-primary focus:border-primary"
                         value={formData.streetAddressOptional}
                         onChange={handleChange}
                       />
@@ -288,7 +298,7 @@ const Registration = () => {
                         type="text"
                         name="postCode"
                         placeholder="Post Code"
-                        className="w-full px-4 py-3 bg-white border border-gray-200 rounded-md focus:ring-primary focus:border-primary"
+                        className="w-full px-4 py-3 bg-background text-text-primary placeholder-text-secondary/70 border border-secondary rounded-md focus:ring-primary focus:border-primary"
                         value={formData.postCode}
                         onChange={handleChange}
                       />
@@ -298,7 +308,7 @@ const Registration = () => {
                         type="text"
                         name="city"
                         placeholder="City"
-                        className="w-full px-4 py-3 bg-white border border-gray-200 rounded-md focus:ring-primary focus:border-primary"
+                        className="w-full px-4 py-3 bg-background text-text-primary placeholder-text-secondary/70 border border-secondary rounded-md focus:ring-primary focus:border-primary"
                         value={formData.city}
                         onChange={handleChange}
                       />
@@ -319,7 +329,7 @@ const Registration = () => {
                 </div>
 
                 {/* Contact Details Section */}
-                <h3 className="text-xl font-semibold mb-6 pt-4">Contact Details</h3>
+                <h3 className="text-xl font-semibold mb-6 pt-4 text-text-primary">Contact Details</h3>
                 <div className="space-y-6">
                   {/* Phone Number with Country Code */}
                   <div className="flex gap-4">
@@ -330,9 +340,9 @@ const Registration = () => {
                         onChange={phone => setPhone(phone)}
                         inputClass="hidden"
                         containerClass="w-full"
-                        buttonClass="w-full h-[46px] border border-gray-200 rounded-md"
+                        buttonClass="w-full h-[46px] border border-secondary rounded-md"
                         enableSearch={true}
-                        searchClass="p-2 border border-gray-200 rounded"
+                        searchClass="p-2 border border-secondary rounded"
                         buttonStyle={{
                           borderRadius: '5px',
                           backgroundColor: 'white',
@@ -349,7 +359,7 @@ const Registration = () => {
                         type="tel"
                         name="phoneNumber"
                         placeholder="Phone Number"
-                        className="w-full px-4 py-3 bg-white border border-gray-200 rounded-md focus:ring-primary focus:border-primary"
+                        className="w-full px-4 py-3 bg-background text-text-primary placeholder-text-secondary/70 border border-secondary rounded-md focus:ring-primary focus:border-primary"
                         value={formData.phoneNumber}
                         onChange={handleChange}
                       />
@@ -362,7 +372,7 @@ const Registration = () => {
                       type="email"
                       name="additionalEmail"
                       placeholder="Additional Email Address"
-                      className="w-full px-4 py-3 bg-white border border-gray-200 rounded-md focus:ring-primary focus:border-primary"
+                      className="w-full px-4 py-3 bg-background text-text-primary placeholder-text-secondary/70 border border-secondary rounded-md focus:ring-primary focus:border-primary"
                       value={formData.additionalEmail}
                       onChange={handleChange}
                     />
@@ -373,7 +383,7 @@ const Registration = () => {
               <div className="mt-8 flex justify-end">
                 <button
                   onClick={handleNext}
-                  className="px-6 py-2 bg-primary text-white rounded-full hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                  className="px-6 py-2 bg-primary text-background font-medium rounded-full hover:bg-primary-light focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                 >
                   Next
                 </button>
@@ -383,11 +393,11 @@ const Registration = () => {
 
           {step === 2 && (
             <div className="container-fluid px-2 sm:px-10 py-6 sm:py-10">
-              <h3 className="text-2xl font-semibold mb-8">Check your email <br /> for a verification code</h3>
+              <h3 className="text-2xl font-semibold mb-8 text-text-primary">Check your email <br /> for a verification code</h3>
              
 
               <div className="mb-6">
-                <p className="text-sm text-gray-600 mb-4">Enter code</p>
+                <p className="text-sm text-text-primary mb-4">Enter code</p>
                 <div className="flex gap-2">
                   {[0, 1, 2, 3, 4].map((index) => (
                     <input
@@ -397,8 +407,8 @@ const Registration = () => {
                       name={`code-${index}`}
                       value={verificationCode[index]}
                       onChange={(e) => handleVerificationCodeChange(index, e.target.value)}
-                      className={`w-12 h-12 text-center border-2 rounded focus:outline-none transition-colors
-                        ${isCodeValid === null ? 'border-gray-200 focus:border-primary' :
+                      className={`w-12 h-12 text-center text-text-primary border-2 rounded focus:outline-none transition-colors
+                        ${isCodeValid === null ? 'border-secondary focus:border-primary' :
                           isCodeValid ? 'border-green-500' : 'border-red-500'}`}
                     />
                   ))}
@@ -417,11 +427,11 @@ const Registration = () => {
                 )}
               </div>
 
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-text-primary">
                 Didn't receive code? Check your spam folder or{' '}
                 <button 
                   onClick={handleResendCode}
-                  className="text-primary font-medium hover:underline"
+                  className="text-primary hover:text-primary-light font-medium hover:underline"
                 >
                   Resend Code
                 </button>
@@ -430,17 +440,17 @@ const Registration = () => {
               <div className="mt-16 sm:mt-80 flex justify-between">
                 <button
                   onClick={() => setStep(1)}
-                  className="px-6 py-2 bg-gray-200 text-gray-700 rounded-full hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2"
+                  className="px-6 py-2 bg-secondary text-text-primary font-medium rounded-full hover:bg-primary-light focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2"
                 >
                   Previous
                 </button>
                 <button
                   onClick={handleNext}
                   disabled={!isCodeValid}
-                  className={`px-6 py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2
+                  className={`px-6 py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 font-medium
                     ${isCodeValid 
-                      ? 'bg-primary text-white hover:bg-primary-dark focus:ring-primary' 
-                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
+                      ? 'bg-primary text-background hover:bg-primary-light focus:ring-primary' 
+                      : 'bg-tertiary text-background/60 cursor-not-allowed'}`}
                 >
                   Next
                 </button>
@@ -450,13 +460,13 @@ const Registration = () => {
 
           {step === 3 && (
             <div className="container-fluid px-2 sm:px-10 py-6 sm:py-10">
-              <h3 className="text-2xl font-semibold mb-8">Creat a password</h3>
+              <h3 className="text-2xl font-semibold mb-8 text-text-primary">Creat a password</h3>
 
               <div className="space-y-6 container">
                 {/* Password Input */}
                 <div className="relative max-w-md">
                   <div className="absolute inset-y-0 left-3 flex items-center">
-                    <AiOutlineLock className="text-gray-400 text-xl" />
+                    <AiOutlineLock className="text-text-primary/70 text-xl" />
                   </div>
                   <input
                     type={showPassword ? "text" : "password"}
@@ -466,7 +476,7 @@ const Registration = () => {
                       setPassword(e.target.value);
                       setPasswordStrength(checkPasswordStrength(e.target.value));
                     }}
-                    className="w-full pl-10 pr-10 py-3 bg-white border border-gray-200 rounded-md focus:ring-primary focus:border-primary"
+                    className="w-full pl-10 pr-10 py-3 bg-background text-text-primary placeholder-text-secondary/70 border border-secondary rounded-md focus:ring-primary focus:border-primary"
                   />
                   <button
                     type="button"
@@ -474,9 +484,9 @@ const Registration = () => {
                     className="absolute inset-y-0 right-3 flex items-center"
                   >
                     {showPassword ? (
-                      <AiOutlineEyeInvisible className="text-gray-400 text-xl" />
+                      <AiOutlineEyeInvisible className="text-text-primary/70 text-xl" />
                     ) : (
-                      <AiOutlineEye className="text-gray-400 text-xl" />
+                      <AiOutlineEye className="text-text-primary/70 text-xl" />
                     )}
                   </button>
                 </div>
@@ -489,7 +499,7 @@ const Registration = () => {
                       className={`h-1 flex-1 rounded-full ${
                         passwordStrength >= segment
                           ? 'bg-primary'
-                          : 'bg-gray-200'
+                          : 'bg-secondary'
                       }`}
                     />
                   ))}
@@ -499,14 +509,14 @@ const Registration = () => {
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
                   <div className="relative w-full sm:max-w-md">
                     <div className="absolute inset-y-0 left-3 flex items-center">
-                      <AiOutlineLock className="text-gray-400 text-xl" />
+                      <AiOutlineLock className="text-text-primary/70 text-xl" />
                     </div>
                     <input
                       type={showConfirmPassword ? "text" : "password"}
                       placeholder="Confirm Password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="w-full pl-10 pr-16 sm:pr-10 py-2 sm:py-3 bg-white border border-gray-200 rounded-md focus:ring-primary focus:border-primary"
+                      className="w-full pl-10 pr-16 sm:pr-10 py-2 sm:py-3 bg-background text-text-primary placeholder-text-secondary/70 border border-secondary rounded-md focus:ring-primary focus:border-primary"
                     />
                     {/* Show check mark inside input on mobile */}
                     <div className="absolute inset-y-0 right-10 sm:hidden flex items-center">
@@ -524,9 +534,9 @@ const Registration = () => {
                       className="absolute inset-y-0 right-3 flex items-center"
                     >
                       {showConfirmPassword ? (
-                        <AiOutlineEyeInvisible className="text-gray-400 text-xl" />
+                        <AiOutlineEyeInvisible className="text-text-primary/70 text-xl" />
                       ) : (
-                        <AiOutlineEye className="text-gray-400 text-xl" />
+                        <AiOutlineEye className="text-text-primary/70 text-xl" />
                       )}
                     </button>
                   </div>
@@ -545,17 +555,17 @@ const Registration = () => {
                 <div className="mt-16 sm:mt-80 flex justify-between">
                   <button
                     onClick={() => setStep(2)}
-                    className="px-6 py-2 bg-gray-200 text-gray-700 rounded-full hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2"
+                    className="px-6 py-2 bg-secondary text-text-primary font-medium rounded-full hover:bg-primary-light focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2"
                   >
                     Previous
                   </button>
                   <button
                     onClick={handleNext}
                     disabled={!password || password !== confirmPassword || passwordStrength < 3}
-                    className={`px-6 py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2
+                    className={`px-6 py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 font-medium
                       ${password && password === confirmPassword && passwordStrength >= 3
-                        ? 'bg-primary text-white hover:bg-primary-dark focus:ring-primary'
-                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
+                        ? 'bg-primary text-background hover:bg-primary-light focus:ring-primary'
+                        : 'bg-tertiary text-background/60 cursor-not-allowed'}`}
                   >
                     Get Started
                   </button>

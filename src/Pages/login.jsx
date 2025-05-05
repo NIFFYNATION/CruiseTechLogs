@@ -7,6 +7,7 @@ import { SiWechat } from 'react-icons/si'
 import { RiKakaoTalkFill } from 'react-icons/ri'
 import { MdEmail } from 'react-icons/md'
 import { RiLockPasswordLine } from 'react-icons/ri'
+import { Button, SocialButton, SubmitButton } from '../components/common/Button'
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false)
@@ -32,8 +33,8 @@ const Login = () => {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Left Section - Login Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-6  p-6 sm:p-8 rounded-lg ">
+      <div className="w-full lg:w-1/2 flex items-center justify-center bg-background py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full space-y-6 p-6 sm:p-8 rounded-lg">
           {/* Logo */}
           <div className="flex justify-start">
             <img src="/light_logo.png" alt="CruiseTech" className="h-10 sm:h-12" />
@@ -41,29 +42,33 @@ const Login = () => {
 
           {/* Heading */}
           <div>
-            <h2 className="text-2xl font-bold text-text-primary-900">Log in to your Account</h2>
-            <p className="mt-2 text-sm text-text-primary-600">Welcome back! Select method to log in:</p>
+            <h2 className="text-2xl font-bold text-text-primary">Log in to your Account</h2>
+            <p className="mt-2 text-sm text-text-secondary">Welcome back! Select method to log in:</p>
           </div>
 
           {/* Social Login Buttons */}
           <div className="grid grid-cols-2 gap-4">
-            <button className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-text-primary-700 bg-background hover:bg-gray-50">
-              <FcGoogle className="h-5 w-5 mr-2" />
+            <SocialButton
+              icon={<FcGoogle className="h-5 w-5" />}
+              fullWidth
+            >
               Google
-            </button>
-            <button className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-text-primary-700 bg-background hover:bg-gray-50">
-              <FaFacebook className="h-5 w-5 mr-2 text-blue-600" />
+            </SocialButton>
+            <SocialButton
+              icon={<FaFacebook className="h-5 w-5 text-blue-600" />}
+              fullWidth
+            >
               Facebook
-            </button>
+            </SocialButton>
           </div>
 
           {/* Divider */}
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300"></div>
+              <div className="w-full border-t border-secondary"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-background text-text-primary-500">or continue with email</span>
+              <span className="px-2 bg-background text-text-secondary">or continue with email</span>
             </div>
           </div>
 
@@ -73,14 +78,14 @@ const Login = () => {
               <div className="relative">
                 <label htmlFor="email" className="sr-only">Email Address</label>
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <MdEmail className="h-5 w-5 text-gray-400" />
+                  <MdEmail className="h-5 w-5 text-text-secondary" />
                 </div>
                 <input
                   id="email"
                   name="email"
                   type="email"
                   required
-                  className="appearance-none rounded-md relative block w-full pl-10 px-3 py-2 border border-gray-300 placeholder-gray-500 text-text-primary-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
+                  className="appearance-none rounded-md relative block w-full pl-10 px-3 py-2 border border-secondary bg-background text-text-primary placeholder-text-secondary/70 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
                   placeholder="Email Address"
                   value={formData.email}
                   onChange={handleChange}
@@ -89,14 +94,14 @@ const Login = () => {
               <div className="relative">
                 <label htmlFor="password" className="sr-only">Password</label>
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <RiLockPasswordLine className="h-5 w-5 text-gray-400" />
+                  <RiLockPasswordLine className="h-5 w-5 text-text-secondary" />
                 </div>
                 <input
                   id="password"
                   name="password"
                   type={showPassword ? "text" : "password"}
                   required
-                  className="appearance-none rounded-md relative block w-full pl-10 px-3 py-2 border border-gray-300 placeholder-gray-500 text-text-primary-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm pr-10"
+                  className="appearance-none rounded-md relative block w-full pl-10 px-3 py-2 border border-secondary bg-background text-text-primary placeholder-text-secondary/70 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm pr-10"
                   placeholder="Password"
                   value={formData.password}
                   onChange={handleChange}
@@ -107,9 +112,9 @@ const Login = () => {
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
-                    <AiOutlineEyeInvisible className="h-5 w-5 text-text-primary-400" />
+                    <AiOutlineEyeInvisible className="h-5 w-5 text-text-secondary" />
                   ) : (
-                    <AiOutlineEye className="h-5 w-5 text-text-primary-400" />
+                    <AiOutlineEye className="h-5 w-5 text-text-secondary" />
                   )}
                 </button>
               </div>
@@ -121,35 +126,32 @@ const Login = () => {
                   id="remember-me"
                   name="remember-me"
                   type="checkbox"
-                  className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+                  className="h-4 w-4 text-primary focus:ring-primary border-secondary rounded"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
                 />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-text-primary-900">
+                <label htmlFor="remember-me" className="ml-2 block text-sm text-text-primary">
                   Remember me
                 </label>
               </div>
               <div className="text-sm">
-                <Link to="/forgot-password" className="font-medium text-primary hover:text-primary-dark">
+                <Link to="/forgot-password" className="font-medium text-primary hover:text-primary-light">
                   Forgot Password?
                 </Link>
               </div>
             </div>
 
             <div>
-              <button
-                type="submit"
-                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-              >
+              <SubmitButton fullWidth>
                 Log In
-              </button>
+              </SubmitButton>
             </div>
           </form>
 
           {/* Sign up link */}
           <div className="text-center text-sm">
-            <span className="text-text-primary-600">Don't have an account? </span>
-            <Link to="/registration" className="font-medium text-primary hover:text-primary-dark">
+            <span className="text-text-secondary">Don't have an account? </span>
+            <Link to="/registration" className="font-medium text-primary hover:text-primary-light">
               Create an account
             </Link>
           </div>
@@ -157,7 +159,7 @@ const Login = () => {
       </div>
 
       {/* Right Section - Social Media Connections */}
-      <div className="w-full lg:w-1/2 bg-primary flex flex-col items-center justify-center text-white p-4 sm:p-6 lg:p-8 relative overflow-hidden min-h-[600px] lg:min-h-screen">
+      <div className="w-full lg:w-1/2 bg-primary flex flex-col items-center justify-center text-background p-4 sm:p-6 lg:p-8 relative overflow-hidden min-h-[600px] lg:min-h-screen">
         {/* <div className="absolute bottom-4 -left-45 w-48 h-48 md:w-100 md:h-100 bg-primary-light rounded-full -translate-y-1/2 translate-x-1/2 opacity-10 "></div> */}
 
         <div className="absolute 
@@ -237,28 +239,28 @@ const Login = () => {
             </div>
             <div className="p-3 sm:p-4 space-y-2 sm:space-y-3">
               {/* Social Media Account Items */}
-              <div className="flex items-center gap-2 sm:gap-3 p-2 bg-gray-50 rounded-lg">
+              <div className="flex items-center gap-2 sm:gap-3 p-2 bg-background-alt rounded-lg">
                 <FaFacebook className="w-5 sm:w-6 h-5 sm:h-6 text-[#1877F2]" />
                 <div className="flex-1">
-                  <div className="h-2 bg-gray-200 rounded w-3/4"></div>
+                  <div className="h-2 bg-secondary rounded w-3/4"></div>
                 </div>
               </div>
-              <div className="flex items-center gap-2 sm:gap-3 p-2 bg-gray-50 rounded-lg">
+              <div className="flex items-center gap-2 sm:gap-3 p-2 bg-background-alt rounded-lg">
                 <SiWechat className="w-5 sm:w-6 h-5 sm:h-6 text-[#7BB32E]" />
                 <div className="flex-1">
-                  <div className="h-2 bg-gray-200 rounded w-2/3"></div>
+                  <div className="h-2 bg-secondary rounded w-2/3"></div>
                 </div>
               </div>
-              <div className="flex items-center gap-2 sm:gap-3 p-2 bg-gray-50 rounded-lg">
+              <div className="flex items-center gap-2 sm:gap-3 p-2 bg-background-alt rounded-lg">
                 <RiKakaoTalkFill className="w-5 sm:w-6 h-5 sm:h-6 text-[#FAE100]" />
                 <div className="flex-1">
-                  <div className="h-2 bg-gray-200 rounded w-4/5"></div>
+                  <div className="h-2 bg-secondary rounded w-4/5"></div>
                 </div>
               </div>
-              <div className="flex items-center gap-2 sm:gap-3 p-2 bg-gray-50 rounded-lg">
+              <div className="flex items-center gap-2 sm:gap-3 p-2 bg-background-alt rounded-lg">
                 <FaLine className="w-5 sm:w-6 h-5 sm:h-6 text-[#00B900]" />
                 <div className="flex-1">
-                  <div className="h-2 bg-gray-200 rounded w-3/4"></div>
+                  <div className="h-2 bg-secondary rounded w-3/4"></div>
                 </div>
               </div>
             </div>
@@ -267,14 +269,16 @@ const Login = () => {
 
         {/* Text Content */}
         <div className="text-center max-w-lg mt-16 lg:mt-16 relative z-10 px-4">
-          <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">Connect with every application.</h2>
-          <p className="text-base sm:text-lg text-white/90">
+          <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 text-background">
+            Connect with every application.
+          </h2>
+          <p className="text-base sm:text-lg text-background/90">
             Discover, Authenticate, and Elevate Your Online Presence with Cruise Tech Marketplace. Your Gateway to Genuine Social Media Accounts.
           </p>
         </div>
 
         {/* Bottom Dots */}
-        <div className="absolute bottom-4  sm:bottom-2 flex gap-2">
+        <div className="absolute bottom-4 sm:bottom-2 flex gap-2">
           <div className="w-2 h-2 rounded-full bg-background/30"></div>
           <div className="w-2 h-2 rounded-full bg-background"></div>
           <div className="w-2 h-2 rounded-full bg-background/30"></div>

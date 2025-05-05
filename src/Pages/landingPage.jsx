@@ -4,6 +4,7 @@ import { FaFacebookF, FaTwitter, FaTelegram, FaInstagram, FaThumbsUp } from 'rea
 import { FaTiktok } from 'react-icons/fa6'
 import { MdEmail } from 'react-icons/md'
 import Marquee from 'react-fast-marquee'
+import { Button } from '../components/common/Button'
 
 export default function LandingPage() {
   return (
@@ -36,22 +37,13 @@ export default function LandingPage() {
           
           {/* Login Button */}
           <div className="relative z-20">
-            <Link 
-              to="/login" 
-              className="bg-background text-primary flex items-center gap-1.5 sm:gap-2 
-                px-4 sm:px-6 md:px-12 
-                py-1.5 sm:py-2 md:py-3 
-                rounded-full shadow-sm 
-                hover:bg-secondary transition-colors
-                text-sm sm:text-base"
+            <Button
+              variant="ghost"
+              to="/login"
+              icon={<img src="public/login-icon.png" alt="Login" className="h-5 w-5" />}
             >
-              <img 
-                src="public/login-icon.png" 
-                alt="Login" 
-                className="h-4 w-4 sm:h-5 sm:w-5"
-              />
-              <span className="font-medium whitespace-nowrap">Login</span>
-            </Link>
+              Login
+            </Button>
           </div>
         </div>
         </div>
@@ -92,16 +84,15 @@ export default function LandingPage() {
 
               {/* Get Started Button */}
               <div className="flex justify-center lg:justify-start">
-                <button className="bg-primary text-background 
-                  px-6 sm:px-8 
-                  py-3 sm:py-4 
-                  rounded-full font-medium 
-                  text-base sm:text-lg 
-                  hover:bg-primary/90 transition-colors
-                  w-full sm:w-auto"
+                <Button
+                  variant="primary"
+                  size="lg"
+                  to="/registration"
+                  fullWidth
+                  className="sm:w-auto"
                 >
                   Get Started Now!
-                </button>
+                </Button>
               </div>
             </div>
 
@@ -312,9 +303,11 @@ export default function LandingPage() {
               <p className="text-gray-600">
                 At Cruise Tech Marketplace, we understand the value of a strong digital presence. Our platform is designed to empower individuals and businesses to access authentic social media accounts effortlessly.
               </p>
-              <button className="bg-primary text-background px-6 py-2 rounded-3xl hover:bg-primary/90 transition-colors">
+              <Button
+                variant="primary"
+              >
                 Learn More...
-              </button>
+              </Button>
             </div>
 
             {/* Right Column - Features List */}

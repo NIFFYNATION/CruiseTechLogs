@@ -11,9 +11,11 @@ body {
   /* Light mode colors (default) */
   --color-primary: #0B4B5A;
   --color-primary-light: #e8dcea;
-  --color-secondary: #F4F4F4;
+  --color-secondary: #E0E0E0;
   --color-secondary-light: #6b3b68;
   --color-tertiary: #878787;
+  --color-tertiary-light: #d3c0d6;
+  --color-quaternary: #FA5A15;
   /* Text colors */
   --color-text-primary: #2D2D2D;
   --color-text-secondary: #000000;
@@ -26,15 +28,15 @@ body {
   --color-accent: #8e4b8b;
   --color-accent-light: #b784b5;
 
-  /* Dark mode colors */
-  --color-dark-primary: #d3c0d6;
-  --color-dark-secondary: #6b3b68;
-  --color-dark-text-primary: #f5e6f4;
-  --color-dark-text-secondary: #d3c0d6;
-  --color-dark-background: #4a2946;
-  --color-dark-background-alt: #4d3148;
-  --color-dark-accent: #b784b5;
-  --color-dark-accent-light: #d3c0d6;
+  /* Dark mode colors - Updated for better visibility */
+  --color-dark-primary: #4DACBF;      /* Vibrant teal that pops on dark backgrounds */
+  --color-dark-secondary: #2A3B47;    /* Deep blue-gray for secondary elements */
+  --color-dark-text-primary: #FFFFFF; /* Pure white for primary text */
+  --color-dark-text-secondary: #94A3B8; /* Lighter gray for secondary text */
+  --color-dark-background: #0F172A;   /* Deep blue-black background */
+  --color-dark-background-alt: #0A52661A; /* Slightly lighter for contrast */
+  --color-dark-accent: #F59E0B;       /* Brighter orange accent */
+  --color-dark-accent-light: #FBBF24;  /* Even brighter orange for hover states */
 }
 
 /* Dark mode overrides */
