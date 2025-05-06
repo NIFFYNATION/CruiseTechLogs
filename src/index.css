@@ -12,10 +12,11 @@ body {
   --color-primary: #0B4B5A;
   --color-primary-light: #e8dcea;
   --color-secondary: #E0E0E0;
-  --color-secondary-light: #6b3b68;
+  --color-secondary-light: #E0E0E0;
   --color-tertiary: #878787;
   --color-tertiary-light: #d3c0d6;
   --color-quaternary: #FA5A15;
+  --color-quaternary-light: #FA5A150D;
   /* Text colors */
   --color-text-primary: #2D2D2D;
   --color-text-secondary: #000000;
