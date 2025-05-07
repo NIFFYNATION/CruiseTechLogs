@@ -21,7 +21,7 @@ const MenuItem = ({ icon: Icon, text, to }) => {
   return (
     <Link 
       to={to} 
-      className={`flex items-center ${isCollapsed ? 'justify-center' : 'mx-2'} gap-3 px-6 py-2 text-[15px] text-gray-700 hover:text-quaternary hover:bg-quaternary-light rounded-lg`}
+      className={`flex items-center ${isCollapsed ? 'justify-center' : 'mx-2'} gap-3 px-6 py-2 text-[15px] text-text-secondary hover:text-quaternary hover:bg-quaternary-light rounded-lg`}
     >
       <Icon className="text-gray-600 text-lg hover:text-quaternary" />
       {!isCollapsed && <span>{text}</span>}
@@ -45,32 +45,44 @@ const Sidebar = () => {
   const { isCollapsed } = useSidebar();
 
   return (
-    <aside className={`fixed left-0 top-0 h-screen ${isCollapsed ? 'w-[80px]' : 'w-[260px]'} bg-white overflow-y-auto transition-all duration-300`}>
+    <aside className={`fixed left-0 top-0 h-screen ${isCollapsed ? 'w-[80px]' : 'w-[260px]'} bg-background overflow-y-auto transition-all duration-300`}>
       {/* Logo */}
       <div className={`${isCollapsed ? 'px-2' : 'px-6'} py-4`}>
         <img src="/CruiseTech-2.png" alt="CruiseTech" className="h-8 justify-self-center" />
       </div>
 
       {/* User Profile */}
-      {!isCollapsed && (
-        <div className="px-6 py-8 flex flex-col items-center text-center">
-          <div className="relative mb-8">
-            <div className="w-24 h-24 rounded-full border-[3px] border-quaternary p-0.5">
-              <img 
-                src="/avatar.png" 
-                alt="Profile" 
-                className="w-full h-full rounded-full object-cover"
-              />
-            </div>
+      <div className={`${isCollapsed ? 'px-2' : 'px-6'} py-8 flex flex-col items-center text-center`}>
+        {/* Avatar with orange border */}
+        <div className="relative">
+          <div className={`${isCollapsed ? 'w-12 h-12' : 'w-24 h-24'} rounded-full border-[3px] border-quaternary p-0.5 transition-all duration-300`}>
+            <img 
+              src="/avatar.png" 
+              alt="Profile" 
+              className="w-full h-full rounded-full object-cover"
+            />
+          </div>
+          {/* Level Badge - Only show when not collapsed */}
+          {!isCollapsed && (
             <div className="absolute -bottom-[17px] left-1/2 -translate-x-1/2 bg-white px-4 py-2 rounded-full shadow-sm flex items-center gap-1.5 w-28 justify-center">
               <img src="/level-badge.png" alt="Level" className="w-4 h-4" />
               <span className="text-xs font-medium">Level 1</span>
             </div>
-          </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-1">Fortune Ivo</h3>
-          <p className="text-sm text-gray-500">ivofortune35@gmail.com</p>
+          )}
         </div>
-      )}
+
+        {/* Name and Email - Only show when not collapsed */}
+        {!isCollapsed && (
+          <>
+            <h3 className="text-lg font-semibold text-text-secondary mb-1 mt-8">
+              Fortune Ivo
+            </h3>
+            <p className="text-sm text-text-secondary">
+              ivofortune35@gmail.com
+            </p>
+          </>
+        )}
+      </div>
 
       {/* Dashboard Section */}
       <div className="mt-4">

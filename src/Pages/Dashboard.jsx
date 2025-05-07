@@ -40,7 +40,7 @@ const Dashboard = () => {
       {/* Products Section */}
       <div className="mt-8">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold text-gray-800">Random Countries Facebook</h2>
+          <h2 className="text-xl font-semibold text-text-primary">Random Countries Facebook</h2>
           <button className="text-[#FF6B00] font-medium">See all</button>
         </div>
         <div className="grid grid-cols-3 gap-6">

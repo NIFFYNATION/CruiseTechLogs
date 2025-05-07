@@ -32,3 +32,51 @@ The user asks questions about the following coding languages:
 - TailwindCSS
 - HTML
 - CSS
+
+
+
+
+- always remember how the theme color is used in the files.
+
+
+
+theme 
+  --font-display: "poppins", "sans-serif";
+
+  /* Light mode colors (default) */
+  --color-primary: #0B4B5A;
+  --color-primary-light: #e8dcea;
+  --color-secondary: #E0E0E0;
+  --color-secondary-light: #E0E0E0;
+  --color-tertiary: #878787;
+  --color-tertiary-light: #d3c0d6;
+  --color-quaternary: #FA5A15;
+  --color-quaternary-light: #FA5A150D;
+  /* Text colors */
+  --color-text-primary: #2D2D2D;
+  --color-text-secondary: #000000;
+  
+  /* Background colors */
+  --color-background #ffffff;
+  --color-background-alt: #f8f3f8;
+  
+
+  /* Dark mode colors - Updated for better visibility */
+  --color-dark-primary: #4DACBF;      /* Vibrant teal that pops on dark backgrounds */
+  --color-dark-secondary: #2A3B47;    /* Deep blue-gray for secondary elements */
+  --color-dark-text-primary: #FFFFFF; /* Pure white for primary text */
+  --color-dark-background-alt: #0A52661A; /* Slightly lighter for contrast */
+  
+
+
+/* Dark mode overrides */
+dark :
+  --color-primary: var(--color-dark-primary);
+  --color-secondary: var(--color-dark-secondary);
+  --color-text-primary: var(--color-dark-text-primary);
+  --color-text-secondary: var(--color-dark-text-secondary);
+  --color-background: var(--color-dark-background);
+  --color-background-alt: var(--color-dark-background-alt);
+
+
+

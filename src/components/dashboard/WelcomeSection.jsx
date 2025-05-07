@@ -4,7 +4,7 @@ const WelcomeSection = () => {
   return (
     <div className="mb-8">
       {/* Welcome Text */}
-      <h1 className="text-2xl font-semibold text-[#1A1A1A] mb-6">Welcome back!</h1>
+      <h1 className="text-2xl font-semibold text-text-primary mb-6">Welcome back!</h1>
 
       {/* Cards Grid */}
       <div className="grid grid-cols-3 gap-6">
@@ -42,10 +42,10 @@ const WelcomeSection = () => {
         {/* Right Column Cards - Stack vertically */}
         <div className="flex flex-col gap-6">
           {/* Order Card */}
-          <div className="bg-white rounded-[20px] p-4 shadow-[0_4px_20px_rgba(0,0,0,0.05)] flex-1">
+          <div className="bg-background rounded-[20px] p-4 shadow-[0_4px_20px_rgba(0,0,0,0.05)] flex-1">
             <div className="flex justify-between items-start">
               <div className="w-full">
-                <h3 className="text-[#1A1A1A] text-base font-medium mb-2">Your Total Order</h3>
+                <h3 className="text-text-primary text-base font-medium mb-2">Your Total Order</h3>
                 <div className="flex items-center justify-between">
                   <button className="px-4 py-2 bg-[#015C67] text-white text-sm rounded-lg font-medium">
                     View Orders
@@ -57,12 +57,12 @@ const WelcomeSection = () => {
           </div>
 
           {/* Get Number Card */}
-          <div className="bg-white rounded-[20px] px-6 pt-6 shadow-[0_4px_20px_rgba(0,0,0,0.05)] flex-1">
+          <div className="bg-background rounded-[20px] px-6 pt-6 shadow-[0_4px_20px_rgba(0,0,0,0.05)] flex-1">
            
            <div className="flex items-end justify-between mt-auto">
            <div className='' >
-            <h3 className="text-[#1A1A1A] text-lg font-medium mb-2">Get Number</h3>
-            <p className="text-gray-600 text-sm mb-4">
+            <h3 className="text-text-primary text-lg font-medium mb-2">Get Number</h3>
+            <p className="text-text-secondary text-sm mb-4">
               Get phone number to receive OTP<br />
               for short term or long term use.
             </p>

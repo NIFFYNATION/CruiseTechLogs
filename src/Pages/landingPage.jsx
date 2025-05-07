@@ -36,7 +36,7 @@ export default function LandingPage() {
          
           
           {/* Login Button */}
-          <div className="relative z-20">
+          <div className="relative z-20 ">
             <Button
               variant="ghost"
               to="/login"
@@ -70,13 +70,13 @@ export default function LandingPage() {
               </a>
 
               {/* Main Heading */}
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-center lg:text-left">
+              <h1 className="text-text-secondary text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-center lg:text-left">
                 Explore Exclusive Accounts within our{' '}
                 <span className="text-[#D9700A] block sm:inline">Marketplace.</span>
               </h1>
 
               {/* Description Text */}
-              <p className="text-gray-700 text-base sm:text-lg md:text-xl text-center lg:text-left">
+              <p className="text-text-primary text-base sm:text-lg md:text-xl text-center lg:text-left">
                 Discover, Authenticate, and Elevate Your Online Presence with 
                 Cruise Tech Marketplace. Your Gateway to Genuine Social 
                 Media Accounts.
@@ -191,7 +191,7 @@ export default function LandingPage() {
         <div className="container-fluid mx-auto">
           {/* Section Header */}
           <div className="text-center mb-12">
-            <h2 className="text-2xl font-bold mb-2">Platforms</h2>
+            <h2 className="text-2xl font-bold mb-2 text-text-secondary">Platforms</h2>
             <p className="text-text-primary text-lg">We sell account for all your favourite Platforms. Below are some of them</p>
           </div>
 
@@ -205,32 +205,32 @@ export default function LandingPage() {
               <div className="flex gap-4 text-center">
               <div className="bg-background p-8 w-40 h-40 rounded-lg shadow-sm flex flex-col items-center justify-center mx-4">
                   <img src="/google-voice-icon.png" alt="Google Voice" className="w-8 h-8 mb-2" />
-                  <span className="text-sm font-medium">Google Voice</span>
+                  <span className="text-sm font-medium text-text-secondary">Google Voice</span>
                 </div>
                 <div className="bg-background p-8 w-40 h-40 rounded-lg shadow-sm flex flex-col items-center justify-center mx-4">
                   <img src="/instagram-icon.png" alt="Instagram" className="w-8 h-8 mb-2" />
-                  <span className="text-sm font-medium">Instagram</span>
+                  <span className="text-sm font-medium text-text-secondary">Instagram</span>
                 </div>
 
                 <div className="bg-background p-8 w-40 h-40 rounded-lg shadow-sm flex flex-col items-center justify-center hover:shadow-md transition-shadow">
               <img src="/twitter-icon.png" alt="Twitter" className="w-8 h-8 mb-2" />
-              <span className="text-sm font-medium">Twitter</span>
+              <span className="text-sm font-medium text-text-secondary">Twitter</span>
             </div>
 
 
                 <div className="bg-background p-8 w-40 h-40 rounded-lg shadow-sm flex flex-col items-center justify-center mx-4">
                   <img src="/tiktok-icon.png" alt="TikTok" className="w-8 h-8 mb-2" />
-                  <span className="text-sm font-medium">TikTok</span>
+                  <span className="text-sm font-medium text-text-secondary">TikTok</span>
                 </div>
 
                 <div className="bg-background p-8 w-40 h-40 rounded-lg shadow-sm flex flex-col items-center justify-center mx-4">
                   <img src="/textplus-icon.png" alt="TextPlus" className="w-8 h-8 mb-2" />
-                  <span className="text-sm font-medium">TextPlus</span>
+                  <span className="text-sm font-medium text-text-secondary">TextPlus</span>
                 </div>
 
                 <div className="bg-background p-8 w-40 h-40 rounded-lg shadow-sm flex flex-col items-center justify-center mx-4">
                   <img src="/windscribe-icon.png" alt="Windscribe" className="w-8 h-8 mb-2" />
-                  <span className="text-sm font-medium">Windscribe</span>
+                  <span className="text-sm font-medium text-text-secondary">Windscribe</span>
                 </div>
 
                 <div className="bg-background p-8 w-40 h-40 rounded-lg shadow-sm flex flex-col items-center justify-center mx-4">
@@ -238,7 +238,7 @@ export default function LandingPage() {
                   <FaFacebookF className="text-background text-xl sm:text-2xl" />
                 </div>
 
-                  <span className="text-sm font-medium">Facebook</span>
+                  <span className="text-sm font-medium text-text-secondary">Facebook</span>
                 </div>
               </div>
             </Marquee>
@@ -255,37 +255,37 @@ export default function LandingPage() {
               <div className="flex gap-4 text-center">
               <div className="bg-background p-8 w-40 h-40 rounded-lg shadow-sm flex flex-col items-center justify-center mx-4">
                   <img src="/tiktok-icon.png" alt="TikTok" className="w-8 h-8 mb-2" />
-                  <span className="text-sm font-medium">TikTok</span>
+                  <span className="text-sm font-medium text-text-secondary">TikTok</span>
                 </div>
 
                 <div className="bg-background p-8 w-40 h-40 rounded-lg shadow-sm flex flex-col items-center justify-center mx-4">
                   <img src="/google-voice-icon.png" alt="Google Voice" className="w-8 h-8 mb-2" />
-                  <span className="text-sm font-medium">Google Voice</span>
+                  <span className="text-sm font-medium text-text-secondary">Google Voice</span>
                 </div>
 
                 <div className="bg-background p-8 w-40 h-40 rounded-lg shadow-sm flex flex-col items-center justify-center mx-4">
                   <img src="/nordvpn-icon.png" alt="NordVPN" className="w-8 h-8 mb-2" />
-                  <span className="text-sm font-medium">NordVPN</span>
+                  <span className="text-sm font-medium text-text-secondary">NordVPN</span>
                 </div>
 
                 <div className="bg-background p-8 w-40 h-40 rounded-lg shadow-sm flex flex-col items-center justify-center mx-4">
                   <img src="/tunnel-bear-icon.png" alt="Tunnel Bear VPN" className="w-8 h-8 mb-2" />
-                  <span className="text-sm font-medium">Tunnel Bear VPN</span>
+                  <span className="text-sm font-medium text-text-secondary">Tunnel Bear VPN</span>
                 </div>
 
                 <div className="bg-background p-8 w-40 h-40 rounded-lg shadow-sm flex flex-col items-center justify-center mx-4">
                   <img src="/outlook-icon.png" alt="Outlook" className="w-8 h-8 mb-2" />
-                  <span className="text-sm font-medium">Outlook</span>
+                  <span className="text-sm font-medium text-text-secondary">Outlook</span>
                 </div>
 
                 <div className="bg-background p-8 w-40 h-40 rounded-lg shadow-sm flex flex-col items-center justify-center mx-4">
                   <img src="/cyberghost-icon.png" alt="CyberGhost VPN" className="w-8 h-8 mb-2" />
-                  <span className="text-sm font-medium">CyberGhost VPN</span>
+                  <span className="text-sm font-medium text-text-secondary">CyberGhost VPN</span>
                 </div>
 
                 <div className="bg-background p-8 w-40 h-40 rounded-lg shadow-sm flex flex-col items-center justify-center mx-4">
                   <img src="/adguard-icon.png" alt="AdGuard VPN" className="w-8 h-8 mb-2" />
-                  <span className="text-sm font-medium">AdGuard VPN</span>
+                  <span className="text-sm font-medium text-text-secondary">AdGuard VPN</span>
                 </div>
               </div>
             </Marquee>
@@ -299,8 +299,8 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 items-center lg:grid-cols-2 gap-12">
             {/* Left Column */}
             <div className="space-y-6 ">
-              <h2 className="text-2xl font-bold">Know us better</h2>
-              <p className="text-gray-600">
+              <h2 className="text-2xl font-bold text-text-secondary">Know us better</h2>
+              <p className="text-text-primary">
                 At Cruise Tech Marketplace, we understand the value of a strong digital presence. Our platform is designed to empower individuals and businesses to access authentic social media accounts effortlessly.
               </p>
               <Button
@@ -323,7 +323,7 @@ export default function LandingPage() {
                     <img src="/authentic-profiles-icon.png" alt="Platforms" className="w-6 h-6" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-xl mb-2">Wide Selection of Platforms</h3>
+                    <h3 className="font-semibold text-xl mb-2 text-text-secondary">Wide Selection of Platforms</h3>
                     <p className="text-text-primary text-sm font-normal">
                     Explore a diverse array of social media platforms including Instagram, TikTok, X(Twitter), YouTube, and more, offering you the flexibility to find the perfect fit for your digital strategy.
                     </p>
@@ -342,7 +342,7 @@ export default function LandingPage() {
                     <img src="/support-icon.png" alt="Support" className="w-6 h-6" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-xl mb-2">Responsive Customer Support</h3>
+                    <h3 className="font-semibold text-xl mb-2 text-text-secondary">Responsive Customer Support</h3>
                     <p className="text-text-primary text-sm font-normal">
                     Our dedicated support team is available to assist you with any inquiries, concerns, or technical issues, providing prompt and responsive assistance to ensure your satisfaction.
                     </p>
@@ -361,7 +361,7 @@ export default function LandingPage() {
                     <img src="/authentic-profiles-icon.png" alt="Quality" className="w-6 h-6" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-xl mb-2 font-normal">Quality Assurance</h3>
+                    <h3 className="font-semibold text-xl mb-2 font-normal text-text-secondary">Quality Assurance</h3>
                     <p className="text-text-primary text-sm">
                     CruiseTechlogs upholds strict quality standards, offering only high-quality accounts with genuine followers, active engagement, and organic growth.
                     </p>
@@ -379,7 +379,7 @@ export default function LandingPage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-16">
           {/* Section Header */}
           <div className="text-center mb-8 sm:mb-12">
-            <h2 className="text-2xl font-bold mb-2">How it Works</h2>
+            <h2 className="text-2xl font-bold mb-2 text-text-secondary">How it Works</h2>
             <p className="text-text-primary text-lg">We sell account for all your favourite Platforms. Below are some of them</p>
           </div>
 
@@ -404,7 +404,7 @@ export default function LandingPage() {
                   alt="Create Account" 
                   className="w-24 sm:w-32 h-24 sm:h-32 object-contain mx-auto mb-4"
                 />
-                <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3">Create CruiseTechlogs account</h3>
+                <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3 text-text-secondary">Create CruiseTechlogs account</h3>
                 <p className="text-text-primary text-start text-sm mb-4 sm:mb-6">
                   Create your CruiseTechlogs account to begin exploring our curated selection of social media accounts. Registration is quick, easy, and free.
                 </p>
@@ -434,7 +434,7 @@ export default function LandingPage() {
                   alt="Explore Accounts" 
                   className="w-24 sm:w-32 h-24 sm:h-32 object-contain mx-auto mb-4"
                 />
-                <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3">Explore Accounts</h3>
+                <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3 text-text-secondary">Explore Accounts</h3>
                 <p className="text-text-primary text-start text-sm mb-4 sm:mb-6">
                   Browse and buy social media accounts presented in your needs. Filter by platform niches, and guidance to find your perfect match.
                 </p>
@@ -464,7 +464,7 @@ export default function LandingPage() {
                   alt="Review Accounts" 
                   className="w-24 sm:w-32 h-24 sm:h-32 object-contain mx-auto mb-4"
                 />
-                <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3">Review Accounts</h3>
+                <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3 text-text-secondary">Review Accounts</h3>
                 <p className="text-text-primary text-start text-sm mb-4 sm:mb-6">
                   Get detailed account insights, including engagement rates and follower demographics. Our verification process ensures authenticity and quality.
                 </p>
@@ -494,7 +494,7 @@ export default function LandingPage() {
                   alt="Purchase Accounts" 
                   className="w-24 sm:w-32 h-24 sm:h-32 object-contain mx-auto mb-4"
                 />
-                <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3">Purchase Accounts</h3>
+                <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3 text-text-secondary">Purchase Accounts</h3>
                 <p className="text-text-primary text-start text-sm mb-4 sm:mb-6">
                   Securely purchase your chosen social media account with our smooth transaction process. Enjoy flexible payment pricing for an easy experience.
                 </p>
@@ -524,7 +524,7 @@ export default function LandingPage() {
                   alt="Enjoy your Account" 
                   className="w-24 sm:w-32 h-24 sm:h-32 object-contain mx-auto"
                 />
-                <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3">Enjoy your Account</h3>
+                <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3 text-text-secondary">Enjoy your Account</h3>
                 <p className="text-text-primary text-start text-sm mb-4 sm:mb-6">
                   Begin your online presence with your new social media account. Connect with your audience and achieve your marketing goals.
                 </p>
@@ -556,7 +556,7 @@ export default function LandingPage() {
 
             {/* Right Column - Content */}
             <div className="text-background space-y-6">
-              <h2 className="text-4xl sm:text-5xl font-bold">Ready to buy?</h2>
+              <h2 className="text-4xl sm:text-5xl font-bold ">Ready to buy?</h2>
               <p className="text-lg sm:text-xl">
                 That's why we are here, join us today and start buying your account from our market today.
               </p>
@@ -617,15 +617,15 @@ export default function LandingPage() {
 
             {/* Email Contact */}
             <div className="w-full md:w-1/3 flex justify-center md:justify-end items-center gap-2">
-              <MdEmail className="text-black" size={20} />
-              <a href="mailto:cruisetech40@gmail.com" className="text-black  text-sm md:text-[15px] font-semibold transition-colors">
+              <MdEmail className="text-text-secondary" size={20} />
+              <a href="mailto:cruisetech40@gmail.com" className="text-text-secondary text-sm md:text-[15px] font-semibold transition-colors">
                 cruisetech40@gmail.com
               </a>
             </div>
           </div>
 
           {/* Bottom section with copyright and links */}
-          <div className="text-sm md:text-[15px] text-black  font-semibold flex flex-wrap justify-center gap-x-2 gap-y-1 pt-4 border-t">
+          <div className="text-sm md:text-[15px] text-text-secondary font-semibold flex flex-wrap justify-center gap-x-2 gap-y-1 pt-4 border-t">
             <span>© 2025 Cruisetechlogs</span>
             <span className="hidden md:inline">|</span>
             <a href="/privacy-policy" className=" transition-colors">Privacy Policy</a>
