@@ -2,7 +2,7 @@
 
 
 body {
-  background: #F4F4F4;
+  /* background: #F4F4F4; */
 }
 
 @theme {
@@ -17,6 +17,7 @@ body {
   --color-tertiary-light: #d3c0d6;
   --color-quaternary: #FA5A15;
   --color-quaternary-light: #FA5A150D;
+  --color-quinary: #FF6B00;
   /* Text colors */
   --color-text-primary: #2D2D2D;
   --color-text-secondary: #000000;

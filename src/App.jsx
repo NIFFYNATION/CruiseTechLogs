@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { ThemeToggle } from './components/common/ThemeToggle'
+import Tabs from './components/MobileTab'
 
 function App() {
   return (
@@ -11,6 +12,8 @@ function App() {
                     <ThemeToggle />
                   </div>
         <Outlet />
+        {/* Mobile Tab Navigation */}
+        <Tabs />
       </div>
     </ThemeProvider>
   )
