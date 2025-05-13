@@ -36,11 +36,13 @@ const TransactionsTable = ({ transactions = [] }) => {
   const displayTransactions = transactions.length > 0 ? transactions : defaultTransactions;
 
   return (
+    
+  <div>
     <div className="bg-background rounded-lg p-4 sm:p-6">
       {/* Desktop Header */}
-          <h2 className="text-lg sm:text-xl font-semibold text-text-primary">All Transactions</h2>
       <div className="hidden sm:flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 mt-8 gap-4 sm:gap-0">
         <div>
+          <h2 className="text-lg sm:text-xl font-semibold text-text-primary  mb-10">All Transactions</h2>
           <div className="flex items-center mt-2">
             <button className="text-blue-900 font-medium border-b-2 border-blue-900 mr-4">
               History
@@ -113,11 +115,13 @@ const TransactionsTable = ({ transactions = [] }) => {
             </div>
           </div>
         ))}
-        <button className="mt-6 text-white bg-quinary hover:bg-quaternary rounded-full px-6 py-3 w-full sm:w-auto">
-          View All Transactions
-        </button>
+       
       </div>
     </div>
+     <button className="hidden sm:block mt-6 text-white bg-quinary hover:bg-quaternary rounded-full px-6 py-3 w-full sm:w-auto">
+          View All Transactions
+        </button>
+  </div>
   );
 };
 
