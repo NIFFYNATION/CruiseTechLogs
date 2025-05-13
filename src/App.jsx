@@ -13,7 +13,9 @@ function App() {
                   </div>
         <Outlet />
         {/* Mobile Tab Navigation */}
-        <Tabs />
+        <div className="md:hidden pt-32">
+          <Tabs />
+        </div>
       </div>
     </ThemeProvider>
   )

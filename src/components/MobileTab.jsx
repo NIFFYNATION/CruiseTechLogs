@@ -21,10 +21,10 @@ const Tabs = () => {
 
   return (
     <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[95vw] max-w-md">
-      <div className="relative flex items-center justify-between bg-white rounded-full shadow-lg px-4 py-3">
+      <div className="relative flex items-center justify-between bg-background rounded-full shadow-lg px-4 py-3">
         {/* Central FAB */}
-        <div className="absolute -top-7 left-1/2 -translate-x-1/2 z-10">
-          <button className="bg-gradient-to-br from-orange-400 to-orange-600 rounded-full p-4 shadow-lg border-4 border-white">
+        <div className="absolute -top-10 left-1/2 -translate-x-1/2 z-10">
+          <button className="bg-gradient-to-br from-orange-400 to-orange-600 rounded-full p-4  shadow- border-16 border-secondary">
             <Squares2X2Icon className="h-7 w-7 text-white" />
           </button>
         </div>
@@ -41,7 +41,6 @@ const Tabs = () => {
                   <TabItem tab={tabs[2]} isActive={currentPath === tabs[2].path} />
                   <TabItem tab={tabs[3]} isActive={currentPath === tabs[3].path} />
                   {/* Break out of map after rendering all */}
-                  return null;
                 </React.Fragment>
               );
             }
