@@ -5,21 +5,41 @@ const DashboardHeader = () => {
   const { toggleSidebar, isCollapsed } = useSidebar();
 
   return (
-    <div className={`fixed top-0 right-0 ${isCollapsed ? 'left-0 lg:left-[80px]' : 'left-0 lg:left-[260px]'} h-[80px] bg-secondary z-20 transition-all duration-300`}>
+    <div className={`border-b border-quaternary md:border-text-primary fixed top-0 right-0 ${isCollapsed ? 'left-0 lg:left-[80px]' : 'left-0 lg:left-[260px]'} h-[80px] bg-background md:bg-secondary z-20 transition-all duration-300`}>
       <div className="flex items-center justify-between h-full px-4 md:px-8">
         <div className='flex items-center flex-1 gap-2 md:gap-6'>
           {/* Left Side - Menu Button */}
           <button 
             onClick={toggleSidebar}
-            className="p-2 bg-quaternary rounded-lg text-white hover:bg-quaternary-dark transition-colors"
+            className="hidden md:block p-2 bg-quaternary rounded-lg text-white hover:bg-quaternary-dark transition-colors"
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M3 12h18M3 6h18M3 18h18"/>
             </svg>
           </button>
 
+          {/* Left Side - Menu Button */}
+          <button 
+            onClick={toggleSidebar}
+            className="block md:hidden "
+          >
+           <img 
+                src="/icons/tabler_menu.png" 
+                alt="CruiseTech" 
+                className="h-8" 
+              />
+          </button>
+
+          <div className='md:hidden m-auto'>
+          <img 
+                src="/CruiseTech-2.png" 
+                alt="CruiseTech" 
+                className="h-8" 
+              />
+          </div>
           {/* Middle - Search Bar */}
-          <div className="flex-1 max-w-xl mx-2 md:mx-6">
+
+          <div className="hidden md:block flex-1 max-w-xl mx-2 md:mx-6">
             <div className="relative">
               <input 
                 type="text" 
@@ -62,7 +82,7 @@ const DashboardHeader = () => {
           </button>
 
           {/* Profile Dropdown */}
-          <div className="flex items-center gap-2 bg-background border border-primary rounded-full px-2 
+          <div className="flex items-center gap-2 bg-background border border-primary rounded-full px-1 md:px-2  
             py-1 cursor-pointer">
             <img 
               src="/avatar.png" 
