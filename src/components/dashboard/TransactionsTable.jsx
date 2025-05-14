@@ -58,7 +58,7 @@ const TransactionsTable = ({ transactions = [] }) => {
       {/* Mobile Header */}
       <div className="flex justify-between items-center mb-6 sm:hidden">
         <h2 className="text-lg font-semibold text-text-primary">All Transactions</h2>
-        <button className="text-white bg-quinary hover:bg-quaternary rounded-full px-6 py-2 text-sm">
+        <button className="text-white bg-primary hover:bg-quinary rounded-full px-6 py-2 text-sm">
           View All
         </button>
       </div>
@@ -74,7 +74,7 @@ const TransactionsTable = ({ transactions = [] }) => {
               <div className="font-semibold text-text-primary">{transaction.title}</div>
               <div className="text-xs text-gray-400">{transaction.date}</div>
             </div>
-            <div className="font-bold text-quinary text-base ml-2">
+            <div className="font-bold text-primary text-base ml-2">
               ₦ {transaction.amount}
             </div>
           </div>

@@ -54,6 +54,9 @@ const Dashboard = () => {
               />
             ))}
           </div>
+          <div className='flex md:hidden justify-center items-center mt-6 mb-6'>
+           <p className='text-text-grey text-sm font-medium'>View More Random Country Facebook</p>
+          </div>
         </div>
 
         {/* USA Facebook Section */}
@@ -76,6 +79,9 @@ const Dashboard = () => {
                 onStockClick={() => {}}
               />
             ))}
+          </div>
+          <div className='flex md:hidden justify-center items-center mt-6 mb-6'>
+           <p className='text-text-grey text-sm font-medium'>View More USA Facebook</p>
           </div>
         </div>
 

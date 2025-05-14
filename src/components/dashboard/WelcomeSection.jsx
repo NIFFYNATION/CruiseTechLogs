@@ -15,13 +15,13 @@ const WelcomeSection = () => {
               background: `#FF6B00 url('/balance-card-bg.png') no-repeat center center`,
               backgroundSize: 'cover'
             }}>
-            <div className="flex flex-col justify-between h-full p-8">
+            <div className="flex flex-col justify-between items-start md:items-center h-full p-8">
               <div className="text-center">
-                <p className="text-white/90 text-sm mb-1">Your Total Balance</p>
+                <p className="text-white/90 text-sm mb-0 md:mb-10 mt-0 md:mt-4">Your Total Balance</p>
                 <h2 className="text-[42px] font-bold text-white">₦ 0.00</h2>
               </div>
               <div className="flex gap-3 justify-center">
-                <button className="flex items-center gap-2 px-6 py-3 bg-white rounded-[10px] text-[#1A1A1A] text-sm font-medium hover:bg-white/90 transition-colors">
+                <button className="flex items-center gap-2 px-4 md:px-6 py-3 bg-white rounded-full text-[#1A1A1A] text-sm font-medium hover:bg-white/90 transition-colors">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <circle cx="12" cy="12" r="10"/>
                     <line x1="12" y1="8" x2="12" y2="16"/>
@@ -29,7 +29,7 @@ const WelcomeSection = () => {
                   </svg>
                   Add Funds
                 </button>
-                <button className="flex items-center gap-2 px-6 py-3 bg-white rounded-[10px] text-[#1A1A1A] text-sm font-medium hover:bg-white/90 transition-colors">
+                <button className="flex items-center gap-2 px-4 md:px-6 py-3 bg-white rounded-full text-[#1A1A1A] text-sm font-medium hover:bg-white/90 transition-colors">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M19 9l-7 7-7-7"/>
                   </svg>
