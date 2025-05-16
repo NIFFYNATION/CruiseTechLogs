@@ -4,6 +4,7 @@ import Login from './Pages/login';
 import Registration from './Pages/registration';
 import Dashboard from './Pages/Dashboard';
 import App from './App';
+import ManageNumbers from './components/dashboard/manageNumbers/ManageNumbers';
 
 export const router = createBrowserRouter([
   {
@@ -26,7 +27,11 @@ export const router = createBrowserRouter([
       {
         path: '/dashboard',
         element: <Dashboard />
-      }
+      },
+      {
+        path: '/manage-numbers',
+        element: <ManageNumbers />
+      },
     ],
   },
 ]);

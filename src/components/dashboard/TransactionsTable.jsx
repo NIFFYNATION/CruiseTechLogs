@@ -94,21 +94,21 @@ const TransactionsTable = ({ transactions = [] }) => {
               </div>
               <div>
                 <p className="font-medium text-text-primary">{transaction.title}</p>
-                <p className="text-sm text-gray-500">{transaction.date}</p>
+                <p className="text-sm text-text-grey">{transaction.date}</p>
               </div>
             </div>
             <div className="w-full sm:w-auto ">
               <span className={`px-8 py-1 rounded-full text-sm inline-block ${
                 transaction.status === 'Successful' 
-                  ? 'bg-green-50 text-green-600' 
-                  : 'bg-red-50 text-red-500'
+                  ? 'bg-green-50 text-success' 
+                  : 'bg-red-50 text-danger'
               }`}>
                 {transaction.status}
               </span>
             </div>
             <div className="text-left sm:text-center min-w-[150px]">
-              <p className="text-gray-600">{transaction.paymentMethod}</p>
-              <p className="text-sm text-gray-500">{transaction.cardNumber}</p>
+              <p className="text-text-grey">{transaction.paymentMethod}</p>
+              <p className="text-sm text-text-grey">{transaction.cardNumber}</p>
             </div>
             <div className="text-left sm:text-center text-quinary min-w-[100px]">
               <p className="font-medium">₦ {transaction.amount}</p>

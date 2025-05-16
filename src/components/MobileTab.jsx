@@ -24,7 +24,7 @@ const Tabs = () => {
       <div className="relative flex items-center justify-between bg-background rounded-full shadow-lg px-4 py-3">
         {/* Central FAB */}
         <div className="absolute -top-10 left-1/2 -translate-x-1/2 z-10">
-          <button className="bg-gradient-to-br from-orange-400 to-orange-600 rounded-full p-4  shadow- border-16 border-secondary">
+          <button className="bg-gradient-to-br from-orange-400 to-orange-600 rounded-full p-4 border-16 border-secondary">
             <Squares2X2Icon className="h-7 w-7 text-white" />
           </button>
         </div>
