@@ -2,9 +2,10 @@ import { createBrowserRouter } from 'react-router-dom';
 import LandingPage from './Pages/landingPage';
 import Login from './Pages/login';
 import Registration from './Pages/registration';
+import DashboardLayout from './components/dashboard/DashboardLayout';
 import Dashboard from './Pages/Dashboard';
-import App from './App';
 import ManageNumbers from './components/dashboard/manageNumbers/ManageNumbers';
+import App from './App';
 
 export const router = createBrowserRouter([
   {
@@ -26,11 +27,11 @@ export const router = createBrowserRouter([
       },
       {
         path: '/dashboard',
-        element: <Dashboard />
-      },
-      {
-        path: '/manage-numbers',
-        element: <ManageNumbers />
+        element: <DashboardLayout />,
+        children: [
+          { path: '', element: <Dashboard /> },
+          { path: 'manage-numbers', element: <ManageNumbers /> },
+        ],
       },
     ],
   },

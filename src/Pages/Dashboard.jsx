@@ -1,6 +1,4 @@
 import React from 'react';
-import DashboardLayout from '../components/dashboard/DashboardLayout';
-import DashboardHeader from '../components/dashboard/DashboardHeader';
 import WelcomeSection from '../components/dashboard/WelcomeSection';
 import ProductCard from '../components/dashboard/ProductCard';
 import TransactionsTable from '../components/dashboard/TransactionsTable';
@@ -17,10 +15,7 @@ const productData = [
 
 const Dashboard = () => {
   return (
-    <DashboardLayout>
-      {/* Header with Search and Profile */}
-      <DashboardHeader />
-
+    <>
       {/* Welcome Section with all cards */}
       <WelcomeSection />
 
@@ -93,11 +88,11 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Transactions Table - now without passing any transactions prop */}
+      {/* Transactions Table */}
       <div className="mt-4 sm:mt-6">
         <TransactionsTable />
       </div>
-    </DashboardLayout>
+    </>
   );
 };
 
