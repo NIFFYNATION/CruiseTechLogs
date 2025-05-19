@@ -139,7 +139,10 @@ const DashboardHeader = () => {
             </button>
             {showDropdown && (
               <div ref={dropdownRef}>
-                <NotificationDropdown onMarkRead={() => {}} />
+                <NotificationDropdown 
+                  onMarkRead={() => {}} 
+                  onClose={() => setShowDropdown(false)}
+                />
               </div>
             )}
           </div>
@@ -175,6 +178,7 @@ const DashboardHeader = () => {
                   onEditProfile={() => {/* handle edit */}}
                   onLogout={() => {/* handle logout */}}
                   onKnowMore={() => {/* handle know more */}}
+                  onClose={() => setShowAccountDropdown(false)}
                 />
               </div>
             )}
