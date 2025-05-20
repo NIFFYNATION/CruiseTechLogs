@@ -2,7 +2,6 @@ import React from 'react';
 import WelcomeSection from '../components/dashboard/WelcomeSection';
 import ProductCard from '../components/dashboard/ProductCard';
 import TransactionsTable from '../components/dashboard/TransactionsTable';
-import { FaFilter } from 'react-icons/fa';
 
 const productData = [
   {
@@ -23,7 +22,9 @@ const Dashboard = () => {
         {/* Category Button */}
         <div className="flex justify-between items-center mb-4 sm:mb-6">
           <button className="flex items-center gap-2 border border-[#FF6B00] text-[#FF6B00] bg-background px-4 sm:px-8 py-2 rounded-sm font-medium text-sm shadow-sm">
-            <FaFilter />
+            <div className='w-5 h-5'>
+              <img src="/icons/filter.svg" alt="" />
+            </div>
             All Categories
           </button>
         </div>

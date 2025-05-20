@@ -63,28 +63,20 @@ const DashboardHeader = () => {
           {/* Left Side - Menu Button */}
           <button 
             onClick={toggleSidebar}
-            className="hidden md:block p-2 bg-quaternary rounded-lg text-white hover:bg-quaternary-dark transition-colors"
+            className="p-2 "
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M3 12h18M3 6h18M3 18h18"/>
-            </svg>
-          </button>
-
-          {/* Left Side - Menu Button */}
-          <button 
-            onClick={toggleSidebar}
-            className="block md:hidden "
-          >
-           <img 
-                src="/icons/tabler_menu.png" 
+             <img 
+                src="/icons/tabler_menu.svg" 
                 alt="CruiseTech" 
                 className="h-8" 
               />
           </button>
 
+         
+
           <div className='md:hidden m-auto'>
           <img 
-                src="/CruiseTech-2.png" 
+                src="/images/CruiseTech-2.svg" 
                 alt="CruiseTech" 
                 className="h-8" 
               />

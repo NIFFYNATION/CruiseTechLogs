@@ -1,5 +1,4 @@
 import React from 'react';
-import { FaWallet } from 'react-icons/fa';
 import { IoCalendarOutline } from 'react-icons/io5';
 
 const TransactionsTable = ({ transactions = [] }) => {
@@ -49,9 +48,9 @@ const TransactionsTable = ({ transactions = [] }) => {
             </button>
           </div>
         </div>
-        <div className="flex items-center gap-2 bg-secondary px-3 py-2 rounded-lg sm:w-auto">
+        <div className="flex items-center gap-2 bg-[#F4F4F4] px-3 py-2 rounded-lg sm:w-auto">
           <IoCalendarOutline className="text-text-primary" />
-          <span className="text-sm text-text-primary">5 Mar 25. - 10 Mar 25.</span>
+          <span className="text-sm text-text-grey">5 Mar 25. - 10 Mar 25.</span>
         </div>
       </div>
 
@@ -68,7 +67,8 @@ const TransactionsTable = ({ transactions = [] }) => {
         {displayTransactions.map((transaction) => (
           <div key={transaction.id} className="flex items-center py-4">
             <div className="flex-shrink-0">
-              <FaWallet className="text-[#FF6B00] w-7 h-7" />
+            <img className="text-[#FF6B00] w-7 h-7" src="icon/wallet-topup.svg" alt="wallet-topup" />
+
             </div>
             <div className="ml-3 flex-1">
               <div className="font-semibold text-text-primary">{transaction.title}</div>
@@ -89,12 +89,12 @@ const TransactionsTable = ({ transactions = [] }) => {
             className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-4 gap-4 sm:gap-0"
           >
             <div className="flex items-center gap-4 w-full sm:w-auto">
-              <div className="w-10 h-10 bg-secondary rounded-lg flex items-center justify-center flex-shrink-0">
-                <FaWallet className="text-text-primary" />
+              <div className="w-10 h-10  flex items-center justify-center flex-shrink-0">
+                <img src="icons/wallet-topup.svg" alt="wallet-topup" />
               </div>
               <div>
                 <p className="font-medium text-text-primary">{transaction.title}</p>
-                <p className="text-sm text-text-grey">{transaction.date}</p>
+                <p className="text-sm text-text-grey ">{transaction.date}</p>
               </div>
             </div>
             <div className="w-full sm:w-auto ">

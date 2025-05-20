@@ -29,7 +29,7 @@ const AccountDropdown = ({
           onClick={e => e.stopPropagation()}
         >
           {/* Close Button */}
-          <div className="flex justify-end mb-2">
+          <div className="flex justify-end p-8">
             <button className="text-2xl text-text-primary" onClick={onClose}>
               <IoClose />
             </button>

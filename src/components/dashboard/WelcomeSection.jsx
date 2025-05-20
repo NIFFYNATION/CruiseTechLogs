@@ -22,17 +22,14 @@ const WelcomeSection = () => {
               </div>
               <div className="flex gap-3 justify-center">
                 <button className="flex items-center gap-2 px-4 md:px-6 py-3 bg-white rounded-full text-[#1A1A1A] text-sm font-medium hover:bg-white/90 transition-colors">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <circle cx="12" cy="12" r="10"/>
-                    <line x1="12" y1="8" x2="12" y2="16"/>
-                    <line x1="8" y1="12" x2="16" y2="12"/>
-                  </svg>
+                
+              <img src="/icons/add-circle.svg" alt="" className='h-6 w-6'/>
+            
                   Add Funds
                 </button>
                 <button className="flex items-center gap-2 px-4 md:px-6 py-3 bg-white rounded-full text-[#1A1A1A] text-sm font-medium hover:bg-white/90 transition-colors">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M19 9l-7 7-7-7"/>
-                  </svg>
+                <img src="/icons/list-broken.svg" alt="" className='h-6 w-6'/>
+
                   Transactions
                 </button>
               </div>

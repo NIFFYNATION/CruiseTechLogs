@@ -1,5 +1,6 @@
 import React from 'react';
 import { FaFacebook, FaShoppingCart } from 'react-icons/fa';
+import { Button } from '../common/Button';
 
 const ProductCard = ({
   title,
@@ -26,13 +27,14 @@ const ProductCard = ({
         </button>
         <div className="flex justify-between items-center mt-2">
           <div className="font-bold text-lg text-primary mr-4">₦ {price}</div>
-          <button
-            className="flex items-center gap-2 bg-[#FF6B00] hover:bg-[#ff8c1a] text-white text-sm font-semibold py-2 px-4 rounded-full transition-colors"
-            onClick={onBuy}
-          >
-            <FaShoppingCart />
-            Buy Now
-          </button>
+          <Button
+  variant="orange"
+  size="sm"
+  icon={<FaShoppingCart />}
+  onClick={onBuy}
+>
+  Buy Now
+</Button>
         </div>
       </div>
     </div>
@@ -67,13 +69,14 @@ const ProductCard = ({
         <div>
           <div className="font-bold text-lg text-text-primary">₦{price}</div>
         </div>
-        <button
-          className="flex items-center gap-2 bg-quinary hover:bg-quaternary text-white text-sm font-semibold py-2 px-4 rounded-full transition-colors"
-          onClick={onBuy}
-        >
-          <FaShoppingCart />
-          Buy Now
-        </button>
+       <Button
+  variant="quinary"
+  size="sm"
+  icon={<FaShoppingCart />}
+  onClick={onBuy}
+>
+  Buy Now
+</Button>
       </div>
     </div>
   </div>

@@ -9,6 +9,14 @@ const BUTTON_VARIANTS = {
   ghost: "bg-background text-primary hover:bg-[#D9700A]",
   danger: "bg-red-500 text-background hover:bg-red-600",
   social: "bg-background border border-secondary text-text-primary hover:bg-background-alt",
+  quinary: "bg-quinary hover:bg-quaternary text-white font-semibold",
+  quinaryLight: "bg-quinary hover:bg-[#ff8c1a] text-white font-semibold",
+  orange: "bg-[#FF6B00] hover:bg-[#ff8c1a] text-white font-semibold",
+  quaternary: "bg-quaternary hover:bg-quaternary-dark text-white",
+  quaternaryLight: "bg-quaternary-light text-quinary font-semibold",
+  success: "bg-[#FFF4ED] text-[#FF6B00] font-semibold",
+  textPrimary: "text-gray-600 hover:text-primary",
+  textDanger: "text-gray-600 hover:text-danger",
 };
 
 // Button sizes
@@ -18,9 +26,16 @@ const BUTTON_SIZES = {
   lg: "px-8 py-3 text-lg",
 };
 
+const BUTTON_SHAPES = {
+  rounded: "rounded-full",
+  roundedLg: "rounded-xl",
+  roundedMd: "rounded-lg",
+};
+
 export const Button = ({
   variant = "primary",
   size = "md",
+  shape = "rounded",
   fullWidth = false,
   disabled = false,
   type = "button",
@@ -35,12 +50,13 @@ export const Button = ({
   // Base classes that are common to all buttons
   const baseClasses = `
     inline-flex items-center justify-center
-    rounded-full font-medium
+    font-medium
     transition-colors duration-200
-    focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary
+    focus:outline-none focus:ring-2 focus:ring-offset-2 
     disabled:opacity-60 disabled:cursor-not-allowed
     ${BUTTON_SIZES[size]}
     ${BUTTON_VARIANTS[variant]}
+    ${BUTTON_SHAPES[shape]}
     ${fullWidth ? 'w-full' : ''}
     ${className}
   `;

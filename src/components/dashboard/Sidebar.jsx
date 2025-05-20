@@ -63,14 +63,14 @@ const Sidebar = () => {
           {/* Logo */}
           {isCollapsed ? (
             <img 
-              src="/images/CruiseTech-1.png" 
+              src="/images/CruiseTech-1.svg" 
               alt="CruiseTech Icon" 
               className="h-8 w-8 mx-auto" 
             />
           ) : (
             <div className="flex items-center justify-between w-full">
               <img 
-                src="/CruiseTech-2.png" 
+                src="/images/CruiseTech-2.svg" 
                 alt="CruiseTech" 
                 className="h-8" 
               />
@@ -132,10 +132,10 @@ const Sidebar = () => {
         <div className="mt-4">
           <SectionTitle title="Dashboard" />
           <nav>
-            <MenuItem imageSrc="/icons/home.png" text="Home" to="/dashboard" />
-            <MenuItem imageSrc="/icons/manage-numbers.png" text="Manage Numbers" to="/dashboard/manage-numbers" />
-            <MenuItem imageSrc="/icons/buy-number.png" text="Buy Number" to="/dashboard/buy-number" />
-            <MenuItem imageSrc="/icons/social-media.png" text="Social Media Accounts" to="/dashboard/social-media" />
+            <MenuItem imageSrc="/icons/home.svg" text="Home" to="/dashboard" />
+            <MenuItem imageSrc="/icons/manage-numbers.svg" text="Manage Numbers" to="/dashboard/manage-numbers" />
+            <MenuItem imageSrc="/icons/buy-number.svg" text="Buy Number" to="/dashboard/buy-number" />
+            <MenuItem imageSrc="/icons/social-media.svg" text="Social Media Accounts" to="/dashboard/social-media" />
           </nav>
         </div>
 
@@ -143,9 +143,9 @@ const Sidebar = () => {
         <div className="mt-4">
           <SectionTitle title="Transactions" />
           <nav>
-            <MenuItem imageSrc="/icons/wallet.png" text="Wallet" to="/dashboard/wallet" />
-            <MenuItem imageSrc="/icons/transactions.png" text="Transactions" to="/dashboard/transactions" />
-            <MenuItem imageSrc="/icons/api-key.png" text="API Key" to="/dashboard/api-key" />
+            <MenuItem imageSrc="/icons/wallet.svg" text="Wallet" to="/dashboard/wallet" />
+            <MenuItem imageSrc="/icons/transactions.svg" text="Transactions" to="/dashboard/transactions" />
+            <MenuItem imageSrc="/icons/api-key.svg" text="API Key" to="/dashboard/api-key" />
           </nav>
         </div>
 
@@ -153,8 +153,8 @@ const Sidebar = () => {
         <div className="mt-4">
           <SectionTitle title="User Guide" />
           <nav>
-            <MenuItem imageSrc="/icons/settings.png" text="Profile Settings" to="/dashboard/settings" />
-            <MenuItem imageSrc="/icons/help.png" text="Help Center" to="/dashboard/help"/>
+            <MenuItem imageSrc="/icons/settings.svg" text="Profile Settings" to="/dashboard/settings" />
+            <MenuItem imageSrc="/icons/help.svg" text="Help Center" to="/dashboard/help"/>
           </nav>
         </div>
 
