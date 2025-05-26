@@ -9,6 +9,7 @@ body {
   --font-display: "poppins", "sans-serif";
 
   /* Light mode colors (default) */
+  --color-bgLayout: #F4F4F4;
   --color-primary: #0B4B5A;
   --color-primary-light: #e8dcea;
   --color-secondary: #E0E0E0;

@@ -9,7 +9,7 @@ const ProductCard = ({
   onBuy,
   onStockClick,
 }) => (
-  <div className="bg-background rounded-xl p-4 shadow-[0_2px_8px_rgba(0,0,0,0.10)] border-b-2 border-[#FEBB4F] flex flex-col justify-between min-h-[120px]">
+  <div className=" bg- rounded-xl p-4 shadow-[0_2px_8px_rgba(0,0,0,0.10)] border-b-2 border-[#FEBB4F] flex flex-col justify-between min-h-[120px]">
     {/* Mobile Layout */}
     <div className="flex sm:hidden">
       {/* Icon */}
@@ -18,7 +18,7 @@ const ProductCard = ({
       </div>
       {/* Info and Actions */}
       <div className="flex-1 flex flex-col ">
-        <div className="font-semibold text-sm text-text-primary">{title}</div>
+        <div className="font-bold text-sm text-text-primary">{title}</div>
         <button
           className="text-[13px] text-primary font-medium mt-1 text-left"
           onClick={onStockClick}
@@ -48,14 +48,14 @@ const ProductCard = ({
           </div>
           <div className="flex md:flex-col gap-3">
             <div className='items-center'>
-              <h3 className="font-semibold text-[15px] text-text-primary mb-4 leading-tight">{title}</h3>
+              <h3 className="font-bold text-[15px] text-text-primary mb-4 leading-tight">{title}</h3>
             </div>
           </div>
         </div>
         <div className="">
           <div className='flex justify-between items-center'>
-            <p className="hidden md:block text-xs text-gray-500 mb-2">Facebook</p>
-            <div className='w-1 h-1 hidden md:block rounded-full bg-gray-500'></div>
+            <p className="hidden md:block text-xs text-text-grey font-bold mb-2">Facebook</p>
+            <div className='w-1 h-1 hidden md:block rounded-full bg-text-grey'></div>
             <button
               className="text-xs text-primary font-medium mb-2"
               onClick={onStockClick}
@@ -65,16 +65,15 @@ const ProductCard = ({
           </div>
         </div>
       </div>
-      <div className="flex items-end justify-between mt-4">
-        <div>
-          <div className="font-bold text-lg text-text-primary">₦{price}</div>
-        </div>
+      <div className=" items-end justify-between mt-4">
+        
+          <div className="font-bold text-lg text-text-primary mb-4">₦{price}</div>
        <Button
   variant="quinary"
   size="sm"
-  icon={<FaShoppingCart />}
   onClick={onBuy}
 >
+  <img className='w-4 h-4 mr-2' src="icons/cart.svg" alt="" />
   Buy Now
 </Button>
       </div>

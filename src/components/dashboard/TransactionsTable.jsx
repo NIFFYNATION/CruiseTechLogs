@@ -65,14 +65,16 @@ const TransactionsTable = ({ transactions = [] }) => {
       {/* Mobile List */}
       <div className="sm:hidden divide-y divide-gray-100">
         {displayTransactions.map((transaction) => (
-          <div key={transaction.id} className="flex items-center py-4">
+          <div key={transaction.id} className="flex justify-between items-center py-4">
+            <div className='flex justify-between'>
             <div className="flex-shrink-0">
-            <img className="text-[#FF6B00] w-7 h-7" src="icon/wallet-topup.svg" alt="wallet-topup" />
+            <img className="[filter:invert(48%)_sepia(79%)_saturate(2476%)_hue-rotate(346deg)_brightness(118%)_contrast(119%)] w-4 h-4" src="icons/wallet-topup.svg" alt="wallet-topup" />
 
             </div>
-            <div className="ml-3 flex-1">
-              <div className="font-semibold text-text-primary">{transaction.title}</div>
+            <div className="ml-3 flex-1 ml-9">
+              <div className="font-semibold text-text-secondary">{transaction.title}</div>
               <div className="text-xs text-gray-400">{transaction.date}</div>
+            </div>
             </div>
             <div className="font-bold text-primary text-base ml-2">
               ₦ {transaction.amount}
@@ -90,15 +92,15 @@ const TransactionsTable = ({ transactions = [] }) => {
           >
             <div className="flex items-center gap-4 w-full sm:w-auto">
               <div className="w-10 h-10  flex items-center justify-center flex-shrink-0">
-                <img src="icons/wallet-topup.svg" alt="wallet-topup" />
+                <img  src="icons/wallet-topup.svg" alt="wallet-topup" />
               </div>
               <div>
-                <p className="font-medium text-text-primary">{transaction.title}</p>
-                <p className="text-sm text-text-grey ">{transaction.date}</p>
+                <p className="font-medium text-text-primary mb-2">{transaction.title}</p>
+                <p className="text-sm font-medium text-text-grey ">{transaction.date}</p>
               </div>
             </div>
             <div className="w-full sm:w-auto ">
-              <span className={`px-8 py-1 rounded-full text-sm inline-block ${
+              <span className={`px-8 py-1 font-medium rounded-full text-sm inline-block ${
                 transaction.status === 'Successful' 
                   ? 'bg-green-50 text-success' 
                   : 'bg-red-50 text-danger'
@@ -107,8 +109,8 @@ const TransactionsTable = ({ transactions = [] }) => {
               </span>
             </div>
             <div className="text-left sm:text-center min-w-[150px]">
-              <p className="text-text-grey">{transaction.paymentMethod}</p>
-              <p className="text-sm text-text-grey">{transaction.cardNumber}</p>
+              <p className="text-text-secondary font-medium mb-2">{transaction.paymentMethod}</p>
+              <p className="text-sm text-text-grey font-medium">{transaction.cardNumber}</p>
             </div>
             <div className="text-left sm:text-center text-quinary min-w-[100px]">
               <p className="font-medium">₦ {transaction.amount}</p>

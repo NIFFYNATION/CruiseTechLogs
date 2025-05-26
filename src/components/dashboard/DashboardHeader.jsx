@@ -57,7 +57,7 @@ const DashboardHeader = () => {
   }, [showAccountDropdown]);
 
   return (
-    <div className={`border-b border-quaternary md:border-text-grey fixed top-0 right-0 ${isCollapsed ? 'left-0 lg:left-[80px]' : 'left-0 lg:left-[260px]'} h-[80px] bg-background md:bg-secondary z-20 transition-all duration-300`}>
+    <div className={`border-b border-quaternary md:border-[#D9D9D9] fixed top-0 right-0 ${isCollapsed ? 'left-0 lg:left-[80px]' : 'left-0 lg:left-[260px]'} h-[80px] bg-background md:bg-bgLayout z-20 transition-all duration-300`}>
       <div className="flex items-center justify-between h-full px-4 md:px-8">
         <div className='flex items-center flex-1 gap-2 md:gap-6'>
           {/* Left Side - Menu Button */}
@@ -88,10 +88,10 @@ const DashboardHeader = () => {
               <input 
                 type="text" 
                 placeholder="Search Dashboard" 
-                className="w-full pl-10 pr-4 py-2.5 rounded-full bg-secondary text-text-primary text-sm border border-text-grey focus:outline-none focus:border-quaternary"
+                className="w-full pl-10 pr-4 py-2.5 rounded-full bg-bgLayout font-bold text-text-primary text-sm border border-[#D9D9D9] focus:outline-none focus:border-quaternary"
               />
               <svg 
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" 
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold" 
                 width="20" 
                 height="20" 
                 viewBox="0 0 24 24" 

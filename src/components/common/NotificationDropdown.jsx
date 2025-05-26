@@ -28,6 +28,14 @@ const notifications = [
     time: "1m",
     unread: true,
   },
+  {
+    id: 3,
+    title: "Wallet Topup",
+    description: "Successfully added funds to account",
+    amount: "+ ₦ 20,000",
+    time: "1m",
+    unread: true,
+  },
 ];
 
 const NotificationDropdown = ({ onMarkRead, onClose }) => (
@@ -57,13 +65,13 @@ const NotificationDropdown = ({ onMarkRead, onClose }) => (
           {notifications.map((n, idx) => (
             <div key={n.id}>
               <div className="flex items-start gap-3 py-3">
-                <div className="w-10 h-10 rounded-full flex items-center justify-center mt-1 bg-[#FFF4ED]">
-                  <FaWallet className="text-quinary text-lg" />
+                <div className="w-10 h-10 rounded-full flex items-center justify-center mt-1 bg-[#D9700A0D]">
+                  <img className="w-5 h-5 [filter:invert(48%)_sepia(79%)_saturate(2476%)_hue-rotate(346deg)_brightness(118%)_contrast(119%)]" src="icons/wallet-topup.svg" alt="wallet-topup" />
                 </div>
                 <div className="flex-1">
                   <div className="flex justify-between items-center">
                     <span className="font-semibold text-text-primary">{n.title}</span>
-                    <span className="text-xs text-text-grey">{n.time}</span>
+                    <span className="text-sm text-text-grey">{n.time}</span>
                   </div>
                   <div className="text-xs text-text-grey">{n.description}</div>
                   <div className="text-sm font-bold text-success mt-1">{n.amount}</div>
@@ -96,8 +104,8 @@ const NotificationDropdown = ({ onMarkRead, onClose }) => (
           {notifications.map((n, idx) => (
             <div key={n.id}>
               <div className="flex items-start gap-3 py-3">
-                <div className="w-10 h-10 rounded-full flex items-center justify-center mt-1 bg-[#FFF4ED]">
-                  <FaWallet className="text-quinary text-lg" />
+                <div className="w-10 h-10 rounded-full flex items-center justify-center mt-1 bg-[#D9700A0D]">
+                  <img className="w-5 h-5 [filter:invert(48%)_sepia(79%)_saturate(2476%)_hue-rotate(346deg)_brightness(118%)_contrast(119%)]" src="icons/wallet-topup.svg" alt="wallet-topup" />
                 </div>
                 <div className="flex-1">
                   <div className="flex justify-between items-center">
