@@ -14,7 +14,7 @@ const MenuItem = ({ imageSrc, text, to }) => {
   return (
     <Link 
       to={to} 
-      className={`flex items-center ${isCollapsed ? 'justify-center' : 'mx-2'} gap-3 px-6 py-2 text-[15px] text-text-secondary hover:text-quaternary hover:bg-quaternary-light rounded-lg group`}
+      className={`flex items-center ${isCollapsed ? 'justify-center' : 'mx-2'} font-semibold gap-3 px-6 py-4 text-[15px] text-text-secondary hover:text-quaternary hover:bg-quaternary-light rounded-lg group`}
     >
       <div 
         className="w-5 h-5 bg-text-secondary group-hover:bg-quaternary transition-colors"
@@ -34,7 +34,7 @@ const SectionTitle = ({ title }) => {
   if (isCollapsed) return null;
   
   return (
-    <h2 className="text-xs font-semibold text-gray-400 px-6 py-3 uppercase">
+    <h2 className="text-sm font-bold text-text-secondary px-6 py-3 uppercase">
       {title}
     </h2>
   );
@@ -54,7 +54,7 @@ const Sidebar = () => {
       )}
       
       <aside className={`fixed left-0 top-0 h-screen 
-        ${isCollapsed ? 'w-[80px] -translate-x-full lg:translate-x-0' : 'w-[260px]'} 
+        ${isCollapsed ? 'w-[80px] -translate-x-full lg:translate-x-0' : 'w-[270px] pb-32'} 
         bg-background overflow-y-auto transition-all duration-300 z-40
         lg:translate-x-0 ${!isCollapsed ? 'translate-x-0' : ''}`}
       >
@@ -68,7 +68,7 @@ const Sidebar = () => {
               className="h-8 w-8 mx-auto" 
             />
           ) : (
-            <div className="flex items-center justify-between w-full">
+            <div className="flex items-center justify-center w-full">
               <img 
                 src="/images/CruiseTech-2.svg" 
                 alt="CruiseTech" 
@@ -99,16 +99,16 @@ const Sidebar = () => {
         <div className={`${isCollapsed ? 'px-2' : 'px-6'} py-8 flex flex-col items-center text-center`}>
           {/* Avatar with orange border */}
           <div className="relative">
-            <div className={`${isCollapsed ? 'w-12 h-12' : 'w-24 h-24'} rounded-full border-[3px] border-quaternary p-0.5 transition-all duration-300`}>
+            <div className={`${isCollapsed ? 'w-12 h-12' : 'w-24 h-24'} rounded-full border-[4px] border-quaternary transition-all duration-300`}>
               <img 
-                src="/avatar.png" 
+                src="icons/female.svg" 
                 alt="Profile" 
                 className="w-full h-full rounded-full object-cover"
               />
             </div>
             {/* Level Badge - Only show when not collapsed */}
             {!isCollapsed && (
-              <div className="absolute -bottom-[17px] left-1/2 -translate-x-1/2 bg-white px-4 py-2 rounded-full shadow-sm flex items-center gap-1.5 w-28 justify-center">
+              <div className="absolute -bottom-[17px] left-1/2 -translate-x-1/2 bg-white px-4 py-2 rounded-full shadow-sm flex items-center gap-1.5 w-23 justify-center">
                 <img src="/level-badge.png" alt="Level" className="w-4 h-4" />
                 <span className="text-xs font-medium">Level 1</span>
               </div>
@@ -121,7 +121,7 @@ const Sidebar = () => {
               <h3 className="text-lg font-semibold text-text-secondary mb-1 mt-8">
                 Fortune Ivo
               </h3>
-              <p className="text-sm text-text-secondary">
+              <p className="text-sm font-semibold text-text-grey">
                 ivofortune35@gmail.com
               </p>
             </>
@@ -160,13 +160,14 @@ const Sidebar = () => {
 
         {/* WhatsApp Channel */}
         {!isCollapsed && (
-          <div className="px-6 pt-6 pb-4">
-            <div className="bg-[#E7F7E8] rounded-xl p-4">
-              <div className="flex items-center gap-2">
-                <FaWhatsapp className="text-[#25D366] text-xl" />
+          <div className="px-4 pt-6 pb-4">
+            <div className="bg-[#5FD6691A] rounded-lg p-4 w-full">
+              <div className="flex items-center gap-2 py-">
+              <img className='self-start' src ="/icons/whatsapp.svg"/>
+
                 <div>
-                  <div className="text-sm font-medium">Join our WhatsApp Channel</div>
-                  <div className="text-xs text-gray-500">for news and update</div>
+                  <h3 className="text-xs font-bold mb-3">Join our WhatsApp Channel</h3>
+                  <p className="text-xs text-text-grey">for news and update</p>
                 </div>
               </div>
             </div>
@@ -174,9 +175,10 @@ const Sidebar = () => {
         )}
 
         {/* Logout Button */}
-        <div className={`${isCollapsed ? 'px-2' : 'px-6'} pb-6`}>
-          <button className={`w-full bg-quaternary hover:bg-quaternary-dark text-white py-3 rounded-xl flex items-center justify-center gap-2 transition-colors ${isCollapsed ? 'px-2' : ''}`}>
-            <FaSignOutAlt />
+        <div className={`${isCollapsed ? 'px-2' : 'px-6'} pb-6 `}>
+          <button className={`w-full bg-quinary hover:bg-quaternary text-white py-3 rounded-lg flex items-center justify-center gap-2 transition-colors ${isCollapsed ? 'px-2' : ''}`}>
+          <img className='' src ="/icons/logout.svg"/>
+
             {!isCollapsed && <span>Logout</span>}
           </button>
         </div>

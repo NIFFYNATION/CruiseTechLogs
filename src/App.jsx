@@ -6,7 +6,7 @@ import Tabs from './components/MobileTab'
 function App() {
   return (
     <ThemeProvider>
-      <div className="min-h-screen bg-secondary">
+      <div className="min-h-screen">
           {/* Fixed position theme toggle */}
           <div className="fixed bottom-20 right-4 z-50">
                     <ThemeToggle />

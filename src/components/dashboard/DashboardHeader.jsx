@@ -147,7 +147,7 @@ const DashboardHeader = () => {
               onClick={() => setShowAccountDropdown((v) => !v)}
             >
               <img 
-                src="/avatar.png" 
+                src="icons/female.svg" 
                 alt="Fortune Ivo" 
                 className="w-8 h-8 rounded-full object-cover"
               />
