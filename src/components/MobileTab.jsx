@@ -9,7 +9,7 @@ import {
 import { useLocation, Link } from 'react-router-dom';
 
 const tabs = [
-  { name: 'Home', path: '/', icon: HomeIcon },
+  { name: 'Home', path: '/dashboard', icon: HomeIcon },
   { name: 'Number', path: '/number', icon: PhoneIcon },
   { name: 'Accounts', path: '/accounts', icon: UserGroupIcon },
   { name: 'Wallet', path: '/wallet', icon: WalletIcon },

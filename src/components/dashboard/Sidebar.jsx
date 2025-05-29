@@ -68,11 +68,11 @@ const Sidebar = () => {
               className="h-8 w-8 mx-auto" 
             />
           ) : (
-            <div className="flex items-center justify-between md:justify-center w-full">
+            <div className="flex items-center justify-end md:justify-between md:justify-center w-full">
               <img 
                 src="/images/CruiseTech-2.svg" 
                 alt="CruiseTech" 
-                className="h-8" 
+                className="h-8 hidden md:flex" 
               />
               {/* Close Button - Only show on mobile */}
               <button 
