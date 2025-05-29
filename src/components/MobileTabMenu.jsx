@@ -23,7 +23,8 @@ const MobileTabMenu = ({ onClose }) => (
     {/* Popup Menu */}
     <div className="fixed left-1/2 bottom-24 z-50 -translate-x-1/2 flex flex-col items-center">
       {/* Card */}
-      <div className="bg-[#FF6B00] rounded-xl pt-6 pb-8 px-4 w-[90vw] max-w-xs shadow-lg relative overflow-visible">
+      <div className="bg-[#FA5A15F2] rounded-xl pt-6 pb-8 px-4 w-[90vw] max-w-xs shadow-lg relative overflow-visible"
+      >
         <div className="grid grid-cols-3 gap-y-6 gap-x-2">
           {menuItems.map((item) => (
             <Link
