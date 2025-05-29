@@ -68,7 +68,7 @@ const Sidebar = () => {
               className="h-8 w-8 mx-auto" 
             />
           ) : (
-            <div className="flex items-center justify-center w-full">
+            <div className="flex items-center justify-between md:justify-center w-full">
               <img 
                 src="/images/CruiseTech-2.svg" 
                 alt="CruiseTech" 
@@ -86,7 +86,7 @@ const Sidebar = () => {
                   fill="none" 
                   stroke="currentColor" 
                   strokeWidth="2"
-                  className="text-gray-500"
+                  className="text-text-grey"
                 >
                   <path d="M18 6L6 18M6 6l12 12"/>
                 </svg>
@@ -108,7 +108,7 @@ const Sidebar = () => {
             </div>
             {/* Level Badge - Only show when not collapsed */}
             {!isCollapsed && (
-              <div className="absolute -bottom-[17px] left-1/2 -translate-x-1/2 bg-white px-4 py-2 rounded-full shadow-sm flex items-center gap-1.5 w-23 justify-center">
+              <div className="absolute -bottom-[17px] left-1/2 -translate-x-1/2 bg-white px-4 py-2 rounded-full shadow-sm flex items-center gap-1.5 w-25 justify-center">
                 <img src="/level-badge.png" alt="Level" className="w-4 h-4" />
                 <span className="text-xs font-medium">Level 1</span>
               </div>
@@ -159,23 +159,39 @@ const Sidebar = () => {
         </div>
 
         {/* WhatsApp Channel */}
-        {!isCollapsed && (
-          <div className="px-4 pt-6 pb-4">
-            <div className="bg-[#5FD6691A] rounded-lg p-4 w-full">
-              <div className="flex items-center gap-2 py-">
-              <img className='self-start' src ="/icons/whatsapp.svg"/>
-
-                <div>
-                  <h3 className="text-xs font-bold mb-3">Join our WhatsApp Channel</h3>
-                  <p className="text-xs text-text-grey">for news and update</p>
+        <div className="px-4 pt-6 pb-4">
+          {isCollapsed ? (
+            <a
+              href="https://whatsapp.com/your-channel-link" // <-- Replace with your actual channel link
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center w-12 h-12 bg-success rounded-lg hover:bg-[#5FD66933] transition-colors"
+              title="Join our WhatsApp Channel"
+            >
+              <img src="/icons/whatsapp.svg" alt="WhatsApp" className="w-6 h-6" />
+            </a>
+          ) : (
+            <a
+              href="https://whatsapp.com/your-channel-link" // <-- Replace with your actual channel link
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block"
+            >
+              <div className="bg-[#5FD6691A] rounded-lg p-4 w-full hover:bg-[#5FD66933] transition-colors">
+                <div className="flex items-center gap-2">
+                  <img className="self-start" src="/icons/whatsapp.svg" alt="WhatsApp" />
+                  <div>
+                    <h3 className="text-xs font-bold mb-3">Join our WhatsApp Channel</h3>
+                    <p className="text-xs text-text-grey">for news and update</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-        )}
+            </a>
+          )}
+        </div>
 
         {/* Logout Button */}
-        <div className={`${isCollapsed ? 'px-2' : 'px-6'} pb-6 `}>
+        <div className={`${isCollapsed ? 'px-4' : 'px-6'} pb-6 `}>
           <button className={`w-full bg-quinary hover:bg-quaternary text-white py-3 rounded-lg flex items-center justify-center gap-2 transition-colors ${isCollapsed ? 'px-2' : ''}`}>
           <img className='' src ="/icons/logout.svg"/>
 

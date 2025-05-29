@@ -6,7 +6,7 @@ const AccountDropdown = ({
   user = {
     name: "Fortune Ivo",
     email: "ivofortune35@gmail.com",
-    avatar: "/avatar.png",
+    avatar: "icons/female.svg",
     level: 1,
     progress: 20,
   },
@@ -42,13 +42,13 @@ const AccountDropdown = ({
                 alt={user.name}
                 className="w-20 h-20 rounded-full object-cover border-4 border-[#FF6B00]"
               />
-              <div className="w-[110px] absolute -bottom-3 left-1/2 -translate-x-1/2 bg-white px-2 py-1 rounded-full shadow flex items-center gap-2 justify-center border border-gray-100">
+              <div className="w-[110px] absolute -bottom-3 left-1/2 -translate-x-1/2 bg-white px-2 py-1 rounded-full shadow-[0_9px_9px_-2px_rgba(0,0,0,0.1)] flex items-center gap-2 justify-center border border-gray-100">
                 <span className="inline-block w-4 h-4 bg-[url('/level-badge.png')] bg-cover" />
                 <span className="text-xs font-semibold text-[#A97B2A]">Level {user.level}</span>
               </div>
             </div>
             <div className="font-semibold text-lg text-text-primary mt-4">{user.name}</div>
-            <div className="text-text-grey text-sm mb-2">{user.email}</div>
+            <div className="text-[#777777] text-sm font-semibold mb-2">{user.email}</div>
           </div>
           {/* Progress Section */}
           <div className="border-t border-text-grey pt-4 mb-10 p-6">
@@ -70,19 +70,19 @@ const AccountDropdown = ({
             </button>
           </div>
           {/* Actions */}
-          <div className="flex bg-[] border-t border-b border-text-grey divide-x divide-text-grey">
+          <div className="flex border-t-2 border-b-2 border-[#C7C7C7] bg-bgLayout text-[#777777] font-semibold">
             <button
-              className="flex-1 flex items-center justify-center gap-2 text-gray-600 hover:text-primary py-4"
+              className="flex-1 flex items-center justify-center gap-2 text-gray-600 hover:text-primary border-r-2 border-[#C7C7C7] mx-2"
               onClick={onEditProfile}
             >
-              <FaEdit />
+              <img src="icons/edit-bold.svg" alt="Edit Profile" />
               Edit Profile
             </button>
             <button
               className="flex-1 flex items-center justify-center gap-2 text-gray-600 hover:text-danger py-4"
               onClick={onLogout}
             >
-              <FaSignOutAlt />
+              <img src="icons/logout-bold.svg" alt="Logout" />
               Logout
             </button>
           </div>
@@ -93,28 +93,28 @@ const AccountDropdown = ({
     <div className="hidden md:block">
       <div className="absolute right-0 mt-8 w-[300px] md:w-[370px] bg-background rounded-2xl shadow-xl z-50 ">
         {/* Top Section */}
-        <div className="flex items-center gap-4 mb-4 p-4">
+        <div className="flex items-center gap-4 mb-4 p-4 bg-bgLayout border-b-2 border-[#C7C7C7] rounded-t-2xl">
           <img
             src={user.avatar}
             alt={user.name}
             className="w-16 h-16 rounded-full object-cover"
           />
           <div>
-            <div className="font-semibold text-lg text-text-primary">{user.name}</div>
+            <h3 className="font-semibold text-lg text-text-primary">{user.name}</h3>
             <div className="flex items-center gap-2 mt-1">
-              <span className="flex items-center gap-1 bg-[#FFF4ED] text-[#A97B2A] px-3 py-1 rounded-full text-xs font-semibold">
+              <span className="flex items-center gap-1 bg-background text-[#A97B2A] px-3 py-1 rounded-full text-xs font-semibold">
                 <span className="inline-block w-4 h-4 bg-[url('/level-badge.png')] bg-cover" />
                 Level {user.level}
               </span>
             </div>
-            <div className="flex items-center gap-2 mt-2">
-            <FaEnvelope className="text-text-grey" />
-              <span className="text-text-grey text-sm">{user.email}</span>
+            <div className="flex items-center gap-4 mt-2">
+            <FaEnvelope className="text-[#777777]" />
+              <span className="text-[#777777] text-sm font-semibold">{user.email}</span>
             </div>
           </div>
         </div>
         {/* Progress Section */}
-        <div className="border-t border-text-grey pt-4 mb-4 p-8">
+        <div className="pt-4 p-8">
           <div className="flex items-center gap-2 mb-2">
             <span className="flex items-center gap-1">
               <span className="inline-block w-6 h-6 bg-[url('/level-badge.png')] bg-cover" />
@@ -136,20 +136,20 @@ const AccountDropdown = ({
         </div>
         {/* Actions */}
         <div className="">
-          <div className="flex border-t border-text-grey rounded-b-2xl">
+          <div className="flex border-t-2 border-[#C7C7C7] rounded-b-2xl bg-bgLayout">
             <button
               className="flex-1 flex items-center justify-center gap-2 text-gray-600 hover:text-primary py-5"
               onClick={onEditProfile}
             >
-              <FaEdit />
+              <img src="icons/edit-bold.svg" alt="Edit Profile" />
               Edit Profile
             </button>
-            <div className="w-px bg-text-grey mx-2" />
+            <div className="border-r-2 border-[#C7C7C7] mx-2" />
             <button
               className="flex-1 flex items-center justify-center gap-2 text-gray-600 hover:text-danger py-2"
               onClick={onLogout}
             >
-              <FaSignOutAlt />
+              <img src="icons/logout-bold.svg" alt="Logout" />
               Logout
             </button>
           </div>

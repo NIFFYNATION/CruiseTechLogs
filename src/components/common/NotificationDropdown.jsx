@@ -112,8 +112,8 @@ const NotificationDropdown = ({ onMarkRead, onClose }) => (
                     <span className="font-semibold text-text-primary">{n.title}</span>
                     <span className="text-xs text-text-grey">{n.time}</span>
                   </div>
-                  <div className="text-xs text-text-grey">{n.description}</div>
-                  <div className="text-sm font-bold text-success mt-1">{n.amount}</div>
+                  <p className="text-xs text-text-grey">{n.description}</p>
+                  <p className="text-sm font-bold text-success mt-1">{n.amount}</p>
                 </div>
                 {n.unread && (
                   <span className="w-2 h-2 bg-quinary rounded-full mt-2 ml-2" />

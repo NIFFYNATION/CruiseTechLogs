@@ -41,8 +41,8 @@ const TransactionsTable = ({ transactions = [] }) => {
         <div className=" bg-background rounded-lg rounded-b-none p-4 sm:px-6 sm:pb-0 sm:pt-6 hidden sm:block flex-col sm:flex-row justify-between items-start sm:items-center mb-0.5 mt-8 gap-4 sm:gap-0 ">
           <h2 className="text-lg sm:text-xl font-semibold text-text-primary  mb-1">All Transactions</h2>
         <div className='flex justify-between'>
-          <div className="flex items-center mt-3 border-b-2   border-primary">
-            <button className="text-primary font-medium  mr-4 p-3">
+          <div className="flex items-center mt-3 border-b-3   border-primary">
+            <button className="text-primary font-bold  mr-4 p-3">
               History
             </button>
           </div>
