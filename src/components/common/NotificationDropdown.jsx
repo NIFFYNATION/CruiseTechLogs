@@ -66,7 +66,7 @@ const NotificationDropdown = ({ onMarkRead, onClose }) => (
             <div key={n.id}>
               <div className="flex items-start gap-3 py-3">
                 <div className="w-10 h-10 rounded-full flex items-center justify-center mt-1 bg-[#D9700A0D]">
-                  <img className="w-5 h-5 [filter:invert(48%)_sepia(79%)_saturate(2476%)_hue-rotate(346deg)_brightness(118%)_contrast(119%)]" src="icons/wallet-topup.svg" alt="wallet-topup" />
+                  <img className="w-5 h-5 [filter:invert(48%)_sepia(79%)_saturate(2476%)_hue-rotate(346deg)_brightness(118%)_contrast(119%)]" src="/icons/wallet-topup.svg" alt="wallet-topup" />
                 </div>
                 <div className="flex-1">
                   <div className="flex justify-between items-center">
@@ -105,7 +105,7 @@ const NotificationDropdown = ({ onMarkRead, onClose }) => (
             <div key={n.id}>
               <div className="flex items-start gap-3 py-3">
                 <div className="w-10 h-10 rounded-full flex items-center justify-center mt-1 bg-[#D9700A0D]">
-                  <img className="w-5 h-5 [filter:invert(48%)_sepia(79%)_saturate(2476%)_hue-rotate(346deg)_brightness(118%)_contrast(119%)]" src="icons/wallet-topup.svg" alt="wallet-topup" />
+                  <img className="w-5 h-5 [filter:invert(48%)_sepia(79%)_saturate(2476%)_hue-rotate(346deg)_brightness(118%)_contrast(119%)]" src="/icons/wallet-topup.svg" alt="wallet-topup" />
                 </div>
                 <div className="flex-1">
                   <div className="flex justify-between items-center">

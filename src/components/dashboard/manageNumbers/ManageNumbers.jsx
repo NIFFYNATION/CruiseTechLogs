@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FaSearch, FaTrash } from "react-icons/fa";
 import { AiFillEye } from 'react-icons/ai'
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 
 
 const numbers = [
@@ -27,11 +27,6 @@ const ManageNumbers = () => {
     <div className="">
       {/* ----------- MOBILE ONLY ----------- */}
       <div className="block md:hidden px-2">
-        {/* Header */}
-        <div className="flex justify-center bg-quaternary-light gap-2 rounded-full mb-8 p-2 mt-8 items-center">
-        <img src="/icons/bell.png" alt="bell" className="" />
-          <p className="text-text-secondary text-sm font-medium">You have 2 messages! <span className="text-quinary text-base font-medium"><Link >click to view</Link></span></p>
-        </div>
         <h2 className="text-xl font-semibold text-text-primary mt-2">Manage Numbers</h2>
         <p className="text-text-secondary text-sm mb-4">
           Get phone number to receive OTP for short term or long term use.

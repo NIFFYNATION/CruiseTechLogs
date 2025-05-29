@@ -70,7 +70,7 @@ const TransactionsTable = ({ transactions = [] }) => {
           <div key={transaction.id} className="flex justify-between items-center py-4">
             <div className='flex justify-between'>
             <div className="flex-shrink-0">
-            <img className="[filter:invert(48%)_sepia(79%)_saturate(2476%)_hue-rotate(346deg)_brightness(118%)_contrast(119%)] w-4 h-4" src="icons/wallet-topup.svg" alt="wallet-topup" />
+            <img className="[filter:invert(48%)_sepia(79%)_saturate(2476%)_hue-rotate(346deg)_brightness(118%)_contrast(119%)] w-4 h-4" src="/icons/wallet-topup.svg" alt="wallet-topup" />
 
             </div>
             <div className="ml-3 flex-1 ml-9">
@@ -95,7 +95,7 @@ const TransactionsTable = ({ transactions = [] }) => {
           >
             <div className="flex items-center gap-4 w-full sm:w-auto">
               <div className="w-10 h-10  flex items-center justify-center flex-shrink-0">
-                <img  src="icons/wallet-topup.svg" alt="wallet-topup" />
+                <img  src="/icons/wallet-topup.svg" alt="wallet-topup" />
               </div>
               <div>
                 <p className="font-medium text-text-primary mb-2">{transaction.title}</p>

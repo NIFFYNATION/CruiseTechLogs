@@ -92,7 +92,7 @@ const WelcomeSection = () => {
                   Buy Account Now
                 </button>
               <img 
-                src="icons/holding-smartphone.svg" 
+                src="/icons/holding-smartphone.svg" 
                 alt="Buy Accounts Now" 
                 className="w-28 h-28 object-contain"
               />

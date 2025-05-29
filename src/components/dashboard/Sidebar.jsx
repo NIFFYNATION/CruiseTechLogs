@@ -101,7 +101,7 @@ const Sidebar = () => {
           <div className="relative">
             <div className={`${isCollapsed ? 'w-12 h-12' : 'w-24 h-24'} rounded-full border-[4px] border-quaternary transition-all duration-300`}>
               <img 
-                src="icons/female.svg" 
+                src="/icons/female.svg" 
                 alt="Profile" 
                 className="w-full h-full rounded-full object-cover"
               />

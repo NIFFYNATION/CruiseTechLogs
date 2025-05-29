@@ -1,12 +1,12 @@
 import React from "react";
-import { FaEdit, FaSignOutAlt, FaEnvelope } from "react-icons/fa";
+import {  FaEnvelope } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
 
 const AccountDropdown = ({
   user = {
     name: "Fortune Ivo",
     email: "ivofortune35@gmail.com",
-    avatar: "icons/female.svg",
+    avatar: "/icons/female.svg",
     level: 1,
     progress: 20,
   },
@@ -75,14 +75,14 @@ const AccountDropdown = ({
               className="flex-1 flex items-center justify-center gap-2 text-gray-600 hover:text-primary border-r-2 border-[#C7C7C7] mx-2"
               onClick={onEditProfile}
             >
-              <img src="icons/edit-bold.svg" alt="Edit Profile" />
+              <img src="/icons/edit-bold.svg" alt="Edit Profile" />
               Edit Profile
             </button>
             <button
               className="flex-1 flex items-center justify-center gap-2 text-gray-600 hover:text-danger py-4"
               onClick={onLogout}
             >
-              <img src="icons/logout-bold.svg" alt="Logout" />
+              <img src="/icons/logout-bold.svg" alt="Logout" />
               Logout
             </button>
           </div>
@@ -141,7 +141,7 @@ const AccountDropdown = ({
               className="flex-1 flex items-center justify-center gap-2 text-gray-600 hover:text-primary py-5"
               onClick={onEditProfile}
             >
-              <img src="icons/edit-bold.svg" alt="Edit Profile" />
+              <img src="/icons/edit-bold.svg" alt="Edit Profile" />
               Edit Profile
             </button>
             <div className="border-r-2 border-[#C7C7C7] mx-2" />
@@ -149,7 +149,7 @@ const AccountDropdown = ({
               className="flex-1 flex items-center justify-center gap-2 text-gray-600 hover:text-danger py-2"
               onClick={onLogout}
             >
-              <img src="icons/logout-bold.svg" alt="Logout" />
+              <img src="/icons/logout-bold.svg" alt="Logout" />
               Logout
             </button>
           </div>

@@ -73,7 +73,7 @@ const ProductCard = ({
   size="sm"
   onClick={onBuy}
 >
-  <img className='w-4 h-4 mr-2' src="icons/cart.svg" alt="" />
+  <img className='w-4 h-4 mr-2' src="/icons/cart.svg" alt="" />
   Buy Now
 </Button>
       </div>
