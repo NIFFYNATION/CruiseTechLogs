@@ -66,17 +66,5 @@ theme
   --color-dark-secondary: #2A3B47;    /* Deep blue-gray for secondary elements */
   --color-dark-text-primary: #FFFFFF; /* Pure white for primary text */
   --color-dark-background-alt: #0A52661A; /* Slightly lighter for contrast */
-  
-
-
-/* Dark mode overrides */
-dark :
-  --color-primary: var(--color-dark-primary);
-  --color-secondary: var(--color-dark-secondary);
-  --color-text-primary: var(--color-dark-text-primary);
-  --color-text-secondary: var(--color-dark-text-secondary);
-  --color-background: var(--color-dark-background);
-  --color-background-alt: var(--color-dark-background-alt);
-
 
 
