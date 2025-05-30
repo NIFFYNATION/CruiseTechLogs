@@ -134,7 +134,7 @@ const Sidebar = () => {
           <nav>
             <MenuItem imageSrc="/icons/home.svg" text="Home" to="/dashboard" />
             <MenuItem imageSrc="/icons/manage-numbers.svg" text="Manage Numbers" to="/dashboard/manage-numbers" />
-            <MenuItem imageSrc="/icons/buy-number.svg" text="Buy Number" to="/dashboard/buy-number" />
+            <MenuItem imageSrc="/icons/buy-number.svg" text="Buy Number" to="/dashboard/buy-numbers" />
             <MenuItem imageSrc="/icons/social-media.svg" text="Social Media Accounts" to="/dashboard/social-media" />
           </nav>
         </div>

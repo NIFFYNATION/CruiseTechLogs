@@ -5,6 +5,7 @@ import Registration from './Pages/registration';
 import DashboardLayout from './components/dashboard/DashboardLayout';
 import Dashboard from './Pages/Dashboard';
 import ManageNumbers from './components/dashboard/manageNumbers/ManageNumbers';
+import BuyNumbers from './components/dashboard/buyNumbers/BuyNumbers';
 import App from './App';
 
 export const router = createBrowserRouter([
@@ -31,6 +32,7 @@ export const router = createBrowserRouter([
         children: [
           { path: '', element: <Dashboard /> },
           { path: 'manage-numbers', element: <ManageNumbers /> },
+          { path: 'buy-numbers', element: <BuyNumbers /> },
         ],
       },
     ],

@@ -14,13 +14,13 @@ const NumberDetailsModal = ({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-background rounded-lg shadow-xl w-full max-w-[600px] mx-2 relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-[600px] mx-2 mb-10 relative">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border-grey bg-bgLayout rounded-t-lg px-6 py-4">
-          <span className="text-lg font-semibold">{number}</span>
+          <span className="text-base md:text-lg font-semibold">{number}</span>
           <button
-            className="bg-[#FF6B00] text-white rounded-full px-4 py-2 flex items-center gap-2 font-semibold hover:bg-[#ff8c1a] transition"
+            className="bg-quinary text-sm md:text-lg text-white rounded-full px-3 py-2 flex items-center gap-2 font-semibold hover:bg-quaternary transition"
             onClick={onReload}
           >
                           <img src="/icons/reload.svg" alt="Reload number" />

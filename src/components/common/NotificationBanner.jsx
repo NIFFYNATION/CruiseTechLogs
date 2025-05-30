@@ -6,7 +6,7 @@ const NotificationBanner = ({ messageCount = 0 }) => {
 
   return (
     <div className="flex md:hidden justify-center bg-quaternary-light gap-2 rounded-full mb-8 p-2 mt-8 items-center">
-      <img src="/icons/bell.png" alt="bell" className="" />
+      <img src="/icons/bell.svg" alt="bell" className="" />
       <p className="text-text-secondary text-sm font-medium">
         You have {messageCount} messages! 
         <span className="text-quinary text-base font-medium">
