@@ -5,7 +5,7 @@ import MobileTabMenu from './MobileTabMenu';
 // Use image paths for icons
 const tabs = [
   { name: 'Home', path: '/dashboard', icon: '/icons/tabHome.svg' },
-  { name: 'Number', path: '/buy-number', icon: '/icons/tabBuyNum.svg' },
+  { name: 'Number', path: '/dashboard/buy-number', icon: '/icons/tabBuyNum.svg' },
   { name: 'Accounts', path: '/accounts', icon: '/icons/tabSocial.svg' },
   { name: 'Wallet', path: '/wallet', icon: '/icons/tabWallet.svg' },
 ];

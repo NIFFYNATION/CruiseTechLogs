@@ -2,26 +2,72 @@ import React, { useState } from "react";
 import { FaSearch, FaTrash } from "react-icons/fa";
 import { AiFillEye } from 'react-icons/ai'
 import { Link } from "react-router-dom";
+import NumberDetailsModal from './NumberDetailsModal';
 
 
 const numbers = [
   { id: 1, number: "(5555) 123 - 4567", expiration: "1h 9m 10s", isActive: true },
-  { id: 2, number: "(5555) 123 - 4567", expiration: "1m 30s", isActive: false, expirationDate: "12/04/2025" },
-  { id: 3, number: "(5555) 123 - 4567", expiration: "1h 9m 10s", isActive: true },
-  { id: 4, number: "(5555) 123 - 4567", expiration: "1m 30s", isActive: false, expirationDate: "12/04/2025" },
-  { id: 5, number: "(5555) 123 - 4567", expiration: "1h 9m 10s", isActive: true },
-  { id: 6, number: "(5555) 123 - 4567", expiration: "1m 30s", isActive: false, expirationDate: "12/04/2025" },
+  { id: 2, number: "(5555) 123 - 4567", expiration: "1m 30s", isActive: true, expirationDate: "12/04/2025" },
+  { id: 3, number: "(5555) 123 - 4567", expiration: "0s", isActive: true, expirationDate: "12/04/2025" },
+  { id: 4, number: "(5555) 123 - 4567", expiration: "0s", isActive: true, expirationDate: "12/04/2025" },
+  { id: 5, number: "(5555) 123 - 4567", expiration: "0s", isActive: true, expirationDate: "12/04/2025" },
+  { id: 6, number: "(5555) 123 - 4567", expiration: "1h 9m 10s", isActive: true },
+  { id: 7, number: "(5555) 123 - 4567", expiration: "1m 30s", isActive: true, expirationDate: "12/04/2025" },
+  { id: 8, number: "(5555) 123 - 4567", expiration: "1h 9m 10s", isActive: true },
 ];
+
+// Helper function
+function isLessThanOneHour(expiration) {
+  return expirationToSeconds(expiration) < 3600 && expirationToSeconds(expiration) > 0;
+}
+
+function expirationToSeconds(expiration) {
+  // Handles formats like "1h 9m 10s", "1m 30s", "59s", etc.
+  let total = 0;
+  const h = expiration.match(/(\d+)\s*h/);
+  const m = expiration.match(/(\d+)\s*m/);
+  const s = expiration.match(/(\d+)\s*s/);
+  if (h) total += parseInt(h[1], 10) * 3600;
+  if (m) total += parseInt(m[1], 10) * 60;
+  if (s) total += parseInt(s[1], 10);
+  return total;
+}
 
 const ManageNumbers = () => {
   const [activeTab, setActiveTab] = useState("Active");
   const [search, setSearch] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedNumber, setSelectedNumber] = useState(null);
 
-  const filteredNumbers = numbers.filter(
-    (n) =>
-      (activeTab === "Active" ? n.isActive : !n.isActive) &&
-      n.number.toLowerCase().includes(search.toLowerCase())
-  );
+  // Dummy verification code for demo
+  const verificationCode = "1234";
+
+  const filteredNumbers = numbers.filter((n) => {
+    const seconds = expirationToSeconds(n.expiration);
+    if (activeTab === "Active") {
+      return n.isActive && seconds > 0 && n.number.toLowerCase().includes(search.toLowerCase());
+    } else {
+      return (!n.isActive || seconds <= 0) && n.number.toLowerCase().includes(search.toLowerCase());
+    }
+  });
+
+  // Handler for "View" button
+  const handleView = (numberObj) => {
+    setSelectedNumber(numberObj);
+    setModalOpen(true);
+  };
+
+  // Handler for reload, copy, etc.
+  const handleReload = () => {
+    // Implement reload logic here
+    alert("Reload Number clicked!");
+  };
+  const handleCopyNumber = () => {
+    navigator.clipboard.writeText(selectedNumber.number);
+  };
+  const handleCopyCode = () => {
+    navigator.clipboard.writeText(verificationCode);
+  };
 
   return (
     <div className="">
@@ -66,7 +112,7 @@ const ManageNumbers = () => {
         <div className="bg-background rounded-2xl shadow p-2">
           <table className="w-full">
             <thead>
-              <tr className="text-left text-text-secondary text-xs">
+              <tr className="text-left text-xs">
                 <th className="py-2 px-2">Number</th>
                 <th className="py-2 px-2">Expiration</th>
                 <th className="py-2 px-2">Actions</th>
@@ -78,7 +124,7 @@ const ManageNumbers = () => {
                   <td className="py-3 px-2 font-medium text-text-primary text-sm">{n.number}</td>
                   <td className="py-3 px-2 font-semibold text-sm">
                     {activeTab === "Active" ? (
-                      <span className={n.expiration.includes("h") ? "text-success" : "text-danger"}>
+                      <span className={isLessThanOneHour(n.expiration) ? "text-danger" : "text-success"}>
                         {n.expiration}
                       </span>
                     ) : (
@@ -88,8 +134,11 @@ const ManageNumbers = () => {
                     )}
                   </td>
                   <td className="py-3 px-2">
-                    <button className="bg-quaternary-light text-quinary font-semibold rounded-full px-2 py-1 flex items-center gap-1 text-sm">
-                      View <AiFillEye className="text-quinary text-base" />
+                    <button
+                      className="bg-quaternary-light text-quinary font-semibold rounded-full px-2 py-1 flex items-center gap-1 text-sm"
+                      onClick={() => handleView(n)}
+                    >
+                      View <span className="text-xs"><AiFillEye className="text-quinary" /></span>
                     </button>
                   </td>
                 </tr>
@@ -106,7 +155,7 @@ const ManageNumbers = () => {
         </div>
       </div>
       {/* ----------- DESKTOP/TABLET ONLY ----------- */}
-      <div className="hidden md:block">
+      <div className="hidden md:block mt-8">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
           <h2 className="text-2xl font-semibold text-text-primary">Manage Numbers</h2>
           <div className="flex items-center gap-4">
@@ -117,7 +166,7 @@ const ManageNumbers = () => {
           </div>
         </div>
         {/* Tabs */}
-        <div className="flex justify-between gap-8 border-b border-text-grey mb-10
+        <div className="flex justify-between gap-8 border-b border-[#ECECEC] mb-10
         ">
         <div className="flex gap-8">
           {["Active", "Inactive"].map((tab) => (
@@ -135,12 +184,12 @@ const ManageNumbers = () => {
           ))}
            
         </div>
-        <div className="flex bg-background rounded-lg border border-text-grey px-3 py-2 mb-4 items-center">
+        <div className="flex bg-background rounded-sm  px-3 py-2 mb-4 items-center">
               <FaSearch className="text-text-grey  mr-2" />
               <input
                 type="text"
                 placeholder="Search"
-                className="outline-none bg-transparent text-sm text-text-grey"
+                className="outline-none bg-transparent text-sm font- text-text-grey"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
@@ -148,19 +197,19 @@ const ManageNumbers = () => {
         </div>
         
         {/* Table */}
-        <div className="bg-background rounded-2xl shadow p-4">
+        <div className="bg-background rounded-lg p-4">
           <table className="w-full">
             <thead>
-              <tr className=" text-left text-text-grey text-sm">
-                <th className="py-2 px-2">Number</th>
-                {activeTab === "Inactive" && <th className="py-2 px-2">Status</th>}
-                <th className="py-2 px-2">{activeTab === "Active" ? "Expiration" : "Expiration"}</th>
+              <tr className=" text-left text-sm">
+                <th className="py-2 px-2 ">Number</th>
+                {activeTab === "Inactive" && <th className="py-2 px-2 ">Status</th>}
+                <th className="py-2 px-2 ">{activeTab === "Active" ? "Expiration" : "Expiration"}</th>
                 <th className="py-2 px-2">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredNumbers.map((n) => (
-                <tr key={n.id} className="border-b text-start last:border-b-0 border-text-grey">
+                <tr key={n.id} className="border-b text-start last:border-b-0 border-[#ECECEC]">
                   <td className="py-3 px-2 font-medium text-text-primary">{n.number}</td>
                   {activeTab === "Inactive" && (
                     <td className="py-3 px-2">
@@ -169,9 +218,9 @@ const ManageNumbers = () => {
                       </span>
                     </td>
                   )}
-                  <td className={`py-3 px-2 font-semibold ${
+                  <td className={`py-3 px-2 font-semibold  ${
                     activeTab === "Active"
-                      ? n.expiration.includes("h") ? "text-success" : "text-danger"
+                      ? isLessThanOneHour(n.expiration) ? "text-danger" : "text-success"
                       : "text-text-grey"
                   }`}>
                     {activeTab === "Active"
@@ -180,7 +229,10 @@ const ManageNumbers = () => {
                   </td>
                   <td className="py-3 px-2">
                     {activeTab === "Active" ? (
-                      <button className="bg-[#FFF4ED] text-[#FF6B00] font-semibold rounded-full px-3 py-1 flex items-center gap-1">
+                      <button
+                        className="bg-[#FFF4ED] text-[#FF6B00] font-semibold rounded-full px-3 py-1 flex items-center gap-1"
+                        onClick={() => handleView(n)}
+                      >
                         View <span className="text-xs"><AiFillEye className="text-quinary" /></span>
                       </button>
                     ) : (
@@ -202,6 +254,25 @@ const ManageNumbers = () => {
           </table>
         </div>
       </div>
+
+      {/* Modal */}
+      <NumberDetailsModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        number={selectedNumber?.number}
+        expiration={selectedNumber?.expiration}
+        status={
+          selectedNumber
+            ? expirationToSeconds(selectedNumber.expiration) > 0
+              ? "active"
+              : "expired"
+            : "expired"
+        }
+        verificationCode={verificationCode}
+        onReload={handleReload}
+        onCopyNumber={handleCopyNumber}
+        onCopyCode={handleCopyCode}
+      />
     </div>
   );
 };
