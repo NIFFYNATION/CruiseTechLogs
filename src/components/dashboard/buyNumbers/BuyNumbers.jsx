@@ -3,6 +3,7 @@ import { FiSearch, FiBookmark } from "react-icons/fi";
 import CountrySelectModal from "../buyNumbers/CountrySelectModal";
 import CountryFlag from "react-country-flag";
 import NumberTypeSelectModal from "./NumberTypeSelectModal";
+import BuyNumberModal from "./BuyNumberModal";
 
 // Dummy data for services
 const services = [
@@ -28,10 +29,23 @@ const BuyNumbers = () => {
   });
   const [numberTypeModalOpen, setNumberTypeModalOpen] = useState(false);
   const [selectedNumberType, setSelectedNumberType] = useState(null);
+  const [buyModalOpen, setBuyModalOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState(null);
 
   const filteredServices = services.filter((service) =>
     service.name.toLowerCase().includes(search.toLowerCase())
   );
+
+  const handleBuyClick = (service) => {
+    setSelectedService(service);
+    setBuyModalOpen(true);
+  };
+
+  const handleBuyNumber = () => {
+    // Implement your buy logic here
+    setBuyModalOpen(false);
+    // Optionally show a success message or redirect
+  };
 
   return (
     <div className="p-2 md:p-6 min-h-screen">
@@ -176,7 +190,7 @@ const BuyNumbers = () => {
           {filteredServices.map((service, idx) => (
             <div
               key={idx}
-              className="flex items-center bg-white rounded-xl shadow-sm px-4 py-4 mb-2  border-b-1 border-[#FFDE59] relative"
+              className="flex items-center bg-white rounded-xl shadow-sm px-4 py-4 mb-2 border-b-1 border-[#FFDE59] relative"
               style={{ boxShadow: "0 2px 8px 0 rgba(255, 107, 0, 0.09)" }}
             >
               <img src={service.icon} alt={service.name} className="w-8 h-8 mr-4" />
@@ -184,7 +198,7 @@ const BuyNumbers = () => {
                 <div className="font-semibold">{service.name}</div>
                 <h3 className="text-primary font-semibold">{service.price}</h3>
               </div>
-              <button className="ml-2">
+              <button className="ml-2" onClick={() => handleBuyClick(service)}>
                 <FiBookmark className="w-5 h-5 text-[#FF6B00]" />
               </button>
             </div>
@@ -203,6 +217,14 @@ const BuyNumbers = () => {
         open={numberTypeModalOpen}
         onClose={() => setNumberTypeModalOpen(false)}
         onSelect={setSelectedNumberType}
+      />
+
+      <BuyNumberModal
+        open={buyModalOpen}
+        onClose={() => setBuyModalOpen(false)}
+        service={selectedService}
+        country={selectedCountry}
+        onBuy={handleBuyNumber}
       />
     </div>
   );
