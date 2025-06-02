@@ -2,6 +2,7 @@ import React from 'react';
 import WelcomeSection from '../components/dashboard/WelcomeSection';
 import ProductCard from '../components/dashboard/ProductCard';
 import TransactionsTable from '../components/dashboard/TransactionsTable';
+import ProductSection from '../components/dashboard/ProductSection';
 
 const productData = [
   {
@@ -30,30 +31,15 @@ const Dashboard = () => {
         </div>
 
         {/* Random Countries Facebook Section */}
-        <div className="mb-6 sm:mb-8">
-          <div className="flex justify-between items-center mb-2 sm:mb-4">
-            <div className="font-semibold text-base sm:text-lg text-text-primary">Random Countries Facebook</div>
-            <button className="text-background font-medium text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border bg-quinary hover:bg-quaternary transition">
-              View All
-            </button>
-          </div>
-          <div className="mb-4" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {Array(3).fill().map((_, i) => (
-              <ProductCard
-                key={i}
-                title={productData[0].title}
-                stock={productData[0].stock}
-                price={productData[0].price}
-                onBuy={() => {}}
-                onStockClick={() => {}}
-              />
-            ))}
-          </div>
-          <div className='flex md:hidden justify-center items-center mt-6 mb-6'>
-           <p className='text-text-grey text-sm font-medium'>View More Random Country Facebook</p>
-          </div>
-        </div>
+        <ProductSection
+          title="Random Countries Facebook"
+          products={Array(3).fill(productData[0])}
+          onBuy={() => {}}
+          onStockClick={() => {}}
+          showViewAll={true}
+          viewAllLabel="View All"
+          mobileViewMoreLabel="View More Random Country Facebook"
+        />
 
         {/* USA Facebook Section */}
         <div className="mb-6 sm:mb-8">

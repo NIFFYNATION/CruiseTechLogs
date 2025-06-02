@@ -1,12 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { 
-
   FaWhatsapp,
   FaSignOutAlt,
-
 } from 'react-icons/fa';
 import { useSidebar } from '../../contexts/SidebarContext';
+import { motion, AnimatePresence } from "framer-motion";
 
 const MenuItem = ({ imageSrc, text, to }) => {
   const { isCollapsed } = useSidebar();
@@ -40,23 +39,69 @@ const SectionTitle = ({ title }) => {
   );
 };
 
+const sidebarVariants = {
+  open: { x: 0, transition: { type: "spring", stiffness: 300, damping: 30 } },
+  closed: { x: "-100%", transition: { type: "spring", stiffness: 300, damping: 30 } },
+};
+
+const overlayVariants = {
+  open: { opacity: 1, pointerEvents: "auto" },
+  closed: { opacity: 0, pointerEvents: "none" },
+};
+
+const menuItemVariants = {
+  hidden: { opacity: 0, x: -20 },
+  visible: (i) => ({
+    opacity: 1,
+    x: 0,
+    transition: { delay: i * 0.07, type: "spring", stiffness: 200, damping: 20 },
+  }),
+};
+
 const Sidebar = () => {
   const { isCollapsed, isMobile, toggleSidebar } = useSidebar();
+
+  // Menu items for animation mapping
+  const dashboardMenu = [
+    { imageSrc: "/icons/home.svg", text: "Home", to: "/dashboard" },
+    { imageSrc: "/icons/manage-numbers.svg", text: "Manage Numbers", to: "/dashboard/manage-numbers" },
+    { imageSrc: "/icons/buy-number.svg", text: "Buy Number", to: "/dashboard/buy-numbers" },
+    { imageSrc: "/icons/social-media.svg", text: "Social Media Accounts", to: "/dashboard/social-media-accounts" },
+  ];
+  const transactionsMenu = [
+    { imageSrc: "/icons/wallet.svg", text: "Wallet", to: "/dashboard/wallet" },
+    { imageSrc: "/icons/transactions.svg", text: "Transactions", to: "/dashboard/transactions" },
+    { imageSrc: "/icons/api-key.svg", text: "API Key", to: "/dashboard/api-key" },
+  ];
+  const userGuideMenu = [
+    { imageSrc: "/icons/settings.svg", text: "Profile Settings", to: "/dashboard/settings" },
+    { imageSrc: "/icons/help.svg", text: "Help Center", to: "/dashboard/help" },
+  ];
 
   return (
     <>
       {/* Dark overlay for mobile */}
-      {isMobile && !isCollapsed && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
-          onClick={() => toggleSidebar()}
-        />
-      )}
+      <AnimatePresence>
+        {isMobile && !isCollapsed && (
+          <motion.div
+            className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+            onClick={toggleSidebar}
+            initial="closed"
+            animate="open"
+            exit="closed"
+            variants={overlayVariants}
+          />
+        )}
+      </AnimatePresence>
       
-      <aside className={`fixed left-0 top-0 h-screen 
-        ${isCollapsed ? 'w-[80px] -translate-x-full lg:translate-x-0' : 'w-[270px] pb-32'} 
-        bg-background overflow-y-auto transition-all duration-300 z-40
-        lg:translate-x-0 ${!isCollapsed ? 'translate-x-0' : ''}`}
+      <motion.aside
+        className={`fixed left-0 top-0 h-screen 
+          ${isCollapsed ? 'w-[80px] -translate-x-full lg:translate-x-0' : 'w-[270px] pb-32'} 
+          bg-background overflow-y-auto transition-all duration-300 z-40
+          lg:translate-x-0 ${!isCollapsed ? 'translate-x-0' : ''}`}
+        initial={isMobile && isCollapsed ? "closed" : "open"}
+        animate={isMobile && isCollapsed ? "closed" : "open"}
+        variants={sidebarVariants}
       >
         {/* Logo and Close Button Container */}
         <div className={`${isCollapsed ? 'px-2' : 'px-6'} py-4 flex items-center justify-between`}>
@@ -96,9 +141,19 @@ const Sidebar = () => {
         </div>
 
         {/* User Profile */}
-        <div className={`${isCollapsed ? 'px-2' : 'px-6'} py-8 flex flex-col items-center text-center`}>
+        <motion.div
+          className={`${isCollapsed ? 'px-2' : 'px-6'} py-8 flex flex-col items-center text-center`}
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15, type: "spring", stiffness: 200, damping: 20 }}
+        >
           {/* Avatar with orange border */}
-          <div className="relative">
+          <motion.div
+            className="relative"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.2, type: "spring", stiffness: 200, damping: 20 }}
+          >
             <div className={`${isCollapsed ? 'w-12 h-12' : 'w-24 h-24'} rounded-full border-[4px] border-quaternary transition-all duration-300`}>
               <img 
                 src="/icons/female.svg" 
@@ -113,7 +168,7 @@ const Sidebar = () => {
                 <span className="text-xs font-medium">Level 1</span>
               </div>
             )}
-          </div>
+          </motion.div>
 
           {/* Name and Email - Only show when not collapsed */}
           {!isCollapsed && (
@@ -126,16 +181,25 @@ const Sidebar = () => {
               </p>
             </>
           )}
-        </div>
+        </motion.div>
 
         {/* Dashboard Section */}
         <div className="mt-4">
           <SectionTitle title="Dashboard" />
           <nav>
-            <MenuItem imageSrc="/icons/home.svg" text="Home" to="/dashboard" />
-            <MenuItem imageSrc="/icons/manage-numbers.svg" text="Manage Numbers" to="/dashboard/manage-numbers" />
-            <MenuItem imageSrc="/icons/buy-number.svg" text="Buy Number" to="/dashboard/buy-numbers" />
-            <MenuItem imageSrc="/icons/social-media.svg" text="Social Media Accounts" to="/dashboard/social-media" />
+            {dashboardMenu.map((item, i) => (
+              <motion.div
+                key={item.text}
+                custom={i}
+                initial="hidden"
+                animate="visible"
+                variants={menuItemVariants}
+                whileHover={{ scale: 1.06, backgroundColor: "var(--color-quaternary-light)" }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              >
+                <MenuItem {...item} />
+              </motion.div>
+            ))}
           </nav>
         </div>
 
@@ -143,9 +207,19 @@ const Sidebar = () => {
         <div className="mt-4">
           <SectionTitle title="Transactions" />
           <nav>
-            <MenuItem imageSrc="/icons/wallet.svg" text="Wallet" to="/dashboard/wallet" />
-            <MenuItem imageSrc="/icons/transactions.svg" text="Transactions" to="/dashboard/transactions" />
-            <MenuItem imageSrc="/icons/api-key.svg" text="API Key" to="/dashboard/api-key" />
+            {transactionsMenu.map((item, i) => (
+              <motion.div
+                key={item.text}
+                custom={i}
+                initial="hidden"
+                animate="visible"
+                variants={menuItemVariants}
+                whileHover={{ scale: 1.06, backgroundColor: "var(--color-quaternary-light)" }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              >
+                <MenuItem {...item} />
+              </motion.div>
+            ))}
           </nav>
         </div>
 
@@ -153,8 +227,19 @@ const Sidebar = () => {
         <div className="mt-4">
           <SectionTitle title="User Guide" />
           <nav>
-            <MenuItem imageSrc="/icons/settings.svg" text="Profile Settings" to="/dashboard/settings" />
-            <MenuItem imageSrc="/icons/help.svg" text="Help Center" to="/dashboard/help"/>
+            {userGuideMenu.map((item, i) => (
+              <motion.div
+                key={item.text}
+                custom={i}
+                initial="hidden"
+                animate="visible"
+                variants={menuItemVariants}
+                whileHover={{ scale: 1.06, backgroundColor: "var(--color-quaternary-light)" }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              >
+                <MenuItem {...item} />
+              </motion.div>
+            ))}
           </nav>
         </div>
 
@@ -193,12 +278,12 @@ const Sidebar = () => {
         {/* Logout Button */}
         <div className={`${isCollapsed ? 'px-4' : 'px-6'} pb-6 `}>
           <button className={`w-full bg-quinary hover:bg-quaternary text-white py-3 rounded-lg flex items-center justify-center gap-2 transition-colors ${isCollapsed ? 'px-2' : ''}`}>
-          <img className='' src ="/icons/logout.svg"/>
+            <img className='' src ="/icons/logout.svg"/>
 
             {!isCollapsed && <span>Logout</span>}
           </button>
         </div>
-      </aside>
+      </motion.aside>
     </>
   );
 };
