@@ -12,10 +12,22 @@ const NotificationBanner = ({ messageCount = 0 }) => {
           initial={{ y: -50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: -50, opacity: 0 }}
-          transition={{ duration: 0.4, type: "spring" }}
+          transition={{ duration: 0.9, type: "spring" }}
           className="flex md:hidden justify-center bg-quaternary-light gap-2 rounded-full mb-8 p-2 mt-8 items-center"
         >
-          <img src="/icons/bell.svg" alt="bell" className="" />
+          <motion.img 
+            src="/icons/bell.svg" 
+            alt="bell" 
+            animate={{ 
+              rotate: [-8, 8, -8, 8, 0],
+              transition: {
+                duration: 0.5,
+                repeat: Infinity,
+                repeatDelay: 2
+              }
+            }}
+            className="" 
+          />
           <p className="text-text-secondary text-sm font-medium">
             You have {messageCount} messages! 
             <span className="text-quinary text-base font-medium">
