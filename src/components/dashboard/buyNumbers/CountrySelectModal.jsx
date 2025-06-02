@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import CountryFlag from "react-country-flag";
 import { FiSearch } from "react-icons/fi";
+import { motion, AnimatePresence } from "framer-motion";
 
 // Example country data (expand as needed)
 const countries = [
@@ -148,6 +149,24 @@ const countries = [
   { name: "Palau", code: "+680", value: "PW" },
 ];
 
+// Animation variants
+const overlayVariants = {
+  hidden: { opacity: 0, pointerEvents: "none" },
+  visible: { opacity: 1, pointerEvents: "auto" },
+};
+const modalVariants = {
+  hidden: { opacity: 0, scale: 0.97, y: 30 },
+  visible: { opacity: 1, scale: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 30 } },
+};
+const countryItemVariants = {
+  hidden: { opacity: 0, x: 20 },
+  visible: i => ({
+    opacity: 1,
+    x: 0,
+    transition: { delay: i * 0.03, type: "spring", stiffness: 200, damping: 20 }
+  }),
+};
+
 const CountrySelectModal = ({ open, onClose, onSelect }) => {
   const [search, setSearch] = useState("");
 
@@ -166,20 +185,33 @@ const CountrySelectModal = ({ open, onClose, onSelect }) => {
   }
 
   return (
-    <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-      <div className="bg-white rounded-xl w-full max-w-3xl mx-2 p-0 overflow-hidden shadow-lg relative">
+    <AnimatePresence>
+      <motion.div
+        className="fixed inset-0 z-100 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+        initial="hidden"
+        animate="visible"
+        exit="hidden"
+        variants={overlayVariants}
+      >
+        <motion.div
+          className="bg-white rounded-xl w-full max-w-3xl mx-2 p-0 overflow-hidden shadow-lg relative"
+          initial="hidden"
+          animate="visible"
+          exit="hidden"
+          variants={modalVariants}
+        >
         {/* Title */}
-        <div className="px-6 py-6 bg-bgLayout border-b border-border-grey">
+          <div className="px-6 py-6 bg-bgLayout border-b border-border-grey">
           <h2 className="text-lg font-semibold">Choose Country</h2>
         </div>
         {/* Search */}
-        <div className="px-6 py-6 pb-8 ">
+          <div className="px-6 py-6 pb-8 ">
           <div className="relative">
             <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
             <input
               type="text"
               placeholder="Search for countries"
-              className="w-full font-semibold border-b border-border-grey pl-10 pr-4 py-2.5 focus:outline-none"
+                className="w-full font-semibold border-b border-border-grey pl-10 pr-4 py-2.5 focus:outline-none"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -187,26 +219,30 @@ const CountrySelectModal = ({ open, onClose, onSelect }) => {
         </div>
         {/* Country List */}
         <div className="px-6 pb-2 max-h-[340px] overflow-y-auto">
-          <div className="grid md:grid-cols-2 gap-y-4 gap-x-8">
+            <div className="grid md:grid-cols-2 gap-y-4 gap-x-8">
             {rows.map((pair, idx) => (
               <React.Fragment key={idx}>
                 {pair.map((country, j) => (
-                  <button
+                    <motion.button
                     key={country.name + country.code}
                     className="flex items-center gap-3 py-1 px-2 rounded-lg hover:bg-[#F7F7F7] transition w-full text-left"
                     onClick={() => {
                       onSelect(country);
                       onClose();
                     }}
-                  >
-                    <CountryFlag
-                      countryCode={country.value}
-                      svg
-                      className="w-6 h-6"
-                      style={{ borderRadius: "4px" }}
-                    />
+                      custom={idx * 2 + j}
+                      initial="hidden"
+                      animate="visible"
+                      variants={countryItemVariants}
+                    >
+                      <CountryFlag
+                        countryCode={country.value}
+                        svg
+                        className="w-6 h-6"
+                        style={{ borderRadius: "4px" }}
+                      />
                     <span className="font-medium">{country.name} ({country.code})</span>
-                  </button>
+                    </motion.button>
                 ))}
                 {pair.length === 1 && <div />} {/* for even grid */}
               </React.Fragment>
@@ -214,7 +250,7 @@ const CountrySelectModal = ({ open, onClose, onSelect }) => {
           </div>
         </div>
         {/* Footer */}
-        <div className="flex justify-end border-t border-border-grey px-6 py-4 bg-bgLayout border-b-2 rounded-b-xl border-b-[#FFDE59]">
+          <div className="flex justify-end border-t border-border-grey px-6 py-4 bg-bgLayout border-b-2 rounded-b-xl border-b-[#FFDE59]">
           <button
             className="border border-quinary text-quinary rounded-full px-6 py-2 font-semibold hover:bg-quinary hover:text-white transition"
             onClick={onClose}
@@ -222,8 +258,9 @@ const CountrySelectModal = ({ open, onClose, onSelect }) => {
             Cancel
           </button>
         </div>
-      </div>
-    </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
   );
 };
 

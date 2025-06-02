@@ -7,6 +7,7 @@ import Dashboard from './Pages/Dashboard';
 import ManageNumbers from './components/dashboard/manageNumbers/ManageNumbers';
 import BuyNumbers from './components/dashboard/buyNumbers/BuyNumbers';
 import App from './App';
+import SocialMediaAccounts from './components/dashboard/socialMediaAccounts/SocialMediaAccounts';
 
 export const router = createBrowserRouter([
   {
@@ -33,6 +34,7 @@ export const router = createBrowserRouter([
           { path: '', element: <Dashboard /> },
           { path: 'manage-numbers', element: <ManageNumbers /> },
           { path: 'buy-numbers', element: <BuyNumbers /> },
+          { path: 'social-media-accounts', element: <SocialMediaAccounts /> },
         ],
       },
     ],
