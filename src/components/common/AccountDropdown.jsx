@@ -2,6 +2,7 @@ import React from "react";
 import {  FaEnvelope } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
 import { motion, AnimatePresence } from "framer-motion";
+import ProfileActions from "./profileActionButtons";
 
 // Animation variants
 const overlayVariants = {
@@ -43,11 +44,11 @@ const AccountDropdown = ({
           variants={overlayVariants}
         >
           <motion.div
-            className="absolute inset-0 bg-black/60"
+            className="absolute inset-0 bg-black/2 backdrop-blur-sm"
             variants={overlayVariants}
           />
           <motion.div
-            className="absolute top-0 right-0 h-full w-[97vw] max-w-xs bg-background shadow-2xl z-50 flex flex-col"
+            className="absolute top-0 right-0 h-full w-[97vw] max-w-xs bg-white/80 shadow-2xl z-50 flex flex-col backdrop-blur-md"
             style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
             onClick={e => e.stopPropagation()}
             initial="hidden"
@@ -97,38 +98,23 @@ const AccountDropdown = ({
               </button>
             </div>
             {/* Actions */}
-            <div className="flex border-t-2 border-b-2 border-[#C7C7C7] bg-bgLayout text-[#777777] font-semibold">
-              <button
-                className="flex-1 flex items-center justify-center gap-2 text-gray-600 hover:text-primary border-r-2 border-[#C7C7C7] mx-2"
-                onClick={onEditProfile}
-              >
-                <img src="/icons/edit-bold.svg" alt="Edit Profile" />
-                Edit Profile
-              </button>
-              <button
-                className="flex-1 flex items-center justify-center gap-2 text-gray-600 hover:text-danger py-4"
-                onClick={onLogout}
-              >
-                <img src="/icons/logout-bold.svg" alt="Logout" />
-                Logout
-              </button>
-            </div>
+            <ProfileActions onEditProfile onLogout />
           </motion.div>
         </motion.div>
       </div>
     </AnimatePresence>
     {/* DESKTOP: Original dropdown, untouched */}
     <AnimatePresence>
-      <div className="hidden md:block">
+      <div className="hidden md:block ">
         <motion.div
-          className="absolute right-0 mt-8 w-[300px] md:w-[370px] bg-background rounded-2xl shadow-xl z-50"
+          className="absolute right-0 mt-8 w-[300px] md:w-[370px] rounded-2xl shadow-xl z-50 bg-white/90 backdrop-blur-md"
           initial="hidden"
           animate="visible"
           exit="hidden"
           variants={dropdownVariants}
         >
           {/* Top Section */}
-          <div className="flex items-center gap-4 mb-4 p-4 bg-bgLayout border-b-2 border-[#C7C7C7] rounded-t-2xl">
+          <div className="flex items-center gap-4 mb-4 p-4  border-b-1 border-[#C7C7C7] rounded-t-2xl">
             <img
               src={user.avatar}
               alt={user.name}
@@ -137,7 +123,7 @@ const AccountDropdown = ({
             <div>
               <h3 className="font-semibold text-lg text-text-primary">{user.name}</h3>
               <div className="flex items-center gap-2 mt-1">
-                <span className="flex items-center gap-1 bg-background text-[#A97B2A] px-3 py-1 rounded-full text-xs font-semibold">
+                <span className="flex items-center gap-1 text-[#A97B2A] px-3 py-1 rounded-full bg-[#A97B2A]/20 text-xs font-semibold">
                   <span className="inline-block w-4 h-4 bg-[url('/level-badge.png')] bg-cover" />
                   Level {user.level}
                 </span>
@@ -155,6 +141,8 @@ const AccountDropdown = ({
                 <span className="inline-block w-6 h-6 bg-[url('/level-badge.png')] bg-cover" />
                 <span className="text-xs font-semibold text-[#A97B2A]">{user.progress}% to Level {user.level}</span>
               </span>
+              <span>-</span>
+              <span className="text-xs font-semibold text-primary">Read about discount </span>
             </div>
             <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden mb-2">
               <div
@@ -162,33 +150,9 @@ const AccountDropdown = ({
                 style={{ width: `${user.progress}%` }}
               />
             </div>
-            <button
-              className="bg-quinary hover:bg-quaternary py-2 px-4 text-white font-semibold rounded-full py-2 mt-2 transition-colors"
-              onClick={onKnowMore}
-            >
-              Know more about discount
-            </button>
           </div>
           {/* Actions */}
-          <div className="">
-            <div className="flex border-t-2 border-[#C7C7C7] rounded-b-2xl bg-bgLayout">
-              <button
-                className="flex-1 flex items-center justify-center gap-2 text-gray-600 hover:text-primary py-5"
-                onClick={onEditProfile}
-              >
-                <img src="/icons/edit-bold.svg" alt="Edit Profile" />
-                Edit Profile
-              </button>
-              <div className="border-r-2 border-[#C7C7C7] mx-2" />
-              <button
-                className="flex-1 flex items-center justify-center gap-2 text-gray-600 hover:text-danger py-2"
-                onClick={onLogout}
-              >
-                <img src="/icons/logout-bold.svg" alt="Logout" />
-                Logout
-              </button>
-            </div>
-          </div>
+          <ProfileActions onEditProfile onLogout />
         </motion.div>
       </div>
     </AnimatePresence>

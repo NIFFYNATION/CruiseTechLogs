@@ -21,24 +21,52 @@ const Tabs = () => {
 
   return (
     <>
+
+
+
+      {/* Internal CSS */}
+      <style>{`
+      .cutout-top-circle {
+        -webkit-mask: radial-gradient(
+          circle 30px at 50% 0px,
+          transparent 0px,
+          transparent 29px,
+           rgba(0, 0, 0, 0.2) 30px,
+          black 31px
+        );
+        mask: radial-gradient(
+          circle 30px at 50% 0px,
+          transparent 0px,
+          transparent 35px,
+           rgba(0, 0, 0, 0.2) 30px,
+          black 30px
+        );
+        -webkit-mask-composite: destination-out;
+        mask-composite: exclude;
+        overflow: hidden;
+      }
+    `}</style>
+  
       {/* Popup Menu */}
       {menuOpen && <MobileTabMenu onClose={() => setMenuOpen(false)} />}
+  
       <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[95vw] max-w-md">
-        <div className="relative flex items-center justify-between bg-background rounded-full shadow-lg px-4 py-3">
-          {/* Central FAB */}
-          <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-10 ">
+      <div className="absolute bottom-9 left-1/2 -translate-x-1/2 z-10">
             <button
               className="p-0 "
               onClick={() => setMenuOpen((open) => !open)}
               aria-label="Open menu"
             >
-              <img className="w-18 h-18 rounded-full" src="/icons/mobileTab.svg" alt="mobileTab" />
+              <img className="w-14 h-14 rounded-full" src="/icons/mobileTab.svg" alt="mobileTab" />
             </button>
           </div>
+        <div className="relative flex items-center justify-between bg-[#f7f5f2]/98 border-1 border-black/10 rounded-full shadow-lg px-4 py-3 cutout-top-circle">
+          {/* Central FAB */}
+  
+  
           {/* Tabs */}
           <div className="flex justify-between w-full">
             {tabs.map((tab, idx) => {
-              // Leave space for the FAB in the center
               if (idx === 2) {
                 return (
                   <React.Fragment key={tab.name}>
@@ -56,7 +84,7 @@ const Tabs = () => {
         </div>
       </div>
     </>
-  );
+  );  
 };
 
 // Use <img> for icons
