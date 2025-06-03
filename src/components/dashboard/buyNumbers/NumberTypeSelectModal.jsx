@@ -12,8 +12,8 @@ const NumberTypeSelectModal = ({ open, onClose, onSelect }) => {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-      <div className="bg-white rounded-xl w-full max-w-3xl mx-2 p-0 overflow-hidden shadow-lg relative">
+    <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={onClose}>
+      <div className="bg-white rounded-xl w-full max-w-3xl mx-2 p-0 overflow-hidden shadow-lg relative" onClick={(e) => e.stopPropagation()}>
         {/* Title */}
         <div className="px-6 pt-6 pb-2 border-b border-border-grey bg-bgLayout">
           <h2 className="text-lg font-semibold">Choose Number Category</h2>
@@ -24,7 +24,7 @@ const NumberTypeSelectModal = ({ open, onClose, onSelect }) => {
             {numberTypes.map((type, idx) => (
               <React.Fragment key={type.value}>
                 <button
-                  className="w-full text-left py-4 px-2 hover:bg-[#F7F7F7] transition rounded"
+                  className="w-full text-left py-4 px-2 py-5 hover:bg-quaternary-light transition rounded"
                   onClick={() => {
                     onSelect(type);
                     onClose();

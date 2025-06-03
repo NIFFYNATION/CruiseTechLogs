@@ -70,7 +70,7 @@ const AccountDropdown = ({
                   className="w-20 h-20 rounded-full object-cover border-4 border-[#FF6B00]"
                 />
                 <div className="w-[110px] absolute -bottom-3 left-1/2 -translate-x-1/2 bg-white px-2 py-1 rounded-full shadow-[0_9px_9px_-2px_rgba(0,0,0,0.1)] flex items-center gap-2 justify-center border border-gray-100">
-                  <span className="inline-block w-4 h-4 bg-[url('/level-badge.png')] bg-cover" />
+                  <span className="inline-block w-4 h-4 bg-[url('/icons/level-badge.svg')] bg-cover" />
                   <span className="text-xs font-semibold text-[#A97B2A]">Level {user.level}</span>
                 </div>
               </div>
@@ -138,7 +138,7 @@ const AccountDropdown = ({
               <h3 className="font-semibold text-lg text-text-primary">{user.name}</h3>
               <div className="flex items-center gap-2 mt-1">
                 <span className="flex items-center gap-1 bg-background text-[#A97B2A] px-3 py-1 rounded-full text-xs font-semibold">
-                  <span className="inline-block w-4 h-4 bg-[url('/level-badge.png')] bg-cover" />
+                  <span className="inline-block w-4 h-4 bg-[url('/icons/level-badge.svg')] bg-cover" />
                   Level {user.level}
                 </span>
               </div>
@@ -152,7 +152,7 @@ const AccountDropdown = ({
           <div className="pt-4 p-8">
             <div className="flex items-center gap-2 mb-2">
               <span className="flex items-center gap-1">
-                <span className="inline-block w-6 h-6 bg-[url('/level-badge.png')] bg-cover" />
+                <span className="inline-block w-6 h-6 bg-[url('/icons/level-badge.svg')] bg-cover" />
                 <span className="text-xs font-semibold text-[#A97B2A]">{user.progress}% to Level {user.level}</span>
               </span>
             </div>

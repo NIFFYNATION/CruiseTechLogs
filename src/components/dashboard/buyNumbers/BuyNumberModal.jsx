@@ -35,7 +35,7 @@ const BuyNumberModal = ({
             {/* Service Card */}
             <div className="px-6 pt-6 pb-4">
               <div className="flex items-center justify-between border rounded-lg border-primary  px-4 py-3">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 ">
                   <img src={service.icon} alt={service.name} className="w-7 h-7" />
                   <div>
                     <div className="font-semibold">{service.name}</div>

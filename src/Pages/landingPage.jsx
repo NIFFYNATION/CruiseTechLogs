@@ -40,7 +40,7 @@ export default function LandingPage() {
             <Button
               variant="ghost"
               to="/login"
-              icon={<img src="public/login-icon.png" alt="Login" className="h-5 w-5" />}
+              icon={<img src="/icons/login.svg" alt="Login" className="h-5 w-5" />}
             >
               Login
             </Button>
@@ -142,7 +142,7 @@ export default function LandingPage() {
             {/* Secure Card */}
             <div className="bg-background p-4 sm:p-6 rounded-lg shadow-2xl">
               <div className="bg-primary w-12 sm:w-14 h-12 sm:h-14 rounded-full flex items-center justify-center mb-3 sm:mb-4">
-                 <img src="public/secure-icon.png" alt="Secure" className="w-6 sm:w-7 h-6 sm:h-7" />
+                 <img src="/icons/secure.svg" alt="Secure" className="w-6 sm:w-7 h-6 sm:h-7" />
               </div>
               <h3 className="text-lg text-text-secondary font-bold mb-2">Secure</h3>
               <p className="text-text-primary text-sm leading-relaxed">
@@ -153,7 +153,7 @@ export default function LandingPage() {
             {/* Quality Assurance Card */}
             <div className="bg-background p-4 sm:p-6 rounded-lg shadow-2xl">
               <div className="bg-primary w-12 sm:w-14 h-12 sm:h-14 rounded-full flex items-center justify-center mb-3 sm:mb-4">
-               <img src="public/assurance-icon.png" alt="Quality Assurance" className="w-6 sm:w-7 h-6 sm:h-7" />
+               <img src="/icons/assurance.svg" alt="Quality Assurance" className="w-6 sm:w-7 h-6 sm:h-7" />
               </div>
               <h3 className="text-lg text-text-secondary font-bold mb-2">Quality Assurance</h3>
               <p className="text-text-primary text-sm leading-relaxed">
@@ -164,7 +164,7 @@ export default function LandingPage() {
             {/* Authentic Profiles Card */}
             <div className="bg-background p-4 sm:p-6 rounded-lg shadow-2xl">
               <div className="bg-primary w-12 sm:w-14 h-12 sm:h-14 rounded-full flex items-center justify-center mb-3 sm:mb-4">
-                <img src="public/authentic-profiles-icon.png" alt="Authentic Profiles" className="w-6 sm:w-7 h-6 sm:h-7" />
+                <img src="/icons/authentic-profiles.svg" alt="Authentic Profiles" className="w-6 sm:w-7 h-6 sm:h-7" />
               </div>
               <h3 className="text-lg text-text-secondary font-bold mb-2">Authentic Profiles</h3>
               <p className="text-text-primary text-sm leading-relaxed">
@@ -175,7 +175,7 @@ export default function LandingPage() {
             {/* Engagement Metrics Card */}
             <div className="bg-background p-4 sm:p-6 rounded-lg shadow-2xl">
               <div className="bg-primary w-12 sm:w-14 h-12 sm:h-14 rounded-full flex items-center justify-center mb-3 sm:mb-4">
-              <img src="public/engagement-metrics-icon.png" alt="Engagement Metrics" className="w-6 sm:w-7 h-6 sm:h-7" />
+              <img src="/icons/engagement-metrics.svg" alt="Engagement Metrics" className="w-6 sm:w-7 h-6 sm:h-7" />
               </div>
               <h3 className="text-lg text-text-secondary font-bold mb-2">Engagement Metrics</h3>
               <p className="text-text-primary text-sm leading-relaxed">
@@ -204,38 +204,39 @@ export default function LandingPage() {
             >
               <div className="flex gap-4 text-center">
               <div className="bg-background p-8 w-40 h-40 rounded-lg shadow-sm flex flex-col items-center justify-center mx-4">
-                  <img src="/google-voice-icon.png" alt="Google Voice" className="w-8 h-8 mb-2" />
+                  <img src="/icons/google-voice.svg" alt="Google Voice" className="w-8 h-8 mb-2" />
                   <span className="text-sm font-medium text-text-secondary">Google Voice</span>
                 </div>
                 <div className="bg-background p-8 w-40 h-40 rounded-lg shadow-sm flex flex-col items-center justify-center mx-4">
-                  <img src="/instagram-icon.png" alt="Instagram" className="w-8 h-8 mb-2" />
+                  <img src="/icons/instagram.svg" alt="Instagram" className="w-8 h-8 mb-2" />
                   <span className="text-sm font-medium text-text-secondary">Instagram</span>
                 </div>
 
                 <div className="bg-background p-8 w-40 h-40 rounded-lg shadow-sm flex flex-col items-center justify-center hover:shadow-md transition-shadow">
-              <img src="/twitter-icon.png" alt="Twitter" className="w-8 h-8 mb-2" />
+              <img src="/icons/twitter.svg" alt="Twitter" className="w-8 h-8 mb-2" />
               <span className="text-sm font-medium text-text-secondary">Twitter</span>
             </div>
 
 
                 <div className="bg-background p-8 w-40 h-40 rounded-lg shadow-sm flex flex-col items-center justify-center mx-4">
-                  <img src="/tiktok-icon.png" alt="TikTok" className="w-8 h-8 mb-2" />
+                  <img src="/icons/tiktok.svg" alt="TikTok" className="w-8 h-8 mb-2" />
                   <span className="text-sm font-medium text-text-secondary">TikTok</span>
                 </div>
 
                 <div className="bg-background p-8 w-40 h-40 rounded-lg shadow-sm flex flex-col items-center justify-center mx-4">
-                  <img src="/textplus-icon.png" alt="TextPlus" className="w-8 h-8 mb-2" />
+                  <img src="/icons/textplus.svg" alt="TextPlus" className="w-8 h-8 mb-2" />
                   <span className="text-sm font-medium text-text-secondary">TextPlus</span>
                 </div>
 
                 <div className="bg-background p-8 w-40 h-40 rounded-lg shadow-sm flex flex-col items-center justify-center mx-4">
-                  <img src="/windscribe-icon.png" alt="Windscribe" className="w-8 h-8 mb-2" />
+                  <img src="/icons/windscribe.svg" alt="Windscribe" className="w-8 h-8 mb-2" />
                   <span className="text-sm font-medium text-text-secondary">Windscribe</span>
                 </div>
 
                 <div className="bg-background p-8 w-40 h-40 rounded-lg shadow-sm flex flex-col items-center justify-center mx-4">
-                <div className="bg-blue-600 p-2 rounded-lg transform">
-                  <FaFacebookF className="text-background text-xl sm:text-2xl" />
+                <div className=" p-2 rounded-lg transform">
+                <img src="/icons/facebook.svg" alt="Facebook" className="w-8 h-8 mb-2" />
+
                 </div>
 
                   <span className="text-sm font-medium text-text-secondary">Facebook</span>
@@ -254,37 +255,37 @@ export default function LandingPage() {
             >
               <div className="flex gap-4 text-center">
               <div className="bg-background p-8 w-40 h-40 rounded-lg shadow-sm flex flex-col items-center justify-center mx-4">
-                  <img src="/tiktok-icon.png" alt="TikTok" className="w-8 h-8 mb-2" />
+                  <img src="/icons/tiktok.svg" alt="TikTok" className="w-8 h-8 mb-2" />
                   <span className="text-sm font-medium text-text-secondary">TikTok</span>
                 </div>
 
                 <div className="bg-background p-8 w-40 h-40 rounded-lg shadow-sm flex flex-col items-center justify-center mx-4">
-                  <img src="/google-voice-icon.png" alt="Google Voice" className="w-8 h-8 mb-2" />
+                  <img src="/icons/google-voice.svg" alt="Google Voice" className="w-8 h-8 mb-2" />
                   <span className="text-sm font-medium text-text-secondary">Google Voice</span>
                 </div>
 
                 <div className="bg-background p-8 w-40 h-40 rounded-lg shadow-sm flex flex-col items-center justify-center mx-4">
-                  <img src="/nordvpn-icon.png" alt="NordVPN" className="w-8 h-8 mb-2" />
+                  <img src="/icons/nordvpn.svg" alt="NordVPN" className="w-8 h-8 mb-2" />
                   <span className="text-sm font-medium text-text-secondary">NordVPN</span>
                 </div>
 
                 <div className="bg-background p-8 w-40 h-40 rounded-lg shadow-sm flex flex-col items-center justify-center mx-4">
-                  <img src="/tunnel-bear-icon.png" alt="Tunnel Bear VPN" className="w-8 h-8 mb-2" />
+                  <img src="/icons/tunnel-bear.svg" alt="Tunnel Bear VPN" className="w-8 h-8 mb-2" />
                   <span className="text-sm font-medium text-text-secondary">Tunnel Bear VPN</span>
                 </div>
 
                 <div className="bg-background p-8 w-40 h-40 rounded-lg shadow-sm flex flex-col items-center justify-center mx-4">
-                  <img src="/outlook-icon.png" alt="Outlook" className="w-8 h-8 mb-2" />
+                  <img src="/icons/outlook.svg" alt="Outlook" className="w-8 h-8 mb-2" />
                   <span className="text-sm font-medium text-text-secondary">Outlook</span>
                 </div>
 
                 <div className="bg-background p-8 w-40 h-40 rounded-lg shadow-sm flex flex-col items-center justify-center mx-4">
-                  <img src="/cyberghost-icon.png" alt="CyberGhost VPN" className="w-8 h-8 mb-2" />
+                  <img src="/icons/cyberghost.svg" alt="CyberGhost VPN" className="w-8 h-8 mb-2" />
                   <span className="text-sm font-medium text-text-secondary">CyberGhost VPN</span>
                 </div>
 
                 <div className="bg-background p-8 w-40 h-40 rounded-lg shadow-sm flex flex-col items-center justify-center mx-4">
-                  <img src="/adguard-icon.png" alt="AdGuard VPN" className="w-8 h-8 mb-2" />
+                    <img src="/icons/adguard.svg" alt="AdGuard VPN" className="w-8 h-8 mb-2" />
                   <span className="text-sm font-medium text-text-secondary">AdGuard VPN</span>
                 </div>
               </div>
@@ -320,7 +321,7 @@ export default function LandingPage() {
               <div className=' p-6   '>
                 <div className="flex items-center gap-6 ">
                   <div className="bg-primary p-4 rounded-full flex-shrink-0">
-                    <img src="/authentic-profiles-icon.png" alt="Platforms" className="w-6 h-6" />
+                    <img src="/icons/platforms.svg" alt="Platforms" className="w-6 h-6" />
                   </div>
                   <div>
                     <h3 className="font-semibold text-xl mb-2 text-text-secondary">Wide Selection of Platforms</h3>
@@ -339,7 +340,7 @@ export default function LandingPage() {
                <div className='p-6'>
                 <div className="flex items-center gap-6">
                   <div className="bg-primary p-4 rounded-full flex-shrink-0">
-                    <img src="/support-icon.png" alt="Support" className="w-6 h-6" />
+                    <img src="/icons/support.svg" alt="Support" className="w-6 h-6" />
                   </div>
                   <div>
                     <h3 className="font-semibold text-xl mb-2 text-text-secondary">Responsive Customer Support</h3>
@@ -358,7 +359,7 @@ export default function LandingPage() {
               <div className='p-6'>
                 <div className="flex items-center gap-6">
                   <div className="bg-primary p-4 rounded-full flex-shrink-0">
-                    <img src="/authentic-profiles-icon.png" alt="Quality" className="w-6 h-6" />
+                    <img src="/icons/authentic-profiles.svg" alt="Quality" className="w-6 h-6" />
                   </div>
                   <div>
                     <h3 className="font-semibold text-xl mb-2 font-normal text-text-secondary">Quality Assurance</h3>
@@ -410,7 +411,7 @@ export default function LandingPage() {
                 </p>
                 <button className="bg-primary self-start w-10 sm:w-12 h-10 sm:h-12 rounded-full flex items-center justify-center mt-auto">
                   <img 
-                    src="/arrow.png" 
+                    src="/icons/arrow.svg" 
                     alt="Create Account" 
                     className="w-6 sm:w-8 h-6 sm:h-8 object-contain"
                   />
@@ -440,7 +441,7 @@ export default function LandingPage() {
                 </p>
                 <button className="bg-primary self-start w-10 sm:w-12 h-10 sm:h-12 rounded-full flex items-center justify-center mt-auto">
                   <img 
-                    src="/arrow.png" 
+                    src="/icons/arrow.svg" 
                     alt="Create Account" 
                     className="w-6 sm:w-8 h-6 sm:h-8 object-contain"
                   />
@@ -470,7 +471,7 @@ export default function LandingPage() {
                 </p>
                 <button className="bg-primary  self-start w-10 sm:w-12 h-10 sm:h-12 rounded-full flex items-center justify-center mt-auto">
                   <img 
-                    src="/arrow.png" 
+                    src="/icons/arrow.svg" 
                     alt="Create Account" 
                     className="w-6 sm:w-8 h-6 sm:h-8 object-contain"
                   />
@@ -500,7 +501,7 @@ export default function LandingPage() {
                 </p>
                 <button className="bg-primary  self-start w-10 sm:w-12 h-10 sm:h-12 rounded-full flex items-center justify-center mt-auto">
                   <img 
-                    src="/arrow.png" 
+                    src="/icons/arrow.svg" 
                     alt="Create Account" 
                     className="w-6 sm:w-8 h-6 sm:h-8 object-contain"
                   />
@@ -530,7 +531,7 @@ export default function LandingPage() {
                 </p>
                 <button className="bg-primary  self-start w-10 sm:w-12 h-10 sm:h-12 rounded-full flex items-center justify-center mt-auto">
                   <img 
-                    src="/arrow.png" 
+                    src="/icons/arrow.svg" 
                     alt="Create Account" 
                     className="w-6 sm:w-8 h-6 sm:h-8 object-contain"
                   />

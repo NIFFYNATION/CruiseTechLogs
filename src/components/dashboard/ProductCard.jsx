@@ -43,8 +43,8 @@ const ProductCard = ({
     <div className="hidden sm:flex flex-col justify-between min-h-[220px]">
       <div className="flex md:flex-col gap-3">
         <div className="flex md:flex-col gap-3">
-          <div className="w-9 h-9 rounded-full flex items-center justify-start mt-1">
-            <FaFacebook className="text-[#1877F2] text-xl" />
+          <div className="w-12 h-12 rounded-full flex items-center justify-start mt-1">
+            <img src="/icons/facebook.svg" alt="Facebook" className="w-8 h-8 mb-2" />
           </div>
           <div className="flex md:flex-col gap-3">
             <div className='items-center'>
