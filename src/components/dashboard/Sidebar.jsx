@@ -1,11 +1,12 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom'; // Add navigation for redirection
 import { 
   FaWhatsapp,
   FaSignOutAlt,
 } from 'react-icons/fa';
 import { useSidebar } from '../../contexts/SidebarContext';
 import { motion, AnimatePresence } from "framer-motion";
+import { isUserLoggedIn, logoutUser } from '../../controllers/userController'; // Import userController
 
 const MenuItem = ({ imageSrc, text, to }) => {
   const { isCollapsed } = useSidebar();
@@ -60,6 +61,13 @@ const menuItemVariants = {
 
 const Sidebar = () => {
   const { isCollapsed, isMobile, toggleSidebar } = useSidebar();
+  const navigate = useNavigate();
+
+
+  const handleLogout = () => {
+    logoutUser(); // Call logout function
+    navigate('/login'); // Redirect to login page
+  };
 
   // Menu items for animation mapping
   const dashboardMenu = [
@@ -277,8 +285,11 @@ const Sidebar = () => {
 
         {/* Logout Button */}
         <div className={`${isCollapsed ? 'px-4' : 'px-6'} pb-6 `}>
-          <button className={`w-full bg-quinary hover:bg-quaternary text-white py-3 rounded-lg flex items-center justify-center gap-2 transition-colors ${isCollapsed ? 'px-2' : ''}`}>
-            <img className='' src ="/icons/logout.svg"/>
+          <button
+            onClick={handleLogout} // Attach logout handler
+            className={`w-full bg-quinary hover:bg-quaternary text-white py-3 rounded-lg flex items-center justify-center gap-2 transition-colors ${isCollapsed ? 'px-2' : ''}`}
+          >
+            <img className='' src="/icons/logout.svg" alt="Logout Icon" />
 
             {!isCollapsed && <span>Logout</span>}
           </button>
@@ -288,4 +299,4 @@ const Sidebar = () => {
   );
 };
 
-export default Sidebar; 
+export default Sidebar;

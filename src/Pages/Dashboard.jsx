@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Add navigation for redirection
 import WelcomeSection from '../components/dashboard/WelcomeSection';
 import ProductCard from '../components/dashboard/ProductCard';
 import TransactionsTable from '../components/dashboard/TransactionsTable';
 import ProductSection from '../components/dashboard/ProductSection';
+import { isUserLoggedIn } from '../controllers/userController'; // Import userController
 
 const productData = [
   {
@@ -14,6 +16,8 @@ const productData = [
 ];
 
 const Dashboard = () => {
+  const [isAuthorized, setIsAuthorized] = useState(false); // State to track authorization
+
   return (
     <>
       {/* Welcome Section with all cards */}
@@ -83,4 +87,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard; 
+export default Dashboard;

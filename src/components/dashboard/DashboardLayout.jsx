@@ -1,11 +1,27 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { SidebarProvider } from '../../contexts/SidebarContext';
 import Sidebar from './Sidebar';
 import DashboardHeader from './DashboardHeader';
 import { Outlet } from 'react-router-dom';
 import NotificationBanner from '../common/NotificationBanner';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate for redirection
+import { isUserLoggedIn } from '../../controllers/userController'; // Import userController to check login status
 
 const DashboardLayout = () => {
+    const [isAuthorized, setIsAuthorized] = useState(false); // State to track authorization
+    const navigate = useNavigate();
+  
+    useEffect(() => {
+      if (!isUserLoggedIn()) {
+        navigate('/login'); // Redirect to login if user is not logged in
+      } else {
+        setIsAuthorized(true); // Set authorization state to true
+      }
+    }, [navigate]);
+  
+    if (!isAuthorized) {
+      return null; // Prevent rendering if user is not authorized
+    }
   // You can fetch the actual message count from your state management or API
   const messageCount = 2; // This should come from your actual data source
 
