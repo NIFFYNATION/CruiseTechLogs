@@ -187,14 +187,14 @@ const CountrySelectModal = ({ open, onClose, onSelect }) => {
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 z-100 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+        className="fixed inset-0 z-100 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={onClose}
         initial="hidden"
         animate="visible"
         exit="hidden"
         variants={overlayVariants}
       >
         <motion.div
-          className="bg-white rounded-xl w-full max-w-3xl mx-2 p-0 overflow-hidden shadow-lg relative"
+          className="bg-white rounded-xl w-full max-w-3xl mx-2 p-0 overflow-hidden shadow-lg relative" onClick={(e) => e.stopPropagation()}
           initial="hidden"
           animate="visible"
           exit="hidden"
@@ -219,13 +219,13 @@ const CountrySelectModal = ({ open, onClose, onSelect }) => {
         </div>
         {/* Country List */}
         <div className="px-6 pb-2 max-h-[340px] overflow-y-auto">
-            <div className="grid md:grid-cols-2 gap-y-4 gap-x-8">
+            <div className="grid md:grid-cols-2 gap-y-4 gap-x-8 ">
             {rows.map((pair, idx) => (
               <React.Fragment key={idx}>
                 {pair.map((country, j) => (
                     <motion.button
                     key={country.name + country.code}
-                    className="flex items-center gap-3 py-1 px-2 rounded-lg hover:bg-[#F7F7F7] transition w-full text-left"
+                    className="flex items-center gap-3 py-1 px-2 rounded-lg hover:bg-[#F7F7F7] transition w-full text-left py-2 hover:bg-quaternary-light"
                     onClick={() => {
                       onSelect(country);
                       onClose();

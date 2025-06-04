@@ -172,7 +172,7 @@ const Sidebar = () => {
             {/* Level Badge - Only show when not collapsed */}
             {!isCollapsed && (
               <div className="absolute -bottom-[17px] left-1/2 -translate-x-1/2 bg-white px-4 py-2 rounded-full shadow-sm flex items-center gap-1.5 w-25 justify-center">
-                <img src="/level-badge.png" alt="Level" className="w-4 h-4" />
+                <img src="/icons/level-badge.svg" alt="Level" className="w-4 h-4" />
                 <span className="text-xs font-medium">Level 1</span>
               </div>
             )}
