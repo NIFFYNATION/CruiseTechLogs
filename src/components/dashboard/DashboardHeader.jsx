@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useSidebar } from '../../contexts/SidebarContext';
 import NotificationDropdown from '../common/NotificationDropdown';
 import AccountDropdown from '../common/AccountDropdown';
+import { getUserData } from '../../controllers/userController'; // Import userController
 
 const DashboardHeader = () => {
   const { toggleSidebar, isCollapsed } = useSidebar();
@@ -11,6 +12,13 @@ const DashboardHeader = () => {
   const dropdownRef = useRef(null);
   const profileRef = useRef(null);
   const accountDropdownRef = useRef(null);
+  const [user, setUser] = useState(null); // State to store user details
+
+  useEffect(() => {
+    const userData = getUserData(); // Fetch user details from local storage
+    console.log('User Data:', userData); // Log user data for debugging
+    setUser(userData); // Set user details
+  }, []);
 
   // Hide notification dropdown when clicking outside
   useEffect(() => {
@@ -72,8 +80,6 @@ const DashboardHeader = () => {
               />
           </button>
 
-         
-
           <div className='md:hidden m-auto'>
           <img 
                 src="/images/CruiseTech-2.svg" 
@@ -82,7 +88,6 @@ const DashboardHeader = () => {
               />
           </div>
           {/* Middle - Search Bar */}
-
           <div className="hidden md:block flex-1 max-w-xl mx-2 md:mx-6">
             <div className="relative">
               <input 
@@ -147,11 +152,11 @@ const DashboardHeader = () => {
               onClick={() => setShowAccountDropdown((v) => !v)}
             >
               <img 
-                src="/icons/female.svg" 
-                alt="Fortune Ivo" 
+                src={user?.profile_image || "/icons/female.svg"} // Use user's profile image or fallback
+                alt={user?.first_name || "User"} 
                 className="w-8 h-8 rounded-full object-cover"
               />
-              <span className="hidden md:block text-primary text-sm font-medium">Fortune Ivo</span>
+              <span className="hidden md:block text-primary text-sm font-medium">{user?.first_name || "User"}</span>
               <svg 
                 width="16" 
                 height="16" 
@@ -167,6 +172,7 @@ const DashboardHeader = () => {
             {showAccountDropdown && (
               <div ref={accountDropdownRef}>
                 <AccountDropdown
+                  user={user} // Pass user details to AccountDropdown
                   onEditProfile={() => {/* handle edit */}}
                   onLogout={() => {/* handle logout */}}
                   onKnowMore={() => {/* handle know more */}}
@@ -181,4 +187,4 @@ const DashboardHeader = () => {
   );
 };
 
-export default DashboardHeader; 
+export default DashboardHeader;
