@@ -80,7 +80,7 @@ const AccountDropdown = ({
             {/* Progress Section */}
             <div className="border-t border-text-grey pt-4 mb-10 p-6">
               <div className="flex items-center gap-2 mb-2 mt-4">
-                <span className="inline-block w-8 h-8 bg-[url('/level-badge.png')] bg-cover" />
+                <span className="inline-block w-8 h-8 bg-[url('/icons/level-badge.svg')] bg-cover" />
                 <span className="text-base font-semibold text-[#A97B2A]">{user.progress}% to Level {user.level}</span>
               </div>
               <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden mb-2">

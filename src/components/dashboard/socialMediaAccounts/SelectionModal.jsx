@@ -9,13 +9,13 @@ const SelectionModal = ({ open, onClose, onSelect, title, options, showIcon = tr
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-xl w-full max-w-2xl mx-2 p-0 overflow-hidden shadow-lg relative max-h-[90vh] overflow-y-auto"
+        className="bg-white rounded-xl w-full max-w-2xl mx-2 p-0 overflow-hidden shadow-lg relative max-h-[90vh] overflow-y-auto border-b-2 rounded-b-xl border-b-[#FFDE59] scrollbar-hide"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="border-b border-border-grey bg-bgLayout rounded-t-lg px-6 py-4">
           <h2 className="text-lg font-semibold">{title}</h2>
         </div>
-        <div className="divide-y divide-border-grey px-4 border-b-2 rounded-b-xl border-b-[#FFDE59]">
+        <div className="divide-y divide-border-grey px-4 ">
           {options.map((option) => (
             <button
               key={option.value}

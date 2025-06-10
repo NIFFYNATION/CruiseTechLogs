@@ -95,7 +95,7 @@ const Sidebar = () => {
       </AnimatePresence>
       
       <motion.aside
-        className={`fixed left-0 top-0 h-screen 
+        className={`fixed left-0 top-0 h-screen scrollbar-hide
           ${isCollapsed ? 'w-[80px] -translate-x-full lg:translate-x-0' : 'w-[270px] pb-32'} 
           bg-background overflow-y-auto transition-all duration-300 z-40
           lg:translate-x-0 ${!isCollapsed ? 'translate-x-0' : ''}`}
