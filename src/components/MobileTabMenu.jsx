@@ -43,7 +43,7 @@ const MobileTabMenu = ({ onClose }) => (
       variants={menuVariants}
     >
       {/* Card */}
-      <div className="bg-[#FA5A15F2]/30 rounded-xl py-15 px-4 w-[90vw] max-w-xl relative overflow-visible border-b-[3px] border-b-[#ff8c1a]">
+      <div className="bg-gray rounded-xl py-15 px-4 w-[90vw] max-w-xl relative overflow-visible  shadow-lg shadow-[#FA5A15F2]/20">
         <div className="grid grid-cols-3 gap-y-6 gap-x-2">
           {menuItems.map((item) => (
             <Link
@@ -61,13 +61,13 @@ const MobileTabMenu = ({ onClose }) => (
                   className="w-5 h-5 [filter:invert(48%)_sepia(79%)_saturate(2476%)_hue-rotate(346deg)_brightness(118%)_contrast(119%)]"
                 />
               </div>
-              <span className="text-gray text-xs text-center font-medium">{item.name}</span>
+              <span className="text-black/80 text-xs text-center font-medium">{item.name}</span>
             </Link>
           ))}
         </div>
       </div>
       {/* Arrow */}
-      <div className="w-0 h-20 border-l-[22px] border-l-transparent border-r-[22px] border-r-transparent border-t-[20px] border-t-[#ff8c1a] -mt-0 rounded-b-full" />
+      <div className="w-0 h-20 border-l-[15px] border-l-transparent border-r-[15px] border-r-transparent border-t-[10px] border-t-[#ff8c1a] -mt-0 rounded-b-full" />
     </motion.div>
   </AnimatePresence>
 );

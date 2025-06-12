@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom'; // Add navigation for redirection
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   FaWhatsapp,
   FaSignOutAlt,
@@ -7,6 +7,8 @@ import {
 import { useSidebar } from '../../contexts/SidebarContext';
 import { motion, AnimatePresence } from "framer-motion";
 import { isUserLoggedIn, logoutUser } from '../../controllers/userController'; // Import userController
+import { fetchUserProfile } from '../../services/userService'; // Import user profile fetch
+import UserAvatar from '../common/UserAvatar'; // Import UserAvatar
 
 const MenuItem = ({ imageSrc, text, to }) => {
   const { isCollapsed } = useSidebar();
@@ -63,10 +65,41 @@ const Sidebar = () => {
   const { isCollapsed, isMobile, toggleSidebar } = useSidebar();
   const navigate = useNavigate();
 
+  // --- User details state ---
+  const [user, setUser] = useState(null); // null until loaded
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchUserProfile()
+      .then(data => {
+        setUser({
+          name: (data?.first_name && data?.last_name)
+            ? `${data.first_name} ${data.last_name}`
+            : (data?.fullName || 'User'),
+          email: data?.email || '',
+          avatar: data?.profile_image
+            ? data.profile_image
+            : (data?.avatar || '/icons/female.svg'),
+          stage: data?.stage || { name: 'Level 1' },
+          percentage: typeof data?.percentage === 'number' ? data.percentage : 0,
+        });
+        setLoading(false);
+      })
+      .catch(() => {
+        setUser({
+          name: 'User',
+          email: '',
+          avatar: '/icons/female.svg',
+          stage: { name: 'Level 1' },
+          percentage: 0,
+        });
+        setLoading(false);
+      });
+  }, []);
 
   const handleLogout = () => {
-    logoutUser(); // Call logout function
-    navigate('/login'); // Redirect to login page
+    logoutUser();
+    navigate('/login');
   };
 
   // Menu items for animation mapping
@@ -85,6 +118,10 @@ const Sidebar = () => {
     { imageSrc: "/icons/settings.svg", text: "Profile Settings", to: "/dashboard/settings" },
     { imageSrc: "/icons/help.svg", text: "Help Center", to: "/dashboard/help" },
   ];
+
+  if (loading) {
+    return null; // Optionally, show a spinner or skeleton here
+  }
 
   return (
     <>
@@ -155,44 +192,33 @@ const Sidebar = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15, type: "spring", stiffness: 200, damping: 20 }}
         >
-          {/* Avatar with orange border */}
-          <motion.div
-            className="relative"
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.2, type: "spring", stiffness: 200, damping: 20 }}
-          >
-            <div className={`${isCollapsed ? 'w-12 h-12' : 'w-24 h-24'} rounded-full border-[4px] border-quaternary transition-all duration-300`}>
-              <img 
-                src="/icons/female.svg" 
-                alt="Profile" 
-                className="w-full h-full rounded-full object-cover"
-              />
-            </div>
-            {/* Level Badge - Only show when not collapsed */}
-            {!isCollapsed && (
-              <div className="absolute -bottom-[17px] left-1/2 -translate-x-1/2 bg-white px-4 py-2 rounded-full shadow-sm flex items-center gap-1.5 w-25 justify-center">
-                <img src="/level-badge.png" alt="Level" className="w-4 h-4" />
-                <span className="text-xs font-medium">Level 1</span>
-              </div>
-            )}
-          </motion.div>
+          {/* Use UserAvatar reusable component */}
+          <UserAvatar
+            src={user.avatar}
+            alt={user.name}
+            size={isCollapsed ? 48 : 96}
+            showLevel={!isCollapsed}
+            level={user.stage?.name}
+            className="mb-0"
+          />
 
           {/* Name and Email - Only show when not collapsed */}
           {!isCollapsed && (
             <>
               <h3 className="text-lg font-semibold text-text-secondary mb-1 mt-8">
-                Fortune Ivo
+                {user.name}
               </h3>
               <p className="text-sm font-semibold text-text-grey">
-                ivofortune35@gmail.com
+                {user.email}
               </p>
+              
+             
             </>
           )}
         </motion.div>
 
         {/* Dashboard Section */}
-        <div className="mt-4">
+        <div className="">
           <SectionTitle title="Dashboard" />
           <nav>
             {dashboardMenu.map((item, i) => (

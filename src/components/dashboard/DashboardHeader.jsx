@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useSidebar } from '../../contexts/SidebarContext';
 import NotificationDropdown from '../common/NotificationDropdown';
 import AccountDropdown from '../common/AccountDropdown';
-import { getUserData } from '../../controllers/userController'; // Import userController
+import { fetchUserProfile } from '../../services/userService'; // Use fetchUserProfile
 
 const DashboardHeader = () => {
   const { toggleSidebar, isCollapsed } = useSidebar();
@@ -14,10 +14,23 @@ const DashboardHeader = () => {
   const accountDropdownRef = useRef(null);
   const [user, setUser] = useState(null); // State to store user details
 
+  // Fetch user record from fetchUserProfile
   useEffect(() => {
-    const userData = getUserData(); // Fetch user details from local storage
-    console.log('User Data:', userData); // Log user data for debugging
-    setUser(userData); // Set user details
+    fetchUserProfile()
+      .then(data => {
+        setUser({
+          ...data,
+          profile_image: data?.profile_image || '/icons/female.svg',
+          first_name: data?.first_name || 'User',
+        });
+      })
+      .catch(() => {
+        setUser({
+          profile_image: '/icons/female.svg',
+          first_name: 'User',
+          email: '',
+        });
+      });
   }, []);
 
   // Hide notification dropdown when clicking outside
@@ -152,7 +165,7 @@ const DashboardHeader = () => {
               onClick={() => setShowAccountDropdown((v) => !v)}
             >
               <img 
-                src={user?.profile_image || "/icons/female.svg"} // Use user's profile image or fallback
+                src={user?.profile_image || "/icons/female.svg"}
                 alt={user?.first_name || "User"} 
                 className="w-8 h-8 rounded-full object-cover"
               />

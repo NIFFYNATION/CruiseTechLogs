@@ -1,5 +1,16 @@
 import { refreshUserToken, fetchUserProfile } from '../services/userService';
 
+// Default user fallback
+export const defaultUser = {
+  avatar: '/icons/female.svg',
+  name: 'User',
+  first_name: 'User',
+  last_name: '',
+  email: '',
+  level: 1,
+  progress: 0,
+};
+
 export const isUserLoggedIn = () => {
   const authToken = localStorage.getItem('authToken');
   const userData = localStorage.getItem('userData');
@@ -8,7 +19,7 @@ export const isUserLoggedIn = () => {
 
 export const getUserData = () => {
   const userData = localStorage.getItem('userData');
-  if (!userData) return null;
+  if (!userData) return defaultUser; // Return default user if no data
 
   const parsedData = JSON.parse(userData);
 
@@ -72,6 +83,6 @@ export const fetchUserDetails = async () => {
     return userProfile;
   } catch (error) {
     console.error('Error fetching user details:', error.message);
-    throw new Error(error.message);
+    return defaultUser; // Return default user on error
   }
 };
