@@ -2,6 +2,9 @@ import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "../../common/Button";
 import { FiInfo } from "react-icons/fi";
+import ReviewOrderModal from "./ReviewOrderModal";
+import CartItem from "./CartItem";
+import CartQuantityControl from "./CartQuantityControl";
 
 const BuyAccountPage = () => {
   const location = useLocation();
@@ -11,6 +14,7 @@ const BuyAccountPage = () => {
 
   const [quantity, setQuantity] = React.useState(0);
   const [cart, setCart] = React.useState([]);
+  const [reviewOpen, setReviewOpen] = React.useState(false);
 
   // Fallbacks if user navigates directly
   if (!platform || !category || !product) {
@@ -27,8 +31,27 @@ const BuyAccountPage = () => {
     0
   );
 
-  return (
+  const onClearCart = () => {
+    setCart([]);
+  };
 
+  const onIncrement = () => {
+    setCart(prev => [
+      ...prev,
+      {
+        id: Date.now() + Math.random(),
+        platform,
+        accountId: "6156861375259",
+        price: product.price,
+      }
+    ]);
+  };
+
+  const onDecrement = () => {
+    if (cart.length > 0) setCart(prev => prev.slice(0, -1));
+  };
+
+  return (
      <>
      {/* Product Summary */}
       <div className="bg-white rounded-xl shadow p-6 mb-6  border-b-[#FFDE59] border-b-2">
@@ -66,48 +89,29 @@ const BuyAccountPage = () => {
       {/* Cart/Quantity Section */}
       <div className="bg-white p-6 mb-6 border-b border-bgLayout">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-4">
-        <div className="flex items-center gap-4 mb-2">
-          <div className="flex items-center w-45 md:w-56 h-9 md:h-11 border border-primary rounded-lg overflow-hidden">
-            <button
-              className="flex-1 h-full flex items-center justify-center text-xl text-primary hover:bg-primary/10 transition"
-              onClick={() => {
-                if (cart.length > 0) {
-                  setCart(prev => prev.slice(0, -1));
-                }
-              }}
-              aria-label="Decrease"
-              type="button"
-              style={{ borderRight: '1.5px solid #0B4B5A' }}
-              disabled={cart.length === 0}
-            >
-              –
-            </button>
-            <div className="flex-1 h-full flex items-center justify-center text-2xl text-primary font-semibold"
-              style={{ borderRight: '1.5px solid #0B4B5A' }}
-            >
-              {cart.length}
-            </div>
-            <button
-              className="flex-1 h-full flex items-center justify-center text-2xl text-primary hover:bg-primary/10 transition"
-              onClick={() => {
-                // Add a new account (simulate, or use real data)
-                setCart(prev => [
-                  ...prev,
-                  {
-                    id: Date.now() + Math.random(),
-                    platform,
-                    accountId: "6156861375259",
-                    price: product.price,
-                  }
-                ]);
-              }}
-              aria-label="Increase"
-              type="button"
-            >
-              +
-            </button>
-          </div>
-          <span className="text-quinary font-semibold text-xs md:text-base">277 Accounts Available</span>
+       
+        <div className="flex items-center gap-">
+        <CartQuantityControl
+          quantity={cart.length}
+          onIncrement={() => {
+            setCart(prev => [
+              ...prev,
+              {
+                id: Date.now() + Math.random(),
+                platform,
+                accountId: "6156861375259",
+                price: product.price,
+              }
+            ]);
+          }}
+          onDecrement={() => {
+            if (cart.length > 0) setCart(prev => prev.slice(0, -1));
+          }}
+          onClearCart={onClearCart}
+          available={277}
+          showAvailable={true}
+        />
+       
         </div>
           <p className="font-semibold text-primary hidden sm:block">Total – ₦{total.toLocaleString()}</p>
         </div>
@@ -122,7 +126,7 @@ const BuyAccountPage = () => {
               variant="orange"
               size="md"
               className="mt-0 "
-              onClick={() => alert("Buy Account")}
+              onClick={() => setReviewOpen(true)}
             >
               Buy Account
             </Button>
@@ -130,29 +134,14 @@ const BuyAccountPage = () => {
           {cart.length > 0 && (
             <div className="flex flex-col gap-4 w-full">
               {cart.map((item, idx) => (
-                <div
+                <CartItem
                   key={item.id}
-                  className="flex items-center justify-between bg-[#FAFAFA] rounded-xl py-3 px-8 hidden sm:flex"
-                >
-                  <div className="flex items-center gap-2">
-                    <img src={item.platform.icon} alt={item.platform.label} className="w-6 h-6" />
-                    <span className="font-medium text-text-primary">{item.platform.label}</span>
-                  </div>
-                  <span className="text-text-primary">{item.accountId}</span>
-                  <span className="text-primary font-semibold">₦{item.price}</span>
-                  <button className="w-9 h-9 hidden sm:flex items-center justify-center rounded-lg bg-primary hover:bg-quinary transition">
-                    <img src="/icons/eye-bold.svg" alt="View" className="w-5 h-5 invert-0" />
-                  </button>
-                  <button
-                    className="w-9 h-9 flex items-center justify-center rounded-lg bg-orange-500 hover:bg-quinary transition"
-                    onClick={() => setCart(prev => prev.filter((_, i) => i !== idx))}
-                  >
-                    <span className="text-white text-xl font-bold">–</span>
-                  </button>
-                </div>
-                
+                  item={item}
+                  onRemove={() => setCart(prev => prev.filter((_, i) => i !== idx))}
+                  onView={() => {/* handle view logic if needed */}}
+                />
               ))}
-          </div>
+            </div>
           )}
          </div>
       </div>
@@ -164,25 +153,7 @@ const BuyAccountPage = () => {
         ) : (
           <>
             <div className="flex flex-col gap-4 w-full">
-              {cart.map((item, idx) => (
-                <div
-                  key={item.id}
-                  className="flex items-center justify-between bg-[#FAFAFA] rounded-xl px-2 py-3 gap-2"
-                >
-                  <div className="flex items-center gap-2 ">
-                    <img src={item.platform.icon} alt={item.platform.label} className="w-6 h-6" />
-                    <span className="font-medium text-text-primary ">{item.platform.label}</span>
-                  </div>
-                  <span className="text-text-primary ml-2">{item.accountId}</span>
-                  <span className="text-primary font-semibold">₦{item.price}</span>
-                  <button
-                    className="w-9 h-9 flex items-center justify-center rounded-lg bg-orange-500 hover:bg-quinary transition"
-                    onClick={() => setCart(prev => prev.filter((_, i) => i !== idx))}
-                  >
-                    <span className="text-white text-xl font-bold">–</span>
-                  </button>
-                </div>
-              ))}
+              
             </div>
             <div className="flex flex-col items-center justify-center mt-8">
               <p className="text-base font-semibold mb-2">
@@ -197,7 +168,7 @@ const BuyAccountPage = () => {
                 variant="orange"
                 size="md"
                 className="w-full max-w-xs"
-                onClick={() => alert("Buy Account")}
+                onClick={() => setReviewOpen(true)}
               >
                 Buy Account
               </Button>
@@ -239,23 +210,27 @@ const BuyAccountPage = () => {
             <tbody>
               {[...Array(6)].map((_, i) => (
                 <tr key={i} className="border-b border-border-grey">
-                  <td className="py-6 px-0 sm:px-6 flex items-center gap-2">
-                    <img src={platform.icon} alt={platform.label} className="w-4 h-4 md:w-6 md:h-6" />
-                    <span className="font-medium text-text-primary">{platform.label}</span>
+                  <td className="py-4 px-2 sm:px-6 flex items-center gap-2">
+                    <img src={platform.icon} alt={platform.label} className="w-5 h-5 sm:w-6 sm:h-6" />
+                    <span className="font-medium text-text-primary text-xs sm:text-base">{platform.label}</span>
                   </td>
-                  <td className="py-4 px-0 sm:px-6 text-text-primary">6156861375259</td>
-                  <td className="py-4 px-0 sm:px-6 text-primary font-semibold">₦{product.price}</td>
-                  <td className="py-4 px-0 sm:px-6">
-                    <button className="w-8 h-8 flex items-center justify-center rounded-lg bg-primary hover:bg-quinary transition">
-                      <img src="/icons/eye-bold.svg" alt="View" className="w-5 h-5 invert-0" />
+                  <td className="py-4 px-2 sm:px-6 text-text-primary text-xs sm:text-base truncate max-w-[80px] sm:max-w-none">
+                    6156861375259
+                  </td>
+                  <td className="py-4 px-2 sm:px-6 text-primary font-semibold text-xs sm:text-base whitespace-nowrap">
+                    ₦{product.price}
+                  </td>
+                  <td className="py-4 px-2 sm:px-6">
+                    <button className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-lg bg-primary hover:bg-quinary transition">
+                      <img src="/icons/eye-bold.svg" alt="View" className="w-4 h-4 sm:w-5 sm:h-5 invert-0" />
                     </button>
                   </td>
-                  <td className="py-4 ">
+                  <td className="py-4 px-2 sm:px-6">
                     <Button
                       variant="orange"
                       size="sm"
                       shape="rounded"
-                      className="px-0 md:px-5 rounded-lg md:rounded-full"
+                      className="px-2 sm:px-5 rounded-lg md:rounded-full flex items-center justify-center"
                       onClick={() => {
                         setCart(prev => [
                           ...prev,
@@ -269,7 +244,7 @@ const BuyAccountPage = () => {
                       }}
                     >
                       <img src="/icons/cart.svg" alt="Add to Cart" className="w-4 h-4 mr-0 sm:mr-2" />
-                     <span className="hidden sm:block">Add to Cart</span>
+                      <span className="hidden sm:inline">Add to Cart</span>
                     </Button>
                   </td>
                 </tr>
@@ -282,6 +257,20 @@ const BuyAccountPage = () => {
       </div>
     </div>
      
+     <ReviewOrderModal
+       open={reviewOpen}
+       cart={cart}
+       onClose={() => setReviewOpen(false)}
+       onBuy={() => {
+         // handle buy logic here
+         setReviewOpen(false);
+         alert("Order placed!");
+       }}
+       onRemove={idx => setCart(prev => prev.filter((_, i) => i !== idx))}
+       onClearCart={() => setCart([])}
+       onIncrement={onIncrement}
+       onDecrement={onDecrement}
+     />
      </>
   );
 };
