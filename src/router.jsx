@@ -9,6 +9,7 @@ import ManageNumbers from './components/dashboard/manageNumbers/ManageNumbers';
 import BuyNumbers from './components/dashboard/buyNumbers/BuyNumbers';
 import App from './App';
 import SocialMediaAccounts from './components/dashboard/socialMediaAccounts/SocialMediaAccounts';
+import BuyAccountPage from './components/dashboard/socialMediaAccounts/BuyAccountPage';
 
 export const router = createBrowserRouter([
   {
@@ -40,6 +41,7 @@ export const router = createBrowserRouter([
           { path: 'manage-numbers', element: <ManageNumbers /> },
           { path: 'buy-numbers', element: <BuyNumbers /> },
           { path: 'social-media-accounts', element: <SocialMediaAccounts /> },
+          { path: 'social-media-accounts/buy', element: <BuyAccountPage /> },
         ],
       },
     ],

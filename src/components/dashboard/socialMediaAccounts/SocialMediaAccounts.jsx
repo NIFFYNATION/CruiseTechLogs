@@ -3,6 +3,7 @@ import ProductCard from "../ProductCard";
 import ProductSection from "../ProductSection";
 import SelectionModal from "./SelectionModal";
 import { FiChevronDown } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 
 const platforms = [
   { label: "Facebook", value: "facebook", icon: "/icons/facebook.svg" },
@@ -63,6 +64,7 @@ const SocialMediaAccounts = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [platformModalOpen, setPlatformModalOpen] = useState(false);
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   // Filter logic (DRY)
   const filteredProducts = productData.filter(
@@ -128,7 +130,17 @@ const SocialMediaAccounts = () => {
             </h3>
             <ProductSection
               products={productsForPlatform}
-              onBuy={() => {}}
+              onBuy={(product) => {
+                if (selectedPlatform && selectedCategory) {
+                  navigate('/dashboard/social-media-accounts/buy', {
+                    state: {
+                      platform: selectedPlatform,
+                      category: selectedCategory,
+                      product,
+                    },
+                  });
+                }
+              }}
               onStockClick={() => {}}
               mobileViewMoreLabel={`View More ${platform.label}`}
             />
