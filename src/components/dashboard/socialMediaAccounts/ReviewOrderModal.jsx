@@ -52,7 +52,7 @@ const ReviewOrderModal = ({
         </div>
 
         {/* Footer */}
-        <div className="flex justify-between items-center border-t border-border-grey px-6 py-4 bg-bgLayout">
+        <div className="flex justify-end gap-4 items-center border-t border-border-grey px-6 py-4 bg-bgLayout">
           <Button
             variant="outline"
             size="md"
