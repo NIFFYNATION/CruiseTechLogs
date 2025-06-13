@@ -8,9 +8,9 @@ const CartQuantityControl = ({
   onClearCart,
   available = 0,
   showAvailable = true,
-  className = "gap-10",
+  className = "gap-10   lg:gap-32",
 }) => (
-  <div className={`flex items-center gap- ${className}`}>
+  <div className={`flex items-center gap-4 ${className}`}>
     <div className="flex items-center w-40 h-11 border border-primary rounded-lg overflow-hidden ">
       <button
         className="flex-1 h-full flex items-center justify-center text-xl text-primary hover:bg-primary/10 transition"

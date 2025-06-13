@@ -155,7 +155,7 @@ const BuyAccountPage = () => {
             <div className="flex flex-col gap-4 w-full">
               
             </div>
-            <div className="flex flex-col items-center justify-center mt-8">
+            <div className="flex flex-col items-center justify-center">
               <p className="text-base font-semibold mb-2">
                 Total – <span className="text-primary font-bold">
                   ₦{cart.reduce(
@@ -262,9 +262,21 @@ const BuyAccountPage = () => {
        cart={cart}
        onClose={() => setReviewOpen(false)}
        onBuy={() => {
-         // handle buy logic here
          setReviewOpen(false);
-         alert("Order placed!");
+         // Simulate order details (replace with real data as needed)
+         navigate('/dashboard/social-media-accounts/order-confirmed', {
+           state: {
+             order: {
+               orderId: "67e7f4b299c6d",
+               accountId: "66f3f8841ad8a",
+               accountType: product.title,
+               price: product.price,
+               loginId: "135716",
+               loginDetails:
+                 "61573765657031|29Qgz51Xfq|LNNVVMBQDLMLTLXQSMLYKASWOMXFO3SO|c_user=61573765657031;xs=16:jbYrGYx_O3LA9Q:2:1741297043:-1:-1;fr=085P1O1lLrL6Tbbhm.AWW8OJLNlnTXq27ncAbPG5o9-vevYuRYQFqrRA.BnyhWY..AAA.0.0.BnyhWY.AWX1DpwjTcc;datr=khXKZyKqn35-mSbJoQGwz0HB;|EAAAAUaZA8jlABO9afd9A8WQAp9XIMnX3HpxYlt7mchi8Y7RONEBv7SIWoZCkT78Mc8hAqs6YEt8NUwgK5DLkvTeDNOgjMV2KV2baxuMzGOij09GXzEXAJfH5PZBYokfZBJMQZBlcphZCFeTeBZB55gaDbIanxnBy50DLhBK4Lt9H1f10XOvEqEj8GXmXGxlX6IfnrqOEhOdtAZDZD|rdmbr4gxcvph@jxpomup.com|",
+             },
+           },
+         });
        }}
        onRemove={idx => setCart(prev => prev.filter((_, i) => i !== idx))}
        onClearCart={() => setCart([])}

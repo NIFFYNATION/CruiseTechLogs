@@ -17,7 +17,7 @@ const ReviewOrderModal = ({
 
   return (
     <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/40 backdrop-blur-sm">
-      <div className="bg-white rounded-xl w-full max-w-md mx-2 p-0 overflow-hidden shadow-lg relative">
+      <div className="bg-white rounded-xl w-full max-w-xl mx-2 p-0 overflow-hidden shadow-lg relative">
         {/* Header */}
         <div className="px-6 pt-6 pb-2 border-b border-border-grey">
           <h2 className="text-lg font-semibold">Review Order</h2>
