@@ -52,9 +52,9 @@ const Wallet = () => {
         {/* Balance Card + Virtual Account */}
         <div className="flex flex-col gap-4">
           {/* Balance Card */}
-          <div className="bg-white rounded-2xl shadow p-4 overflow-hidden">
+          <div className="bg-white rounded-2xl shadow p-2 overflow-hidden">
           <div className=" relative">
-          <WalletCard balance={balance} onAddFunds={() => alert("Add Funds")} onTransactions={() => alert("Show Transactions")} />
+          <WalletCard  balance={balance} onAddFunds={() => alert("Add Funds")} onTransactions={() => alert("Show Transactions")} />
           </div>
             {/* Virtual Account Details */}
             <div className="p-6">
@@ -163,7 +163,7 @@ const Wallet = () => {
                 <th className="py-2 px-1 sm:px-2">Status</th>
                 <th className="py-2 px-1 sm:px-2">Type</th>
                 <th className="py-2 px-1 sm:px-2">Ref. No.</th>
-                <th className="py-2 px-1 sm:px-2">Date</th>
+                <th className="py-2 px-1 sm:px-2 py-2 px-1 sm:px-2 hidden sm:table-cell">Date</th>
               </tr>
             </thead>
             <tbody>
@@ -174,7 +174,7 @@ const Wallet = () => {
                   <td className={`py-2 px-1 sm:py-3 sm:px-2 font-semibold ${tx.status === "Complete" ? "text-success" : tx.status === "Pending" ? "text-quinary" : "text-red-500"}`}>{tx.status}</td>
                   <td className="py-2 px-1 sm:py-3 sm:px-2">{tx.type}</td>
                   <td className="py-2 px-1 sm:py-3 sm:px-2 max-w-[80px] sm:max-w-none truncate">{tx.ref}</td>
-                  <td className="py-2 px-1 sm:py-3 sm:px-2 whitespace-nowrap ">{tx.date}</td>
+                  <td className="py-2 px-1 sm:py-3 sm:px-2 whitespace-nowrap py-2 px-1 sm:px-2 hidden sm:table-cell">{tx.date}</td>
                 </tr>
               ))}
             </tbody>
