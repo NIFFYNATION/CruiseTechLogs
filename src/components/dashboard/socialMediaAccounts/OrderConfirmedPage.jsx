@@ -111,7 +111,7 @@ const OrderConfirmedPage = () => {
         </h3>
         <div className="w-full px-0 md:px-8 pb-8">
           <div className="bg-background rounded-xl p-">
-            <div className="mb-6 md:mb-2 flex items-center gap-2">
+            <div className="mb-6 flex items-center gap-2">
               <span className="font-semibold text-primary text-base">LOGIN 1 ID</span>
               <span className="font-semibold text-text-primary text-base">– {order.loginId}</span>
             </div>
