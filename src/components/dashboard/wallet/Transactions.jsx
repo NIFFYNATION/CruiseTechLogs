@@ -88,8 +88,8 @@ const Transactions = () => {
           </div>
         </div>
         {/* Table */}
-        <div className="overflow-x-auto w-full">
-          <table className="min-w-[900px] w-full text-xs sm:text-sm">
+        <div className="max-w-[300px] sm:max-w-full w-full overflow-x-auto">
+          <table className=" min-w-[900px] overflow-x-auto w-full text-xs sm:text-sm">
             <thead>
               <tr className="text-left text-text-secondary border-b border-border-grey">
                 <th className="py-2 px-1 sm:px-2">ID</th>
