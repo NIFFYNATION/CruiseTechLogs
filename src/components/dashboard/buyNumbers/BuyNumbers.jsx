@@ -1,22 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FiSearch, FiBookmark } from "react-icons/fi";
 import CountrySelectModal from "../buyNumbers/CountrySelectModal";
 import CountryFlag from "react-country-flag";
 import NumberTypeSelectModal from "./NumberTypeSelectModal";
 import BuyNumberModal from "./BuyNumberModal";
-
-// Dummy data for services
-const services = [
-  { name: "WhatsApp", icon: "/icons/whatsapp.svg", price: "₦1,200.14" },
-  { name: "Instagram", icon: "/icons/instagram.svg", price: "₦1,200.14" },
-  { name: "Amazon/ AWS", icon: "/icons/amazon.svg", price: "₦1,200.14" },
-  { name: "Twitter", icon: "/icons/twitter.svg", price: "₦1,200.14" },
-  { name: "Google", icon: "/icons/google.svg", price: "₦1,200.14" },
-  { name: "TikTok", icon: "/icons/tiktok.svg", price: "₦1,200.14" },
-  { name: "PayPal", icon: "/icons/paypal.svg", price: "₦1,200.14" },
-  { name: "WhatsApp", icon: "/icons/whatsapp.svg", price: "₦1,200.14" },
-  { name: "WhatsApp", icon: "/icons/whatsapp.svg", price: "₦1,200.14" },
-];
+import { fetchServices } from '../../../services/numberService';
 
 const BuyNumbers = () => {
   const [search, setSearch] = useState("");
@@ -26,14 +14,51 @@ const BuyNumbers = () => {
     name: "United States",
     code: "+1",
     value: "US",
+    id: 2,
   });
-  const [numberTypeModalOpen, setNumberTypeModalOpen] = useState(false);
+  const [numberTypeModalOpen, setNumberTypeModalOpen] = useState(true); // Open by default
   const [selectedNumberType, setSelectedNumberType] = useState(null);
   const [buyModalOpen, setBuyModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
+  const [services, setServices] = useState([]);
+  const [servicesLoading, setServicesLoading] = useState(false);
+
+  // Helper: does this type require country selection?
+  const typeNeedsCountry = (type) =>
+    type &&
+    (
+      type.value === "short_term_3" ||
+      type.value === "short_term_5" ||
+      type.value === "short_term_6"
+    );
+
+  // Fetch services when number type or country changes
+  useEffect(() => {
+    // Don't fetch until a type is selected
+    if (!selectedNumberType) return;
+
+    // If type requires country, wait for country to be selected
+    if (typeNeedsCountry(selectedNumberType)) {
+      if (!selectedCountry || !selectedCountry.id) return;
+    }
+
+    // Fetch services
+    setServicesLoading(true);
+    fetchServices({
+      type: selectedNumberType.type || selectedNumberType.value || "",
+      network: selectedNumberType.network,
+      countryID: typeNeedsCountry(selectedNumberType)
+        ? selectedCountry?.id
+        : undefined,
+    })
+      .then((data) => setServices(Array.isArray(data) ? data : []))
+      .catch(() => setServices([]))
+      .finally(() => setServicesLoading(false));
+    // eslint-disable-next-line
+  }, [selectedNumberType, selectedCountry]);
 
   const filteredServices = services.filter((service) =>
-    service.name.toLowerCase().includes(search.toLowerCase())
+    service.name?.toLowerCase().includes(search.toLowerCase())
   );
 
   const handleBuyClick = (service) => {
@@ -42,19 +67,22 @@ const BuyNumbers = () => {
   };
 
   const handleBuyNumber = () => {
-    // Implement your buy logic here
     setBuyModalOpen(false);
-    // Optionally show a success message or redirect
   };
+
+  // Open country modal immediately after selecting a number type if condition is met
+  useEffect(() => {
+    if (selectedNumberType && typeNeedsCountry(selectedNumberType)) {
+      setCountryModalOpen(true);
+    }
+    // eslint-disable-next-line
+  }, [selectedNumberType]);
 
   return (
     <div className="p-2 md:p-6 min-h-screen">
       {/* Header */}
       <div className="mb-6">
         <h2 className="text-xl md:text-2xl font-semibold mb-2">Buy Number</h2>
-        <p className="text-text-secondary font-semibold mb-1 text-sm md:text-base">
-          Get phone number to receive OTP for <span className="text-quinary font-semibold">short term</span> or <span className="text-quinary font-semibold">long term</span> use.
-        </p>
         <p className="text-text-secondary font-semibold text-sm md:text-base">
           You will receive an instant refund if you do not receive OTP.
         </p>
@@ -62,29 +90,6 @@ const BuyNumbers = () => {
 
       {/* Filters */}
       <div className="flex flex-col md:flex-row gap-3 mb-6">
-        <button
-          className="flex-1 flex items-center justify-between bg-white border border-border-grey rounded-sm px-4 py-1 md:py-3 text-left text-sm md:text-base"
-          onClick={() => setCountryModalOpen(true)}
-        >
-            <div className="flex items-center gap-2">
-            {selectedCountry?.value && (
-              <CountryFlag
-                countryCode={selectedCountry.value}
-                svg
-                className="mr-2"
-                style={{ borderRadius: "4px", width: "24px", height: "24px" }}
-              />
-            )}
-            
-            <div className="items-center">
-              <h3 className="font-medium">
-                {selectedCountry.name} {selectedCountry.code && `(${selectedCountry.code})`}
-              </h3>
-              <p className="text-xs text-text-grey">(up to 200 countries)</p>
-            </div>
-          </div>
-          <img src="/icons/arrow-down.svg" alt="arrow" className="w-5 h-5" />
-        </button>
         <button
           className="flex-1 flex items-center justify-between bg-white border border-border-grey rounded-sm px-4 py-1 md:py-3 text-left text-sm md:text-base"
           onClick={() => setNumberTypeModalOpen(true)}
@@ -108,7 +113,35 @@ const BuyNumbers = () => {
           </div>
           <img src="/icons/arrow-down.svg" alt="arrow" className="w-5 h-5" />
         </button>
-        <button className="flex-1 flex items-center justify-between bg-white border border-border-grey  rounded-sm px-4 py-1 md:py-3 text-left text-sm md:text-base">
+
+         {/* Only render country filter for specific number type values */}
+        {(selectedNumberType?.value === "short_term_3" ||
+          selectedNumberType?.value === "short_term_5" ||
+          selectedNumberType?.value === "short_term_6") && (
+          <button
+            className="flex-1 flex items-center justify-between bg-white border border-border-grey rounded-sm px-4 py-1 md:py-3 text-left text-sm md:text-base"
+            onClick={() => setCountryModalOpen(true)}
+          >
+            <div className="flex items-center gap-2">
+              {selectedCountry?.code && (
+                <CountryFlag
+                  countryCode={selectedCountry.code}
+                  svg
+                  className="mr-2"
+                  style={{ borderRadius: "4px", width: "24px", height: "24px" }}
+                />
+              )}
+              <div className="items-center">
+                <h3 className="font-medium">
+                  {selectedCountry.name} {selectedCountry.code && `(${selectedCountry.code})`}
+                </h3>
+                <p className="text-xs text-text-grey">(up to 200 countries)</p>
+              </div>
+            </div>
+            <img src="/icons/arrow-down.svg" alt="arrow" className="w-5 h-5" />
+          </button>
+        )}
+        {/* <button className="flex-1 flex items-center justify-between bg-white border border-border-grey  rounded-sm px-4 py-1 md:py-3 text-left text-sm md:text-base">
            <div className="flex items-center gap-2">
            <img src="/icons/hourglass-full.svg" alt="USA" className="w-6 h-6 mr-2" />
           <div className="items-center">
@@ -117,7 +150,7 @@ const BuyNumbers = () => {
           </div>
            </div>
           <img src="/icons/arrow-down.svg" alt="arrow" className="w-5 h-5" />
-        </button>
+        </button> */}
        
       </div>
 
@@ -187,36 +220,73 @@ const BuyNumbers = () => {
 
         {/* Accounts Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {filteredServices.map((service, idx) => (
-            <div
-              key={idx}
-              className="flex items-center bg-white rounded-xl shadow-sm px-4 py-4 mb-2 border-b-1 border-[#FFDE59] relative"
-              style={{ boxShadow: "0 2px 8px 0 rgba(255, 107, 0, 0.09)" }}
-            >
-              <img src={service.icon} alt={service.name} className="w-8 h-8 mr-4" />
-              <div className="flex-1">
-                <div className="font-semibold">{service.name}</div>
-                <h3 className="text-primary font-semibold">{service.price}</h3>
-              </div>
-              <button className="ml-2" onClick={() => handleBuyClick(service)}>
-                <FiBookmark className="w-5 h-5 text-[#FF6B00]" />
-              </button>
+          {servicesLoading ? (
+            <div className="col-span-3 flex justify-center items-center py-8 text-gray-500">
+              Loading services...
             </div>
-          ))}
+          ) : filteredServices.length === 0 ? (
+            <div className="col-span-3 flex justify-center items-center py-8 text-gray-400">
+              No services found.
+            </div>
+          ) : (
+            filteredServices.map((service, idx) => {
+              // JS logic for icon domain
+              const name = service.name?.split(/[ /]+/)[0] || "";
+              const nameLower = name.trim().toLowerCase();
+              let domain = `${nameLower}.com`;
+              if (
+                nameLower === "telegram" ||
+                nameLower === "signal"
+              ) {
+                domain = `${nameLower}.org`;
+              }
+              const iconUrl = `https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://${domain}&size=90`;
+
+              // Format cost as currency (Nigerian Naira)
+              const formattedCost = typeof service.cost === "number"
+                ? service.cost.toLocaleString("en-NG", { style: "currency", currency: "NGN" })
+                : `₦${service.cost ? String(service.cost).replace(/^₦/, '').replace(/^N/, '').trim() : "0.00"}`;
+
+              return (
+                <div
+                  key={idx}
+                  className="flex items-center bg-white rounded-xl shadow-sm px-4 py-4 mb-2 border-b-1 border-[#FFDE59] relative"
+                  style={{ boxShadow: "0 2px 8px 0 rgba(255, 107, 0, 0.09)" }}
+                >
+                  <img src={iconUrl} alt={service.name} className="w-6 mr-4" />
+                  <div className="flex-1">
+                    <div className="font-semibold">{service.name}</div>
+                    <h3 className="text-primary font-semibold">{formattedCost}</h3>
+                  </div>
+                  <button className="ml-2" onClick={() => handleBuyClick(service)}>
+                    <FiBookmark className="w-5 h-5 text-[#FF6B00]" />
+                  </button>
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
+
+      {/* Number Type Select Modal */}
+      <NumberTypeSelectModal
+        open={numberTypeModalOpen}
+        onClose={() => setNumberTypeModalOpen(false)}
+        onSelect={(type) => {
+          setSelectedNumberType(type);
+          setNumberTypeModalOpen(false);
+        }}
+      />
 
       {/* Country Select Modal */}
       <CountrySelectModal
         open={countryModalOpen}
         onClose={() => setCountryModalOpen(false)}
-        onSelect={setSelectedCountry}
-      />
-
-      <NumberTypeSelectModal
-        open={numberTypeModalOpen}
-        onClose={() => setNumberTypeModalOpen(false)}
-        onSelect={setSelectedNumberType}
+        onSelect={country => {
+          setSelectedCountry(country);
+          setCountryModalOpen(false);
+        }}
+        type={selectedNumberType}
       />
 
       <BuyNumberModal

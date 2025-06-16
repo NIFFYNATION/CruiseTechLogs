@@ -1,13 +1,7 @@
-import React, { useState }  from 'react';
-import WalletCard from '../WalletCard';
-
-
-
+import React from 'react';
+import BalanceCard from './cards/BalanceCard'; // <-- Make sure this import exists and the file is present
 
 const WelcomeSection = () => {
-  const [balance, setBalance] = useState("0.00");
-  const [transactions, setTransactions] = useState([]);
-
   return (
     <div className="mb-8 mt-8">
       {/* Welcome Text */}
@@ -17,12 +11,7 @@ const WelcomeSection = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-3 gap-0 lg:gap-6">
         {/* Balance Card - Takes 2 columns */}
         <div className="col-span-2 h-full">
-          <WalletCard 
-            balance={balance}
-            onAddFunds={() => alert("Add Funds")}
-            onTransactions={() => alert("Show Transactions")} />
-
-
+          <BalanceCard />
         </div>
         {/* Right Column Cards - Flex on tablet, stack on mobile and desktop */}
         <div className="flex flex-col md:flex-row lg:flex-col gap-4 md:gap-6 mt-0 sm:mt-6 md:mt-8 lg:mt-0">
@@ -93,4 +82,4 @@ const WelcomeSection = () => {
   );
 };
 
-export default WelcomeSection; 
+export default WelcomeSection;

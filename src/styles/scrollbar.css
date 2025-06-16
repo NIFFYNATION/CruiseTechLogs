@@ -1,0 +1,19 @@
+/* Hide scrollbar by default, show on hover or scroll for sidebar */
+.sidebar-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #e0e0e0 transparent;
+}
+.sidebar-scrollbar::-webkit-scrollbar {
+  width: 2px;
+  background: transparent;
+}
+.sidebar-scrollbar::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+.sidebar-scrollbar:hover::-webkit-scrollbar-thumb,
+.sidebar-scrollbar:active::-webkit-scrollbar-thumb,
+.sidebar-scrollbar:focus::-webkit-scrollbar-thumb {
+  background: #e0e0e0;
+}
