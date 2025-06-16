@@ -31,7 +31,7 @@ const ProductSection = ({
           title={product.title}
           stock={product.stock}
           price={product.price}
-          onBuy={onBuy}
+          onBuy={() => onBuy(product)}
           onStockClick={onStockClick}
         />
       ))}
