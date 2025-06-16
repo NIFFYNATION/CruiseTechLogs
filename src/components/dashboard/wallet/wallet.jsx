@@ -50,34 +50,34 @@ const Wallet = () => {
       <h2 className="text-xl font-semibold mb-6 text-primary">My Wallet</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         {/* Balance Card + Virtual Account */}
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 border border-bgLayout shadow border-b-[#FEBB4F]  bg-white rounded-xl p-2">
           {/* Balance Card */}
-          <div className="bg-white rounded-2xl shadow p-2 overflow-hidden">
+          <div className="overflow-hidden">
           <div className=" relative">
           <WalletCard  balance={balance} onAddFunds={() => alert("Add Funds")} onTransactions={() => alert("Show Transactions")} />
           </div>
             {/* Virtual Account Details */}
-            <div className="p-6">
-              <h4 className="font-semibold text-text-primary mb-2 text-sm">Fund Wallet with Virtual Account Details</h4>
-              <p className="text-xs text-text-secondary mb-4">
+            <div className="py-6 px-4">
+              <h4 className="font-semibold mb-2 text-base md:text-lg">Fund Wallet with Virtual Account Details</h4>
+              <p className="text-sm md:text-base text-text-secondary mb-4">
                 Make payment here to automatically fund your account.
               </p>
-              <div className="mb-4">
+              <div className="my-6">
                 <div className="text-xs text-text-secondary mb-1">PalmPay</div>
                 <div className="flex items-center gap-2">
                   <span className="font-bold text-lg text-primary tracking-wider">852 034 6145</span>
-                  <img src="/icons/copy.svg" alt="Copy" className="w-4 h-4 cursor-pointer" onClick={() => {navigator.clipboard.writeText("8520346145");}} />
+                  <img src="/icons/copy-bold.svg" alt="Copy" className="w-4 h-4 cursor-pointer" onClick={() => {navigator.clipboard.writeText("8520346145");}} />
                 </div>
                 <div className="text-xs text-text-secondary">
                   Account Name: <span className="font-bold text-text-primary">CRUISE TECH</span>
                 </div>
               </div>
-              <div className="border-t border-border-grey my-2" />
+              <div className="border-t border-border-grey border-1 border-dashed my-6" />
               <div>
                 <div className="text-xs text-text-secondary mb-1">Moniepoint Micro Finance Bank</div>
                 <div className="flex items-center gap-2">
                   <span className="font-bold text-lg text-primary tracking-wider">852 034 6145</span>
-                  <img src="/icons/copy.svg" alt="Copy" className="w-4 h-4 cursor-pointer" onClick={() => {navigator.clipboard.writeText("8520346145");}} />
+                  <img src="/icons/copy-bold.svg" alt="Copy" className="w-4 h-4 cursor-pointer" onClick={() => {navigator.clipboard.writeText("8520346145");}} />
                 </div>
                 <div className="text-xs text-text-secondary">
                   Account Name: <span className="font-bold text-text-primary">CRUISE TECH</span>
@@ -87,42 +87,47 @@ const Wallet = () => {
           </div>
         </div>
         {/* Crypto Card */}
-        <div className="bg-white rounded-2xl shadow p-6 flex flex-col gap-4">
-          <h4 className="font-semibold text-text-primary mb-2 text-sm">Fund Wallet with Crypto</h4>
-          <p className="text-xs text-text-secondary mb-4">
+        <div className="bg-white rounded-xl shadow py-6 px-4 flex flex-col gap-4">
+          <h4 className="font-semibold text-text-primary text-lg">Fund Wallet with Crypto</h4>
+          <p className="text-sm md:text-base text-text-secondary mb-4">
             Please scan the QR code below or copy the wallet address to proceed with your transaction.
           </p>
           {/* Currency Selector */}
-          <div className="flex items-center gap-2 mb-4">
-            <span className="text-xs text-text-secondary">CURRENCY</span>
-            <span className="font-semibold text-primary">Bitcoin</span>
-            <span className="ml-auto flex items-center gap-1 border border-border-grey rounded-lg px-3 py-2">
-              BTC
+            
+            <div className="flex justify-between bg-bgLayout items-center gap-1 border border-[#D9D9D9] rounded-lg px-4 py-2 cursor-pointer">
+            <div>
+            <p className="text-xs font-semibold text-text-secondary">CURRENCY</p>
+            <p className="font-semibold text-primary">Bitcoin</p>
+            </div>
+            <div className="flex items-center gap-3">
+            BTC
               <img src="/icons/btc.svg" alt="BTC" className="w-5 h-5" />
               <svg className="w-4 h-4 text-tertiary" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
               </svg>
-            </span>
-          </div>
+            </div>
+            </div>
           {/* QR Code */}
-          <div className="flex flex-col items-center mb-4">
-            <div className="relative">
+          <div className="flex flex-col items-center mb-4 ">
+            <div className="relative bg-bgLayout rounded-lg p-2 ring-1 ring-[#D9D9D9]">
               <img src="/icons/qr.svg" alt="QR Code" className="w-36 h-36" />
               <img src="/icons/btc.svg" alt="BTC" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full p-1 shadow" />
             </div>
             <Button
               variant="orange"
               size="sm"
-              className="w-full mt-4"
+              className="w- mt-4"
               onClick={() => alert("Scan QR Code")}
             >
               Scan QR Code
             </Button>
           </div>
           {/* Wallet Address */}
-          <div className="flex items-center gap-2 bg-[#E8F0FE] rounded-lg px-4 py-3 mb-2">
-            <span className="text-xs font-semibold text-primary bg-[#D6E9FF] rounded px-2 py-1">BTC WALLET ADDRESS</span>
-            <span className="font-mono text-xs text-primary break-all">{cryptoAddress}</span>
+          <div className="flex justify-between items-center gap-2 bg-[#E8F0FE] rounded-lg px-4 py-3 mb-2">
+            <div>
+            <p className="text-xs font-medium text-primary rounded py-1">BTC WALLET ADDRESS</p>
+            <p className="font-mono text-sm font-semibold text-primary break-all">{cryptoAddress}</p>
+            </div>
             <button
               className="ml-2"
               onClick={() => {
@@ -130,14 +135,18 @@ const Wallet = () => {
                 alert("Copied!");
               }}
             >
-              <img src="/icons/copy.svg" alt="Copy" className="w-4 h-4" />
+              <img src="/icons/copy-bold-blue.svg" alt="Copy" className="w-5 h-5" />
             </button>
           </div>
-          <div className="flex items-center gap-4 mb-2">
-            <span className="text-xs text-text-secondary">Exchange Rate:</span>
-            <span className="font-semibold text-primary">₦{exchangeRate}</span>
-            <span className="text-xs text-text-secondary">Network:</span>
-            <span className="font-semibold text-primary">{network}</span>
+          <div className=" items-center gap-4 mb-2">
+           <div className="flex gap-2 items-center">
+           <p className="text-xs text-text-secondary">Exchange Rate:</p>
+           <p className="font-semibold text-primary">₦{exchangeRate}</p>
+           </div>
+           <div className="flex gap-2 items-center">
+           <p className="text-xs text-text-secondary">Network:</p>
+           <p className="font-semibold text-primary">{network}</p>
+           </div>
           </div>
         </div>
       </div>
@@ -157,7 +166,7 @@ const Wallet = () => {
         <div className="w-full overflow-x-auto">
           <table className="w-full text-xs sm:text-sm">
             <thead>
-              <tr className="text-left  text-text-secondary border-b border-border-grey">
+              <tr className="text-left  text-text-secondary border-b border-bgLayout">
                 <th className="py-2 px-1 sm:px-2">ID</th>
                 <th className="py-2 px-1 sm:px-2">Amount</th>
                 <th className="py-2 px-1 sm:px-2">Status</th>
@@ -168,7 +177,7 @@ const Wallet = () => {
             </thead>
             <tbody>
               {transactions.map((tx, idx) => (
-                <tr key={idx} className="overflow-x-auto border-b border-border-grey text-xs sm:text-sm">
+                <tr key={idx} className="overflow-x-auto border-b border-bgLayout text-xs sm:text-sm">
                   <td className="py-2 px-1 sm:py-3 sm:px-2">{tx.id}</td>
                   <td className="py-2 px-1 sm:py-3 sm:px-2 font-semibold text-primary">₦{tx.amount}</td>
                   <td className={`py-2 px-1 sm:py-3 sm:px-2 font-semibold ${tx.status === "Complete" ? "text-success" : tx.status === "Pending" ? "text-quinary" : "text-red-500"}`}>{tx.status}</td>
