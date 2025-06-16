@@ -9,7 +9,7 @@ const cookies = {
 
 const axiosInstance = axios.create({
   baseURL: API_URLS.baseURL,
-  timeout: 30000,
+  timeout: 80000,
   headers: {
     'Accept': 'application/json',
     'Content-Type': 'application/json',

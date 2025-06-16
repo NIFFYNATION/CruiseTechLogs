@@ -83,4 +83,47 @@ export const fetchCountries = async (typeObj) => {
   return fetchCountries._pending[cacheKey];
 };
 
+export const fetchServices = async ({ type, network, countryID = "" }) => {
+  if (!type || !network) return [];
+  // Build cache key
+  const cacheKey = `services_${type}_${network}${countryID ? `_${countryID}` : ""}`;
+  // Check localStorage for cached data and expiry
+  try {
+    const cachedRaw = localStorage.getItem(cacheKey);
+    if (cachedRaw) {
+      const cached = JSON.parse(cachedRaw);
+      if (cached.data && cached.expiry && Date.now() < cached.expiry) {
+        return cached.data;
+      }
+    }
+  } catch {}
+
+  // Build params
+  let url = `${API_URLS.NUMBERSERVICES}?type=${type}&network=${network}`;
+  if (countryID) url += `&countryID=${countryID}`;
+
+  try {
+    const response = await axiosInstance.get(
+      url,
+      { timeout: 20000 } // 20 seconds timeout
+    );
+    if (response.status !== 200) {
+      const message = response.data?.message || 'Failed to fetch services';
+      throw new Error(message);
+    }
+    if (response.data?.data?.services && Array.isArray(response.data.data.services)) {
+      // Save to localStorage for 30 minutes
+      const expiry = Date.now() + 30 * 60 * 1000;
+      localStorage.setItem(cacheKey, JSON.stringify({
+        data: response.data.data.services,
+        expiry
+      }));
+      return response.data.data.services;
+    }
+    return [];
+  } catch (error) {
+    return [];
+  }
+};
+
 // Add more number-related API functions as needed, always using axiosInstance

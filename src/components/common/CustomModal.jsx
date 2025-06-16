@@ -124,7 +124,7 @@ const CustomModal = ({
         // onClick={closeable ? handleOverlayClick : undefined}
       >
         <motion.div
-          className={`rounded-xl w-full max-w-3xl mx-2 p-0 overflow-hidden shadow-lg relative ${mobile ? "-mb-30 flex flex-col" : ""} ${className}`}
+          className={`rounded-xl w-full max-w-3xl mx-2 p-0 overflow-hidden shadow-lg relative bg-bgLayout/60 ${mobile ? "-mb-30 flex flex-col fixed bottom-0 left-0 right-0 max-w-full" : ""} ${className}`}
           initial="hidden"
           animate="visible"
           exit="exit"
@@ -161,7 +161,7 @@ const CustomModal = ({
           )}
           {/* Search */}
           {enableSearch && (
-            <div className="px-6 py-0 pb-3 bg-bgLayout/70 border-b border-border-grey">
+            <div className="px-6 py-0 pb-3 bg-bgLayout/10 border-2 border-border-grey">
               <div className="relative">
                 <FiSearch
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -170,7 +170,7 @@ const CustomModal = ({
                 <input
                   type="text"
                   placeholder={searchPlaceholder}
-                  className="w-full font-semibold border-b border-border-grey pl-10 pr-4 py-2.5 focus:outline-none"
+                  className="w-full font-semibold border-1 border-border-grey mt-1 rounded shadow-lg pl-10 pr-4 py-2.5 focus:outline-none"
                   value={search}
                   onChange={handleSearch}
                   onFocus={handleSearchFocus}
@@ -180,7 +180,7 @@ const CustomModal = ({
           )}
         {Array.isArray(list) && list.length > 0 && (
             <div
-                className="px-6 -mt-0 pb-2 max-h-[340px] md:max-h-[340px] overflow-y-auto bg-bgLayout/70"
+                className="px-6 -mt-0 pb-2 max-h-[340px] md:max-h-[340px] overflow-y-auto "
                 style={
                     mobile
                         ? { maxHeight: fullHeight ? "calc(100vh - 100px)" : "calc(90vh - 100px)" }

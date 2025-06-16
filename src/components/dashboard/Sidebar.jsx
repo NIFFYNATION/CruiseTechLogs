@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { isUserLoggedIn, logoutUser } from '../../controllers/userController'; // Import userController
 import { fetchUserProfile } from '../../services/userService'; // Import user profile fetch
 import UserAvatar from '../common/UserAvatar'; // Import UserAvatar
+import '../../styles/scrollbar.css'; // Import the global scrollbar CSS
 
 const MenuItem = ({ imageSrc, text, to }) => {
   const { isCollapsed } = useSidebar();
@@ -140,10 +141,15 @@ const Sidebar = () => {
       </AnimatePresence>
       
       <motion.aside
-        className={`fixed left-0 top-0 h-screen 
+        className={`sidebar-scrollbar fixed left-0 top-0 h-screen 
           ${isCollapsed ? 'w-[80px] -translate-x-full lg:translate-x-0' : 'w-[270px] pb-32'} 
-          bg-background overflow-y-auto transition-all duration-300 z-40
-          lg:translate-x-0 ${!isCollapsed ? 'translate-x-0' : ''}`}
+          bg-background transition-all duration-300 z-40
+          lg:translate-x-0 ${!isCollapsed ? 'translate-x-0' : ''}
+          overflow-y-auto`}
+        style={{
+          scrollbarWidth: 'thin',
+          scrollbarColor: '#e0e0e0 transparent'
+        }}
         initial={isMobile && isCollapsed ? "closed" : "open"}
         animate={isMobile && isCollapsed ? "closed" : "open"}
         variants={sidebarVariants}

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import CountryFlag from "react-country-flag";
 import { motion } from "framer-motion";
 import CustomModal from "../../common/CustomModal";
-import { fetchCountries } from "../../../services/numberService"; // Import fetchCountries
+import { fetchCountries } from "../../../services/numberService";
 
 const countryItemVariants = {
   hidden: { opacity: 0, x: 20 },
@@ -17,22 +17,47 @@ const CountrySelectModal = ({ open, onClose, onSelect, type }) => {
   const [countries, setCountries] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  // Fetch countries only when modal is open and type changes
   useEffect(() => {
-    if (!open || !type) return;
+    let cancelled = false;
+    if (!open || !type) {
+      setCountries([]);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
+
+    // Fetch as soon as possible, but only update state if still mounted/open
     fetchCountries(type)
       .then(data => {
-        if (data && Array.isArray(data)) {
-          setCountries(data);
-        } else if (data && data.data && Array.isArray(data.data)) {
-          setCountries(data.data);
-        } else {
-          setCountries([]);
+        if (!cancelled) {
+          if (data && Array.isArray(data)) {
+            setCountries(data);
+          } else if (data && data.data && Array.isArray(data.data)) {
+            setCountries(data.data);
+          } else {
+            setCountries([]);
+          }
         }
       })
-      .catch(() => setCountries([]))
-      .finally(() => setLoading(false));
+      .catch(() => {
+        if (!cancelled) setCountries([]);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    // Cleanup to avoid setting state after unmount/close
+    return () => {
+      cancelled = true;
+    };
   }, [open, type]);
+
+  // Preload countries in background when type changes, so modal opens instantly
+  useEffect(() => {
+    if (!type) return;
+    fetchCountries(type).then(() => {});
+  }, [type]);
 
   return (
     <CustomModal
@@ -47,7 +72,7 @@ const CountrySelectModal = ({ open, onClose, onSelect, type }) => {
       }}
       renderItem={(country, idx) => (
         <motion.button
-          key={country.value || country.name || idx}
+          key={country.id || country.name || idx}
           className="flex items-center gap-3 py-1 px-2 rounded-lg hover:bg-[#F7F7F7] transition w-full text-left"
           onClick={() => {
             onSelect(country);
@@ -58,7 +83,6 @@ const CountrySelectModal = ({ open, onClose, onSelect, type }) => {
           animate="visible"
           variants={countryItemVariants}
         >
-          {/* Try CountryFlag, fallback to default icon if not available */}
           {country.code && country.code !== "" && country.code != null ? (
             <CountryFlag
               countryCode={country.code}
