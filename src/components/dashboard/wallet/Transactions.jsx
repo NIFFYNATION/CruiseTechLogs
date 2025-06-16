@@ -88,7 +88,7 @@ const Transactions = () => {
           </div>
         </div>
         {/* Table */}
-        <div className="max-w-[300px] sm:max-w-full w-full overflow-x-auto">
+        <div className="max-w-[310px] sm:max-w-full w-full overflow-x-auto">
           <table className=" min-w-[900px] overflow-x-auto w-full text-xs sm:text-sm">
             <thead>
               <tr className="text-left text-text-secondary border-b border-border-grey">
