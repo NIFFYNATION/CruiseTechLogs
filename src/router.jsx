@@ -12,6 +12,7 @@ import SocialMediaAccounts from './components/dashboard/socialMediaAccounts/Soci
 import BuyAccountPage from './components/dashboard/socialMediaAccounts/BuyAccountPage';
 import OrderConfirmedPage from './components/dashboard/socialMediaAccounts/OrderConfirmedPage';
 import Wallet from './components/dashboard/wallet/wallet';
+import Transactions from './components/dashboard/wallet/Transactions';
 
 export const router = createBrowserRouter([
   {
@@ -46,6 +47,7 @@ export const router = createBrowserRouter([
           { path: 'social-media-accounts/buy', element: <BuyAccountPage /> },
           { path: 'social-media-accounts/order-confirmed', element: <OrderConfirmedPage /> },
           { path: 'wallet', element: <Wallet /> },
+          { path: 'transactions', element: <Transactions /> },
         ],
       },
     ],

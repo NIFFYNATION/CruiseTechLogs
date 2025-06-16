@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import WalletCard from "../../WalletCard";
 import { Button } from "../../common/Button";
+import FundWalletModal from "./FundWalletModal";
 
 const DUMMY_TRANSACTIONS = [
   {
@@ -44,6 +45,7 @@ const Wallet = () => {
   const [exchangeRate] = useState("2,500");
   const [network] = useState("bsc");
   const [transactions] = useState(DUMMY_TRANSACTIONS);
+  const [fundModalOpen, setFundModalOpen] = useState(false);
 
   return (
     <div className="p-2 sm:p-6">
@@ -54,7 +56,7 @@ const Wallet = () => {
           {/* Balance Card */}
           <div className="overflow-hidden">
           <div className=" relative">
-          <WalletCard  balance={balance} onAddFunds={() => alert("Add Funds")} onTransactions={() => alert("Show Transactions")} />
+          <WalletCard  balance={balance} onAddFunds={() => setFundModalOpen(true)} onTransactions={() => alert("Show Transactions")} />
           </div>
             {/* Virtual Account Details */}
             <div className="py-6 px-4">
@@ -63,20 +65,20 @@ const Wallet = () => {
                 Make payment here to automatically fund your account.
               </p>
               <div className="my-6">
-                <div className="text-xs text-text-secondary mb-1">PalmPay</div>
+                <div className="text-xs font-semibold text-text-secondary mb-1">PalmPay</div>
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-lg text-primary tracking-wider">852 034 6145</span>
+                  <span className="font-bold text-lg  tracking-wider">852 034 6145</span>
                   <img src="/icons/copy-bold.svg" alt="Copy" className="w-4 h-4 cursor-pointer" onClick={() => {navigator.clipboard.writeText("8520346145");}} />
                 </div>
-                <div className="text-xs text-text-secondary">
+                <div className="text-xs  text-text-secondary">
                   Account Name: <span className="font-bold text-text-primary">CRUISE TECH</span>
                 </div>
               </div>
               <div className="border-t border-border-grey border-1 border-dashed my-6" />
               <div>
-                <div className="text-xs text-text-secondary mb-1">Moniepoint Micro Finance Bank</div>
+                <div className="text-xs font-semibold text-text-secondary mb-1">Moniepoint Micro Finance Bank</div>
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-lg text-primary tracking-wider">852 034 6145</span>
+                  <span className="font-bold text-lg tracking-wider">852 034 6145</span>
                   <img src="/icons/copy-bold.svg" alt="Copy" className="w-4 h-4 cursor-pointer" onClick={() => {navigator.clipboard.writeText("8520346145");}} />
                 </div>
                 <div className="text-xs text-text-secondary">
@@ -178,18 +180,27 @@ const Wallet = () => {
             <tbody>
               {transactions.map((tx, idx) => (
                 <tr key={idx} className="overflow-x-auto border-b border-bgLayout text-xs sm:text-sm">
-                  <td className="py-2 px-1 sm:py-3 sm:px-2">{tx.id}</td>
+                  <td className="py-2 px-1 sm:py-3 sm:px-2 text-tertiary">{tx.id}</td>
                   <td className="py-2 px-1 sm:py-3 sm:px-2 font-semibold text-primary">₦{tx.amount}</td>
-                  <td className={`py-2 px-1 sm:py-3 sm:px-2 font-semibold ${tx.status === "Complete" ? "text-success" : tx.status === "Pending" ? "text-quinary" : "text-red-500"}`}>{tx.status}</td>
+                  <td className={`py-2 px-1 sm:py-3 sm:px-2 font-semibold ${tx.status === "Complete" ? "text-success" : tx.status === "Pending" ? "text-quinary" : "text-danger"}`}>{tx.status}</td>
                   <td className="py-2 px-1 sm:py-3 sm:px-2">{tx.type}</td>
                   <td className="py-2 px-1 sm:py-3 sm:px-2 max-w-[80px] sm:max-w-none truncate">{tx.ref}</td>
-                  <td className="py-2 px-1 sm:py-3 sm:px-2 whitespace-nowrap py-2 px-1 sm:px-2 hidden sm:table-cell">{tx.date}</td>
+                  <td className="py-2 px-1 sm:py-3 sm:px-2 whitespace-nowrap py-2 px-1 sm:px-2 hidden sm:table-cell text-tertiary">{tx.date}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       </div>
+      <FundWalletModal
+        open={fundModalOpen}
+        onClose={() => setFundModalOpen(false)}
+        onConfirm={amount => {
+          setFundModalOpen(false);
+          alert(`You want to fund ₦${amount}`);
+          // Handle your top-up logic here
+        }}
+      />
     </div>
   );
 };
