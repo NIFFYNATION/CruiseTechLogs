@@ -3,6 +3,8 @@ import { FiSearch, FiCopy, FiTrash2 } from "react-icons/fi";
 import { motion } from "framer-motion";
 import dayjs from "dayjs";
 import TopControls from "../../common/TopControls";
+import ReusableModal from "../../common/ReusableModal";
+import CreateApiKeyModal from "./CreateApiKeyModal";
 import "./ApiPage.css";
 
 const mockApiKeys = [
@@ -29,6 +31,7 @@ const ApiPage = () => {
   const [apiKeys, setApiKeys] = useState(mockApiKeys);
   const [page, setPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [modalOpen, setModalOpen] = useState(false);
   
   const handleSelect = (id) => {
     setSelected((prev) =>
@@ -52,29 +55,45 @@ const ApiPage = () => {
     k.key.toLowerCase().includes(search.toLowerCase())
   );
 
+  // Handle modal submit
+  const handleGenerateApiKey = (password) => {
+    setModalOpen(false);
+    // TODO: Call your API to generate the key with the password
+    // Optionally show a toast or update state
+  };
+
   return (
     <div className="p-6 md:p-10">
       {/* Header */}
       <div className="mb-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
           <h1 className="text-2xl md:text-3xl font-bold text-text-primary mb-2">Your API Key</h1>
-          
           <motion.button
-          whileTap={{ scale: 0.97 }}
-          className="bg-quaternary w-fit text-white font-semibold rounded-full px-6 py-3 shadow hover:bg-quaternary/90 transition flex items-center"
-        >
-         <img className='w-5 h-5 mr-2 ' src="/icons/add-bold.svg" alt="" />
-         <span className="text-sm">
-         Create API Key
-         </span>
-        </motion.button>
+            whileTap={{ scale: 0.97 }}
+            className="bg-quaternary w-fit text-white font-semibold rounded-full px-6 py-3 shadow hover:bg-quaternary/90 transition flex items-center"
+            onClick={() => setModalOpen(true)}
+          >
+            <img className='w-5 h-5 mr-2 ' src="/icons/add-bold.svg" alt="" />
+            <span className="text-sm">Create API Key</span>
+          </motion.button>
         </div>
-          <p className="text-text-secondary text-sm">
-            Note that you can only see your API Key once. But you can always generate a new key.<br />
-            <span className="text-quaternary font-medium cursor-pointer hover:underline">Click here</span> to view API documentation
-          </p>
-       
+        <p className="text-text-secondary text-sm">
+          Note that you can only see your API Key once. But you can always generate a new key.<br />
+          <span className="text-quaternary font-medium cursor-pointer hover:underline">Click here</span> to view API documentation
+        </p>
       </div>
+
+      {/* Modal */}
+      <ReusableModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title="Create API Key"
+      >
+        <CreateApiKeyModal
+          onClose={() => setModalOpen(false)}
+          onSubmit={handleGenerateApiKey}
+        />
+      </ReusableModal>
 
       {/* Card */}
       <div className="bg-white rounded-2xl shadow p-4 md:p-8">
