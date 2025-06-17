@@ -24,27 +24,33 @@ const MenuItem = ({ imageSrc, text, to }) => {
   const isActive = location.pathname === to;
   
   return (
-    <Link 
-      to={to} 
-      onClick={handleClick}
-      className={`flex items-center ${isCollapsed ? 'justify-center' : 'mx-2'} font-semibold gap-3 px-6 py-4 text-[15px] 
-        ${isActive 
-          ? 'text-quaternary bg-quaternary-light' 
-          : 'text-text-secondary hover:text-quaternary hover:bg-quaternary-light'
-        } 
-        rounded-lg group transition-colors`}
+    <motion.div
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
     >
-      <div 
-        className={`w-5 h-5 transition-colors ${
-          isActive ? 'bg-quaternary' : 'bg-text-secondary group-hover:bg-quaternary'
-        }`}
-        style={{
-          WebkitMask: `url(${imageSrc}) center center / contain no-repeat`,
-          mask: `url(${imageSrc}) center center / contain no-repeat`
-        }}
-      />
-      {!isCollapsed && <span>{text}</span>}
-    </Link>
+      <Link 
+        to={to} 
+        onClick={handleClick}
+        className={`flex items-center ${isCollapsed ? 'justify-center' : 'mx-2'} font-semibold gap-3 px-6 py-4 text-[15px] 
+          ${isActive 
+            ? 'text-quaternary bg-quaternary-light' 
+            : 'text-text-secondary hover:text-quaternary hover:bg-quaternary-light'
+          } 
+          rounded-lg group transition-colors`}
+      >
+        <motion.div 
+          className={`w-5 h-5 transition-colors ${
+            isActive ? 'bg-quaternary' : 'bg-text-secondary group-hover:bg-quaternary'
+          }`}
+          style={{
+            WebkitMask: `url(${imageSrc}) center center / contain no-repeat`,
+            mask: `url(${imageSrc}) center center / contain no-repeat`
+          }}
+          whileHover={{ scale: 1.1 }}
+        />
+        {!isCollapsed && <span>{text}</span>}
+      </Link>
+    </motion.div>
   );
 };
 
@@ -61,22 +67,65 @@ const SectionTitle = ({ title }) => {
 };
 
 const sidebarVariants = {
-  open: { x: 0, transition: { type: "spring", stiffness: 300, damping: 30 } },
-  closed: { x: "-100%", transition: { type: "spring", stiffness: 300, damping: 30 } },
+  open: { 
+    x: 0,
+    opacity: 1,
+    transition: { 
+      type: "spring",
+      stiffness: 100,
+      damping: 20,
+      mass: 0.5
+    }
+  },
+  closed: { 
+    x: "-100%",
+    opacity: 0,
+    transition: { 
+      type: "spring",
+      stiffness: 100,
+      damping: 20,
+      mass: 0.5
+    }
+  }
 };
 
 const overlayVariants = {
-  open: { opacity: 1, pointerEvents: "auto" },
-  closed: { opacity: 0, pointerEvents: "none" },
+  open: { 
+    opacity: 1,
+    pointerEvents: "auto",
+    transition: { 
+      duration: 0.2,
+      ease: "easeInOut"
+    }
+  },
+  closed: { 
+    opacity: 0,
+    pointerEvents: "none",
+    transition: { 
+      duration: 0.2,
+      ease: "easeInOut"
+    }
+  }
 };
 
 const menuItemVariants = {
-  hidden: { opacity: 0, x: -20 },
+  hidden: { 
+    opacity: 0,
+    x: -20,
+    transition: { 
+      duration: 0.2,
+      ease: "easeOut"
+    }
+  },
   visible: (i) => ({
     opacity: 1,
     x: 0,
-    transition: { delay: i * 0.07, type: "spring", stiffness: 200, damping: 20 },
-  }),
+    transition: { 
+      delay: i * 0.05,
+      duration: 0.3,
+      ease: [0.4, 0, 0.2, 1]
+    }
+  })
 };
 
 const Sidebar = () => {
@@ -148,7 +197,7 @@ const Sidebar = () => {
   return (
     <>
       {/* Dark overlay for mobile */}
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {isMobile && !isCollapsed && (
           <motion.div
             className="fixed inset-0 bg-black/50 z-30 lg:hidden"
@@ -163,17 +212,17 @@ const Sidebar = () => {
       
       <motion.aside
         className={`sidebar-scrollbar fixed left-0 top-0 h-screen 
-          ${isCollapsed ? 'w-[80px] -translate-x-full lg:translate-x-0' : 'w-[270px] pb-32'} 
-          bg-background transition-all duration-300 z-100
-          lg:translate-x-0 ${!isCollapsed ? 'translate-x-0' : ''}
+          ${isCollapsed ? 'w-[80px]' : 'w-[270px]'} 
+          bg-background z-100
           overflow-y-auto`}
         style={{
           scrollbarWidth: 'thin',
           scrollbarColor: '#e0e0e0 transparent'
         }}
-        initial={isMobile && isCollapsed ? "closed" : "open"}
+        initial="closed"
         animate={isMobile && isCollapsed ? "closed" : "open"}
         variants={sidebarVariants}
+        layout
       >
         {/* Logo and Close Button Container */}
         <div className={`${isCollapsed ? 'px-2' : 'px-6'} py-4 flex items-center justify-between`}>
@@ -245,7 +294,7 @@ const Sidebar = () => {
         </motion.div>
 
         {/* Dashboard Section */}
-        <div className="">
+        <motion.div className="">
           <SectionTitle title="Dashboard" />
           <nav>
             {dashboardMenu.map((item, i) => (
@@ -255,17 +304,15 @@ const Sidebar = () => {
                 initial="hidden"
                 animate="visible"
                 variants={menuItemVariants}
-                whileHover={{ scale: 1.06, backgroundColor: "var(--color-quaternary-light)" }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
               >
                 <MenuItem {...item} />
               </motion.div>
             ))}
           </nav>
-        </div>
+        </motion.div>
 
         {/* Transactions Section */}
-        <div className="mt-4">
+        <motion.div className="mt-4">
           <SectionTitle title="Transactions" />
           <nav>
             {transactionsMenu.map((item, i) => (
@@ -275,17 +322,15 @@ const Sidebar = () => {
                 initial="hidden"
                 animate="visible"
                 variants={menuItemVariants}
-                whileHover={{ scale: 1.06, backgroundColor: "var(--color-quaternary-light)" }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
               >
                 <MenuItem {...item} />
               </motion.div>
             ))}
           </nav>
-        </div>
+        </motion.div>
 
         {/* User Guide Section */}
-        <div className="mt-4">
+        <motion.div className="mt-4">
           <SectionTitle title="User Guide" />
           <nav>
             {userGuideMenu.map((item, i) => (
@@ -295,14 +340,12 @@ const Sidebar = () => {
                 initial="hidden"
                 animate="visible"
                 variants={menuItemVariants}
-                whileHover={{ scale: 1.06, backgroundColor: "var(--color-quaternary-light)" }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
               >
                 <MenuItem {...item} />
               </motion.div>
             ))}
           </nav>
-        </div>
+        </motion.div>
 
         {/* WhatsApp Channel */}
         <div className="px-4 pt-6 pb-4">
