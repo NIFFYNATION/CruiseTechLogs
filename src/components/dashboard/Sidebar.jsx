@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { 
   FaWhatsapp,
   FaSignOutAlt,
@@ -12,15 +12,32 @@ import UserAvatar from '../common/UserAvatar'; // Import UserAvatar
 import '../../styles/scrollbar.css'; // Import the global scrollbar CSS
 
 const MenuItem = ({ imageSrc, text, to }) => {
-  const { isCollapsed } = useSidebar();
+  const { isCollapsed, isMobile, setIsCollapsed } = useSidebar();
+  const location = useLocation();
+  
+  const handleClick = () => {
+    if (isMobile) {
+      setIsCollapsed(true);
+    }
+  };
+
+  const isActive = location.pathname === to;
   
   return (
     <Link 
       to={to} 
-      className={`flex items-center ${isCollapsed ? 'justify-center' : 'mx-2'} font-semibold gap-3 px-6 py-4 text-[15px] text-text-secondary hover:text-quaternary hover:bg-quaternary-light rounded-lg group`}
+      onClick={handleClick}
+      className={`flex items-center ${isCollapsed ? 'justify-center' : 'mx-2'} font-semibold gap-3 px-6 py-4 text-[15px] 
+        ${isActive 
+          ? 'text-quaternary bg-quaternary-light' 
+          : 'text-text-secondary hover:text-quaternary hover:bg-quaternary-light'
+        } 
+        rounded-lg group transition-colors`}
     >
       <div 
-        className="w-5 h-5 bg-text-secondary group-hover:bg-quaternary transition-colors"
+        className={`w-5 h-5 transition-colors ${
+          isActive ? 'bg-quaternary' : 'bg-text-secondary group-hover:bg-quaternary'
+        }`}
         style={{
           WebkitMask: `url(${imageSrc}) center center / contain no-repeat`,
           mask: `url(${imageSrc}) center center / contain no-repeat`
@@ -44,13 +61,43 @@ const SectionTitle = ({ title }) => {
 };
 
 const sidebarVariants = {
-  open: { x: 0, transition: { type: "spring", stiffness: 300, damping: 30 } },
-  closed: { x: "-100%", transition: { type: "spring", stiffness: 300, damping: 30 } },
+  open: { 
+    x: 0,
+    transition: {
+      type: "spring",
+      stiffness: 100,
+      damping: 20,
+      mass: 1.2
+    }
+  },
+  closed: { 
+    x: "-100%",
+    transition: {
+      type: "spring",
+      stiffness: 100,
+      damping: 20,
+      mass: 1.2
+    }
+  }
 };
 
 const overlayVariants = {
-  open: { opacity: 1, pointerEvents: "auto" },
-  closed: { opacity: 0, pointerEvents: "none" },
+  open: { 
+    opacity: 1,
+    pointerEvents: "auto",
+    transition: {
+      duration: 0.2,
+      ease: "easeOut"
+    }
+  },
+  closed: { 
+    opacity: 0,
+    pointerEvents: "none",
+    transition: {
+      duration: 0.2,
+      ease: "easeIn"
+    }
+  }
 };
 
 const menuItemVariants = {
@@ -58,13 +105,20 @@ const menuItemVariants = {
   visible: (i) => ({
     opacity: 1,
     x: 0,
-    transition: { delay: i * 0.07, type: "spring", stiffness: 200, damping: 20 },
-  }),
+    transition: {
+      delay: i * 0.1,
+      type: "spring",
+      stiffness: 100,
+      damping: 20,
+      mass: 1.2
+    }
+  })
 };
 
 const Sidebar = () => {
   const { isCollapsed, isMobile, toggleSidebar } = useSidebar();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // --- User details state ---
   const [user, setUser] = useState(null); // null until loaded
@@ -99,6 +153,9 @@ const Sidebar = () => {
   }, []);
 
   const handleLogout = () => {
+    if (isMobile) {
+      toggleSidebar();
+    }
     logoutUser();
     navigate('/login');
   };
@@ -121,7 +178,7 @@ const Sidebar = () => {
   ];
 
   if (loading) {
-    return null; // Optionally, show a spinner or skeleton here
+    return null;
   }
 
   return (
@@ -132,25 +189,19 @@ const Sidebar = () => {
           <motion.div
             className="fixed inset-0 bg-black/50 z-30 lg:hidden"
             onClick={toggleSidebar}
-            initial="closed"
-            animate="open"
-            exit="closed"
-            variants={overlayVariants}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
           />
         )}
       </AnimatePresence>
       
       <motion.aside
         className={`sidebar-scrollbar fixed left-0 top-0 h-screen 
-          ${isCollapsed ? 'w-[80px] -translate-x-full lg:translate-x-0' : 'w-[270px] pb-32'} 
-          bg-background transition-all duration-300 z-40
-          lg:translate-x-0 ${!isCollapsed ? 'translate-x-0' : ''}
-          overflow-y-auto`}
-        style={{
-          scrollbarWidth: 'thin',
-          scrollbarColor: '#e0e0e0 transparent'
-        }}
-        initial={isMobile && isCollapsed ? "closed" : "open"}
+          ${isCollapsed ? 'w-[80px]' : 'w-[270px]'} 
+          bg-background z-100 overflow-y-auto`}
+        initial="closed"
         animate={isMobile && isCollapsed ? "closed" : "open"}
         variants={sidebarVariants}
       >
@@ -234,8 +285,11 @@ const Sidebar = () => {
                 initial="hidden"
                 animate="visible"
                 variants={menuItemVariants}
-                whileHover={{ scale: 1.06, backgroundColor: "var(--color-quaternary-light)" }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                whileHover={{ 
+                  scale: 1.01,
+                  backgroundColor: "var(--color-quaternary-light)",
+                  transition: { duration: 0.2 }
+                }}
               >
                 <MenuItem {...item} />
               </motion.div>
@@ -254,8 +308,11 @@ const Sidebar = () => {
                 initial="hidden"
                 animate="visible"
                 variants={menuItemVariants}
-                whileHover={{ scale: 1.06, backgroundColor: "var(--color-quaternary-light)" }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                whileHover={{ 
+                  scale: 1.01,
+                  backgroundColor: "var(--color-quaternary-light)",
+                  transition: { duration: 0.2 }
+                }}
               >
                 <MenuItem {...item} />
               </motion.div>
@@ -274,8 +331,11 @@ const Sidebar = () => {
                 initial="hidden"
                 animate="visible"
                 variants={menuItemVariants}
-                whileHover={{ scale: 1.06, backgroundColor: "var(--color-quaternary-light)" }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                whileHover={{ 
+                  scale: 1.01,
+                  backgroundColor: "var(--color-quaternary-light)",
+                  transition: { duration: 0.2 }
+                }}
               >
                 <MenuItem {...item} />
               </motion.div>
