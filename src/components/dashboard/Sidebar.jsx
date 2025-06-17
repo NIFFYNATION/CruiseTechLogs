@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { 
   FaWhatsapp,
   FaSignOutAlt,
@@ -12,15 +12,32 @@ import UserAvatar from '../common/UserAvatar'; // Import UserAvatar
 import '../../styles/scrollbar.css'; // Import the global scrollbar CSS
 
 const MenuItem = ({ imageSrc, text, to }) => {
-  const { isCollapsed } = useSidebar();
+  const { isCollapsed, isMobile, setIsCollapsed } = useSidebar();
+  const location = useLocation();
+  
+  const handleClick = () => {
+    if (isMobile) {
+      setIsCollapsed(true);
+    }
+  };
+
+  const isActive = location.pathname === to;
   
   return (
     <Link 
       to={to} 
-      className={`flex items-center ${isCollapsed ? 'justify-center' : 'mx-2'} font-semibold gap-3 px-6 py-4 text-[15px] text-text-secondary hover:text-quaternary hover:bg-quaternary-light rounded-lg group`}
+      onClick={handleClick}
+      className={`flex items-center ${isCollapsed ? 'justify-center' : 'mx-2'} font-semibold gap-3 px-6 py-4 text-[15px] 
+        ${isActive 
+          ? 'text-quaternary bg-quaternary-light' 
+          : 'text-text-secondary hover:text-quaternary hover:bg-quaternary-light'
+        } 
+        rounded-lg group transition-colors`}
     >
       <div 
-        className="w-5 h-5 bg-text-secondary group-hover:bg-quaternary transition-colors"
+        className={`w-5 h-5 transition-colors ${
+          isActive ? 'bg-quaternary' : 'bg-text-secondary group-hover:bg-quaternary'
+        }`}
         style={{
           WebkitMask: `url(${imageSrc}) center center / contain no-repeat`,
           mask: `url(${imageSrc}) center center / contain no-repeat`
@@ -65,6 +82,7 @@ const menuItemVariants = {
 const Sidebar = () => {
   const { isCollapsed, isMobile, toggleSidebar } = useSidebar();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // --- User details state ---
   const [user, setUser] = useState(null); // null until loaded
@@ -99,6 +117,9 @@ const Sidebar = () => {
   }, []);
 
   const handleLogout = () => {
+    if (isMobile) {
+      toggleSidebar();
+    }
     logoutUser();
     navigate('/login');
   };
@@ -121,7 +142,7 @@ const Sidebar = () => {
   ];
 
   if (loading) {
-    return null; // Optionally, show a spinner or skeleton here
+    return null;
   }
 
   return (
@@ -143,7 +164,7 @@ const Sidebar = () => {
       <motion.aside
         className={`sidebar-scrollbar fixed left-0 top-0 h-screen 
           ${isCollapsed ? 'w-[80px] -translate-x-full lg:translate-x-0' : 'w-[270px] pb-32'} 
-          bg-background transition-all duration-300 z-40
+          bg-background transition-all duration-300 z-100
           lg:translate-x-0 ${!isCollapsed ? 'translate-x-0' : ''}
           overflow-y-auto`}
         style={{

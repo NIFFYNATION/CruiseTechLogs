@@ -7,7 +7,7 @@ const tabs = [
   { name: 'Home', path: '/dashboard', icon: '/icons/tabHome.svg' },
   { name: 'Number', path: '/dashboard/buy-numbers', icon: '/icons/tabBuyNum.svg' },
   { name: 'Accounts', path: '/dashboard/social-media-accounts', icon: '/icons/tabSocial.svg' },
-  { name: 'Wallet', path: '/wallet', icon: '/icons/tabWallet.svg' },
+  { name: 'Wallet', path: '/dashboard/wallet', icon: '/icons/tabWallet.svg' },
 ];
 
 const Tabs = () => {
