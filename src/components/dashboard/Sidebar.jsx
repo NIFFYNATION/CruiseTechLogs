@@ -173,7 +173,7 @@ const Sidebar = () => {
     { imageSrc: "/icons/api-key.svg", text: "API Key", to: "/dashboard/api-page" },
   ];
   const userGuideMenu = [
-    { imageSrc: "/icons/settings.svg", text: "Profile Settings", to: "/dashboard/settings" },
+    { imageSrc: "/icons/settings.svg", text: "Profile Settings", to: "/dashboard/profile-settings" },
     { imageSrc: "/icons/help.svg", text: "Help Center", to: "/dashboard/help" },
   ];
 
