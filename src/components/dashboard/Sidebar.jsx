@@ -174,7 +174,7 @@ const Sidebar = () => {
   ];
   const userGuideMenu = [
     { imageSrc: "/icons/settings.svg", text: "Profile Settings", to: "/dashboard/profile-settings" },
-    { imageSrc: "/icons/help.svg", text: "Help Center", to: "/dashboard/help" },
+    { imageSrc: "/icons/help.svg", text: "Help Center", to: "/dashboard/help-center" },
   ];
 
   if (loading) {
