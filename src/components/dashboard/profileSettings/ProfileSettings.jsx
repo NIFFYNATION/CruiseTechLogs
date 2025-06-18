@@ -150,6 +150,7 @@ const ProfileSettings = () => {
         </div>
         {/* Right: Content */}
         <div className="flex-1 bg-white rounded-2xl shadow p-6 md:p-10">
+          {/* Profile */}
           {activeTab === "profile" && (
             <>
               {/* Avatar Section */}
@@ -279,6 +280,7 @@ const ProfileSettings = () => {
             </>
           )}
 
+          {/* Password */}
           {activeTab === "password" && (
             <>
               <h2 className="text-xl font-semibold mb-1">Change Password</h2>
@@ -328,7 +330,7 @@ const ProfileSettings = () => {
               </form>
             </>
           )}
-
+          {/* Notification */}
           {activeTab === "notification" && (
             <div className="max-w-5xl">
               <h2 className="text-xl font-semibold mb-1">Notifications</h2>
@@ -339,11 +341,11 @@ const ProfileSettings = () => {
                 {[0, 1, 2].map((groupIdx) => (
                   <div key={groupIdx} className="border-b border-secondary pb-6 last:border-b-0 last:pb-0">
                     <div className="flex justify-between items-center">
-                    <div>
-                    <div className="font-semibold mb-1">Reminders</div>
-                    <div className="text-tertiary text-sm mb-4">
+                    <div className="pr-3 sm:pr-8">
+                    <h3 className="font-semibold mb-1">Reminders</h3>
+                    <p className="text-tertiary text-sm mb-4">
                       These are notifications to remind you of updates you might have missed.
-                    </div>
+                    </p>
                     </div>
                     <div className="flex flex-col flex-wrap gap-6">
                       {["Push", "Email", "SMS"].map((type, idx) => (
