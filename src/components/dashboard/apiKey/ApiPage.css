@@ -1,0 +1,34 @@
+/* Custom orange checkbox with white background and orange border */
+.custom-checkbox {
+  
+  appearance: none;
+  width: 1.15em;
+  height: 1.15em;
+  border: 1px solid #FA5A15; /* orange border */
+  border-radius: 0.25em;
+  background: #fff;
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.2s, background 0.2s;
+  outline: none;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.custom-checkbox:checked {
+  background: #FA5A15;
+  border-color: #FA5A15;
+}
+
+.custom-checkbox:checked:after {
+  content: '';
+  display: block;
+  position: absolute;
+  left: 0.37em;
+  top: 0.17em;
+  width: 0.25em;
+  height: 0.55em;
+  border: solid #fff;
+  border-width: 0 0.18em 0.18em 0;
+  transform: rotate(45deg);
+}

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 // Button variants object for different styles
 const BUTTON_VARIANTS = {
-  primary: "bg-primary text-background hover:bg-primary-light",
+  primary: "bg-primary text-background hover:bg-[#D9700A]",
   secondary: "bg-secondary text-text-primary hover:bg-secondary-light",
   outline: "bg-transparent border border-primary text-primary hover:bg-primary hover:text-background",
   ghost: "bg-background text-primary hover:bg-[#D9700A]",
