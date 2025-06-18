@@ -1,37 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { FaSearch, FaTrash } from "react-icons/fa";
 import { AiFillEye } from 'react-icons/ai'
-import { Link } from "react-router-dom";
 import NumberDetailsModal from './NumberDetailsModal';
-
-
-const numbers = [
-  { id: 1, number: "(5555) 123 - 4567", expiration: "1h 9m 10s", isActive: true },
-  { id: 2, number: "(5555) 123 - 4567", expiration: "1m 30s", isActive: true, expirationDate: "12/04/2025" },
-  { id: 3, number: "(5555) 123 - 4567", expiration: "0s", isActive: true, expirationDate: "12/04/2025" },
-  { id: 4, number: "(5555) 123 - 4567", expiration: "0s", isActive: true, expirationDate: "12/04/2025" },
-  { id: 5, number: "(5555) 123 - 4567", expiration: "0s", isActive: true, expirationDate: "12/04/2025" },
-  { id: 6, number: "(5555) 123 - 4567", expiration: "1h 9m 10s", isActive: true },
-  { id: 7, number: "(5555) 123 - 4567", expiration: "1m 30s", isActive: true, expirationDate: "12/04/2025" },
-  { id: 8, number: "(5555) 123 - 4567", expiration: "1h 9m 10s", isActive: true },
-];
-
-// Helper function
-function isLessThanOneHour(expiration) {
-  return expirationToSeconds(expiration) < 3600 && expirationToSeconds(expiration) > 0;
-}
-
-function expirationToSeconds(expiration) {
-  // Handles formats like "1h 9m 10s", "1m 30s", "59s", etc.
-  let total = 0;
-  const h = expiration.match(/(\d+)\s*h/);
-  const m = expiration.match(/(\d+)\s*m/);
-  const s = expiration.match(/(\d+)\s*s/);
-  if (h) total += parseInt(h[1], 10) * 3600;
-  if (m) total += parseInt(m[1], 10) * 60;
-  if (s) total += parseInt(s[1], 10);
-  return total;
-}
+import { fetchNumbers } from "../../../services/numberService";
 
 const ManageNumbers = () => {
   const [activeTab, setActiveTab] = useState("Active");
@@ -39,16 +10,156 @@ const ManageNumbers = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedNumber, setSelectedNumber] = useState(null);
 
+  // Separate state for active/inactive numbers and pagination
+  const [activeNumbers, setActiveNumbers] = useState([]);
+  const [inactiveNumbers, setInactiveNumbers] = useState([]);
+  const [activeNext, setActiveNext] = useState(null);
+  const [inactiveNext, setInactiveNext] = useState(null);
+  const [activeLoading, setActiveLoading] = useState(false);
+  const [inactiveLoading, setInactiveLoading] = useState(false);
+  const [activeLoadingMore, setActiveLoadingMore] = useState(false);
+  const [inactiveLoadingMore, setInactiveLoadingMore] = useState(false);
+
+  const activeListRef = useRef(null);
+  const inactiveListRef = useRef(null);
+
   // Dummy verification code for demo
   const verificationCode = "1234";
 
-  const filteredNumbers = numbers.filter((n) => {
-    const seconds = expirationToSeconds(n.expiration);
-    if (activeTab === "Active") {
-      return n.isActive && seconds > 0 && n.number.toLowerCase().includes(search.toLowerCase());
-    } else {
-      return (!n.isActive || seconds <= 0) && n.number.toLowerCase().includes(search.toLowerCase());
+  // Fetch numbers for active tab (only once)
+  useEffect(() => {
+    if (activeNumbers.length === 0) {
+      setActiveLoading(true);
+      fetchNumbers({ status: "active", start: 0 })
+        .then(({ numbers, next }) => {
+          setActiveNumbers(numbers);
+          setActiveNext(next);
+        })
+        .finally(() => setActiveLoading(false));
     }
+    // eslint-disable-next-line
+  }, []);
+
+  // Fetch numbers for inactive tab (only once)
+  useEffect(() => {
+    if (inactiveNumbers.length === 0) {
+      setInactiveLoading(true);
+      fetchNumbers({ status: "inactive", start: 0 })
+        .then(({ numbers, next }) => {
+          setInactiveNumbers(numbers);
+          setInactiveNext(next);
+        })
+        .finally(() => setInactiveLoading(false));
+    }
+    // eslint-disable-next-line
+  }, []);
+
+  // Infinite scroll handler for active
+  const handleActiveScroll = useCallback(() => {
+    if (activeLoadingMore || activeLoading || activeNext == null) return;
+    const el = activeListRef.current;
+    if (!el) return;
+    const { scrollTop, scrollHeight, clientHeight } = el;
+    if (scrollHeight - scrollTop - clientHeight < 80) {
+      setActiveLoadingMore(true);
+      fetchNumbers({ status: "active", start: activeNext })
+        .then(({ numbers: moreNumbers, next: newNext }) => {
+          setActiveNumbers(prev => [...prev, ...moreNumbers]);
+          setActiveNext(newNext);
+        })
+        .finally(() => setActiveLoadingMore(false));
+    }
+  }, [activeLoadingMore, activeLoading, activeNext]);
+
+  // Infinite scroll handler for inactive
+  const handleInactiveScroll = useCallback(() => {
+    if (inactiveLoadingMore || inactiveLoading || inactiveNext == null) return;
+    const el = inactiveListRef.current;
+    if (!el) return;
+    const { scrollTop, scrollHeight, clientHeight } = el;
+    if (scrollHeight - scrollTop - clientHeight < 80) {
+      setInactiveLoadingMore(true);
+      fetchNumbers({ status: "inactive", start: inactiveNext })
+        .then(({ numbers: moreNumbers, next: newNext }) => {
+          setInactiveNumbers(prev => [...prev, ...moreNumbers]);
+          setInactiveNext(newNext);
+        })
+        .finally(() => setInactiveLoadingMore(false));
+    }
+  }, [inactiveLoadingMore, inactiveLoading, inactiveNext]);
+
+  // Attach scroll event to the table container for active
+  useEffect(() => {
+    const el = activeListRef.current;
+    if (!el || activeNext == null) return;
+    el.addEventListener("scroll", handleActiveScroll);
+    return () => {
+      el.removeEventListener("scroll", handleActiveScroll);
+    };
+  }, [handleActiveScroll, activeNext]);
+
+  // Attach scroll event to the table container for inactive
+  useEffect(() => {
+    const el = inactiveListRef.current;
+    if (!el || inactiveNext == null) return;
+    el.addEventListener("scroll", handleInactiveScroll);
+    return () => {
+      el.removeEventListener("scroll", handleInactiveScroll);
+    };
+  }, [handleInactiveScroll, inactiveNext]);
+
+  // Auto-load next batch if content is not scrollable but more data exists (active)
+  useEffect(() => {
+    const el = activeListRef.current;
+    if (!el || activeLoading || activeLoadingMore) return;
+    if (activeNext != null && el.scrollHeight <= el.clientHeight + 10) {
+      setActiveLoadingMore(true);
+      fetchNumbers({ status: "active", start: activeNext })
+        .then(({ numbers: moreNumbers, next: newNext }) => {
+          setActiveNumbers(prev => [...prev, ...moreNumbers]);
+          setActiveNext(newNext);
+        })
+        .finally(() => setActiveLoadingMore(false));
+    }
+  }, [activeNumbers, activeNext, activeLoading, activeLoadingMore]);
+
+  // Auto-load next batch if content is not scrollable but more data exists (inactive)
+  useEffect(() => {
+    const el = inactiveListRef.current;
+    if (!el || inactiveLoading || inactiveLoadingMore) return;
+    if (inactiveNext != null && el.scrollHeight <= el.clientHeight + 10) {
+      setInactiveLoadingMore(true);
+      fetchNumbers({ status: "inactive", start: inactiveNext })
+        .then(({ numbers: moreNumbers, next: newNext }) => {
+          setInactiveNumbers(prev => [...prev, ...moreNumbers]);
+          setInactiveNext(newNext);
+        })
+        .finally(() => setInactiveLoadingMore(false));
+    }
+  }, [inactiveNumbers, inactiveNext, inactiveLoading, inactiveLoadingMore]);
+
+  // Filtering (apply search to both active and inactive numbers)
+  const filteredActiveNumbers = activeNumbers.filter((n) => {
+    const numStr = n.number?.toString() || "";
+    const serviceStr = n.serviceName?.toLowerCase() || "";
+    const searchStr = search.toLowerCase();
+    return (
+      n.status === 1 &&
+      (searchStr === "" ||
+        numStr.includes(searchStr) ||
+        serviceStr.includes(searchStr))
+    );
+  });
+  const filteredInactiveNumbers = inactiveNumbers.filter((n) => {
+    const numStr = n.number?.toString() || "";
+    const serviceStr = n.serviceName?.toLowerCase() || "";
+    const searchStr = search.toLowerCase();
+    return (
+      n.status !== 1 &&
+      (searchStr === "" ||
+        numStr.includes(searchStr) ||
+        serviceStr.includes(searchStr))
+    );
   });
 
   // Handler for "View" button
@@ -59,211 +170,249 @@ const ManageNumbers = () => {
 
   // Handler for reload, copy, etc.
   const handleReload = () => {
-    // Implement reload logic here
-    alert("Reload Number clicked!");
+    // alert("Reload Number clicked!");
   };
   const handleCopyNumber = () => {
-    navigator.clipboard.writeText(selectedNumber.number);
+    if (selectedNumber?.number) navigator.clipboard.writeText(selectedNumber.number);
   };
   const handleCopyCode = () => {
     navigator.clipboard.writeText(verificationCode);
   };
 
+  // Helper for expiration formatting (API gives seconds)
+  function formatExpiration(seconds) {
+    if (!seconds || seconds <= 0) return "0s";
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    return [
+      h > 0 ? `${h}h` : "",
+      m > 0 ? `${m}m` : "",
+      s > 0 ? `${s}s` : "",
+    ].filter(Boolean).join(" ");
+  }
+
+  function isLessThanOneHour(expiration) {
+    return expiration > 0 && expiration < 3600;
+  }
+
   return (
     <div className="">
-      {/* ----------- MOBILE ONLY ----------- */}
-      <div className="block md:hidden px-2">
-        <h2 className="text-xl font-semibold text-text-primary mt-2">Manage Numbers</h2>
-        <p className="text-text-secondary text-sm mb-4">
-          Get phone number to receive OTP for short term or long term use.
-        </p>
-        {/* Buy Number Button */}
-        <button className="bg-quinary hover:bg-[#ff8c1a] text-white font-semibold rounded-full px-6 py-2 flex items-center gap-2 mb-4 transition-colors">
-          + Buy Number
-        </button>
-        {/* Search */}
-        <div className="flex bg-background rounded-lg border-none px-3 py-2 mb-4 items-center">
-          <FaSearch className="text-text-grey mr-2" />
-          <input
-            type="text"
-            placeholder="Search numbers or service type"
-            className="outline-none bg-transparent text-sm text-text-secondary w-full"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-        {/* Tabs */}
-        <div className="flex gap-8 border-b border-text-grey mb-4">
-          {["Active", "Inactive"].map((tab) => (
-            <button
-              key={tab}
-              className={`pb-2 text-base font-medium transition-colors ${
-                activeTab === tab
-                  ? "border-b-2 border-primary text-primary"
-                  : "text-text-grey"
-              }`}
-              onClick={() => setActiveTab(tab)}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-        {/* Table */}
-        <div className="bg-background rounded-2xl shadow p-2">
-          <table className="w-full">
-            <thead>
-              <tr className="text-left text-xs">
-                <th className="py-2 px-2">Number</th>
-                <th className="py-2 px-2">Expiration</th>
-                <th className="py-2 px-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredNumbers.map((n) => (
-                <tr key={n.id} className="border-b last:border-b-0 border-text-grey">
-                  <td className="py-3 px-2 font-medium text-text-primary text-sm">{n.number}</td>
-                  <td className="py-3 px-2 font-semibold text-sm">
-                    {activeTab === "Active" ? (
-                      <span className={isLessThanOneHour(n.expiration) ? "text-danger" : "text-success"}>
-                        {n.expiration}
-                      </span>
-                    ) : (
-                      <span className="bg-red-100 text-danger font-semibold rounded-full px-2 py-1 text-xs">
-                        Inactive
-                      </span>
-                    )}
-                  </td>
-                  <td className="py-3 px-2">
-                    <button
-                      className="bg-quaternary-light text-quinary font-semibold rounded-full px-2 py-1 flex items-center gap-1 text-sm"
-                      onClick={() => handleView(n)}
-                    >
-                      View <span className="text-xs"><AiFillEye className="text-quinary" /></span>
-                    </button>
-                  </td>
-                </tr>
-              ))}
-              {filteredNumbers.length === 0 && (
-                <tr>
-                  <td colSpan={3} className="text-center text-grey py-8">
-                    No numbers found.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-      {/* ----------- DESKTOP/TABLET ONLY ----------- */}
-      <div className="hidden md:block mt-8">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
-          <h2 className="text-2xl font-semibold text-text-primary">Manage Numbers</h2>
+      {/* Unified Responsive Table */}
+      <div className="mt-4">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4 px-2 md:px-0">
+          <h2 className="text-xl md:text-2xl font-semibold text-text-primary mt-2 md:mt-0">Manage Numbers</h2>
           <div className="flex items-center gap-4">
-           
-            {activeTab === "Active" && <button className="bg-quinary hover:bg-[#ff8c1a] text-white font-semibold rounded-full px-6 py-2 flex items-center gap-2 transition-colors">
-              + Buy Number
-            </button>}
+              <button className="bg-quinary hover:bg-[#ff8c1a] text-white font-semibold rounded-full px-6 py-2 flex items-center gap-2 transition-colors">
+                + Buy Number
+              </button>
           </div>
         </div>
-        {/* Tabs */}
-        <div className="flex justify-between gap-8 border-b border-[#ECECEC] mb-10
-        ">
-        <div className="flex gap-8">
-          {["Active", "Inactive"].map((tab) => (
-            <button
-              key={tab}
-              className={`text-lg font-medium ${
-                activeTab === tab
-                  ? "border-b-3 border-primary  text-primary"
-                  : "text-text-grey"
-              }`}
-              onClick={() => setActiveTab(tab)}
-            >
-              {tab}
-            </button>
-          ))}
-           
+        {/* Tabs and Search */}
+        <div className="flex flex-col md:flex-row md:justify-between gap-4 border-b border-[#ECECEC] mb-6 md:mb-10 px-2 md:px-0">
+          <div className="flex gap-8">
+            {["Active", "Inactive"].map((tab) => (
+              <button
+                key={tab}
+                className={`pb-2 md:pb-0 text-base md:text-lg font-medium transition-colors ${
+                  activeTab === tab
+                    ? "border-b-2 md:border-b-3 border-primary text-primary"
+                    : "text-text-grey"
+                }`}
+                onClick={() => setActiveTab(tab)}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+          <div className="flex bg-background rounded-lg border-none px-3 py-2 mb-2 md:mb-0 items-center max-w-xs">
+            <FaSearch className="text-text-grey mr-2" />
+            <input
+              type="text"
+              placeholder="Search numbers or service type"
+              className="outline-none bg-transparent text-sm text-text-secondary w-full"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
         </div>
-        <div className="flex bg-background rounded-sm  px-3 py-2 mb-4 items-center">
-              <FaSearch className="text-text-grey  mr-2" />
-              <input
-                type="text"
-                placeholder="Search"
-                className="outline-none bg-transparent text-sm font- text-text-grey"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-        </div>
-        
-        {/* Table */}
-        <div className="bg-background rounded-lg p-4">
-          <table className="w-full">
-            <thead>
-              <tr className=" text-left text-sm">
-                <th className="py-2 px-2 ">Number</th>
-                {activeTab === "Inactive" && <th className="py-2 px-2 ">Status</th>}
-                <th className="py-2 px-2 ">{activeTab === "Active" ? "Expiration" : "Expiration"}</th>
-                <th className="py-2 px-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredNumbers.map((n) => (
-                <tr key={n.id} className="border-b text-start last:border-b-0 border-[#ECECEC]">
-                  <td className="py-3 px-2 font-medium text-text-primary">{n.number}</td>
-                  {activeTab === "Inactive" && (
-                    <td className="py-3 px-2">
-                      <span className="bg-red-100 text-danger font-semibold rounded-full px-4 py-1 text-sm">
-                        Inactive
-                      </span>
+        {/* Responsive Table */}
+        <div
+          className="bg-background rounded-2xl shadow p-2 md:p-4 overflow-x-auto thin-scrollbar"
+          style={{ maxHeight: "70vh", minHeight: 200, overflowY: "hidden" }}
+        >
+          {/* Active Table */}
+          <div
+            ref={activeListRef}
+            className="thin-scrollbar"
+            style={{ display: activeTab === "Active" ? "block" : "none", maxHeight: "70vh", overflowY: "auto" }}
+          >
+            <table className="w-full thin-scrollbar">
+              <thead className="sticky top-0 z-10 bg-background">
+                <tr className="text-left text-xs md:text-sm">
+                  <th className="py-2 px-2">Number</th>
+                  <th className="py-2 px-2">Expiration</th>
+                  <th className="py-2 px-2">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {activeLoading ? (
+                  <tr>
+                    <td colSpan={3} className="text-center text-grey py-8">
+                      Loading...
                     </td>
-                  )}
-                  <td className={`py-3 px-2 font-semibold  ${
-                    activeTab === "Active"
-                      ? isLessThanOneHour(n.expiration) ? "text-danger" : "text-success"
-                      : "text-text-grey"
-                  }`}>
-                    {activeTab === "Active"
-                      ? n.expiration
-                      : n.expirationDate}
-                  </td>
-                  <td className="py-3 px-2">
-                    {activeTab === "Active" ? (
-                      <button
-                        className="bg-[#FFF4ED] text-[#FF6B00] font-semibold rounded-full px-3 py-1 flex items-center gap-1"
-                        onClick={() => handleView(n)}
-                      >
-                        View <span className="text-xs"><AiFillEye className="text-quinary" /></span>
-                      </button>
-                    ) : (
-                      <button className="p-2 rounded-full hover:bg-red-50 transition">
-                        <FaTrash className="text-danger" />
-                      </button>
-                    )}
-                  </td>
+                  </tr>
+                ) : filteredActiveNumbers.length === 0 ? (
+                  <tr>
+                    <td colSpan={3} className="text-center text-grey py-8">
+                      <div className="flex flex-col items-center gap-4">
+                        <span>No numbers found.</span>
+                        <div className="flex  gap-2 w-full justify-center items-center">
+                          <button
+                            className="bg-quinary hover:bg-[#ff8c1a] text-white font-semibold rounded-full px-4 py-1.5 text-sm flex items-center gap-2 transition-colors"
+                            onClick={() => setActiveTab("Active")}
+                          >
+                            + Buy Number
+                          </button>
+                          <button
+                            className="bg-quaternary-light text-quinary font-semibold rounded-full px-4 py-1.5 text-sm flex items-center gap-2 border border-quaternary transition-colors hover:bg-quaternary-light"
+                            style={{ background: "none" }}
+                            onClick={() => setActiveTab("Inactive")}
+                          >
+                            View Inactive Numbers
+                          </button>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
+                  filteredActiveNumbers.map((n) => (
+                    <tr
+                      key={n.ID}
+                      className="border-b last:border-b-0 border-text-grey text-sm md:text-base"
+                    >
+                      <td className="py-3 px-2 font-medium text-text-primary">
+                        {n.number}
+                        <div className="text-xs text-text-grey mt-1 truncate max-w-[180px]">
+                          {n.serviceName && n.serviceName.length > 20
+                            ? n.serviceName.slice(0, 20) + "..."
+                            : n.serviceName}
+                        </div>
+                      </td>
+                      <td className="py-3 px-2 font-semibold">
+                        <span className={isLessThanOneHour(n.expiration) ? "text-danger" : "text-success"}>
+                          {formatExpiration(n.expiration)}
+                        </span>
+                      </td>
+                      <td className="py-3 px-2">
+                        <button
+                          className="bg-quaternary-light text-quinary font-semibold rounded-full px-2 py-1 flex items-center gap-1 text-sm"
+                          onClick={() => handleView(n)}
+                        >
+                          View <span className="text-xs"><AiFillEye className="text-quinary" /></span>
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+            {activeLoadingMore && (
+              <div className="flex justify-center items-center py-4">
+                <svg className="animate-spin h-6 w-6 text-quinary" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                </svg>
+                <span className="ml-2 text-quinary font-semibold">Loading more...</span>
+              </div>
+            )}
+          </div>
+          {/* Inactive Table */}
+          <div
+            ref={inactiveListRef}
+            style={{ display: activeTab === "Inactive" ? "block" : "none", maxHeight: "70vh", overflowY: "auto" }}
+          >
+            <table className="w-full">
+              <thead className="sticky top-0 z-10 bg-background">
+                <tr className="text-left text-xs md:text-sm">
+                  <th className="py-2 px-2">Number</th>
+                  <th className="py-2 px-2">Date</th>
+                  <th className="py-2 px-2">Actions</th>
                 </tr>
-              ))}
-              {filteredNumbers.length === 0 && (
-                <tr>
-                  <td colSpan={activeTab === "Active" ? 3 : 4} className="text-center text-grey py-8">
-                    No numbers found.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {inactiveLoading ? (
+                  <tr>
+                    <td colSpan={3} className="text-center text-grey py-8">
+                      Loading...
+                    </td>
+                  </tr>
+                ) : filteredInactiveNumbers.length === 0 ? (
+                  <tr>
+                    <td colSpan={3} className="text-center text-grey py-8">
+                      <div className="flex flex-col items-center gap-4">
+                        <span>No inactive numbers found.</span>
+                        <div className="text-xs text-text-secondary max-w-xs mx-auto">
+                          You have no expired or used numbers yet.<br />
+                          Numbers will appear here after they expire or are used.<br />
+                          <span className="font-semibold">Tip:</span> Buy a number and use it for verification. Once expired, it will show here for your records.
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
+                  filteredInactiveNumbers.map((n) => (
+                    <tr
+                      key={n.ID}
+                      className="border-b last:border-b-0 border-text-grey text-sm md:text-base"
+                    >
+                      <td className="py-3 px-2 font-medium text-text-primary">
+                        {n.number}
+                        <div className="text-xs text-text-grey mt-1 truncate max-w-[180px]">
+                          {n.serviceName && n.serviceName.length > 20
+                            ? n.serviceName.slice(0, 20) + "..."
+                            : n.serviceName}
+                        </div>
+                      </td>
+                      <td className="py-3 px-2 font-semibold">
+                        <span className="bg-red-100 text-danger font-semibold rounded-full px-2 py-1 text-xs">
+                          {n.date}
+                        </span>
+                      </td>
+                      <td className="py-3 px-2">
+                        <button
+                          className="bg-quaternary-light text-quinary font-semibold rounded-full px-2 py-1 flex items-center gap-1 text-sm"
+                          onClick={() => handleView(n)}
+                        >
+                          View <span className="text-xs"><AiFillEye className="text-quinary" /></span>
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+            {inactiveLoadingMore && (
+              <div className="flex justify-center items-center py-4">
+                <svg className="animate-spin h-6 w-6 text-quinary" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                </svg>
+                <span className="ml-2 text-quinary font-semibold">Loading more...</span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-
       {/* Modal */}
       <NumberDetailsModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         number={selectedNumber?.number}
-        expiration={selectedNumber?.expiration}
+        expiration={formatExpiration(selectedNumber?.expiration)}
         status={
           selectedNumber
-            ? expirationToSeconds(selectedNumber.expiration) > 0
+            ? selectedNumber.expiration > 0
               ? "active"
               : "expired"
             : "expired"
@@ -272,6 +421,7 @@ const ManageNumbers = () => {
         onReload={handleReload}
         onCopyNumber={handleCopyNumber}
         onCopyCode={handleCopyCode}
+        orderId={selectedNumber?.ID}
       />
     </div>
   );
