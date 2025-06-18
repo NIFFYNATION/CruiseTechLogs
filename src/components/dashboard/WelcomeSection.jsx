@@ -1,9 +1,12 @@
 import React from 'react';
+import NotificationBanner from '../common/NotificationBanner';
 import BalanceCard from './cards/BalanceCard'; // <-- Make sure this import exists and the file is present
-
+  // You can fetch the actual message count from your state management or API
+  const messageCount = 2; // This should come from your actual data source
 const WelcomeSection = () => {
   return (
     <div className="mb-8 mt-8">
+      <NotificationBanner messageCount={messageCount} />
       {/* Welcome Text */}
       <h1 className="text-2xl font-semibold text-text-primary mb-6">Welcome back!</h1>
 

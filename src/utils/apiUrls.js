@@ -7,5 +7,8 @@ export const API_URLS = {
   NUMBERTYPES: `${API_BASE_URL}/rentals/types`,
   NUMBERCOUNTRIES: `${API_BASE_URL}/rentals/countries`,
   NUMBERSERVICES: `${API_BASE_URL}/rentals/services`,
+  BOOKNUMBER: `${API_BASE_URL}/rentals/new`,
+  GET_NUMBERS: `${API_BASE_URL}/rentals/get`,
+  GET_NUMBER_CODE: `${API_BASE_URL}/rentals/getcode`,
   // Add other endpoints as needed
 };

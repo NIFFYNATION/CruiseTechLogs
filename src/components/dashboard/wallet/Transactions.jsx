@@ -1,134 +1,249 @@
-import React, { useState } from "react";
-import { Button } from "../../common/Button";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { fetchUserTransactions } from "../../../services/userService";
 
-const DUMMY_TRANSACTIONS = [
-  {
-    id: 452425,
-    type: "Wallet Topup",
-    amount: "1,200",
-    currentAmount: "1,200",
-    serviceId: "order-67e7f4b299c6d",
-    date: "10 Mar, 2025 at 5:43PM",
-    action: "Credit",
-    icon: "/icons/wallet-topup.svg",
-  },
-  {
-    id: 452425,
-    type: "Wallet Topup",
-    amount: "1,200",
-    currentAmount: "1,200",
-    serviceId: "order-67e7f4b299c6d",
-    date: "10 Mar, 2025 at 5:43PM",
-    action: "Debit",
-    icon: "/icons/wallet-topup.svg",
-  },
-  {
-    id: 452425,
-    type: "Wallet Topup",
-    amount: "1,200",
-    currentAmount: "1,200",
-    serviceId: "order-67e7f4b299c6d",
-    date: "10 Mar, 2025 at 5:43PM",
-    action: "Credit",
-    icon: "/icons/wallet-topup.svg",
-  },
-  {
-    id: 452425,
-    type: "Wallet Topup",
-    amount: "1,200",
-    currentAmount: "1,200",
-    serviceId: "order-67e7f4b299c6d",
-    date: "10 Mar, 2025 at 5:43PM",
-    action: "Credit",
-    icon: "/icons/wallet-topup.svg",
-  },
-];
+// Helper to format amount as Naira
+const formatNaira = (amount) =>
+  "₦" + Number(amount).toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-const Transactions = () => {
-  const [page, setPage] = useState(1);
-  const itemsPerPage = 10;
+// Helper to truncate long strings
+const truncate = (str, max = 12) => {
+  if (!str) return "";
+  return str.length > max ? str.slice(0, max) + "..." : str;
+};
+
+const Transactions = ({
+  onFundWallet,
+  fundButton = null,
+  isRecent = false,
+  title = "Transactions",
+}) => {
+  const [transactions, setTransactions] = useState([]);
+  const [next, setNext] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [expanded, setExpanded] = useState({}); // { [id]: true }
+
+  const listRef = useRef(null);
+
+  // Initial fetch
+  useEffect(() => {
+    setLoading(true);
+    fetchUserTransactions({ start: 0 })
+      .then((res) => {
+        setTransactions(res.transactions || []);
+        setNext(res.next || null);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  // Infinite scroll handler (disabled if isRecent)
+  const handleScroll = useCallback(() => {
+    if (isRecent || loadingMore || loading || next == null) return;
+    const el = listRef.current;
+    if (!el) return;
+    const { scrollTop, scrollHeight, clientHeight } = el;
+    if (scrollHeight - scrollTop - clientHeight < 80) {
+      setLoadingMore(true);
+      fetchUserTransactions({ start: next })
+        .then((res) => {
+          setTransactions((prev) => [...prev, ...(res.transactions || [])]);
+          setNext(res.next || null);
+        })
+        .finally(() => setLoadingMore(false));
+    }
+  }, [isRecent, loadingMore, loading, next]);
+
+  // Attach scroll event
+  useEffect(() => {
+    if (isRecent) return;
+    const el = listRef.current;
+    if (!el || next == null) return;
+    el.addEventListener("scroll", handleScroll);
+    return () => {
+      el.removeEventListener("scroll", handleScroll);
+    };
+  }, [handleScroll, next, isRecent]);
+
+  // Auto-load next batch if content is not scrollable but more data exists
+  useEffect(() => {
+    if (isRecent) return;
+    const el = listRef.current;
+    if (!el || loading || loadingMore) return;
+    if (next != null && el.scrollHeight <= el.clientHeight + 10) {
+      setLoadingMore(true);
+      fetchUserTransactions({ start: next })
+        .then((res) => {
+          setTransactions((prev) => [...prev, ...(res.transactions || [])]);
+          setNext(res.next || null);
+        })
+        .finally(() => setLoadingMore(false));
+    }
+  }, [transactions, next, loading, loadingMore, isRecent]);
+
+  // Toggle expand/collapse for a row
+  const toggleExpand = (id, e) => {
+    if (e) e.stopPropagation();
+    setExpanded((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
 
   return (
-    <div className="p-2 sm:p-6">
-      <h2 className="text-xl font-semibold mb-6 text-primary">Transactions</h2>
+    <div className="mt-2">
       <div className="bg-white rounded-lg shadow p-4 sm:p-8">
-        {/* Top Controls */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-4 mb-4 gap-4 hidden sm:flex">
+        {/* Sticky Header with Fund Account Button */}
+        <div
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-2 mb-4 gap-4 sticky top-0 z-10 bg-white"
+          style={{ position: "sticky", top: 0 }}
+        >
           <div className="flex items-center gap-2 text-sm text-tertiary">
-            <span>showing 1 - 20 results</span>
+            <h2 className="text-xl font-semibold mb-6 text-primary">{title}</h2>
           </div>
-          {/* Pagination */}
-          <div className="flex items-center gap-2">
-            {[1, 2, 3, 8, 9, 10].map((n, i) =>
-              n === 8 ? (
-                <span key={n} className="mx-1 text-tertiary">...</span>
-              ) : (
-                <button
-                  key={n}
-                  className={`w-8 h-8 flex items-center justify-center rounded-full font-semibold transition
-                    ${page === n
-                      ? "bg-quaternary-light text-quinary"
-                      : "bg-background text-text-secondary border border-bgLayout hover:bg-quinary hover:text-white"}
-                  `}
-                  onClick={() => setPage(n)}
-                >
-                  {n}
-                </button>
-              )
+          <div className="flex items-center gap-2 ml-auto">
+            {fundButton ? (
+              fundButton
+            ) : (
+              <button
+                className="bg-quinary hover:bg-[#ff8c1a] text-white font-semibold rounded-full px-4 py-2 text-sm transition-colors"
+                onClick={onFundWallet}
+              >
+                Fund Account
+              </button>
             )}
-          </div>
-          {/* Items per page */}
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-tertiary">items per page</span>
-            <select className="ring-1 ring-border-grey rounded-sm px-3 py-1 bg-white text-text-primary focus:outline-none">
-              <option>10</option>
-              <option>20</option>
-              <option>50</option>
-            </select>
           </div>
         </div>
         {/* Table */}
-        <div className="max-w-[330px] sm:max-w-[650px] lg:max-w-full w-full overflow-x-auto">
-          <table className=" min-w-[900px] overflow-x-auto w-full text-xs sm:text-sm">
-            <thead>
+        <div
+          ref={listRef}
+          className="max-w-[330px] sm:max-w-[650px] lg:max-w-full w-full overflow-x-auto"
+          style={{ maxHeight: "70vh", minHeight: 200, overflowY: "auto" }}
+        >
+          <table className="min-w-[700px] overflow-x-auto w-full text-xs sm:text-sm">
+            <thead className="sticky top-0 z-10 bg-white">
               <tr className="text-left text-text-secondary border-b border-bgLayout ">
-                <th className="py-6 px-6 sm:px-2">ID</th>
-                <th className="py-6 px-6 sm:px-2">Type</th>
-                <th className="py-6 px-6 sm:px-2">Amount</th>
-                <th className="py-6 px-6 sm:px-2">Current Amount</th>
-                <th className="py-6 px-6 sm:px-2">Service ID</th>
-                <th className="py-2 px-6 sm:px-2">Actions</th>
+                <th className="py-2 px-1">View</th>
+                <th className="py-2 px-1">Type</th>
+                <th className="py-2 px-1">Amount</th>
+                <th className="py-2 px-1">Action</th>
+                <th className="py-2 px-1">Current</th>
+                {/* Hide on small screens */}
+                <th className="py-2 px-1 hidden sm:table-cell">ID</th>
+                <th className="py-2 px-1 hidden sm:table-cell">Service ID</th>
               </tr>
             </thead>
             <tbody>
-              {DUMMY_TRANSACTIONS.map((tx, idx) => (
-                <tr key={idx} className="border-b border-bgLayout text-xs sm:text-sm">
-                  <td className="py-4 px-1 sm:px-2">
-                    <div className="flex items-center gap-4">
-                      <img src={tx.icon} alt="icon" className="[filter:invert(48%)_sepia(79%)_saturate(2476%)_hue-rotate(346deg)_brightness(118%)_contrast(119%)] w-5 h-5" />
-                      <span className="text-tertiary font-semibold">{tx.id}</span>
-                    </div>
-                  </td>
-                  <td className="py-4 px-6 sm:px-2">
-                    <div>
-                      <span className="font-semibold text-text-primary">{tx.type}</span>
-                      <p className="text-xs text-tertiary">{tx.date}</p>
-                    </div>
-                  </td>
-                  <td className="py-4 px-6 sm:px-2 font-semibold text-primary">₦{tx.amount}</td>
-                  <td className="py-4 px-6 sm:px-2 font-semibold text-primary">₦{tx.currentAmount}</td>
-                  <td className="py-4 px-6 sm:px-2 text-text-primary">{tx.serviceId}</td>
-                  <td className="py-4 px-6 sm:px-2 font-semibold">
-                    {tx.action === "Credit" ? (
-                      <span className="text-success">Credit</span>
-                    ) : (
-                      <span className="text-danger">Debit</span>
-                    )}
-                  </td>
+              {loading ? (
+                <tr>
+                  <td colSpan={7} className="text-center py-8 text-tertiary">Loading...</td>
                 </tr>
-              ))}
+              ) : transactions.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="text-center py-8 text-tertiary">No transactions found.</td>
+                </tr>
+              ) : (
+                transactions.map((tx, idx) => (
+                  <React.Fragment key={tx.ID || idx}>
+                    <tr
+                      className={`border-b border-bgLayout text-xs sm:text-sm cursor-pointer transition 
+                        ${
+                          tx.action_type === "credit"
+                            ? "bg-green-50/30"
+                            : tx.action_type === "debit"
+                            ? "bg-red-50/30"
+                            : ""
+                        }
+                        ${expanded[tx.ID] ? "bg-quaternary-light/30" : ""}`}
+                    >
+                      <td className="py-2 px-1">
+                        <button
+                          className="bg-quinary text-white rounded-full px-3 py-1 text-xs font-semibold hover:bg-quaternary transition"
+                          onClick={e => toggleExpand(tx.ID, e)}
+                          title={expanded[tx.ID] ? "Hide Details" : "View Details"}
+                        >
+                          {expanded[tx.ID] ? "Hide" : "View"}
+                        </button>
+                      </td>
+                      <td className="py-2 px-1">
+                        <span className="font-semibold text-text-primary">{tx.trans_for}</span>
+                        <p className="text-xs text-tertiary">{tx.date}</p>
+                      </td>
+                      <td
+                        className={`py-2 px-1 font-semibold `}
+                      >
+                        {formatNaira(tx.amount)}
+                      </td>
+                      <td
+                        className={`py-2 px-1 font-semibold 
+                        `}
+                      >
+                        {tx.action_type === "credit" ? (
+                          <span className="text-success capitalize">Credit</span>
+                        ) : (
+                          <span className="text-danger capitalize">Debit</span>
+                        )}
+                      </td>
+                      <td className="py-2 px-1 font-semibold text-primary">{formatNaira(tx.current_balance)}</td>
+                      {/* Only show on sm+ */}
+                      <td className="py-2 px-1 hidden sm:table-cell">{tx.ID}</td>
+                      <td className="py-2 px-1 text-text-primary max-w-[90px] truncate hidden sm:table-cell" title={tx.forID}>
+                        {truncate(tx.forID, 12)}
+                      </td>
+                    </tr>
+                    {expanded[tx.ID] && (
+                      <tr className="bg-[#FFF4ED] border-b border-bgLayout">
+                        <td colSpan={7} className="py-2 px-2">
+                          <div className="flex flex-col gap-2 text-xs sm:text-sm">
+                            <div className="sm:hidden">
+                              <span className="font-semibold text-text-secondary">ID:</span>{" "}
+                              <span className="font-mono">{tx.ID}</span>
+                            </div>
+                            <div>
+                              <span className="font-semibold text-text-secondary">Transaction ID:</span>{" "}
+                              <span className="font-mono">{tx.transID || "N/A"}</span>
+                            </div>
+                            <div>
+                              <span className="font-semibold text-text-secondary">User ID:</span>{" "}
+                              <span className="font-mono">{tx.userID}</span>
+                            </div>
+                            <div>
+                              <span className="font-semibold text-text-secondary">Account Type:</span>{" "}
+                              <span className="font-mono">{tx.acct_type}</span>
+                            </div>
+                            <div>
+                              <span className="font-semibold text-text-secondary">Amount Left:</span>{" "}
+                              <span className="font-mono">{formatNaira(tx.amount_left)}</span>
+                            </div>
+                            <div>
+                              <span className="font-semibold text-text-secondary">Order/For ID:</span>{" "}
+                              <span className="font-mono">{tx.forID}</span>
+                            </div>
+                            <div>
+                              <span className="font-semibold text-text-secondary">Order Type:</span>{" "}
+                              <span className="font-mono">{tx.trans_for}</span>
+                            </div>
+                            <div>
+                              <span className="font-semibold text-text-secondary">Date:</span>{" "}
+                              <span className="font-mono">{tx.date}</span>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                ))
+              )}
             </tbody>
           </table>
+          {loadingMore && (
+            <div className="flex justify-center items-center py-4">
+              <svg className="animate-spin h-6 w-6 text-quinary" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+              </svg>
+              <span className="ml-2 text-quinary font-semibold">Loading more...</span>
+            </div>
+          )}
         </div>
       </div>
     </div>
