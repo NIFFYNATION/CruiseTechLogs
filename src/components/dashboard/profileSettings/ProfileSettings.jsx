@@ -85,29 +85,26 @@ const ProfileSettings = () => {
       <div className="w-full px-4 md:px-10 text-2xl font-semibold mb-8">Account Settings</div>
       
       {/* Mobile Tab Bar */}
-      <div className="block md:hidden w-full mb-6 px-2">
-        <div className="flex justify-between items-center overflow-hidden">
+      <div className="block lg:hidden w-full mb-6 sm:mb-0 px-2">
+        <div className="flex justify-between items-center px-0 sm:px-7  overflow-hidden">
           {TABS.map((tab) => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`flex justify-between gap-1 items-center py-2 px-2 font-semibold text-sm transition
+              className={`flex justify-between gap-1 items-center py-2 px-1 font-semibold text-sm transition
                 ${activeTab === tab.key
                   ? "bg-[#FFF6F2] text-quaternary border-b-2 border-quaternary"
                   : "text-tertiary bg-transparent"
                 }`}
             >
-              <img
-                src={tab.icon}
-                alt={tab.label}
-                className={`w-5 h-5 mb-1 mx-auto  ${
-                  activeTab === tab.key ? "text-quaternary " : "text-tertiary"
+              <span
+                className={`w-5 h-5 mb-1 mx-auto transition-colors ${
+                  activeTab === tab.key ? "bg-quaternary" : "bg-tertiary"
                 }`}
                 style={{
-                  filter:
-                    activeTab === tab.key
-                      ? "none"
-                      : "grayscale(1) brightness(0.7)",
+                  WebkitMask: `url(${tab.icon}) center center / contain no-repeat`,
+                  mask: `url(${tab.icon}) center center / contain no-repeat`,
+                  display: "inline-block"
                 }}
               />
               {tab.label}
@@ -118,7 +115,7 @@ const ProfileSettings = () => {
 
       <div className="flex flex-col md:flex-row gap-8 p-4 md:p-10">
         {/* Left: Tabs (Desktop only) */}
-        <div className="w-full md:w-1/4 hidden md:block">
+        <div className="w-full md:w-1/4 hidden lg:block">
           <div className="bg-white rounded-xl shadow p-0">
             <ul>
               {TABS.map((tab, idx) => (
@@ -135,17 +132,14 @@ const ProfileSettings = () => {
                     ${idx === TABS.length - 1 ? "rounded-b-xl" : ""}
                   `}
                 >
-                  <img
-                    src={tab.icon}
-                    alt={tab.label}
-                    className={`w-5 h-5 ${
-                      activeTab === tab.key ? "text-quaternary" : "text-tertiary"
+                  <span
+                    className={`w-5 h-5 transition-colors ${
+                      activeTab === tab.key ? "bg-quaternary" : "bg-tertiary"
                     }`}
                     style={{
-                      filter:
-                        activeTab === tab.key
-                          ? "none"
-                          : "grayscale(1) brightness(0.7)",
+                      WebkitMask: `url(${tab.icon}) center center / contain no-repeat`,
+                      mask: `url(${tab.icon}) center center / contain no-repeat`,
+                      display: "inline-block"
                     }}
                   />
                   {tab.label}
@@ -336,7 +330,7 @@ const ProfileSettings = () => {
           )}
 
           {activeTab === "notification" && (
-            <>
+            <div className="max-w-5xl">
               <h2 className="text-xl font-semibold mb-1">Notifications</h2>
               <p className="text-tertiary mb-6 text-sm">
                 We may still you important notifications outside your notification settings.
@@ -353,7 +347,7 @@ const ProfileSettings = () => {
                     </div>
                     <div className="flex flex-col flex-wrap gap-6">
                       {["Push", "Email", "SMS"].map((type, idx) => (
-                        <div key={type} className="flex items-center gap-2">
+                        <div key={type} className="flex items-center gap-1 md:gap-6">
                           <NotificationToggle
                             enabled={notificationPrefs[groupIdx][type.toLowerCase()]}
                             onChange={() => handleToggle(groupIdx, type.toLowerCase())}
@@ -376,7 +370,7 @@ const ProfileSettings = () => {
                   Save Settings
                 </Button>
               </form>
-            </>
+            </div>
             )}
           </div>
         </div>
