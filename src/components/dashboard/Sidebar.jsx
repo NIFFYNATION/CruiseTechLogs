@@ -358,7 +358,7 @@ const Sidebar = () => {
             </a>
           ) : (
             <a
-              href="https://whatsapp.com/your-channel-link" // <-- Replace with your actual channel link
+              href="https://whatsapp.com/channel/0029Vb9rsBW0LKZKBGTI940l"
               target="_blank"
               rel="noopener noreferrer"
               className="block"
