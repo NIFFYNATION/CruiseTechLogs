@@ -190,4 +190,25 @@ export const fetchNumberCode = async (id) => {
   }
 };
 
+/**
+ * Close (deactivate) a number/order.
+ * @param {string} id - The order ID (e.g. order-675acc548b081)
+ * @returns {Promise<object>} - API response object
+ */
+export const closeNumber = async (id) => {
+  if (!id) throw new Error("Order id is required");
+  try {
+    const url = `${API_URLS.API_BASE_URL || API_URLS.GET_NUMBERS.replace('/rentals/get', '')}/rentals/close?id=${encodeURIComponent(id)}`;
+    const response = await axiosInstance.get(url);
+    return response.data;
+  } catch (error) {
+    return {
+      code: error.response?.status || 500,
+      status: "error",
+      message: error.response?.data?.message || error.message || "Failed to close number",
+      data: null,
+    };
+  }
+};
+
 // Add more number-related API functions as needed, always using axiosInstance

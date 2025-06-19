@@ -65,7 +65,7 @@ const Toast = ({
         exit={{ opacity: 0, y: -40, scale: 0.95 }}
         transition={{ type: "spring", stiffness: 400, damping: 30, duration: 0.4 }}
         className={`
-          fixed z-[2147483647] flex items-center px-3 py-3
+          fixed z-[9999] flex items-center px-3 py-3
           rounded-2xl shadow-2xl min-w-[220px] max-w-xs
           border backdrop-blur-md bg-clip-padding
           ${typeStyles[type] || typeStyles.info}
@@ -78,7 +78,6 @@ const Toast = ({
           boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.18)",
           backdropFilter: "blur(12px)",
           WebkitBackdropFilter: "blur(12px)",
-          zIndex: 2147483647, // Always above everything
         }}
         role="alert"
       >

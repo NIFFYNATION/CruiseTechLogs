@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { FiSearch, FiCopy, FiTrash2 } from "react-icons/fi";
 import { motion } from "framer-motion";
-import dayjs from "dayjs";
 import TopControls from "../../common/TopControls";
 import ReusableModal from "../../common/ReusableModal";
 import CreateApiKeyModal from "./CreateApiKeyModal";
@@ -151,7 +150,12 @@ const ApiPage = () => {
                   </td>
                   <td className="py-3 px-2  text-[15px] truncate">{k.key}</td>
                   <td className="py-3 px-2 text-[15px] text-primary font-semibold">
-                    {dayjs(k.date).format("DD MMM, YYYY")}
+                    {/* Use native Date formatting instead of dayjs */}
+                    {new Date(k.date).toLocaleDateString("en-GB", {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    })}
                   </td>
                   <td className="py-3 px-2 flex gap-3">
                     <button

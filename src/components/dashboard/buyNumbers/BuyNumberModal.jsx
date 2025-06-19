@@ -4,7 +4,7 @@ import { FiInfo } from "react-icons/fi";
 import { motion } from "framer-motion";
 import CustomModal from "../../common/CustomModal";
 import { bookNumber } from "../../../services/numberService";
-import Toast from "../../common/Toast";
+import ToastPortal from "../common/ToastPortal";
 
 const BuyNumberModal = ({
   open,
@@ -16,20 +16,21 @@ const BuyNumberModal = ({
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState(null);
 
-  // Remove the effect that closes toast when modal closes
-
-  if (!open || !service || !country) return (
-    <>
-      {toast && (
-        <Toast
-          type={toast.type}
-          message={toast.message}
-          onClose={() => setToast(null)}
-          timeout={toast.type === "success" ? 2500 : 5000}
-        />
-      )}
-    </>
-  );
+  if (!open || !service || !country) {
+    // Always render ToastPortal if toast is set, even if modal is closed
+    return (
+      <>
+        {toast && (
+          <ToastPortal
+            type={toast.type}
+            message={toast.message}
+            onClose={() => setToast(null)}
+            timeout={toast.type === "success" ? 2500 : 5000}
+          />
+        )}
+      </>
+    );
+  }
 
   const handleBuy = async () => {
     setToast(null);
@@ -58,16 +59,9 @@ const BuyNumberModal = ({
     }
   };
 
+  // Always render Toast outside modal so it stays above everything
   return (
     <>
-      {toast && (
-        <Toast
-          type={toast.type}
-          message={toast.message}
-          onClose={() => setToast(null)}
-          timeout={toast.type === "success" ? 2500 : 5000}
-        />
-      )}
       <CustomModal
         open={open}
         onClose={onClose}
@@ -146,6 +140,14 @@ const BuyNumberModal = ({
           </button>
         </div>
       </CustomModal>
+      {toast && (
+        <ToastPortal
+          type={toast.type}
+          message={toast.message}
+          onClose={() => setToast(null)}
+          timeout={toast.type === "success" ? 2500 : 5000}
+        />
+      )}
     </>
   );
 };

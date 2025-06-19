@@ -168,6 +168,21 @@ const ManageNumbers = () => {
     setModalOpen(true);
   };
 
+  // Handler for when a number is closed
+  const handleNumberClosed = (orderId) => {
+    setActiveNumbers((prev) => prev.filter((n) => n.ID !== orderId));
+    // Optionally, you can add to inactiveNumbers or refetch inactiveNumbers
+    setInactiveNumbers((prev) => [
+      ...prev,
+      ...(activeNumbers.filter((n) => n.ID === orderId).map((n) => ({
+        ...n,
+        status: 0, // Mark as inactive/closed
+        date: new Date().toISOString().slice(0, 19).replace("T", " "),
+      })))],
+    );
+    setModalOpen(false);
+  };
+
   // Handler for reload, copy, etc.
   const handleReload = () => {
     // alert("Reload Number clicked!");
@@ -409,7 +424,7 @@ const ManageNumbers = () => {
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         number={selectedNumber?.number}
-        expiration={formatExpiration(selectedNumber?.expiration)}
+        expiration={selectedNumber?.expiration}
         status={
           selectedNumber
             ? selectedNumber.expiration > 0
@@ -422,6 +437,9 @@ const ManageNumbers = () => {
         onCopyNumber={handleCopyNumber}
         onCopyCode={handleCopyCode}
         orderId={selectedNumber?.ID}
+        date={selectedNumber?.date}
+        expire_date={selectedNumber?.expire_date}
+        onNumberClosed={handleNumberClosed}
       />
     </div>
   );

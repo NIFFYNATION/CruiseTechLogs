@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import InputField from "../../common/InputField";
 import { Button } from "../../common/Button";
+import { fetchUserProfile } from "../../../services/userService"; // Add this import
+import UserAvatar from "../../common/UserAvatar";
 
 const TABS = [
   {
@@ -13,11 +15,11 @@ const TABS = [
     icon: "/icons/lock.svg",
     key: "password",
   },
-  {
-    label: "Notification",
-    icon: "/icons/bell-bold.svg",
-    key: "notification",
-  },
+  // {
+  //   label: "Notification",
+  //   icon: "/icons/bell-bold.svg",
+  //   key: "notification",
+  // },
 ];
 
 const ProfileSettings = () => {
@@ -30,7 +32,7 @@ const ProfileSettings = () => {
     email: "",
     phone: "",
     gender: "",
-    accountId: "1092",
+    accountId: "",
   });
 
   // Password form state
@@ -45,6 +47,19 @@ const ProfileSettings = () => {
     { push: false, email: true, sms: false },
     { push: true, email: true, sms: true },
   ]);
+
+  useEffect(() => {
+    fetchUserProfile().then((data) => {
+      setForm({
+        firstName: data?.first_name || "",
+        lastName: data?.last_name || "",
+        email: data?.email || "",
+        phone: data?.phone_number || "",
+        gender: data?.gender || "",
+        accountId: data?.ID || "",
+      });
+    });
+  }, []);
 
   const handleProfileChange = (e) => {
     const { name, value } = e.target;
@@ -156,31 +171,27 @@ const ProfileSettings = () => {
               {/* Avatar Section */}
               <div className="flex flex-col md:flex-row justify-between items-center mb-8">
                 <div className="relative">
-                  <img
-                    src="/icons/female.svg"
-                    alt="Avatar"
-                    className="w-32 h-32 rounded-full border-4 border-quaternary object-cover"
-                  />
+                  <UserAvatar/>
                   <button
                     className="absolute bottom-2 -right-2  text-white rounded-full p-"
                     title="Change Avatar"
                   >
-                    <img src="/icons/camera.svg" alt="Change" className="w-10 h-10" />
+                    <img src="/icons/camera.svg" alt="Change" className="w-7 h-7" />
                   </button>
                 </div>
-              <div className="md:w-1/2 flex flex-col justify-center items-center gap-4">
-              <div className="flex gap-2 mt-4">
-                  <Button variant="primary" size="sm" shape="rounded">
-                    Upload New
-                  </Button>
-                  <Button variant="danger" size="sm" shape="rounded">
-                    Delete Avatar
-                  </Button>
-                </div>
-                <div className="text-sm text-tertiary mt-2">
-                  Allowed JPG or PNG. Max size of 800K
-                </div>
-              </div>
+              {/* <div className="md:w-1/2 flex flex-col justify-center items-center gap-4">
+                  <div className="flex gap-2 mt-4">
+                    <Button variant="primary" size="sm" shape="rounded">
+                      Upload New
+                    </Button>
+                    <Button variant="danger" size="sm" shape="rounded">
+                      Delete Avatar
+                    </Button>
+                  </div>
+                  <div className="text-sm text-tertiary mt-2">
+                    Allowed JPG or PNG. Max size of 800K
+                  </div>
+                </div> */}
               </div>
 
               {/* Personal Details */}

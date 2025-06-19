@@ -1,24 +1,32 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import CustomModal from "../../common/CustomModal";
-import { fetchNumberCode } from "../../../services/numberService";
-import Toast from "../../common/Toast";
+import { fetchNumberCode, closeNumber } from "../../../services/numberService";
+import ToastPortal from "../common/ToastPortal";
+import ConfirmDialog from "../../common/ConfirmDialog";
+import { DateTime } from 'luxon';
 
-// Helper: parse date string to timestamp (seconds)
+// Helper: parse date string to UTC timestamp (seconds)
 function parseDateToTimestamp(dateStr) {
   if (!dateStr) return null;
-  // Replace dashes with slashes for Safari compatibility
-  const d = new Date(dateStr.replace(/-/g, "/"));
-  if (isNaN(d.getTime())) return null;
-  return Math.floor(d.getTime() / 1000);
+   return new Date(dateStr.replace(" ", "T")).getTime() / 1000; // Convert to seconds
 }
 
-// Helper: get seconds left until expiration
+// Helper: get current time in Africa/Lagos timezone in seconds
+function getNowLagosSeconds() {
+  const lagosTimeString =  DateTime.now().setZone('Africa/Lagos').toMillis();
+  return Math.floor(lagosTimeString / 1000);
+}
+
+// Helper: get seconds left until expiration (using Lagos time)
 function getSecondsLeft(dateStr, expiration) {
+  if (!dateStr || !expiration) {  return 0;}
+  // dateStr is the start time, expiration is seconds to add
   const startTs = parseDateToTimestamp(dateStr);
-  if (!startTs || !expiration) return 0;
   const expireTs = startTs + Number(expiration);
-  const now = Math.floor(Date.now() / 1000);
-  return Math.max(0, expireTs - now);
+  // Get current Lagos time in seconds
+  const nowLagos = getNowLagosSeconds();
+  // console.log(expireTs, nowLagos, dateStr);
+  return expireTs - nowLagos;
 }
 
 // Helper: format seconds as h m s
@@ -34,6 +42,23 @@ function formatCountdown(secs) {
   ].filter(Boolean).join(" ");
 }
 
+// Helper: format date string as UTC for display
+function formatUTCDate(dateStr) {
+  if (!dateStr) return "";
+  const d = new Date(dateStr.replace(/-/g, "/"));
+  if (isNaN(d.getTime())) return "";
+  return d.toLocaleString("en-GB", {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+    timeZone: "UTC"
+  }) + " UTC";
+}
+
 const extractOtp = (msg) => {
   // Try to extract 4-8 digit code from message
   const match = msg && msg.match(/(\d{3,8}(-\d{3,8})?)/);
@@ -44,15 +69,16 @@ const NumberDetailsModal = ({
   open,
   onClose,
   number,
-  expiration,
+  expiration, // this is seconds (duration)
   status,
-  verificationCode: initialVerificationCode,
+  date,       // this is the start date/time string
+  expire_date, // this is the absolute expiration date/time string (optional)
+  onNumberClosed, // callback when number is closed
+  orderId, // <-- add this prop!
   onReload,
   onCopyNumber,
   onCopyCode,
-  orderId,
-  date,         // e.g. "2024-12-06 21:39:10"
-  expire_date,  // e.g. "2024-12-06 21:59:10"
+  verificationCode: initialVerificationCode,
 }) => {
   const [messages, setMessages] = useState([]);
   const [codeLoading, setCodeLoading] = useState(false);
@@ -60,10 +86,13 @@ const NumberDetailsModal = ({
   const [isBackground, setIsBackground] = useState(false);
   const [toast, setToast] = useState(null);
   const [secondsLeft, setSecondsLeft] = useState(0);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [closeLoading, setCloseLoading] = useState(false);
+  const [reloadDisabled, setReloadDisabled] = useState(false);
   const intervalRef = useRef();
   const countdownRef = useRef();
 
-  // Calculate seconds left for countdown
+  // Calculate seconds left for countdown (using UTC)
   useEffect(() => {
     if (!open) return;
     let active = true;
@@ -72,12 +101,12 @@ const NumberDetailsModal = ({
       // Prefer expire_date if available, else use date + expiration
       if (expire_date) {
         const expireTs = parseDateToTimestamp(expire_date);
-        const now = Math.floor(Date.now() / 1000);
-        secs = expireTs ? Math.max(0, expireTs - now) : 0;
+        const nowLagos = getNowLagosSeconds();
+        secs = expireTs - nowLagos;
       } else if (date && expiration) {
         secs = getSecondsLeft(date, expiration);
       }
-      if (active) setSecondsLeft(secs);
+      if (active) setSecondsLeft(secs > 0 ? secs : 0);
     }
     updateCountdown();
     countdownRef.current = setInterval(updateCountdown, 1000);
@@ -88,7 +117,8 @@ const NumberDetailsModal = ({
   }, [open, date, expiration, expire_date]);
 
   // Determine if number is still active based on countdown
-  const isStillActive = secondsLeft > 0;
+  // status === 1 means active, and secondsLeft > 0 means not expired
+  const isStillActive = status === 1 && secondsLeft > 0;
 
   // Fetch code/messages from API
   const fetchCode = useCallback(
@@ -144,9 +174,11 @@ const NumberDetailsModal = ({
 
   // Reload handler
   const handleReload = async () => {
+    setReloadDisabled(true);
     setIsBackground(false);
     if (onReload) onReload();
     await fetchCode(false);
+    setReloadDisabled(false);
   };
 
   // Poll every 30s if active (background)
@@ -181,19 +213,64 @@ const NumberDetailsModal = ({
     if (msg) navigator.clipboard.writeText(msg);
   };
 
-  if (!open) return null;
+  // Handle close number
+  const handleCloseNumber = async () => {
+    setCloseLoading(true);
+    setConfirmOpen(false); // Close ConfirmDialog immediately on click "Yes"
+    try {
+      const res = await closeNumber(orderId);
+      if (res.code === 200) {
+        setToast({
+          type: "success",
+          message: res.message || "Number closed successfully.",
+        });
+        if (onNumberClosed) onNumberClosed(orderId);
+        // Optionally, close modal or update UI
+      } else {
+        setToast({
+          type: "error",
+          message: res.message || "Failed to close number.",
+        });
+      }
+    } catch (err) {
+      setToast({
+        type: "error",
+        message: err.message || "Failed to close number.",
+      });
+    } finally {
+      setCloseLoading(false);
+    }
+  };
+
+  if (!open) {
+    // Always render ToastPortal if toast is set, even if modal is closed
+    return (
+      <>
+        {toast && (
+          <ToastPortal
+            type={toast.type}
+            message={toast.message}
+            onClose={() => setToast(null)}
+            timeout={toast.type === "success" ? 2500 : 5000}
+          />
+        )}
+      </>
+    );
+  }
 
   return (
     <>
-      {/* Only show toast if not background */}
-      {toast && !isBackground && (
-        <Toast
-          type={toast.type}
-          message={toast.message}
-          onClose={() => setToast(null)}
-          timeout={toast.type === "success" ? 2500 : 5000}
-        />
-      )}
+      {/* ConfirmDialog for closing number */}
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Close Number"
+        message="Are you sure you want to close this number? This action cannot be undone."
+        onConfirm={handleCloseNumber}
+        onCancel={() => setConfirmOpen(false)}
+        confirmText="Yes, Close"
+        cancelText="Cancel"
+        loading={closeLoading}
+      />
       <CustomModal
         open={open}
         onClose={onClose}
@@ -237,7 +314,7 @@ const NumberDetailsModal = ({
             </span>
             {expire_date && (
               <span className="text-xs text-text-grey ml-2">
-                Expires at: {expire_date}
+                Expires at: {formatUTCDate(expire_date)}
               </span>
             )}
           </div>
@@ -295,6 +372,15 @@ const NumberDetailsModal = ({
           </div>
         </div>
       </CustomModal>
+      {/* Toast is always rendered, above all components */}
+      {toast && (
+        <ToastPortal
+          type={toast.type}
+          message={toast.message}
+          onClose={() => setToast(null)}
+          timeout={toast.type === "success" ? 2500 : 5000}
+        />
+      )}
     </>
   );
 };

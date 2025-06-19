@@ -118,11 +118,14 @@ const CustomModal = ({
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 z-100 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
         initial="hidden"
         animate="visible"
         exit="hidden"
         variants={overlayVariants}
+        style={{
+          zIndex: 9999, // Lower than ConfirmDialog's z-index
+        }}
       >
         <motion.div
           className={`rounded-xl w-full max-w-3xl mx-2 p-0 overflow-hidden shadow-lg relative bg-bgLayout/60 ${mobile ? "-mb-30 flex flex-col fixed bottom-0 left-0 right-0 max-w-full" : ""} ${className}`}
@@ -132,9 +135,14 @@ const CustomModal = ({
           variants={mobile ? modalVariantsMobile(fullHeight, customHeight) : modalVariantsDesktop(customHeight)}
           onClick={e => e.stopPropagation()}
           {...rest}
+          style={{
+            ...(rest.style || {}),
+            zIndex: 9999, // Lower than ConfirmDialog's z-index
+            position: "relative",
+          }}
         >
           {/* Title, Icon, Reload, and Close Icon (desktop only) */}
-          {(title || showCloseButton || headerIcon || reloadAction) && (
+          {(title || showCloseButton || headerIcon || reloadAction !== undefined) && (
             <div className={`px-6 py-4 bg-bgLayout/60 border-b border-border-grey flex items-center justify-between ${mobile ? "pb-2" : ""}`}>
               <div className="flex items-center gap-2">
                 {headerIcon && <span className="mr-2">{headerIcon}</span>}
@@ -144,11 +152,12 @@ const CustomModal = ({
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                {reloadAction && (
+                {reloadAction !== undefined && (
                   <button
                     className="bg-quinary text-white rounded-full px-3 py-1 flex items-center gap-2 font-semibold hover:bg-quaternary transition text-sm"
                     onClick={reloadAction}
                     title="Reload"
+                    disabled={!reloadAction}
                   >
                     <img src="/icons/reload.svg" alt="Reload" className="w-4 h-4" />
                     Reload
