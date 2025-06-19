@@ -46,6 +46,10 @@ export const isTokenExpired = () => {
 export const logoutUser = () => {
   localStorage.removeItem('authToken'); // Remove token
   localStorage.removeItem('userData'); // Remove user data
+  // Remove all cookies
+  document.cookie.split(";").forEach((c) => {
+    document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date(0).toUTCString() + ";path=/");
+  });
   console.log('User logged out successfully');
 };
 
