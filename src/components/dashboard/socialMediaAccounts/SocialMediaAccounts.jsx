@@ -130,15 +130,11 @@ const SocialMediaAccounts = () => {
             <ProductSection
               products={productsForPlatform}
               onBuy={(product) => {
-                if (selectedPlatform && selectedCategory) {
-                  navigate('/dashboard/social-media-accounts/buy', {
-                    state: {
-                      platform: selectedPlatform,
-                      category: selectedCategory,
-                      product,
-                    },
-                  });
-                }
+                navigate('/dashboard/social-media-accounts/buy', {
+                  state: {
+                    product,
+                  },
+                });
               }}
               onStockClick={() => {}}
               mobileViewMoreLabel={`View More ${platform.label}`}

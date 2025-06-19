@@ -5,13 +5,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 const menuItems = [
   { name: 'Home', icon: '/icons/home.svg', path: '/dashboard' },
   { name: 'Manage Numbers', icon: '/icons/manage-numbers.svg', path: '/dashboard/manage-numbers' },
-  { name: 'Buy Number', icon: '/icons/buy-number.svg', path: '/dashboard/buy-number' },
+  { name: 'Buy Number', icon: '/icons/buy-number.svg', path: '/dashboard/buy-numbers' },
   { name: 'Wallet', icon: '/icons/wallet.svg', path: '/dashboard/wallet' },
   { name: 'Transactions', icon: '/icons/transactions.svg', path: '/dashboard/transactions' },
-  { name: 'API Key', icon: '/icons/api-key.svg', path: '/dashboard/api-key' },
-  { name: 'Profile Settings', icon: '/icons/settings.svg', path: '/dashboard/settings' },
-  { name: 'Help Center', icon: '/icons/help.svg', path: '/dashboard/help' },
-  { name: 'Social Media Accounts', icon: '/icons/social-media.svg', path: '/dashboard/social-media' },
+  { name: 'API Key', icon: '/icons/api-key.svg', path: '/dashboard/api-page' },
+  { name: 'Profile Settings', icon: '/icons/settings.svg', path: '/dashboard/profile-settings' },
+  { name: 'Help Center', icon: '/icons/help.svg', path: '/dashboard/help-center' },
+  { name: 'Social Media Accounts', icon: '/icons/social-media.svg', path: '/dashboard/social-media-accounts' },
 ];
 
 const overlayVariants = {

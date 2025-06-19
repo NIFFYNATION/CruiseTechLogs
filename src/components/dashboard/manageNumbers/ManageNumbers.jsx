@@ -237,19 +237,19 @@ const ManageNumbers = () => {
                 onClick={() => setActiveTab(tab)}
               >
                 {tab}
-              </button>
+        </button>
             ))}
           </div>
           <div className="flex bg-background rounded-lg border-none px-3 py-2 mb-2 md:mb-0 items-center max-w-xs">
-            <FaSearch className="text-text-grey mr-2" />
-            <input
-              type="text"
-              placeholder="Search numbers or service type"
-              className="outline-none bg-transparent text-sm text-text-secondary w-full"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
+          <FaSearch className="text-text-grey mr-2" />
+          <input
+            type="text"
+            placeholder="Search numbers or service type"
+            className="outline-none bg-transparent text-sm text-text-secondary w-full"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
         </div>
         {/* Responsive Table */}
         <div
@@ -265,12 +265,12 @@ const ManageNumbers = () => {
             <table className="w-full thin-scrollbar">
               <thead className="sticky top-0 z-10 bg-background">
                 <tr className="text-left text-xs md:text-sm">
-                  <th className="py-2 px-2">Number</th>
-                  <th className="py-2 px-2">Expiration</th>
-                  <th className="py-2 px-2">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
+                <th className="py-2 px-2">Number</th>
+                <th className="py-2 px-2">Expiration</th>
+                <th className="py-2 px-2">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
                 {activeLoading ? (
                   <tr>
                     <td colSpan={3} className="text-center text-grey py-8">
@@ -317,21 +317,21 @@ const ManageNumbers = () => {
                       <td className="py-3 px-2 font-semibold">
                         <span className={isLessThanOneHour(n.expiration) ? "text-danger" : "text-success"}>
                           {formatExpiration(n.expiration)}
-                        </span>
-                      </td>
-                      <td className="py-3 px-2">
+                      </span>
+                  </td>
+                  <td className="py-3 px-2">
                         <button
                           className="bg-quaternary-light text-quinary font-semibold rounded-full px-2 py-1 flex items-center gap-1 text-sm"
                           onClick={() => handleView(n)}
                         >
                           View <span className="text-xs"><AiFillEye className="text-quinary" /></span>
-                        </button>
-                      </td>
-                    </tr>
+                    </button>
+                  </td>
+                </tr>
                   ))
-                )}
-              </tbody>
-            </table>
+              )}
+            </tbody>
+          </table>
             {activeLoadingMore && (
               <div className="flex justify-center items-center py-4">
                 <svg className="animate-spin h-6 w-6 text-quinary" viewBox="0 0 24 24">
@@ -339,7 +339,7 @@ const ManageNumbers = () => {
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
                 </svg>
                 <span className="ml-2 text-quinary font-semibold">Loading more...</span>
-              </div>
+        </div>
             )}
           </div>
           {/* Inactive Table */}
@@ -347,15 +347,15 @@ const ManageNumbers = () => {
             ref={inactiveListRef}
             style={{ display: activeTab === "Inactive" ? "block" : "none", maxHeight: "70vh", overflowY: "auto" }}
           >
-            <table className="w-full">
+          <table className="w-full">
               <thead className="sticky top-0 z-10 bg-background">
                 <tr className="text-left text-xs md:text-sm">
-                  <th className="py-2 px-2">Number</th>
+                <th className="py-2 px-2">Number</th>
                   <th className="py-2 px-2">Date</th>
-                  <th className="py-2 px-2">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
+                <th className="py-2 px-2">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
                 {inactiveLoading ? (
                   <tr>
                     <td colSpan={3} className="text-center text-grey py-8">
@@ -393,20 +393,20 @@ const ManageNumbers = () => {
                         <span className="bg-red-100 text-danger font-semibold rounded-full px-2 py-1 text-xs">
                           {n.date}
                         </span>
-                      </td>
-                      <td className="py-3 px-2">
+                  </td>
+                  <td className="py-3 px-2">
                         <button
                           className="bg-quaternary-light text-quinary font-semibold rounded-full px-2 py-1 flex items-center gap-1 text-sm"
                           onClick={() => handleView(n)}
                         >
-                          View <span className="text-xs"><AiFillEye className="text-quinary" /></span>
-                        </button>
-                      </td>
-                    </tr>
+                        View <span className="text-xs"><AiFillEye className="text-quinary" /></span>
+                      </button>
+                  </td>
+                </tr>
                   ))
-                )}
-              </tbody>
-            </table>
+              )}
+            </tbody>
+          </table>
             {inactiveLoadingMore && (
               <div className="flex justify-center items-center py-4">
                 <svg className="animate-spin h-6 w-6 text-quinary" viewBox="0 0 24 24">

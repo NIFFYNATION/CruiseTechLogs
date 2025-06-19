@@ -103,13 +103,13 @@ const Transactions = ({
           <div className="flex items-center gap-2 ml-auto">
             {fundButton ? (
               fundButton
-            ) : (
-              <button
+              ) : (
+                <button
                 className="bg-quinary hover:bg-[#ff8c1a] text-white font-semibold rounded-full px-4 py-2 text-sm transition-colors"
                 onClick={onFundWallet}
               >
                 Fund Account
-              </button>
+                </button>
             )}
           </div>
         </div>
@@ -221,13 +221,13 @@ const Transactions = ({
                             <div>
                               <span className="font-semibold text-text-secondary">Order Type:</span>{" "}
                               <span className="font-mono">{tx.trans_for}</span>
-                            </div>
-                            <div>
+                    </div>
+                    <div>
                               <span className="font-semibold text-text-secondary">Date:</span>{" "}
                               <span className="font-mono">{tx.date}</span>
                             </div>
-                          </div>
-                        </td>
+                    </div>
+                  </td>
                       </tr>
                     )}
                   </React.Fragment>
