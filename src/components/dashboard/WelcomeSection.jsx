@@ -1,10 +1,12 @@
 import React from 'react';
+import NotificationBanner from '../common/NotificationBanner';
 import BalanceCard from './cards/BalanceCard'; // <-- Make sure this import exists and the file is present
-import { Button } from '../common/Button';
-
+  // You can fetch the actual message count from your state management or API
+  const messageCount = 2; // This should come from your actual data source
 const WelcomeSection = () => {
   return (
     <div className="mb-8 mt-8">
+      <NotificationBanner messageCount={messageCount} />
       {/* Welcome Text */}
       <h1 className="text-2xl font-semibold text-text-primary mb-6">Welcome back!</h1>
 
@@ -20,11 +22,11 @@ const WelcomeSection = () => {
           <div className="bg-background hidden md:block mt-8 sm:mt-0 rounded-[15px] border-b-primary border-b-2 p-4 shadow-[0_4px_20px_rgba(0,0,0,0.05)] flex-1">
             <div className="flex justify-between items-start">
               <div className="w-full">
-                <h3 className="text-text-primary text-lg font-semibold mb-2">Your Total Order</h3>
+                <h3 className="text-text-primary text-base font-semibold mb-2">Your Total Order</h3>
                 <div className="flex items-center justify-between">
-                 <Button variant="primary" size="sm" className="w-fit">
-                  View All Orders
-                 </Button>
+                  <button className="px-4 py-2 bg-[#015C67] text-white text-sm rounded-full font-medium">
+                    View Orders
+                  </button>
                   <p className="text-[40px] font-bold text-[#015C67]">15</p>
                 </div>
               </div>
@@ -34,15 +36,15 @@ const WelcomeSection = () => {
           {/* Get Number Card */}
           <div className="bg-background mt-8 md:mt-0 rounded-[15px] border-b-primary border-b-2 px-6 pt-6 shadow-[0_4px_20px_rgba(0,0,0,0.05)] flex-1">
             <div className="flex items-end justify-between mt-auto">
-              <div className="py-4">
+              <div className="">
                 <h3 className="text-text-primary text-lg font-semibold mb-2">Get Number</h3>
-                <p className="text-text-secondary text-xs mb-4">
-                  Get phone number to receive OTP
+                <p className="text-text-secondary text-[11px] mb-4">
+                  Get phone number to receive OTP<br />
                   for short term or long term use.
                 </p>
-                <Button variant="primary" size="sm" className="w-fit">
+                <button className="mb-4 px-5 py-2.5 bg-[#015C67] text-white text-sm rounded-full font-medium">
                   Buy Number Now
-                 </Button>
+                </button>
               </div>
               <img 
                 src="/number-illustration.png" 
@@ -58,17 +60,17 @@ const WelcomeSection = () => {
               backgroundSize: '600px 500px'
             }}>
             <div className=" items-end justify-between mt-auto">
-              <div className="px-2">
+              <div className="">
                 <h3 className="text-text-primary text-lg font-semibold mb-2">Buy Social Media Accounts</h3>
-                <p className="text-text-secondary text-sm">
+                <p className="text-text-secondary text-xs">
                 Get long-lasting social media accounts from nearly every major platform—secure and ready for use.
                 </p>
                 
               </div>
               <div className='flex justify-between items-center p-0'>
-              <Button variant="orange" size="sm" className="w-fit">
+              <button className="px-5 py-2.5 bg-quinary hover:bg-quaternary text-white text-sm rounded-full font-medium">
                   Buy Account Now
-                 </Button>
+                </button>
               <img 
                 src="/icons/holding-smartphone.svg" 
                 alt="Buy Accounts Now" 

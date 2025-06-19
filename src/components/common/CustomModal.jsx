@@ -19,7 +19,7 @@ const modalVariantsMobile = (fullHeight, customHeight) => ({
   visible: {
     y: 0,
     opacity: 1,
-    height: fullHeight ? (customHeight || "calc(100vh + 30px)") : (customHeight || "90vh"),
+    height: fullHeight ? (customHeight || "calc(100vh + 30px)") : (customHeight || "auto"),
     transition: { type: "spring", stiffness: 300, damping: 30, delay: 0 }
   },
   exit: { y: "100%", opacity: 0, height: customHeight || "90vh", transition: { duration: 0.25, delay: 0 } },
@@ -29,11 +29,12 @@ const isMobile = () => typeof window !== "undefined" && window.innerWidth < 768;
 
 const CustomModal = ({
   open: openProp,
-  defaultOpen = false, // <-- allow to pass default open state
+  defaultOpen = false,
   onClose,
   title,
   description,
   headerIcon = null,
+  reloadAction, // <-- add this prop
   children,
   showCloseButton = true,
   className = "",
@@ -111,17 +112,20 @@ const CustomModal = ({
   // --- Only return null after all hooks are called ---
   if (!internalOpen) return null;
 
+  // Helper to detect mobile (reliable on render)
+  const isMobileDevice = typeof window !== "undefined" && window.innerWidth < 768;
+
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 z-100 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
         initial="hidden"
         animate="visible"
         exit="hidden"
         variants={overlayVariants}
-        // Only allow overlay click to close if closeable
-        // onPointerDown={handleMouseDown}
-        // onClick={closeable ? handleOverlayClick : undefined}
+        style={{
+          zIndex: 9999, // Lower than ConfirmDialog's z-index
+        }}
       >
         <motion.div
           className={`rounded-xl w-full max-w-3xl mx-2 p-0 overflow-hidden shadow-lg relative bg-bgLayout/60 ${mobile ? "-mb-30 flex flex-col fixed bottom-0 left-0 right-0 max-w-full" : ""} ${className}`}
@@ -131,19 +135,14 @@ const CustomModal = ({
           variants={mobile ? modalVariantsMobile(fullHeight, customHeight) : modalVariantsDesktop(customHeight)}
           onClick={e => e.stopPropagation()}
           {...rest}
+          style={{
+            ...(rest.style || {}),
+            zIndex: 9999, // Lower than ConfirmDialog's z-index
+            position: "relative",
+          }}
         >
-          {/* Floating Close Button (mobile only) */}
-          {showCloseButton && closeable && mobile && (
-            <button
-              className="absolute mt-1 right-4 z-10 bg-white shadow-lg rounded-full p-2 text-2xl text-text-primary border border-gray-200"
-              onClick={onClose}
-              style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.12)" }}
-            >
-              <IoClose />
-            </button>
-          )}
-          {/* Title, Icon, and Close Icon (desktop only) */}
-          {(title || showCloseButton || headerIcon) && (
+          {/* Title, Icon, Reload, and Close Icon (desktop only) */}
+          {(title || showCloseButton || headerIcon || reloadAction !== undefined) && (
             <div className={`px-6 py-4 bg-bgLayout/60 border-b border-border-grey flex items-center justify-between ${mobile ? "pb-2" : ""}`}>
               <div className="flex items-center gap-2">
                 {headerIcon && <span className="mr-2">{headerIcon}</span>}
@@ -152,11 +151,24 @@ const CustomModal = ({
                   {description && <p className="text-gray-900">{description}</p>}
                 </div>
               </div>
-              {!mobile && showCloseButton && closeable && (
-                <button className="text-2xl text-text-primary" onClick={onClose}>
-                  <IoClose />
-                </button>
-              )}
+              <div className="flex items-center gap-2">
+                {reloadAction !== undefined && (
+                  <button
+                    className="bg-quinary text-white rounded-full px-3 py-1 flex items-center gap-2 font-semibold hover:bg-quaternary transition text-sm"
+                    onClick={reloadAction}
+                    title="Reload"
+                    disabled={!reloadAction}
+                  >
+                    <img src="/icons/reload.svg" alt="Reload" className="w-4 h-4" />
+                    Reload
+                  </button>
+                )}
+                {showCloseButton && closeable && (
+                  <button className="text-2xl text-text-primary" onClick={onClose}>
+                    <IoClose />
+                  </button>
+                )}
+              </div>
             </div>
           )}
           {/* Search */}
@@ -234,16 +246,37 @@ const CustomModal = ({
             footerContent ? (
               footerContent
             ) : (
-              <div className="hidden md:flex justify-end border-t border-border-grey px-6 py-4 bg-bgLayout/60 border-b-3 rounded-b-xl border-b-[#FA5A15]">
-                {closeable && (
-                  <button
-                    className="border border-quinary text-quinary rounded-full px-6 py-2 font-semibold hover:bg-quinary hover:text-white transition"
-                    onClick={onClose}
+              <>
+                {/* Desktop footer */}
+                <div className="hidden md:flex justify-end border-t border-border-grey px-6 py-4 bg-bgLayout/60 border-b-3 rounded-b-xl border-b-[#FA5A15]">
+                  {closeable && (
+                    <button
+                      className="border border-quinary text-quinary rounded-full px-6 py-2 font-semibold hover:bg-quinary hover:text-white transition"
+                      onClick={onClose}
+                    >
+                      Cancel
+                    </button>
+                  )}
+                </div>
+                {/* Mobile footer: force to bottom of page */}
+                {isMobileDevice && (
+                  <div
+                    className="fixed bottom-0 left-0 right-0 z-[9999] flex justify-end border-t border-border-grey px-4 py-3 bg-white md:hidden"
+                    style={{
+                      boxShadow: "0 -2px 12px 0 rgba(0,0,0,0.04)",
+                    }}
                   >
-                    Cancel
-                  </button>
+                    {closeable && (
+                      <button
+                        className="border border-primary text-primary rounded-full px-6 py-2 font-semibold hover:bg-primary hover:text-background transition w-full"
+                        onClick={onClose}
+                      >
+                        Cancel
+                      </button>
+                    )}
+                  </div>
                 )}
-              </div>
+              </>
             )
           )}
         </motion.div>

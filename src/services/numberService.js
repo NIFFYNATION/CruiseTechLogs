@@ -126,4 +126,89 @@ export const fetchServices = async ({ type, network, countryID = "" }) => {
   }
 };
 
+/**
+ * Book a number/account for a service.
+ * @param {string} id - The service id (e.g. cXZ8fHNob3J0X3Rlcm18fDJ8fDV8fDU=)
+ * @returns {Promise<object>} - API response object
+ */
+export const bookNumber = async (id) => {
+  if (!id) throw new Error("Service id is required");
+  try {
+    const url = `${API_URLS.BOOKNUMBER}?id=${encodeURIComponent(id)}`;
+    const response = await axiosInstance.get(url);
+    return response.data;
+  } catch (error) {
+    return {
+      code: error.response?.status || 500,
+      status: "error",
+      message: error.response?.data?.message || error.message || "Failed to book number",
+      data: null,
+    };
+  }
+};
+
+/**
+ * Fetch user's numbers from the API, paginated.
+ * @param {Object} params - { status: string, start: number }
+ * @returns {Promise<{numbers: Array, next: number}>}
+ */
+export const fetchNumbers = async ({ status = "active", start = 0 } = {}) => {
+  try {
+    const url = `${API_URLS.GET_NUMBERS}?status=${status}&start=${start}`;
+    const response = await axiosInstance.get(url, { timeout: 15000 });
+    if (response.status !== 200) {
+      throw new Error(response.data?.message || "Failed to fetch numbers");
+    }
+    const data = response.data?.data || {};
+    return {
+      numbers: Array.isArray(data.numbers) ? data.numbers : [],
+      next: typeof data.next === "number" ? data.next : null,
+    };
+  } catch (error) {
+    return { numbers: [], next: null };
+  }
+};
+
+/**
+ * Fetch verification code(s) for a number/order.
+ * @param {string} id - The order ID (e.g. order-66e1bec1466a3)
+ * @returns {Promise<object>} - API response object
+ */
+export const fetchNumberCode = async (id) => {
+  if (!id) throw new Error("Order id is required");
+  try {
+    const url = `${API_URLS.GET_NUMBER_CODE}?id=${encodeURIComponent(id)}`;
+    const response = await axiosInstance.get(url);
+    return response.data;
+  } catch (error) {
+    return {
+      code: error.response?.status || 500,
+      status: "error",
+      message: error.response?.data?.message || error.message || "Failed to fetch code",
+      data: [],
+    };
+  }
+};
+
+/**
+ * Close (deactivate) a number/order.
+ * @param {string} id - The order ID (e.g. order-675acc548b081)
+ * @returns {Promise<object>} - API response object
+ */
+export const closeNumber = async (id) => {
+  if (!id) throw new Error("Order id is required");
+  try {
+    const url = `${API_URLS.API_BASE_URL || API_URLS.GET_NUMBERS.replace('/rentals/get', '')}/rentals/close?id=${encodeURIComponent(id)}`;
+    const response = await axiosInstance.get(url);
+    return response.data;
+  } catch (error) {
+    return {
+      code: error.response?.status || 500,
+      status: "error",
+      message: error.response?.data?.message || error.message || "Failed to close number",
+      data: null,
+    };
+  }
+};
+
 // Add more number-related API functions as needed, always using axiosInstance

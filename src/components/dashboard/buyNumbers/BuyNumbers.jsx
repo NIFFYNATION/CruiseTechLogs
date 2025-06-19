@@ -172,15 +172,15 @@ const BuyNumbers = () => {
       
 
         {/* Title */}
-       <div className="flex flex-col md:flex-row justify-between items-start md:items-center ">
+       {/* <div className="flex flex-col md:flex-row justify-between items-start md:items-center ">
        <h3 className="text-lg font-semibold my-8">Short Term Number 1 (USA)</h3>
         <button className="bg-quinary hover:bg-quaternary text-background rounded-full px-6 py-2.5 font-semibold transition-colors">
             View Rented Numbers
           </button>
-       </div>
+       </div> */}
 
         {/* Tabs */}
-        <div className="flex items-center border-b border-border-grey my-6">
+        {/* <div className="flex items-center border-b border-border-grey my-6">
           <button
             className={`py-2 px-4 font-semibold transition border-b-3 ${
               activeTab === "All Accounts"
@@ -201,7 +201,7 @@ const BuyNumbers = () => {
           >
             Saved Accounts
           </button>
-        </div>
+        </div> */}
 
         {/* Notice */}
         <div className="hidden md:flex justify-between items-center bg-quaternary-light rounded-lg px-4 py-3 my-8">
@@ -250,6 +250,7 @@ const BuyNumbers = () => {
               return (
                 <div
                   key={idx}
+                  onClick={() => handleBuyClick(service)}
                   className="flex items-center bg-white rounded-xl shadow-sm px-4 py-4 mb-2 border-b-1 border-[#FFDE59] relative"
                   style={{ boxShadow: "0 2px 8px 0 rgba(255, 107, 0, 0.09)" }}
                 >
@@ -258,7 +259,7 @@ const BuyNumbers = () => {
                     <div className="font-semibold">{service.name}</div>
                     <h3 className="text-primary font-semibold">{formattedCost}</h3>
                   </div>
-                  <button className="ml-2" onClick={() => handleBuyClick(service)}>
+                  <button className="ml-2">
                     <FiBookmark className="w-5 h-5 text-[#FF6B00]" />
                   </button>
                 </div>

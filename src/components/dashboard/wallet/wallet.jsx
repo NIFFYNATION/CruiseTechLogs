@@ -1,80 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import WalletCard from "../../WalletCard";
 import { Button } from "../../common/Button";
 import FundWalletModal from "./FundWalletModal";
+import CryptoWalletCard from "./CryptoWalletCard";
+import VirtualAccountCard from "./VirtualAccountCard";
+import { fetchUserCryptoWallet, fetchUserAccounts } from "../../../services/userService";
+import Transactions from "./Transactions";
+import BalanceCard from "../cards/BalanceCard";
 
-const CURRENCIES = [
-  {
-    label: "Bitcoin",
-    code: "BTC",
-    icon: "/icons/btc.svg",
-    address: "0xaB618960d0444d48c8e7Dbd4493a574056894b0a1",
-    network: "bsc",
-    exchangeRate: "2,500",
-  },
-  {
-    label: "Ethereum",
-    code: "ETH",
-    icon: "/icons/eth.svg",
-    address: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-    network: "erc20",
-    exchangeRate: "3,000",
-  },
-  {
-    label: "USDT",
-    code: "USDT",
-    icon: "/icons/usdt.svg",
-    address: "0x55d398326f99059fF775485246999027B3197955",
-    network: "bep20",
-    exchangeRate: "1,200",
-  },
-];
-
-const DUMMY_TRANSACTIONS = [
-  {
-    id: 452425,
-    amount: "2,500",
-    status: "Complete",
-    type: "Wallet Topup",
-    ref: "tx-ref-678e88dfc7f1",
-    date: "Sat, 29 Mar 2025 01:25:06pm",
-  },
-  {
-    id: 452425,
-    amount: "2,500",
-    status: "Pending",
-    type: "Wallet Topup",
-    ref: "tx-ref-678e88dfc7f1",
-    date: "Sat, 29 Mar 2025 01:25:06pm",
-  },
-  {
-    id: 452425,
-    amount: "2,500",
-    status: "Complete",
-    type: "Wallet Topup",
-    ref: "tx-ref-678e88dfc7f1",
-    date: "Sat, 29 Mar 2025 01:25:06pm",
-  },
-  {
-    id: 452425,
-    amount: "2,500",
-    status: "Failed",
-    type: "Wallet Topup",
-    ref: "tx-ref-678e88dfc7f1",
-    date: "Sat, 29 Mar 2025 01:25:06pm",
-  },
-];
 
 const Wallet = () => {
   const [balance] = useState("0.00");
-  const [cryptoCurrency] = useState("BTC");
-  const [cryptoAddress] = useState("0xaB618960d0444d48c8e7Dbd4493a574056894b0a1");
-  const [exchangeRate] = useState("2,500");
-  const [network] = useState("bsc");
-  const [transactions] = useState(DUMMY_TRANSACTIONS);
   const [fundModalOpen, setFundModalOpen] = useState(false);
-  const [selectedCurrency, setSelectedCurrency] = useState(CURRENCIES[0]);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  // Crypto wallet state
+  const [cryptoWallet, setCryptoWallet] = useState(null);
+  // Virtual accounts state
+  const [accounts, setAccounts] = useState([]);
+
+  // Fetch crypto wallet on mount
+  useEffect(() => {
+    fetchUserCryptoWallet().then(setCryptoWallet);
+  }, []);
+
+  // Fetch virtual accounts on mount
+  useEffect(() => {
+    fetchUserAccounts().then(setAccounts);
+  }, []);
 
   return (
     <div className="p-2 sm:p-6">
@@ -84,169 +36,35 @@ const Wallet = () => {
         <div className="flex flex-col gap-4 border border-bgLayout shadow border-b-[#FEBB4F]  bg-white rounded-xl p-2">
           {/* Balance Card */}
           <div className="overflow-hidden">
-          <div className=" relative">
-          <WalletCard  balance={balance} onAddFunds={() => setFundModalOpen(true)} onTransactions={() => alert("Show Transactions")} />
-          </div>
-            {/* Virtual Account Details */}
-            <div className="py-6 px-4">
-              <h4 className="font-semibold mb-2 text-base md:text-lg">Fund Wallet with Virtual Account Details</h4>
-              <p className="text-sm md:text-base text-text-secondary mb-4">
-                Make payment here to automatically fund your account.
-              </p>
-              <div className="my-6">
-                <div className="text-xs font-semibold text-text-secondary mb-1">PalmPay</div>
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-lg  tracking-wider">852 034 6145</span>
-                  <img src="/icons/copy-bold.svg" alt="Copy" className="w-4 h-4 cursor-pointer" onClick={() => {navigator.clipboard.writeText("8520346145");}} />
-                </div>
-                <div className="text-xs  text-text-secondary">
-                  Account Name: <span className="font-bold text-text-primary">CRUISE TECH</span>
-                </div>
-              </div>
-              <div className="border-t border-border-grey border-1 border-dashed my-6" />
-              <div>
-                <div className="text-xs font-semibold text-text-secondary mb-1">Moniepoint Micro Finance Bank</div>
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-lg tracking-wider">852 034 6145</span>
-                  <img src="/icons/copy-bold.svg" alt="Copy" className="w-4 h-4 cursor-pointer" onClick={() => {navigator.clipboard.writeText("8520346145");}} />
-                </div>
-                <div className="text-xs text-text-secondary">
-                  Account Name: <span className="font-bold text-text-primary">CRUISE TECH</span>
-                </div>
-              </div>
+            <div className=" relative">
+              <BalanceCard isSimple={true}/>
             </div>
+            {/* Virtual Account Details */}
+            <VirtualAccountCard accounts={accounts} />
           </div>
         </div>
         {/* Crypto Card */}
-        <div className="bg-white rounded-xl shadow py-6 px-4 flex flex-col gap-4">
-          <h4 className="font-semibold text-text-primary text-lg">Fund Wallet with Crypto</h4>
-          <p className="text-sm md:text-base text-text-secondary mb-4">
-            Please scan the QR code below or copy the wallet address to proceed with your transaction.
-          </p>
-          {/* Currency Selector */}
-          <div className="relative">
-            <div
-              className="flex justify-between bg-bgLayout items-center gap-1 border border-[#D9D9D9] rounded-lg px-4 py-2 cursor-pointer"
-              onClick={() => setDropdownOpen((open) => !open)}
-            >
-              <div>
-                <p className="text-xs font-semibold text-text-secondary">CURRENCY</p>
-                <p className="font-semibold text-primary">{selectedCurrency.label}</p>
-              </div>
-              <div className="flex items-center gap-3">
-                {selectedCurrency.code}
-                <img src={selectedCurrency.icon} alt={selectedCurrency.code} className="w-5 h-5" />
-                <svg className="w-4 h-4 text-tertiary" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
-            </div>
-            {dropdownOpen && (
-              <div className="absolute z-10 left-0 right-0 mt-2 bg-white border border-[#D9D9D9] rounded-lg shadow-lg">
-                {CURRENCIES.map((currency) => (
-                  <div
-                    key={currency.code}
-                    className={`flex items-center justify-between px-4 py-2 cursor-pointer hover:bg-quaternary-light ${
-                      selectedCurrency.code === currency.code ? "bg-quaternary-light" : ""
-                    }`}
-                    onClick={() => {
-                      setSelectedCurrency(currency);
-                      setDropdownOpen(false);
-                    }}
-                  >
-                    <div className="flex items-center gap-2">
-                      <img src={currency.icon} alt={currency.code} className="w-5 h-5" />
-                      <span className="font-semibold">{currency.label}</span>
-                    </div>
-                    <span className="text-xs text-tertiary">{currency.code}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-          {/* QR Code */}
-          <div className="flex flex-col items-center mb-4 ">
-            <div className="relative bg-bgLayout rounded-lg p-2 ring-1 ring-[#D9D9D9]">
-              <img src="/icons/qr.svg" alt="QR Code" className="w-36 h-36" />
-              <img src={selectedCurrency.icon} alt={selectedCurrency.code} className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full p-1 shadow" />
-            </div>
-            <Button
-              variant="orange"
-              size="sm"
-              className="w- mt-4"
-              onClick={() => alert("Scan QR Code")}
-            >
-              Scan QR Code
-            </Button>
-          </div>
-          {/* Wallet Address */}
-          <div className="flex justify-between items-center gap-2 bg-[#E8F0FE] rounded-lg px-4 py-3 mb-2">
-            <div>
-              <p className="text-xs font-medium text-primary rounded py-1">{selectedCurrency.code} WALLET ADDRESS</p>
-              <p className="font-mono text-sm font-semibold text-primary break-all">{selectedCurrency.address}</p>
-            </div>
-            <button
-              className="ml-2"
-              onClick={() => {
-                navigator.clipboard.writeText(selectedCurrency.address);
-                alert("Copied!");
-              }}
-            >
-              <img src="/icons/copy-bold-blue.svg" alt="Copy" className="w-5 h-5" />
-            </button>
-          </div>
-          <div className="items-center gap-4 mb-2">
-            <div className="flex gap-2 items-center">
-              <p className="text-xs text-text-secondary">Exchange Rate:</p>
-              <p className="font-semibold text-primary">₦{selectedCurrency.exchangeRate}</p>
-            </div>
-            <div className="flex gap-2 items-center">
-              <p className="text-xs text-text-secondary">Network:</p>
-              <p className="font-semibold text-primary">{selectedCurrency.network}</p>
-            </div>
-          </div>
-        </div>
+        <CryptoWalletCard
+          currency={cryptoWallet?.currency}
+          network={cryptoWallet?.network}
+          address={cryptoWallet?.address}
+          url={cryptoWallet?.url}
+        />
       </div>
       {/* Recent Transactions */}
-      <div className="bg-white overflow-x-auto rounded-2xl shadow p-4">
-        <div className="flex items-center justify-between mb-4">
-          <h4 className="font-semibold text-primary text-base">Recent Transactions</h4>
-          <Button
+     
+        
+        <Transactions isRecent={true} 
+        title="Recent Transactions"
+        fundButton={<Button
             variant="orange"
             size="sm"
             className="px-4"
-            onClick={() => alert("View All Transactions")}
+            onClick={() => window.location.href = "/dashboard/transactions"}
           >
             View All Transactions
-          </Button>
-        </div>
-        <div className="w-full overflow-x-auto">
-          <table className="w-full text-xs sm:text-sm">
-            <thead>
-              <tr className="text-left  text-text-secondary border-b border-bgLayout">
-                <th className="py-2 px-1 sm:px-2">ID</th>
-                <th className="py-2 px-1 sm:px-2">Amount</th>
-                <th className="py-2 px-1 sm:px-2">Status</th>
-                <th className="py-2 px-1 sm:px-2">Type</th>
-                <th className="py-2 px-1 sm:px-2">Ref. No.</th>
-                <th className="py-2 px-1 sm:px-2 py-2 px-1 sm:px-2 hidden sm:table-cell">Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {transactions.map((tx, idx) => (
-                <tr key={idx} className="overflow-x-auto border-b border-bgLayout text-xs sm:text-sm">
-                  <td className="py-2 px-1 sm:py-3 sm:px-2 text-tertiary">{tx.id}</td>
-                  <td className="py-2 px-1 sm:py-3 sm:px-2 font-semibold text-primary">₦{tx.amount}</td>
-                  <td className={`py-2 px-1 sm:py-3 sm:px-2 font-semibold ${tx.status === "Complete" ? "text-success" : tx.status === "Pending" ? "text-quinary" : "text-danger"}`}>{tx.status}</td>
-                  <td className="py-2 px-1 sm:py-3 sm:px-2">{tx.type}</td>
-                  <td className="py-2 px-1 sm:py-3 sm:px-2 max-w-[80px] sm:max-w-none truncate">{tx.ref}</td>
-                  <td className="py-2 px-1 sm:py-3 sm:px-2 whitespace-nowrap py-2 px-1 sm:px-2 hidden sm:table-cell text-tertiary">{tx.date}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+          </Button>} />
+    
       <FundWalletModal
         open={fundModalOpen}
         onClose={() => setFundModalOpen(false)}

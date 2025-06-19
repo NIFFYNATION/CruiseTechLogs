@@ -18,3 +18,21 @@
   background: #e0e0e0;
 }
 
+.thin-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #e0e0e0 transparent;
+}
+.thin-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  background: transparent;
+}
+.thin-scrollbar::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+.thin-scrollbar:hover::-webkit-scrollbar-thumb,
+.thin-scrollbar:active::-webkit-scrollbar-thumb,
+.thin-scrollbar:focus::-webkit-scrollbar-thumb {
+  background: #e0e0e0;
+}
