@@ -12,19 +12,17 @@ const BuyAccountPage = () => {
   // Get state passed from navigation
   const { platform, category, product } = location.state || {};
 
+  const defaultProduct = {
+    title: "Random FB|100–300friends (3 months +)",
+    price: "1,200",
+  };
+  const usedProduct = product || defaultProduct;
+  const usedPlatform = platform || { label: "Facebook", icon: "/icons/facebook.svg" };
+  const usedCategory = category || { label: "RANDOM COUNTRIES FB" };
+
   const [quantity, setQuantity] = React.useState(0);
   const [cart, setCart] = React.useState([]);
   const [reviewOpen, setReviewOpen] = React.useState(false);
-
-  // Fallbacks if user navigates directly
-  if (!platform || !category || !product) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <p className="text-lg text-red-500 mb-4">Missing account details.</p>
-        <Button onClick={() => navigate(-1)}>Go Back</Button>
-      </div>
-    );
-  }
 
   const total = cart.reduce(
     (sum, item) => sum + Number(String(item.price).replace(/,/g, "")),
@@ -42,7 +40,7 @@ const BuyAccountPage = () => {
         id: Date.now() + Math.random(),
         platform,
         accountId: "6156861375259",
-        price: product.price,
+        price: usedProduct.price,
       }
     ]);
   };
@@ -55,19 +53,19 @@ const BuyAccountPage = () => {
      <>
      {/* Product Summary */}
       <div className="bg-white rounded-xl shadow p-6 mb-6  border-b-[#FFDE59] border-b-2">
-          <img src={platform.icon} alt={platform.label} className="w-10 h-10" />
+          <img src={usedPlatform.icon} alt={usedPlatform.label} className="w-10 h-10" />
         <div className="flex items-start gap-4 py-2">
           <div className="flex-1">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-              <h3 className="font-semibold text-base text-primary">{product.title}</h3>
-              <span className="font-semibold text-primary text-lg">₦ {product.price}</span>
+              <h3 className="font-semibold text-base text-primary">{usedProduct.title}</h3>
+              <span className="font-semibold text-primary text-lg">₦ {usedProduct.price}</span>
             </div>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-1">
               <span className="text-xs text-text-secondary  py-2">
                 Login Format – <span className="text-primary font-semibold">ID | Password | 2fa key | Mail | Mail password</span>
               </span>
               <span className="text-xs text-text-secondary mt-1 sm:mt-0 ">
-                Platform - <span className="text-primary font-semibold">{platform.label}</span>
+                Platform - <span className="text-primary font-semibold">{usedPlatform.label}</span>
               </span>
             </div>
             <Button
@@ -100,7 +98,7 @@ const BuyAccountPage = () => {
                 id: Date.now() + Math.random(),
                 platform,
                 accountId: "6156861375259",
-                price: product.price,
+                price: usedProduct.price,
               }
             ]);
           }}
@@ -211,14 +209,14 @@ const BuyAccountPage = () => {
               {[...Array(6)].map((_, i) => (
                 <tr key={i} className="border-b border-border-grey">
                   <td className="py-4 px-2 sm:px-6 flex items-center gap-2">
-                    <img src={platform.icon} alt={platform.label} className="w-5 h-5 sm:w-6 sm:h-6" />
-                    <span className="font-medium text-text-primary text-xs sm:text-base">{platform.label}</span>
+                    <img src={usedPlatform.icon} alt={usedPlatform.label} className="w-5 h-5 sm:w-6 sm:h-6" />
+                    <span className="font-medium text-text-primary text-xs sm:text-base">{usedPlatform.label}</span>
                   </td>
                   <td className="py-4 px-2 sm:px-6 text-text-primary text-xs sm:text-base truncate max-w-[80px] sm:max-w-none">
                     6156861375259
                   </td>
                   <td className="py-4 px-2 sm:px-6 text-primary font-semibold text-xs sm:text-base whitespace-nowrap">
-                    ₦{product.price}
+                    ₦{usedProduct.price}
                   </td>
                   <td className="py-4 px-2 sm:px-6">
                     <button className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-lg bg-primary hover:bg-quinary transition">
@@ -238,7 +236,7 @@ const BuyAccountPage = () => {
                             id: Date.now() + Math.random(),
                             platform,
                             accountId: "6156861375259",
-                            price: product.price,
+                            price: usedProduct.price,
                           }
                         ]);
                       }}
@@ -269,8 +267,8 @@ const BuyAccountPage = () => {
              order: {
                orderId: "67e7f4b299c6d",
                accountId: "66f3f8841ad8a",
-               accountType: product.title,
-               price: product.price,
+               accountType: usedProduct.title,
+               price: usedProduct.price,
                loginId: "135716",
                loginDetails:
                  "61573765657031|29Qgz51Xfq|LNNVVMBQDLMLTLXQSMLYKASWOMXFO3SO|c_user=61573765657031;xs=16:jbYrGYx_O3LA9Q:2:1741297043:-1:-1;fr=085P1O1lLrL6Tbbhm.AWW8OJLNlnTXq27ncAbPG5o9-vevYuRYQFqrRA.BnyhWY..AAA.0.0.BnyhWY.AWX1DpwjTcc;datr=khXKZyKqn35-mSbJoQGwz0HB;|EAAAAUaZA8jlABO9afd9A8WQAp9XIMnX3HpxYlt7mchi8Y7RONEBv7SIWoZCkT78Mc8hAqs6YEt8NUwgK5DLkvTeDNOgjMV2KV2baxuMzGOij09GXzEXAJfH5PZBYokfZBJMQZBlcphZCFeTeBZB55gaDbIanxnBy50DLhBK4Lt9H1f10XOvEqEj8GXmXGxlX6IfnrqOEhOdtAZDZD|rdmbr4gxcvph@jxpomup.com|",
