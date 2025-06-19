@@ -14,8 +14,15 @@ const ProfileActions = ({onEditProfile, onLogout}) => {
                 className="flex-1 flex items-center justify-center gap-2 text-gray-600 hover:text-danger py-4"
                 onClick={onLogout}
             >
-                <img src="/icons/logout-bold.svg" alt="Logout" />
-                Logout
+                <span
+                    className="w-5 h-5 inline-block bg-gray-600"
+                    style={{
+                        WebkitMask: `url(/icons/logout.svg) center center / contain no-repeat`,
+                        mask: `url(/icons/logout.svg) center center / contain no-repeat`,
+                    }}
+                    aria-label="Logout"
+                />
+                 Logout
             </button>
         </div>
     );

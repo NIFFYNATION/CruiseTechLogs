@@ -38,7 +38,7 @@ const BuyAccountPage = () => {
       ...prev,
       {
         id: Date.now() + Math.random(),
-        platform,
+        platform: usedPlatform,
         accountId: "6156861375259",
         price: usedProduct.price,
       }
@@ -96,7 +96,7 @@ const BuyAccountPage = () => {
               ...prev,
               {
                 id: Date.now() + Math.random(),
-                platform,
+                platform: usedPlatform,
                 accountId: "6156861375259",
                 price: usedProduct.price,
               }
@@ -234,7 +234,7 @@ const BuyAccountPage = () => {
                           ...prev,
                           {
                             id: Date.now() + Math.random(),
-                            platform,
+                            platform: usedPlatform,
                             accountId: "6156861375259",
                             price: usedProduct.price,
                           }
