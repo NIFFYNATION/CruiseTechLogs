@@ -56,7 +56,6 @@ const productData = [
     platform: "facebook",
     category: "random_fb",
   },
-  // ...add more products as needed
 ];
 
 const SocialMediaAccounts = () => {
