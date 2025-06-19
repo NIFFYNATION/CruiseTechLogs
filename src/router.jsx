@@ -16,6 +16,7 @@ import Transactions from './components/dashboard/wallet/Transactions';
 import ApiPage from './components/dashboard/apiKey/ApiPage';
 import ProfileSettings from './components/dashboard/profileSettings/ProfileSettings';
 import HelpCenter from './components/dashboard/helpCenter/HelpCenter';
+import ManageOrders from './components/dashboard/manageOrders/ManageOrders';
 
 export const router = createBrowserRouter([
   {
@@ -50,6 +51,7 @@ export const router = createBrowserRouter([
           { path: 'social-media-accounts/buy', element: <BuyAccountPage /> },
           { path: 'social-media-accounts/order-confirmed', element: <OrderConfirmedPage /> },
           { path: 'wallet', element: <Wallet /> },
+          { path: 'manage-orders', element: <ManageOrders /> },
           { path: 'transactions', element: <Transactions /> },
           { path: 'api-page', element: <ApiPage /> },
           { path: 'profile-settings', element: <ProfileSettings /> },

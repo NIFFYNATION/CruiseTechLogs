@@ -170,6 +170,7 @@ const Sidebar = () => {
   const transactionsMenu = [
     { imageSrc: "/icons/wallet.svg", text: "Wallet", to: "/dashboard/wallet" },
     { imageSrc: "/icons/transactions.svg", text: "Transactions", to: "/dashboard/transactions" },
+    { imageSrc: "/icons/orders.svg", text: "Manage Orders", to: "/dashboard/manage-orders" },
     { imageSrc: "/icons/api-key.svg", text: "API Key", to: "/dashboard/api-page" },
   ];
   const userGuideMenu = [
