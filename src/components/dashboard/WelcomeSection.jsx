@@ -1,7 +1,8 @@
 import React from 'react';
 import NotificationBanner from '../common/NotificationBanner';
-import BalanceCard from './cards/BalanceCard'; // <-- Make sure this import exists and the file is present
-  // You can fetch the actual message count from your state management or API
+import BalanceCard from './cards/BalanceCard';
+import { Button } from "../common/Button";
+
   const messageCount = 2; // This should come from your actual data source
 const WelcomeSection = () => {
   return (
@@ -24,9 +25,14 @@ const WelcomeSection = () => {
               <div className="w-full">
                 <h3 className="text-text-primary text-base font-semibold mb-2">Your Total Order</h3>
                 <div className="flex items-center justify-between">
-                  <button className="px-4 py-2 bg-[#015C67] text-white text-sm rounded-full font-medium">
+                  <Button
+                    to="/dashboard/manage-orders"
+                    variant="primary"
+                    size="sm"
+                    className="px-4 py-2 bg-[#015C67] text-white text-sm rounded-full font-medium"
+                  >
                     View Orders
-                  </button>
+                  </Button>
                   <p className="text-[40px] font-bold text-[#015C67]">15</p>
                 </div>
               </div>
@@ -42,9 +48,14 @@ const WelcomeSection = () => {
                   Get phone number to receive OTP<br />
                   for short term or long term use.
                 </p>
-                <button className="mb-4 px-5 py-2.5 bg-[#015C67] text-white text-sm rounded-full font-medium">
+                <Button
+                  to="/dashboard/buy-numbers"
+                  variant="primary"
+                  size="sm"
+                  className="mb-4 px-5 py-2.5 bg-[#015C67] text-white text-sm rounded-full font-medium"
+                >
                   Buy Number Now
-                </button>
+                </Button>
               </div>
               <img 
                 src="/number-illustration.png" 
@@ -68,9 +79,14 @@ const WelcomeSection = () => {
                 
               </div>
               <div className='flex justify-between items-center p-0'>
-              <button className="px-5 py-2.5 bg-quinary hover:bg-quaternary text-white text-sm rounded-full font-medium">
+              <Button
+                to="/dashboard/social-media-accounts"
+                variant="quinary"
+                size="sm"
+                className="px-5 py-2.5 bg-quinary hover:bg-quaternary text-white text-sm rounded-full font-medium"
+              >
                   Buy Account Now
-                </button>
+                </Button>
               <img 
                 src="/icons/holding-smartphone.svg" 
                 alt="Buy Accounts Now" 
