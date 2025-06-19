@@ -1,5 +1,6 @@
 import React from 'react';
 import BalanceCard from './cards/BalanceCard'; // <-- Make sure this import exists and the file is present
+import { Button } from '../common/Button';
 
 const WelcomeSection = () => {
   return (
@@ -19,11 +20,11 @@ const WelcomeSection = () => {
           <div className="bg-background hidden md:block mt-8 sm:mt-0 rounded-[15px] border-b-primary border-b-2 p-4 shadow-[0_4px_20px_rgba(0,0,0,0.05)] flex-1">
             <div className="flex justify-between items-start">
               <div className="w-full">
-                <h3 className="text-text-primary text-base font-semibold mb-2">Your Total Order</h3>
+                <h3 className="text-text-primary text-lg font-semibold mb-2">Your Total Order</h3>
                 <div className="flex items-center justify-between">
-                  <button className="px-4 py-2 bg-[#015C67] text-white text-sm rounded-full font-medium">
-                    View Orders
-                  </button>
+                 <Button variant="primary" size="sm" className="w-fit">
+                  View All Orders
+                 </Button>
                   <p className="text-[40px] font-bold text-[#015C67]">15</p>
                 </div>
               </div>
@@ -33,15 +34,15 @@ const WelcomeSection = () => {
           {/* Get Number Card */}
           <div className="bg-background mt-8 md:mt-0 rounded-[15px] border-b-primary border-b-2 px-6 pt-6 shadow-[0_4px_20px_rgba(0,0,0,0.05)] flex-1">
             <div className="flex items-end justify-between mt-auto">
-              <div className="">
+              <div className="py-4">
                 <h3 className="text-text-primary text-lg font-semibold mb-2">Get Number</h3>
-                <p className="text-text-secondary text-[11px] mb-4">
-                  Get phone number to receive OTP<br />
+                <p className="text-text-secondary text-xs mb-4">
+                  Get phone number to receive OTP
                   for short term or long term use.
                 </p>
-                <button className="mb-4 px-5 py-2.5 bg-[#015C67] text-white text-sm rounded-full font-medium">
+                <Button variant="primary" size="sm" className="w-fit">
                   Buy Number Now
-                </button>
+                 </Button>
               </div>
               <img 
                 src="/number-illustration.png" 
@@ -57,17 +58,17 @@ const WelcomeSection = () => {
               backgroundSize: '600px 500px'
             }}>
             <div className=" items-end justify-between mt-auto">
-              <div className="">
+              <div className="px-2">
                 <h3 className="text-text-primary text-lg font-semibold mb-2">Buy Social Media Accounts</h3>
-                <p className="text-text-secondary text-xs">
+                <p className="text-text-secondary text-sm">
                 Get long-lasting social media accounts from nearly every major platform—secure and ready for use.
                 </p>
                 
               </div>
               <div className='flex justify-between items-center p-0'>
-              <button className="px-5 py-2.5 bg-quinary hover:bg-quaternary text-white text-sm rounded-full font-medium">
+              <Button variant="orange" size="sm" className="w-fit">
                   Buy Account Now
-                </button>
+                 </Button>
               <img 
                 src="/icons/holding-smartphone.svg" 
                 alt="Buy Accounts Now" 
