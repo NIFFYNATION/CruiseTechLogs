@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { API_URLS } from '../utils/apiUrls';
+import { logoutUser } from '../controllers/userController'; // Import logoutUser
 
 // Example cookies utility for token management
 const cookies = {
@@ -49,12 +50,15 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     console.error('API Error:', error);
-    // cookies.clearAuth();
     if (error.response) {
-      switch (error.response.status) {
-        case 401:
-          cookies.clearAuth();
-          break;
+      const status = error.response.status;
+      const message = error.response.data?.message || 'An error occurred Try again later';
+      // --- LOGOUT ON 401 ---
+      if (status === 401) {
+        // Call logoutUser (which also clears localStorage and all cookies)
+        logoutUser();
+      }
+      switch (status) {
         case 403:
           // Handle forbidden access
           break;
@@ -67,8 +71,6 @@ axiosInstance.interceptors.response.use(
         default:
           break;
       }
-      const status = error.response.status;
-      const message = error.response.data?.message || 'An error occurred Try again later';
       console.error(`API Error [${status}]: ${message}`);
       return Promise.reject({ status, message });
     }
