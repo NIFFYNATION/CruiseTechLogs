@@ -4,6 +4,7 @@ import ProductCard from "./ProductCard";
 const ProductSection = ({
   title,
   products,
+  loading,
   onBuy,
   onStockClick,
   viewAllLabel,
@@ -27,21 +28,23 @@ const ProductSection = ({
     </div>
     <div className="mb-4" />
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-      {products.map((product, i) => (
-        <ProductCard
-          key={i}
-          title={product.title}
-          stock={product.stock}
-          price={product.amount}
-          onBuy={() => onBuy(product)}
-          onStockClick={onStockClick}
-          platform={platform}
-          onGetTotalStock={onGetTotalStock}
-          accountID={product.ID}
-          category={product.category || undefined}
-          productRaw={product}
-        />
-      ))}
+      {loading
+        ? Array.from({ length: 3 }).map((_, i) => <ProductCard key={i} loading={true} />)
+        : products.map((product, i) => (
+            <ProductCard
+              key={i}
+              title={product.title}
+              stock={product.stock}
+              price={product.amount}
+              onBuy={() => onBuy(product)}
+              onStockClick={onStockClick}
+              platform={platform}
+              onGetTotalStock={onGetTotalStock}
+              accountID={product.ID}
+              category={product.category || undefined}
+              productRaw={product}
+            />
+          ))}
     </div>
     {mobileViewMoreLabel && (
       <div className='flex md:hidden justify-center items-center mt-6 mb-6'>

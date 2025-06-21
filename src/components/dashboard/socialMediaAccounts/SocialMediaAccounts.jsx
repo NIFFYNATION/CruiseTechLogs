@@ -101,7 +101,7 @@ const SocialMediaAccounts = () => {
               });
             }}
             onStockClick={() => {}}
-            mobileViewMoreLabel={`View More ${selectedPlatform.name}`}
+            mobileViewMoreLabel={``}
             platform={selectedPlatform}
             onGetTotalStock={handleGetTotalStock}
           />
