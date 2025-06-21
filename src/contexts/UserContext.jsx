@@ -8,8 +8,11 @@ export const UserProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
+    // Always fetch from API on mount/reload
     fetchUserProfile()
       .then(data => {
+        if (cancelled) return;
         setUser({
           name: (data?.first_name && data?.last_name)
             ? `${data.first_name} ${data.last_name}`
@@ -24,6 +27,7 @@ export const UserProvider = ({ children }) => {
         });
       })
       .catch(() => {
+        if (cancelled) return;
         setUser({
           name: 'User',
           email: '',
@@ -32,11 +36,16 @@ export const UserProvider = ({ children }) => {
           percentage: 0,
         });
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => { cancelled = true; };
   }, []);
 
   // Only render children after loading is false (prevents null context)
-  if (loading) return null;
+  // --- FIX: Don't block rendering on login page ---
+  // Instead, always render children, and let consumers handle loading state.
+  // Remove: if (loading) return null;
 
   return (
     <UserContext.Provider value={{ user, setUser, loading }}>

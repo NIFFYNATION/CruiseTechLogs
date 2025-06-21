@@ -1,13 +1,10 @@
 import React from 'react';
-import NotificationBanner from '../common/NotificationBanner';
-import BalanceCard from './cards/BalanceCard';
-import { Button } from "../common/Button";
-
-  const messageCount = 2; // This should come from your actual data source
+import BalanceCard from './cards/BalanceCard'; // <-- Make sure this import exists and the file is present
+import { useNavigate } from "react-router-dom";
 const WelcomeSection = () => {
+  const navigate = useNavigate();
   return (
     <div className="mb-8 mt-8">
-      <NotificationBanner messageCount={messageCount} />
       {/* Welcome Text */}
       <h1 className="text-2xl font-semibold text-text-primary mb-6">Welcome back!</h1>
 
@@ -19,20 +16,15 @@ const WelcomeSection = () => {
         </div>
         {/* Right Column Cards - Flex on tablet, stack on mobile and desktop */}
         <div className="flex flex-col md:flex-row lg:flex-col gap-4 md:gap-6 mt-0 sm:mt-6 md:mt-8 lg:mt-0">
-          {/* Order Card */}
+          {/* Order Card */}  
           <div className="bg-background hidden md:block mt-8 sm:mt-0 rounded-[15px] border-b-primary border-b-2 p-4 shadow-[0_4px_20px_rgba(0,0,0,0.05)] flex-1">
             <div className="flex justify-between items-start">
               <div className="w-full">
                 <h3 className="text-text-primary text-base font-semibold mb-2">Your Total Order</h3>
                 <div className="flex items-center justify-between">
-                  <Button
-                    to="/dashboard/manage-orders"
-                    variant="primary"
-                    size="sm"
-                    className="px-4 py-2 bg-[#015C67] text-white text-sm rounded-full font-medium"
-                  >
+                  <button className="px-4 py-2 bg-[#015C67] text-white text-sm rounded-full font-medium">
                     View Orders
-                  </Button>
+                  </button>
                   <p className="text-[40px] font-bold text-[#015C67]">15</p>
                 </div>
               </div>
@@ -48,14 +40,11 @@ const WelcomeSection = () => {
                   Get phone number to receive OTP<br />
                   for short term or long term use.
                 </p>
-                <Button
-                  to="/dashboard/buy-numbers"
-                  variant="primary"
-                  size="sm"
-                  className="mb-4 px-5 py-2.5 bg-[#015C67] text-white text-sm rounded-full font-medium"
-                >
+                <button 
+                 onClick={() => navigate("/dashboard/buy-numbers")}
+                className="mb-4 px-5 py-2.5 bg-[#015C67] text-white text-sm rounded-full font-medium">
                   Buy Number Now
-                </Button>
+                </button>
               </div>
               <img 
                 src="/number-illustration.png" 
@@ -79,14 +68,11 @@ const WelcomeSection = () => {
                 
               </div>
               <div className='flex justify-between items-center p-0'>
-              <Button
-                to="/dashboard/social-media-accounts"
-                variant="quinary"
-                size="sm"
-                className="px-5 py-2.5 bg-quinary hover:bg-quaternary text-white text-sm rounded-full font-medium"
-              >
+              <button 
+               onClick={() => navigate("/dashboard/accounts")}
+              className="px-5 py-2.5 bg-quinary hover:bg-quaternary text-white text-sm rounded-full font-medium">
                   Buy Account Now
-                </Button>
+                </button>
               <img 
                 src="/icons/holding-smartphone.svg" 
                 alt="Buy Accounts Now" 

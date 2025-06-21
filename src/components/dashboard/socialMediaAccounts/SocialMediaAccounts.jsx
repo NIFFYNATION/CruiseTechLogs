@@ -1,95 +1,74 @@
-import React, { useState } from "react";
-import ProductCard from "../ProductCard";
+import React, { useState, useEffect } from "react";
 import ProductSection from "../ProductSection";
-import SelectionModal from "./SelectionModal";
-import { FiChevronDown } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
-
-const platforms = [
-  { label: "Facebook", value: "facebook", icon: "/icons/facebook.svg" },
-  { label: "Instagram", value: "instagram", icon: "/icons/instagram.svg" },
-  { label: "TikTok", value: "tiktok", icon: "/icons/tiktok.svg" },
-  { label: "Twitter", value: "twitter", icon: "/icons/twitter.svg" },
-  { label: "Google", value: "google", icon: "/icons/google.svg" },
-  { label: "VPN", value: "vpn", icon: "/icons/nordvpn.svg" },
-  { label: "Texting Apps", value: "texting", icon: "/icons/textplus.svg" },
-  // Add more as needed
-];
-
-const categories = [
-  { label: "RANDOM COUNTRIES FB", value: "random_fb" },
-  { label: "USA FACEBOOK", value: "usa_fb" },
-  { label: "EUROPE FACEBOOK", value: "europe_fb" },
-  { label: "ASIA COUNTRIES", value: "asia" },
-  { label: "OTHER COUNTRIES FB", value: "other_fb" },
-  { label: "COUNTRIES FB (0-50 FRIENDS)", value: "fb_0_50" },
-  { label: "FACEBOOK DATING", value: "fb_dating" },
-  // Add more as needed
-];
-
-const productData = [
-  {
-    title: "Random FB|100–300friends (3 months +)",
-    stock: 324,
-    price: "1,200",
-    platform: "facebook",
-    category: "random_fb",
-  },
-  {
-    title: "Random FB|100–300friends (3 months +)",
-    stock: 324,
-    price: "1,200",
-    platform: "facebook",
-    category: "random_fb",
-  },
-  {
-    title: "Random FB|100–300friends (3 months +)",
-    stock: 324,
-    price: "1,200",
-    platform: "facebook",
-    category: "random_fb",
-  },
-  {
-    title: "Random FB|100–300friends (3 months +)",
-    stock: 324,
-    price: "1,200",
-    platform: "facebook",
-    category: "random_fb",
-  },
-];
+import { fetchPlatforms, fetchCategories, fetchAccounts, fetchTotalInStock } from "../../../services/socialAccountService";
+import PlatformSelect from "./PlatformSelect";
+import CategorySelect from "./CategorySelect";
+import SectionHeader from "../../common/SectionHeader";
 
 const SocialMediaAccounts = () => {
+  const [platforms, setPlatforms] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [selectedPlatform, setSelectedPlatform] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [platformModalOpen, setPlatformModalOpen] = useState(false);
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
+  const [accounts, setAccounts] = useState([]);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Filter logic (DRY)
-  const filteredProducts = productData.filter(
-    (p) =>
-      (!selectedPlatform || p.platform === selectedPlatform.value) &&
-      (!selectedCategory || p.category === selectedCategory.value)
-  );
+  // Fetch platforms and categories on mount
+  useEffect(() => {
+    fetchPlatforms().then(setPlatforms);
+    fetchCategories().then(setCategories);
+    setCategoryModalOpen(true);
+  }, []);
 
-  // Group products by platform
-  const platformsToShow = selectedPlatform
-    ? platforms.filter((p) => p.value === selectedPlatform.value)
-    : platforms;
+  // Fetch accounts when category or platform changes
+  useEffect(() => {
+    if (selectedCategory) {
+      setLoading(true);
+      // If platform is selected, pass both; else only category
+      fetchAccounts({
+        page: 1,
+        category: selectedCategory.ID,
+        platform: selectedPlatform ? selectedPlatform.ID : undefined,
+      })
+        .then((data) => setAccounts(data))
+        .finally(() => setLoading(false));
+    } else {
+      setAccounts([]);
+    }
+  }, [selectedPlatform, selectedCategory]);
+
+  // Handler to fetch total in stock for an accountID
+  const handleGetTotalStock = async (accountID) => {
+    return await fetchTotalInStock(accountID);
+  };
 
   return (
     <div className="bg-background px-4 sm:px-6 lg:px-8 py-4 sm:py-6 rounded-lg min-h-screen">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-        <h2 className="text-xl md:text-2xl font-semibold">Social Media Accounts</h2>
-        <button className="bg-quinary hover:bg-quaternary text-white font-medium px-6 py-2 rounded-full text-sm transition">
-          View Orders
-        </button>
-      </div>
+      <SectionHeader
+        title="Social Media Accounts"
+        buttonText="View Orders"
+        onButtonClick={() => navigate("/dashboard/manage-orders")}
+      />
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
         <button
+          className="flex-1 border border-border-grey rounded-sm px-4 py-3 text-sm md:text-base font-semibold flex items-center justify-between gap-2 text-left"
+          onClick={() => setCategoryModalOpen(true)}
+        >
+          <span>
+            {selectedCategory
+              ? selectedCategory.name
+              : "Choose Category"}
+          </span>
+          <img src="/icons/arrow-down.svg" alt="Arrow down" className="w-5 h-5"/>
+        </button>
+
+         <button
           className="flex-1 border border-border-grey rounded-sm px-4 py-3 text-sm md:text-base font-semibold flex items-center justify-between gap-2"
           onClick={() => setPlatformModalOpen(true)}
         >
@@ -97,70 +76,100 @@ const SocialMediaAccounts = () => {
             {selectedPlatform
               ? <>
                   <img src={selectedPlatform.icon} alt="" className="w-5 h-5" />
-                  {selectedPlatform.label}
+                  {selectedPlatform.name}
                 </>
               : "Choose Platform"}
           </span>
           <img src="/icons/arrow-down.svg" alt="Arrow down" className="w-5 h-5" />
-            </button>
-        <button
-          className="flex-1 border border-border-grey rounded-sm px-4 py-3 text-sm md:text-base font-semibold flex items-center justify-between gap-2 text-left"
-          onClick={() => setCategoryModalOpen(true)}
-        >
-          <span>
-            {selectedCategory
-              ? selectedCategory.label
-              : "Choose Category"}
-          </span>
-          <img src="/icons/arrow-down.svg" alt="Arrow down" className="w-5 h-5"/>
         </button>
       </div>
 
-      {/* Product Sections for each platform */}
-      {platformsToShow.map((platform) => {
-        const productsForPlatform = filteredProducts.filter(
-          (p) => p.platform === platform.value
-        );
-        if (productsForPlatform.length === 0) return null;
-        return (
-          <div key={platform.value} className="mb-8">
-            <h3 className="text-base font-semibold text-text-primary mt-8">
-              Random Countries {platform.label}
-            </h3>
-            <ProductSection
-              products={productsForPlatform}
-              onBuy={(product) => {
-                navigate('/dashboard/social-media-accounts/buy', {
-                  state: {
-                    product,
-                  },
-                });
-              }}
-              onStockClick={() => {}}
-              mobileViewMoreLabel={`View More ${platform.label}`}
-            />
-          </div>
-        );
-      })}
+      {/* Product Section */}
+      {selectedPlatform && selectedCategory && (
+        <div className="mb-8">
+          <h3 className="text-base font-semibold text-text-primary mt-8">
+            {selectedPlatform.name} - {selectedCategory.name}
+          </h3>
+          <ProductSection
+            products={accounts}
+            loading={loading}
+            onBuy={(product) => {
+              navigate('/dashboard/accounts/buy', {
+                state: {
+                  product,
+                },
+              });
+            }}
+            onStockClick={() => {}}
+            mobileViewMoreLabel={`View More ${selectedPlatform.name}`}
+            platform={selectedPlatform}
+            onGetTotalStock={handleGetTotalStock}
+          />
+          {/* If no accounts found, show a helpful message */}
+          {!loading && accounts.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-12">
+              <img src="/icons/empty-box.svg" alt="No Accounts" className="w-16 h-16 mb-4" />
+              <h4 className="text-lg font-semibold text-text-secondary mb-2">No accounts found for your selection.</h4>
+              <p className="text-sm text-text-grey mb-4 text-center">
+                Please choose a different <span className="font-semibold text-quinary">category</span> and <span className="font-semibold text-quinary">platform</span> to see available accounts.
+              </p>
+              <div className="flex gap-2">
+                <button
+                  className="bg-quinary hover:bg-quaternary text-white font-medium px-4 py-2 rounded-full text-sm transition"
+                  onClick={() => setCategoryModalOpen(true)}
+                >
+                  Choose Category
+                </button>
+                <button
+                  className="bg-quinary hover:bg-quaternary text-white font-medium px-4 py-2 rounded-full text-sm transition"
+                  onClick={() => setPlatformModalOpen(true)}
+                >
+                  Choose Platform
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* If nothing is selected, show a prompt to choose category/platform */}
+      {!selectedPlatform || !selectedCategory ? (
+        <div className="flex flex-col items-center justify-center py-16">
+          <img src="/icons/filter.svg" alt="Choose Filters" className="w-16 h-16 mb-4" />
+          <h4 className="text-lg font-semibold text-text-secondary mb-2">Start by choosing a category</h4>
+          <p className="text-sm text-text-grey mb-4 text-center">
+            Please select a <span className="font-semibold text-quinary">category</span> and <span className="font-semibold text-quinary">platform</span> to view available accounts.
+          </p>
+          <button
+            className="bg-quinary hover:bg-quaternary text-white font-medium px-4 py-2 rounded-full text-sm transition"
+            onClick={() => setCategoryModalOpen(true)}
+          >
+            Choose Category
+          </button>
+        </div>
+      ) : null}
 
       {/* Platform Modal */}
-      <SelectionModal
+      <PlatformSelect
         open={platformModalOpen}
         onClose={() => setPlatformModalOpen(false)}
-        onSelect={setSelectedPlatform}
-        title="Choose Social Media Platform"
-        options={platforms}
-        showIcon={true}
+        platforms={platforms}
+        onSelect={(platform) => {
+          setSelectedPlatform(platform);
+          setPlatformModalOpen(false);
+        }}
       />
 
       {/* Category Modal */}
-      <SelectionModal
+      <CategorySelect
         open={categoryModalOpen}
         onClose={() => setCategoryModalOpen(false)}
-        onSelect={setSelectedCategory}
-        title="Choose Category"
-        options={categories}
-        showIcon={false}
+        categories={categories}
+        onSelect={(category) => {
+          setSelectedCategory(category);
+          setCategoryModalOpen(false);
+          setPlatformModalOpen(true);
+        }}
       />
     </div>
   );

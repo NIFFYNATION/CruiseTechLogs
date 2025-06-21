@@ -10,5 +10,9 @@ export const API_URLS = {
   BOOKNUMBER: `${API_BASE_URL}/rentals/new`,
   GET_NUMBERS: `${API_BASE_URL}/rentals/get`,
   GET_NUMBER_CODE: `${API_BASE_URL}/rentals/getcode`,
+  BUY_ACCOUNT: `${API_BASE_URL}/account/buy`,
+  ORDERS: `${API_BASE_URL}/account/orders`,
+  ORDER_DETAILS: `${API_BASE_URL}/account/order`,
+  LOGIN_DETAILS: `${API_BASE_URL}/account/fetch/logins`,
   // Add other endpoints as needed
 };

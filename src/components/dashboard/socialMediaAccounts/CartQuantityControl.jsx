@@ -2,7 +2,7 @@ import React from "react";
 import { Button } from "../../common/Button";
 
 const CartQuantityControl = ({
-  quantity,
+  quantity = 1,
   onIncrement,
   onDecrement,
   onClearCart,
@@ -10,11 +10,13 @@ const CartQuantityControl = ({
   showAvailable = true,
   className = "gap-10   lg:gap-32",
 }) => (
-  <div className={`flex items-center gap-4 ${className}`}>
+  <div className={`lg:flex lg:items-center gap-4 ${className}`}>
     <div className="flex items-center w-40 h-11 border border-primary rounded-lg overflow-hidden ">
       <button
         className="flex-1 h-full flex items-center justify-center text-xl text-primary hover:bg-primary/10 transition"
-        onClick={onDecrement}
+        onClick={() => {
+          if (quantity > 0 && onDecrement) onDecrement();
+        }}
         aria-label="Decrease"
         type="button"
         style={{ borderRight: '1.5px solid #0B4B5A' }}
@@ -22,37 +24,34 @@ const CartQuantityControl = ({
       >
         –
       </button>
-      <div
-        className="flex-1 h-full flex items-center justify-center text-2xl text-primary font-semibold"
-        style={{ borderRight: '1.5px solid #0B4B5A' }}
-      >
-        {quantity}
-      </div>
+      <input
+        type="number"
+        min={0}
+        max={available}
+        value={quantity}
+        // onChange={() => {}}
+        className="flex-1 h-full text-center text-2xl text-primary font-semibold bg-transparent outline-none border-none"
+        style={{ width: 50, borderRight: '1.5px solid #0B4B5A' }}
+        
+      />
       <button
         className="flex-1 h-full flex items-center justify-center text-2xl text-primary hover:bg-primary/10 transition"
-        onClick={onIncrement}
+        onClick={() => {
+          if (quantity < available && onIncrement) onIncrement();
+        }}
         aria-label="Increase"
         type="button"
+        disabled={quantity >= available}
       >
         +
       </button>
     </div>
     {showAvailable && (
-      <span className="text-quinary font-semibold text-xs md:text-base hidden sm:block">
+      <span className="text-quinary font-semibold text-xs md:text-base">
         {available} Accounts Available
       </span>
     )}
-    {quantity > 0 && (
-      <Button
-        variant="orange"
-        size="sm"
-        className="ml-auto flex items-center gap-2"
-        onClick={onClearCart}
-      >
-        <img src="/icons/trash.svg" alt="Clear Cart" className="w-4 h-4" />
-        Clear Cart
-      </Button>
-    )}
+    
   </div>
 );
 

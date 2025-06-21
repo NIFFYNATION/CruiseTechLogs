@@ -50,7 +50,15 @@ const Signup = () => {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Left Section */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center bg-background py-8 px-4 sm:px-6 lg:px-8 h-screen md:h-auto">
+      <div className="w-full lg:w-1/2 flex flex-col items-center justify-center bg-gradient-to-r from-red-500/2 to-orange-500/5 py-8 px-4 sm:px-6 lg:px-8 h-screen md:h-auto">
+          <div className="flex justify-center mb-6">
+            <img
+              src="/images/CruiseTech-2.svg"
+              alt="CruiseTech Logo"
+              className="h-12"
+              style={{ maxWidth: 160 }}
+            />
+          </div>
         <FormSection
           title="Create Your Account"
           subtitle="Join us and start your journey today!"
@@ -58,52 +66,57 @@ const Signup = () => {
           {/* Signup Form */}
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
             <InputField
+            className="bg-transparent"
               id="name"
               name="name"
               type="text"
               placeholder="Full Name"
               value={formData.name}
               onChange={handleChange}
-              icon={<MdPerson className="h-5 w-5 text-text-secondary" />}
+              icon={<MdPerson className="h-5 w-5 text-text-secondary/10" />}
             />
             <InputField
+            className="bg-transparent"
               id="email"
               name="email"
               type="email"
               placeholder="Email Address"
               value={formData.email}
               onChange={handleChange}
-              icon={<MdEmail className="h-5 w-5 text-text-secondary" />}
+              icon={<MdEmail className="h-5 w-5 text-text-secondary/10" />}
             />
             <InputField
+            className="bg-transparent"
               id="phoneNumber"
               name="phoneNumber"
               type="text"
               placeholder="Phone Number"
               value={formData.phoneNumber}
               onChange={handleChange}
-              icon={<MdPerson className="h-5 w-5 text-text-secondary" />}
+              icon={<MdPerson className="h-5 w-5 text-text-secondary/10" />}
             />
             <InputField
+            className="bg-transparent"
               id="password"
               name="password"
               type="password"
               placeholder="Password"
               value={formData.password}
               onChange={handleChange}
-              icon={<RiLockPasswordLine className="h-5 w-5 text-text-secondary" />}
+              icon={<RiLockPasswordLine className="h-5 w-5 text-text-secondary/10" />}
               showToggle
               onToggle={() => setShowPassword(!showPassword)}
               isToggled={showPassword}
             />
             <InputField
+            className="bg-transparent"
               id="confirmPassword"
               name="confirmPassword"
               type="password"
               placeholder="Confirm Password"
               value={formData.confirmPassword}
               onChange={handleChange}
-              icon={<RiLockPasswordLine className="h-5 w-5 text-text-secondary" />}
+              icon={<RiLockPasswordLine className="h-5 w-5 text-text-secondary/10" />}
               showToggle
               onToggle={() => setShowConfirmPassword(!showConfirmPassword)}
               isToggled={showConfirmPassword}
@@ -112,7 +125,7 @@ const Signup = () => {
             {successMessage && <p className="text-green-500 text-sm">{successMessage}</p>} {/* Display success */}
             <button
               type="submit"
-              className="w-full bg-primary text-background py-2 rounded-md hover:bg-primary-light transition-colors"
+              className="w-full bg-[#FF6B00] text-background py-2 rounded-md hover:bg-primary-light transition-colors"
               disabled={isLoading} // Disable button while loading
             >
               {isLoading ? 'Submitting...' : 'Sign Up'} {/* Show loading text */}

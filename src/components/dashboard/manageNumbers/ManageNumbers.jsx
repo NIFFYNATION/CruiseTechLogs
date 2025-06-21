@@ -3,8 +3,10 @@ import { FaSearch, FaTrash } from "react-icons/fa";
 import { AiFillEye } from 'react-icons/ai'
 import NumberDetailsModal from './NumberDetailsModal';
 import { fetchNumbers } from "../../../services/numberService";
+import { useParams, useNavigate } from "react-router-dom";
+import SectionHeader from "../../common/SectionHeader";
 
-const ManageNumbers = () => {
+const ManageNumbers = ({ orderId }) => {
   const [activeTab, setActiveTab] = useState("Active");
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
@@ -22,6 +24,12 @@ const ManageNumbers = () => {
 
   const activeListRef = useRef(null);
   const inactiveListRef = useRef(null);
+
+  // For routing param support
+  const params = useParams ? useParams() : {};
+  const navigate = useNavigate();
+  // Prefer prop, fallback to params
+  const orderIdParam = orderId || params.orderId;
 
   // Dummy verification code for demo
   const verificationCode = "1234";
@@ -53,6 +61,19 @@ const ManageNumbers = () => {
     }
     // eslint-disable-next-line
   }, []);
+
+  // --- Auto-open modal if orderId param is present ---
+  useEffect(() => {
+    if (!orderIdParam) return;
+    // Search both active and inactive numbers for the orderId
+    const allNumbers = [...activeNumbers, ...inactiveNumbers];
+    const found = allNumbers.find(n => n.ID === orderIdParam);
+    if (found) {
+      setSelectedNumber(found);
+      setModalOpen(true);
+    }
+    // If not found and numbers are loaded, you may want to show a toast or redirect
+  }, [orderIdParam, activeNumbers, inactiveNumbers]);
 
   // Infinite scroll handler for active
   const handleActiveScroll = useCallback(() => {
@@ -166,21 +187,28 @@ const ManageNumbers = () => {
   const handleView = (numberObj) => {
     setSelectedNumber(numberObj);
     setModalOpen(true);
+    // If orderId is in URL, remove it for clean navigation after manual open
+    if (orderIdParam) {
+      navigate("/dashboard/manage-numbers", { replace: true });
+    }
   };
 
   // Handler for when a number is closed
   const handleNumberClosed = (orderId) => {
     setActiveNumbers((prev) => prev.filter((n) => n.ID !== orderId));
-    // Optionally, you can add to inactiveNumbers or refetch inactiveNumbers
     setInactiveNumbers((prev) => [
       ...prev,
       ...(activeNumbers.filter((n) => n.ID === orderId).map((n) => ({
         ...n,
-        status: 0, // Mark as inactive/closed
+        status: 0,
         date: new Date().toISOString().slice(0, 19).replace("T", " "),
       })))],
     );
     setModalOpen(false);
+    // After closing, remove orderId from URL if present
+    if (orderIdParam) {
+      navigate("/dashboard/manage-numbers", { replace: true });
+    }
   };
 
   // Handler for reload, copy, etc.
@@ -214,15 +242,13 @@ const ManageNumbers = () => {
   return (
     <div className="">
       {/* Unified Responsive Table */}
-      <div className="mt-4">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4 px-2 md:px-0">
-          <h2 className="text-xl md:text-2xl font-semibold text-text-primary mt-2 md:mt-0">Manage Numbers</h2>
-          <div className="flex items-center gap-4">
-              <button className="bg-quinary hover:bg-[#ff8c1a] text-white font-semibold rounded-full px-6 py-2 flex items-center gap-2 transition-colors">
-                + Buy Number
-              </button>
-          </div>
-        </div>
+      <div className="mt-4 sm:mt-6">
+        <SectionHeader
+          title="Manage Numbers"
+          buttonText="+ Buy Number"
+          onButtonClick={() => navigate('/dashboard/buy-numbers')}
+        />
+
         {/* Tabs and Search */}
         <div className="flex flex-col md:flex-row md:justify-between gap-4 border-b border-[#ECECEC] mb-6 md:mb-10 px-2 md:px-0">
           <div className="flex gap-8">
@@ -237,19 +263,19 @@ const ManageNumbers = () => {
                 onClick={() => setActiveTab(tab)}
               >
                 {tab}
-        </button>
+              </button>
             ))}
           </div>
           <div className="flex bg-background rounded-lg border-none px-3 py-2 mb-2 md:mb-0 items-center max-w-xs">
-          <FaSearch className="text-text-grey mr-2" />
-          <input
-            type="text"
-            placeholder="Search numbers or service type"
-            className="outline-none bg-transparent text-sm text-text-secondary w-full"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
+            <FaSearch className="text-text-grey mr-2" />
+            <input
+              type="text"
+              placeholder="Search numbers or service type"
+              className="outline-none bg-transparent text-sm text-text-secondary w-full"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
         </div>
         {/* Responsive Table */}
         <div
@@ -265,12 +291,12 @@ const ManageNumbers = () => {
             <table className="w-full thin-scrollbar">
               <thead className="sticky top-0 z-10 bg-background">
                 <tr className="text-left text-xs md:text-sm">
-                <th className="py-2 px-2">Number</th>
-                <th className="py-2 px-2">Expiration</th>
-                <th className="py-2 px-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
+                  <th className="py-2 px-2">Number</th>
+                  <th className="py-2 px-2">Expiration</th>
+                  <th className="py-2 px-2">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
                 {activeLoading ? (
                   <tr>
                     <td colSpan={3} className="text-center text-grey py-8">
@@ -317,29 +343,29 @@ const ManageNumbers = () => {
                       <td className="py-3 px-2 font-semibold">
                         <span className={isLessThanOneHour(n.expiration) ? "text-danger" : "text-success"}>
                           {formatExpiration(n.expiration)}
-                      </span>
-                  </td>
-                  <td className="py-3 px-2">
+                        </span>
+                      </td>
+                      <td className="py-3 px-2">
                         <button
                           className="bg-quaternary-light text-quinary font-semibold rounded-full px-2 py-1 flex items-center gap-1 text-sm"
                           onClick={() => handleView(n)}
                         >
                           View <span className="text-xs"><AiFillEye className="text-quinary" /></span>
-                    </button>
-                  </td>
-                </tr>
+                        </button>
+                      </td>
+                    </tr>
                   ))
-              )}
-            </tbody>
-          </table>
+                )}
+              </tbody>
+            </table>
             {activeLoadingMore && (
               <div className="flex justify-center items-center py-4">
                 <svg className="animate-spin h-6 w-6 text-quinary" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                 </svg>
                 <span className="ml-2 text-quinary font-semibold">Loading more...</span>
-        </div>
+              </div>
             )}
           </div>
           {/* Inactive Table */}
@@ -347,15 +373,15 @@ const ManageNumbers = () => {
             ref={inactiveListRef}
             style={{ display: activeTab === "Inactive" ? "block" : "none", maxHeight: "70vh", overflowY: "auto" }}
           >
-          <table className="w-full">
+            <table className="w-full">
               <thead className="sticky top-0 z-10 bg-background">
                 <tr className="text-left text-xs md:text-sm">
-                <th className="py-2 px-2">Number</th>
+                  <th className="py-2 px-2">Number</th>
                   <th className="py-2 px-2">Date</th>
-                <th className="py-2 px-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
+                  <th className="py-2 px-2">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
                 {inactiveLoading ? (
                   <tr>
                     <td colSpan={3} className="text-center text-grey py-8">
@@ -389,29 +415,29 @@ const ManageNumbers = () => {
                             : n.serviceName}
                         </div>
                       </td>
-                      <td className="py-3 px-2 font-semibold">
-                        <span className="bg-red-100 text-danger font-semibold rounded-full px-2 py-1 text-xs">
+                      <td className="font-semibold">
+                        <span className="font-semibold rounded-full text-xs">
                           {n.date}
                         </span>
-                  </td>
-                  <td className="py-3 px-2">
+                      </td>
+                      <td className="py-3 px-2">
                         <button
                           className="bg-quaternary-light text-quinary font-semibold rounded-full px-2 py-1 flex items-center gap-1 text-sm"
                           onClick={() => handleView(n)}
                         >
-                        View <span className="text-xs"><AiFillEye className="text-quinary" /></span>
-                      </button>
-                  </td>
-                </tr>
+                          View <span className="text-xs"><AiFillEye className="text-quinary" /></span>
+                        </button>
+                      </td>
+                    </tr>
                   ))
-              )}
-            </tbody>
-          </table>
+                )}
+              </tbody>
+            </table>
             {inactiveLoadingMore && (
               <div className="flex justify-center items-center py-4">
                 <svg className="animate-spin h-6 w-6 text-quinary" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                 </svg>
                 <span className="ml-2 text-quinary font-semibold">Loading more...</span>
               </div>
@@ -422,12 +448,18 @@ const ManageNumbers = () => {
       {/* Modal */}
       <NumberDetailsModal
         open={modalOpen}
-        onClose={() => setModalOpen(false)}
+        onClose={() => {
+          setModalOpen(false);
+          // Remove orderId from URL if present
+          if (orderIdParam) {
+            navigate("/dashboard/manage-numbers", { replace: true });
+          }
+        }}
         number={selectedNumber?.number}
         expiration={selectedNumber?.expiration}
         status={
           selectedNumber
-            ? selectedNumber.expiration > 0
+            ? selectedNumber.status == 1
               ? "active"
               : "expired"
             : "expired"
@@ -437,7 +469,7 @@ const ManageNumbers = () => {
         onCopyNumber={handleCopyNumber}
         onCopyCode={handleCopyCode}
         orderId={selectedNumber?.ID}
-        date={selectedNumber?.date}
+        date={(selectedNumber?.create_timestamp != null || "") ? selectedNumber.create_timestamp : selectedNumber?.date}
         expire_date={selectedNumber?.expire_date}
         onNumberClosed={handleNumberClosed}
       />
