@@ -57,28 +57,40 @@ const Login = () => {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Left Section */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center bg-background py-8 px-4 sm:px-6 lg:px-8 h-screen md:h-auto">
+      
+      <div className="w-full lg:w-1/2 flex flex-col items-center justify-center bg-gradient-to-r from-red-500/2 to-orange-500/5 py-8 px-4 sm:px-6 lg:px-8 h-screen md:h-auto">
+        <div className="flex justify-center mb-6">
+            <img
+              src="/images/CruiseTech-2.svg"
+              alt="CruiseTech Logo"
+              className="h-12"
+              style={{ maxWidth: 160 }}
+            />
+          </div>
         <FormSection
           title="Log in to your Account"
-          subtitle="Welcome back! Select method to log in:"
+          subtitle="Welcome back!"
         >
+          {/* Website Logo */}
+          
+
           {/* Social Login Buttons */}
-          <SocialButtons
+          {/* <SocialButtons
             buttons={[
               { icon: <FcGoogle className="h-5 w-5" />, label: 'Google' },
               { icon: <FaFacebook className="h-5 w-5 text-blue-600" />, label: 'Facebook' },
             ]}
-          />
+          /> */}
 
           {/* Divider */}
-          <div className="relative">
+          {/* <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-secondary"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-background text-text-secondary">or continue with email</span>
+              <span className="px-2 text-text-secondary">or continue with email</span>
             </div>
-          </div>
+          </div> */}
 
           {/* Login Form */}
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
@@ -87,9 +99,10 @@ const Login = () => {
               name="email"
               type="email"
               placeholder="Email Address"
+              className="bg-transparent"
               value={formData.email}
               onChange={handleChange}
-              icon={<MdEmail className="h-5 w-5 text-text-secondary" />}
+              icon={<MdEmail className="h-5 w-5 text-text-secondary/10" />}
               disabled={isLoading} // Disable input during submission
             />
             <InputField
@@ -99,7 +112,8 @@ const Login = () => {
               placeholder="Password"
               value={formData.password}
               onChange={handleChange}
-              icon={<RiLockPasswordLine className="h-5 w-5 text-text-secondary" />}
+              icon={<RiLockPasswordLine className="h-5 w-5 text-text-secondary/10" />}
+              className="bg-transparent"
               showToggle
               onToggle={() => setShowPassword(!showPassword)}
               isToggled={showPassword}
@@ -130,7 +144,7 @@ const Login = () => {
             <button
               type="submit"
               className={`w-full py-2 rounded-md transition-colors ${
-                isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-primary hover:bg-primary-light'
+                isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#FF6B00] hover:bg-primary- text-white'
               }`}
               disabled={isLoading} // Disable button while loading
             >

@@ -30,16 +30,8 @@ const cookiesManager = {
     }
   },
   getUser: () => {
-    let user = localStorage.getItem('user');
-    if (!user) {
-      const match = document.cookie.match(/(^| )user=([^;]+)/);
-      user = match ? decodeURIComponent(match[2]) : null;
-    }
-    try {
-      return user ? JSON.parse(user) : null;
-    } catch {
-      return null;
-    }
+    // Always fetch from API on reload, ignore cache
+    return null;
   },
   clearUser: () => {
     localStorage.removeItem('user');

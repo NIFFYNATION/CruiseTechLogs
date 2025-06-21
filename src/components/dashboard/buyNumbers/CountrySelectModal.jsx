@@ -68,7 +68,7 @@ const CountrySelectModal = ({ open, onClose, onSelect, type }) => {
       searchPlaceholder="Search for countries"
       list={countries}
       onSelect={country => {
-        onSelect(country);
+        // onSelect(country);
       }}
       renderItem={(country, idx) => (
         <motion.button

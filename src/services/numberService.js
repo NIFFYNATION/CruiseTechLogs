@@ -136,14 +136,13 @@ export const bookNumber = async (id) => {
   try {
     const url = `${API_URLS.BOOKNUMBER}?id=${encodeURIComponent(id)}`;
     const response = await axiosInstance.get(url);
+     if (response.status !== 200) {
+      const message = response.data?.message || 'Failed to book number';
+      throw new Error(message);
+    }
     return response.data;
   } catch (error) {
-    return {
-      code: error.response?.status || 500,
-      status: "error",
-      message: error.response?.data?.message || error.message || "Failed to book number",
-      data: null,
-    };
+      throw new Error( error.response?.data?.message || error.message || "Failed to book number");
   }
 };
 

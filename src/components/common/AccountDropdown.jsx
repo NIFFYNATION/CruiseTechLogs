@@ -34,6 +34,7 @@ const AccountDropdown = ({
   useEffect(() => {
     if (!propUser) {
       setLoading(true);
+      // Always fetch from API on open
       fetchUserDetails()
         .then(data => setUser(data))
         .catch(() => setUser(defaultUser))

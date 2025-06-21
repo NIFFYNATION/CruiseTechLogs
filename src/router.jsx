@@ -1,4 +1,4 @@
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter, useParams } from 'react-router-dom';
 import LandingPage from './Pages/landingPage';
 import Login from './Pages/login/login';
 import Signup from './Pages/signup/signup';
@@ -17,6 +17,14 @@ import ApiPage from './components/dashboard/apiKey/ApiPage';
 import ProfileSettings from './components/dashboard/profileSettings/ProfileSettings';
 import HelpCenter from './components/dashboard/helpCenter/HelpCenter';
 import ManageOrders from './components/dashboard/manageOrders/ManageOrders';
+import ProtectedRoute from './routes/ProtectedRoute';
+
+// Wrapper to pass orderId param to ManageNumbers
+const ManageNumbersWithOrderId = (props) => {
+  const params = useParams();
+  // orderId can be undefined if not present
+  return <ManageNumbers orderId={params.orderId} {...props} />;
+};
 
 export const router = createBrowserRouter([
   {
@@ -42,14 +50,21 @@ export const router = createBrowserRouter([
       },
       {
         path: '/dashboard',
-        element: <DashboardLayout />,
+        element: (
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        ),
         children: [
           { path: '', element: <Dashboard /> },
-          { path: 'manage-numbers', element: <ManageNumbers /> },
+          // Route with optional orderId param
+          { path: 'manage-numbers', element: <ManageNumbersWithOrderId /> },
+          { path: 'manage-numbers/:orderId', element: <ManageNumbersWithOrderId /> },
           { path: 'buy-numbers', element: <BuyNumbers /> },
-          { path: 'social-media-accounts', element: <SocialMediaAccounts /> },
-          { path: 'social-media-accounts/buy', element: <BuyAccountPage /> },
-          { path: 'social-media-accounts/order-confirmed', element: <OrderConfirmedPage /> },
+          { path: 'accounts', element: <SocialMediaAccounts /> },
+          { path: 'accounts/buy/:id', element: <BuyAccountPage /> }, // <-- add :id param
+          { path: 'accounts/buy', element: <BuyAccountPage /> }, // fallback for old links
+          { path: 'accounts/order/:id', element: <OrderConfirmedPage /> },
           { path: 'wallet', element: <Wallet /> },
           { path: 'manage-orders', element: <ManageOrders /> },
           { path: 'transactions', element: <Transactions /> },

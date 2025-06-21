@@ -5,6 +5,8 @@ import CountryFlag from "react-country-flag";
 import NumberTypeSelectModal from "./NumberTypeSelectModal";
 import BuyNumberModal from "./BuyNumberModal";
 import { fetchServices } from '../../../services/numberService';
+import { useNavigate } from "react-router-dom";
+import NumberDetailsModal from "../manageNumbers/NumberDetailsModal";
 
 const BuyNumbers = () => {
   const [search, setSearch] = useState("");
@@ -22,6 +24,9 @@ const BuyNumbers = () => {
   const [selectedService, setSelectedService] = useState(null);
   const [services, setServices] = useState([]);
   const [servicesLoading, setServicesLoading] = useState(false);
+  const [pendingNumber, setPendingNumber] = useState(null);
+  const [shouldShowModal, setShouldShowModal] = useState(false); // control modal after redirect
+  const navigate = useNavigate();
 
   // Helper: does this type require country selection?
   const typeNeedsCountry = (type) =>
@@ -66,8 +71,25 @@ const BuyNumbers = () => {
     setBuyModalOpen(true);
   };
 
-  const handleBuyNumber = () => {
-    setBuyModalOpen(false);
+  const handleBuyNumber = (numberData) => {
+    if (numberData && numberData.ID) {
+      // Redirect first, then show modal after navigation
+      setPendingNumber(numberData);
+      setBuyModalOpen(false);
+      setShouldShowModal(false);
+      // Use replace to avoid double modal if user goes back
+      navigate(`/dashboard/manage-numbers/${numberData.ID}`, { replace: true });
+      // Delay modal open to next tick to allow navigation to complete
+      setTimeout(() => setShouldShowModal(true), 0);
+    } else {
+      setBuyModalOpen(false);
+    }
+  };
+
+  // After modal is closed, clear pendingNumber and modal state
+  const handlePendingNumberModalClose = () => {
+    setShouldShowModal(false);
+    setPendingNumber(null);
   };
 
   // Open country modal immediately after selecting a number type if condition is met
@@ -297,6 +319,24 @@ const BuyNumbers = () => {
         country={selectedCountry}
         onBuy={handleBuyNumber}
       />
+      {/* Redirect to manage-numbers before showing modal */}
+      {pendingNumber && shouldShowModal && (
+        <NumberDetailsModal
+          open={!!pendingNumber}
+          onClose={handlePendingNumberModalClose}
+          number={pendingNumber.number}
+          expiration={pendingNumber.expiration}
+          status={pendingNumber.expiration > 0 ? "active" : "expired"}
+          verificationCode={""}
+          onReload={null}
+          onCopyNumber={null}
+          onCopyCode={null}
+          orderId={pendingNumber.ID}
+          date={pendingNumber.date}
+          expire_date={pendingNumber.expire_date}
+          onNumberClosed={handlePendingNumberModalClose}
+        />
+      )}
     </div>
   );
 };

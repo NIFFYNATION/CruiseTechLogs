@@ -2,9 +2,9 @@ import { Outlet } from 'react-router-dom'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { ThemeToggle } from './components/common/ThemeToggle'
 import Tabs from './components/MobileTab'
-import ProtectedRoute from './routes/ProtectedRoute'
 import { UserProvider } from './contexts/UserContext';
 import { SidebarProvider } from './contexts/SidebarContext';
+import ProtectedRoute from './routes/ProtectedRoute';
 
 function App() {
   return (
@@ -18,11 +18,11 @@ function App() {
             </div>
             <Outlet />
             {/* Mobile Tab Navigation */}
-            <ProtectedRoute>
-              <div className="md:hidden pt-32">
-                <Tabs />
-              </div>
-            </ProtectedRoute>
+            <div className="md:hidden pt-32">
+              <ProtectedRoute>
+              <Tabs />
+              </ProtectedRoute>
+            </div>
           </div>
         </ThemeProvider>
       </SidebarProvider>

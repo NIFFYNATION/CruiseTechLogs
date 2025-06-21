@@ -29,8 +29,8 @@ const Wallet = () => {
   }, []);
 
   return (
-    <div className="p-2 sm:p-6">
-      <h2 className="text-xl font-semibold mb-6 text-primary">My Wallet</h2>
+    <div className="p-2 sm:p-6 mt-3">
+      {/* <h2 className="text-xl font-semibold mb-6 text-primary">My Wallet</h2> */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         {/* Balance Card + Virtual Account */}
         <div className="flex flex-col gap-4 border border-bgLayout shadow border-b-[#FEBB4F]  bg-white rounded-xl p-2">

@@ -10,6 +10,8 @@ const ProductSection = ({
   onViewAll,
   showViewAll = false,
   mobileViewMoreLabel,
+  platform, // <-- pass platform object here
+  onGetTotalStock, // <-- pass fetch total stock handler
 }) => (
   <div className="mb-6 sm:mb-8">
     <div className="flex justify-between items-center mb-2 sm:mb-4">
@@ -30,9 +32,14 @@ const ProductSection = ({
           key={i}
           title={product.title}
           stock={product.stock}
-          price={product.price}
+          price={product.amount}
           onBuy={() => onBuy(product)}
           onStockClick={onStockClick}
+          platform={platform}
+          onGetTotalStock={onGetTotalStock}
+          accountID={product.ID}
+          category={product.category || undefined}
+          productRaw={product}
         />
       ))}
     </div>
