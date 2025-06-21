@@ -241,7 +241,7 @@ const BuyAccountPage = () => {
 
     if (result.success && result.data?.ID) {
       navigate(
-        `/dashboard/accounts/order-confirmed/${result.data.ID}`,
+        `/dashboard/accounts/order/${result.data.ID}`,
         {
           state: { order: result.data },
         }
@@ -251,8 +251,7 @@ const BuyAccountPage = () => {
     }
   };
 
-  const pageIsLoading =
-    detailsLoading || (loginsLoading && logins.length === 0);
+  const pageIsLoading = detailsLoading;
 
   if (pageIsLoading) {
     return <PageSpinner />;

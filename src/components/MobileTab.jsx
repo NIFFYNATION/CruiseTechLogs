@@ -6,8 +6,8 @@ import { motion } from 'framer-motion';
 // Use image paths for icons
 const tabs = [
   { name: 'Home', path: '/dashboard', icon: '/icons/tabHome.svg' },
-  { name: 'Number', path: '/dashboard/buy-numbers', icon: '/icons/tabBuyNum.svg' },
-  { name: 'Accounts', path: '/dashboard/accounts', icon: '/icons/tabSocial.svg' },
+  { name: 'Buy No.', path: '/dashboard/buy-numbers', icon: '/icons/tabBuyNum.svg' },
+  { name: 'Buy Acct.', path: '/dashboard/accounts', icon: '/icons/tabSocial.svg' },
   { name: 'Wallet', path: '/dashboard/wallet', icon: '/icons/tabWallet.svg' },
 ];
 

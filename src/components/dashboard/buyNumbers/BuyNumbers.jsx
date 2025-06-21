@@ -273,8 +273,8 @@ const BuyNumbers = () => {
                 <div
                   key={idx}
                   onClick={() => handleBuyClick(service)}
-                  className="flex items-center bg-white rounded-xl shadow-sm px-4 py-4 mb-2 border-b-1 border-[#FFDE59] relative"
-                  style={{ boxShadow: "0 2px 8px 0 rgba(255, 107, 0, 0.09)" }}
+                  className="flex items-center rounded-xl shadow-sm px-4 py-4 mb-2 border-b-1 border-[#FFDE59] relative bg-gradient-to-tl from-rose-50/50 to-white-50"
+                  // style={{ boxShadow: "0 2px 4px 0 rgba(255, 106, 0, 0.03)" }}
                 >
                   <img src={iconUrl} alt={service.name} className="w-6 mr-4" />
                   <div className="flex-1">
