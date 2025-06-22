@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FiSearch, FiBookmark } from "react-icons/fi";
+import { FiSearch, FiBookmark, FiBox } from "react-icons/fi";
 import CountrySelectModal from "../buyNumbers/CountrySelectModal";
 import CountryFlag from "react-country-flag";
 import NumberTypeSelectModal from "./NumberTypeSelectModal";
@@ -7,6 +7,7 @@ import BuyNumberModal from "./BuyNumberModal";
 import { fetchServices } from '../../../services/numberService';
 import { useNavigate } from "react-router-dom";
 import NumberDetailsModal from "../manageNumbers/NumberDetailsModal";
+import { SkeletonNumberCard } from "../../common/Skeletons";
 
 const BuyNumbers = () => {
   const [search, setSearch] = useState("");
@@ -179,8 +180,8 @@ const BuyNumbers = () => {
       {/* Main Card */}
       <div className="bg-background rounded-lg  p-4 md:p-8">
         {/* Search and View Rented Numbers */}
-        
-          <div className="relative w-full">
+        {(services.length > 0 || search) && (
+          <div className="relative w-full mb-2">
             <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-text-grey" size={20} />
             <input
               type="text"
@@ -190,8 +191,7 @@ const BuyNumbers = () => {
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-         
-      
+        )}
 
         {/* Title */}
        {/* <div className="flex flex-col md:flex-row justify-between items-start md:items-center ">
@@ -243,12 +243,21 @@ const BuyNumbers = () => {
         {/* Accounts Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {servicesLoading ? (
-            <div className="col-span-3 flex justify-center items-center py-8 text-gray-500">
-              Loading services...
-            </div>
+            Array.from({ length: 3 }).map((_, i) => <SkeletonNumberCard key={i} />)
           ) : filteredServices.length === 0 ? (
-            <div className="col-span-3 flex justify-center items-center py-8 text-gray-400">
-              No services found.
+            <div className="col-span-3 flex flex-col items-center justify-center py-12 text-gray-400">
+              <FiBox className="w-16 h-16 mb-4 text-quinary" />
+              <div className="text-md font-semibold text-text-secondary mb-2">No services found.</div>
+              {search ? (
+                <div className="text-sm text-text-grey text-center">
+                  No services match <span className="font-semibold text-quinary">"{search}"</span>.<br />
+                  Try a different search term or clear your search.
+                </div>
+              ) : (
+                <div className="text-sm text-text-grey text-center">
+                  Try adjusting your filters or check back later for new services.
+                </div>
+              )}
             </div>
           ) : (
             filteredServices.map((service, idx) => {
@@ -273,7 +282,7 @@ const BuyNumbers = () => {
                 <div
                   key={idx}
                   onClick={() => handleBuyClick(service)}
-                  className="flex items-center rounded-xl shadow-sm px-4 py-4 mb-2 border-b-1 border-[#FFDE59] relative bg-gradient-to-tl from-rose-50/50 to-white-50"
+                  className="flex items-center rounded-xl shadow-sm px-4 py-4 mb-0 border-b-1 border-[#FFDE59] relative bg-gradient-to-tl from-rose-50/50 to-white-50"
                   // style={{ boxShadow: "0 2px 4px 0 rgba(255, 106, 0, 0.03)" }}
                 >
                   <img src={iconUrl} alt={service.name} className="w-6 mr-4" />

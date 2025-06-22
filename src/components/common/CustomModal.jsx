@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { IoClose } from "react-icons/io5";
-import { FiSearch } from "react-icons/fi";
+import { FiSearch, FiBox } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 
 const overlayVariants = {
@@ -42,6 +42,9 @@ const CustomModal = ({
   renderItem,
   customHeight,
   closeable = true,
+  loading = false,
+  emptyMessage = "No items found.",
+  emptyIcon = <FiBox className="w-12 h-12 mb-4 text-gray-300" />,
   ...rest
 }) => {
   const mobile = isMobile();
@@ -163,7 +166,7 @@ const CustomModal = ({
             </div>
           )}
 
-          {enableSearch && (
+          {enableSearch && !loading && Array.isArray(list) && list.length > 0 && (
             <div className={`px-2 py-0 pb-3 flex-shrink-0 ${mobile ? "bg-transparent" : "bg-bgLayout/10"}`}>
               <div className="relative">
                 <FiSearch
@@ -183,7 +186,15 @@ const CustomModal = ({
           )}
           
           <div className="flex-1 overflow-y-auto thin-scrollbar">
-            {Array.isArray(list) && list.length > 0 && (
+            {loading ? (
+              <div className="flex flex-col items-center justify-center py-16">
+                <svg className="animate-spin h-10 w-10 text-quinary mb-4" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                </svg>
+                <span className="text-quinary font-semibold">Loading...</span>
+              </div>
+            ) : Array.isArray(filteredList) && filteredList.length > 0 ? (
               <div className="px-6 -mt-0 pb-2">
                 <div
                     className={`grid md:grid-cols-2 gap-y-0 gap-x-4 mb-5 ${
@@ -223,11 +234,26 @@ const CustomModal = ({
                     )}
                 </div>
               </div>
+            ) : (
+              (React.Children.count(children) > 0 ? (
+                <div className="flex flex-col items-center justify-center py-16">
+                  {React.cloneElement(emptyIcon, { className: "w-12 h-12 mb-4 text-quaternary" })}
+                  <div className="text-text-secondary font-semibold mt-2 text-center break-words max-w-xs">
+                    {emptyMessage}
+                  </div>
+                  <div className="mt-4 w-full flex justify-center">
+                    {children}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-16">
+                  {React.cloneElement(emptyIcon, { className: "w-12 h-12 mb-4 text-quaternary" })}
+                  <div className="text-text-secondary font-semibold mt-2 text-center break-words max-w-xs">
+                    {emptyMessage}
+                  </div>
+                </div>
+              ))
             )}
-            
-            <div className="px-0 py-4">
-              {(!Array.isArray(list) || list.length === 0) && children}
-            </div>
           </div>
           
           {showFooter && (

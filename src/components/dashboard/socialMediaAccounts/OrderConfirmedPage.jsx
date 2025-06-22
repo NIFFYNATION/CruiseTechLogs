@@ -226,16 +226,16 @@ const OrderConfirmedPage = () => {
           <h3 className="text-lg md:text-xl font-semibold text-primary mb-2 md:mb-0">Account Access Details</h3>
           {logins.length > 0 && (
             <div className="relative">
-              <Button
+            <Button
                 variant="outline"
-                size="sm"
+              size="sm"
                 className="px-3 py-1 flex items-center gap-2"
                 onClick={() => setDropdownOpen((open) => !open)}
               >
                 <img src="/icons/download.svg" alt="Download" className="w-5 h-5" />
                 Download Logins
                 <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
-              </Button>
+            </Button>
               {dropdownOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg z-50 border border-border-grey">
                   <button
@@ -250,15 +250,15 @@ const OrderConfirmedPage = () => {
                   >
                     Download as TXT
                   </button>
-                  <button
+                <button
                     className="w-full text-left px-4 py-3 hover:bg-bgLayout text-primary font-medium"
                     onClick={handleDownloadPDF}
-                  >
-                    Download as PDF
-                  </button>
-                </div>
-              )}
-            </div>
+                >
+                  Download as PDF
+                </button>
+              </div>
+            )}
+          </div>
           )}
         </div>
         <div className="w-full px-0 md:px-8 pb-8">
@@ -286,13 +286,13 @@ const OrderConfirmedPage = () => {
                   ) : (
                     <Button variant="outline" size="xs" className="px-2 py-1" onClick={() => handleCopyLogin(login)}>Copy</Button>
                   )}
-                </div>
-                <div className="overflow-x-auto w-full">
-                  <p className="text-xs sm:text-sm font-mono text-text-secondary break-all whitespace-pre-wrap leading-relaxed min-w-[310px]">
+            </div>
+            <div className="overflow-x-auto w-full">
+              <p className="text-xs sm:text-sm font-mono text-text-secondary break-all whitespace-pre-wrap leading-relaxed min-w-[310px]">
                     {login.login_details}
-                  </p>
-                </div>
-              </div>
+              </p>
+            </div>
+          </div>
             ))
           )}
         </div>

@@ -19,7 +19,9 @@ const CategorySelect = ({ open, onClose, categories, onSelect }) => (
           onClose();
         }}
       >
-        <span className="font-medium">{category.name}</span>
+        <span className="font-medium">{category.name}
+        <span className="p-0 bg-black/70 rounded-full px-3 py-0.5 text-white text-xs font-medium ml-2">{category.no_account} accts</span>
+        </span>
       </button>
     )}
   />

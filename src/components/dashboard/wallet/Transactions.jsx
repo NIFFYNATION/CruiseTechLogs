@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { fetchUserTransactions } from "../../../services/userService";
 import { money_format, truncate } from "../../../utils/formatUtils"; // <-- use utilities
 import SectionHeader from "../../common/SectionHeader";
+import { SkeletonTableRow } from "../../common/Skeletons";
 
 const Transactions = ({
   onFundWallet,
@@ -116,9 +117,7 @@ const Transactions = ({
             </thead>
             <tbody>
               {loading ? (
-                <tr>
-                  <td colSpan={7} className="text-center py-8 text-tertiary">Loading...</td>
-                </tr>
+                Array.from({ length: 3 }).map((_, i) => <SkeletonTableRow key={i} cols={7} />)
               ) : transactions.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="text-center py-8 text-tertiary">No transactions found.</td>

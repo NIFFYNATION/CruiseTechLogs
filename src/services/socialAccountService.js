@@ -1,9 +1,10 @@
 import axiosInstance from '../utils/axiosInstance';
 import { API_BASE_URL } from '../utils/apiUrls';
 
-export const fetchPlatforms = async () => {
+export const fetchPlatforms = async (categoryID) => {
+  if (!categoryID) return [];
   try {
-    const res = await axiosInstance.get(`${API_BASE_URL}/account/platforms`);
+    const res = await axiosInstance.get(`${API_BASE_URL}/account/platforms?categoryID=${categoryID}`);
     if (res.status === 200 && Array.isArray(res.data.data)) {
       return res.data.data;
     }
@@ -26,6 +27,7 @@ export const fetchCategories = async () => {
 };
 
 export const fetchAccounts = async ({ page = 1, platform, category }) => {
+  console.log(platform, category)
   if (!platform || !category) return [];
   try {
     const res = await axiosInstance.get(
@@ -36,6 +38,7 @@ export const fetchAccounts = async ({ page = 1, platform, category }) => {
     }
     return [];
   } catch {
+    
     return [];
   }
 };

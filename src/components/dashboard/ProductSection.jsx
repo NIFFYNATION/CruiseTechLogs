@@ -1,5 +1,6 @@
 import React from "react";
 import ProductCard from "./ProductCard";
+import { SkeletonCard } from "../common/Skeletons";
 
 const ProductSection = ({
   title,
@@ -29,7 +30,7 @@ const ProductSection = ({
     <div className="mb-4" />
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
       {loading
-        ? Array.from({ length: 3 }).map((_, i) => <ProductCard key={i} loading={true} />)
+        ? Array.from({ length: 3 }).map((_, i) => <SkeletonCard key={i} />)
         : products.map((product, i) => (
             <ProductCard
               key={i}
