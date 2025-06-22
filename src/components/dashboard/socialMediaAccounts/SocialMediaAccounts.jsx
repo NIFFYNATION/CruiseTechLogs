@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ProductSection from "../ProductSection";
 import { useNavigate } from "react-router-dom";
 import { fetchPlatforms, fetchCategories, fetchAccounts, fetchTotalInStock } from "../../../services/socialAccountService";
 import PlatformSelect from "./PlatformSelect";
 import CategorySelect from "./CategorySelect";
 import SectionHeader from "../../common/SectionHeader";
+import { FiBox } from "react-icons/fi";
 
 const SocialMediaAccounts = () => {
   const [platforms, setPlatforms] = useState([]);
@@ -16,23 +17,31 @@ const SocialMediaAccounts = () => {
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const prevCategoryID = useRef();
 
   // Fetch platforms and categories on mount
   useEffect(() => {
-    fetchPlatforms().then(setPlatforms);
     fetchCategories().then(setCategories);
     setCategoryModalOpen(true);
   }, []);
 
+  // Fetch platforms when a new category is selected
+  useEffect(() => {
+    if (selectedCategory && selectedCategory.ID !== prevCategoryID.current) {
+      fetchPlatforms(selectedCategory.ID).then(setPlatforms);
+      prevCategoryID.current = selectedCategory.ID;
+    }
+  }, [selectedCategory]);
+
   // Fetch accounts when category or platform changes
   useEffect(() => {
-    if (selectedCategory) {
+    if (selectedCategory && selectedPlatform) {
       setLoading(true);
       // If platform is selected, pass both; else only category
       fetchAccounts({
         page: 1,
         category: selectedCategory.ID,
-        platform: selectedPlatform ? selectedPlatform.ID : undefined,
+        platform: selectedPlatform ? selectedPlatform.platformID : undefined,
       })
         .then((data) => setAccounts(data))
         .finally(() => setLoading(false));
@@ -108,8 +117,8 @@ const SocialMediaAccounts = () => {
           {/* If no accounts found, show a helpful message */}
           {!loading && accounts.length === 0 && (
             <div className="flex flex-col items-center justify-center py-12">
-              <img src="/icons/empty-box.svg" alt="No Accounts" className="w-16 h-16 mb-4" />
-              <h4 className="text-lg font-semibold text-text-secondary mb-2">No accounts found for your selection.</h4>
+              <FiBox className="w-16 h-16 mb-4 text-quinary" />
+              <h4 className="text-md font-semibold text-text-secondary mb-2">No accounts with available logins found.</h4>
               <p className="text-sm text-text-grey mb-4 text-center">
                 Please choose a different <span className="font-semibold text-quinary">category</span> and <span className="font-semibold text-quinary">platform</span> to see available accounts.
               </p>
@@ -158,6 +167,7 @@ const SocialMediaAccounts = () => {
           setSelectedPlatform(platform);
           setPlatformModalOpen(false);
         }}
+        onSelectCategory={() => { setPlatformModalOpen(false); setCategoryModalOpen(true); }}
       />
 
       {/* Category Modal */}

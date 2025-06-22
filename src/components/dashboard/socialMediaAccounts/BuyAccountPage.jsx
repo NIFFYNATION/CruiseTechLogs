@@ -10,9 +10,10 @@ import {
   fetchAccountDetails,
   buyAccount,
 } from "../../../services/socialAccountService"; // <-- import
-import PageSpinner from "../PageSpinner";
+// import PageSpinner from "../PageSpinner";
 import { money_format } from "../../../utils/formatUtils";
 import Toast from "../../common/Toast";
+import { SkeletonTableRow, SkeletonBuyAccountCard } from "../../common/Skeletons";
 
 const BuyAccountPage = () => {
   const location = useLocation();
@@ -214,7 +215,6 @@ const BuyAccountPage = () => {
 
   const handleBuy = async () => {
     setIsOrdering(true);
-    setReviewOpen(false); // Close modal immediately
 
     const accountID = urlAccountID || usedProduct?.ID || usedProduct?.accountID;
     if (!accountID) {
@@ -240,6 +240,7 @@ const BuyAccountPage = () => {
     setIsOrdering(false);
 
     if (result.success && result.data?.ID) {
+      setReviewOpen(false);
       navigate(
         `/dashboard/accounts/order/${result.data.ID}`,
         {
@@ -254,7 +255,11 @@ const BuyAccountPage = () => {
   const pageIsLoading = detailsLoading;
 
   if (pageIsLoading) {
-    return <PageSpinner />;
+    return (
+      <div className="p-6">
+        <SkeletonBuyAccountCard className="mb-6" />
+      </div>
+    );
   }
 
   return (
@@ -511,9 +516,11 @@ const BuyAccountPage = () => {
             </thead>
             <tbody>
               {loginsLoading ? (
-                <tr>
-                  <td colSpan={5} className="text-center py-8 text-tertiary">Loading logins...</td>
-                </tr>
+                <>
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <SkeletonTableRow key={i} cols={4} />
+                  ))}
+                </>
               ) : logins.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="text-center py-8 text-tertiary">No logins found.</td>

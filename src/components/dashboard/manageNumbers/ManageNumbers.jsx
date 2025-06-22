@@ -5,6 +5,7 @@ import NumberDetailsModal from './NumberDetailsModal';
 import { fetchNumbers } from "../../../services/numberService";
 import { useParams, useNavigate } from "react-router-dom";
 import SectionHeader from "../../common/SectionHeader";
+import { SkeletonTableRow } from "../../common/Skeletons";
 
 const ManageNumbers = ({ orderId }) => {
   const [activeTab, setActiveTab] = useState("Active");
@@ -298,11 +299,11 @@ const ManageNumbers = ({ orderId }) => {
               </thead>
               <tbody>
                 {activeLoading ? (
-                  <tr>
-                    <td colSpan={3} className="text-center text-grey py-8">
-                      Loading...
-                    </td>
-                  </tr>
+                  <>
+                    {Array.from({ length: 3 }).map((_, i) => (
+                      <SkeletonTableRow key={i} cols={3} />
+                    ))}
+                  </>
                 ) : filteredActiveNumbers.length === 0 ? (
                   <tr>
                     <td colSpan={3} className="text-center text-grey py-8">
@@ -383,11 +384,11 @@ const ManageNumbers = ({ orderId }) => {
               </thead>
               <tbody>
                 {inactiveLoading ? (
-                  <tr>
-                    <td colSpan={3} className="text-center text-grey py-8">
-                      Loading...
-                    </td>
-                  </tr>
+                  <>
+                    {Array.from({ length: 3 }).map((_, i) => (
+                      <SkeletonTableRow key={i} cols={3} />
+                    ))}
+                  </>
                 ) : filteredInactiveNumbers.length === 0 ? (
                   <tr>
                     <td colSpan={3} className="text-center text-grey py-8">

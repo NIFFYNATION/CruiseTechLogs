@@ -7,7 +7,7 @@ import VirtualAccountCard from "./VirtualAccountCard";
 import { fetchUserCryptoWallet, fetchUserAccounts } from "../../../services/userService";
 import Transactions from "./Transactions";
 import BalanceCard from "../cards/BalanceCard";
-
+import { SkeletonCard } from "../../common/Skeletons";
 
 const Wallet = () => {
   const [balance] = useState("0.00");
@@ -17,15 +17,15 @@ const Wallet = () => {
   const [cryptoWallet, setCryptoWallet] = useState(null);
   // Virtual accounts state
   const [accounts, setAccounts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Fetch crypto wallet on mount
+  // Fetch crypto wallet and virtual accounts on mount
   useEffect(() => {
-    fetchUserCryptoWallet().then(setCryptoWallet);
-  }, []);
-
-  // Fetch virtual accounts on mount
-  useEffect(() => {
-    fetchUserAccounts().then(setAccounts);
+    setLoading(true);
+    Promise.all([
+      fetchUserCryptoWallet().then(setCryptoWallet),
+      fetchUserAccounts().then(setAccounts),
+    ]).finally(() => setLoading(false));
   }, []);
 
   return (
@@ -37,19 +37,21 @@ const Wallet = () => {
           {/* Balance Card */}
           <div className="overflow-hidden">
             <div className=" relative">
-              <BalanceCard isSimple={true}/>
+              {loading ? <SkeletonCard className="min-h-[120px]" /> : <BalanceCard isSimple={true}/>} 
             </div>
             {/* Virtual Account Details */}
-            <VirtualAccountCard accounts={accounts} />
+            {!loading && <VirtualAccountCard accounts={accounts} />}
           </div>
         </div>
         {/* Crypto Card */}
-        <CryptoWalletCard
-          currency={cryptoWallet?.currency}
-          network={cryptoWallet?.network}
-          address={cryptoWallet?.address}
-          url={cryptoWallet?.url}
-        />
+        {loading ? <SkeletonCard className="min-h-[120px]" /> : (
+          <CryptoWalletCard
+            currency={cryptoWallet?.currency}
+            network={cryptoWallet?.network}
+            address={cryptoWallet?.address}
+            url={cryptoWallet?.url}
+          />
+        )}
       </div>
       {/* Recent Transactions */}
      
@@ -63,7 +65,9 @@ const Wallet = () => {
             onClick={() => window.location.href = "/dashboard/transactions"}
           >
             View All Transactions
-          </Button>} />
+          </Button>} 
+        loading={loading}
+      />
     
       <FundWalletModal
         open={fundModalOpen}

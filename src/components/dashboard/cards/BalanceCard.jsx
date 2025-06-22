@@ -2,14 +2,14 @@ import React from "react";
 import { useUser } from "../../../contexts/UserContext";
 import { money_format } from "../../../utils/formatUtils"; // <-- use utility
 import { useNavigate } from "react-router-dom";
+import { SkeletonBalanceCard } from "../../common/Skeletons";
+
 const BalanceCard = ({ isSimple = false }) => {
   const { user, loading } = useUser();
   const navigate = useNavigate();
   if (loading || !user) {
     return (
-      <div className={`rounded-[20px] relative overflow-hidden h-[calc(100%-0px)] bg-[#FF6B00] flex items-center justify-center${isSimple ? " p-4 min-h-[120px]" : ""}`}>
-        <span className="text-white">Loading...</span>
-      </div>
+      <SkeletonBalanceCard isSimple={isSimple} />
     );
   }
 

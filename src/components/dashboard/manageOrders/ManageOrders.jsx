@@ -4,6 +4,7 @@ import SectionHeader from "../../common/SectionHeader";
 import { useNavigate } from "react-router-dom";
 import { fetchOrders } from '../../../services/socialAccountService';
 import Toast from '../../common/Toast';
+import { SkeletonTableRow } from "../../common/Skeletons";
 
 const ManageOrders = () => {
   const [orders, setOrders] = useState([]);
@@ -41,7 +42,7 @@ const ManageOrders = () => {
     if (searchActive || loadingMore || loading || !next) return;
     const el = tableRef.current;
     if (!el) return;
-    if (el.scrollHeight - el.scrollTop - el.clientHeight < 80) {
+    if (el.scrollHeight - el.scrollTop - el.clientHeight < 160) {
       setLoadingMore(true);
       fetchOrders({ start: next })
         .then(({ accounts, next: newNext, error }) => {
@@ -216,9 +217,11 @@ const ManageOrders = () => {
             </thead>
             <tbody>
               {isLoading ? (
-                <tr>
-                  <td colSpan={6} className="py-6 sm:py-8 text-center text-tertiary">Loading...</td>
-                </tr>
+                <>
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <SkeletonTableRow key={i} cols={6} />
+                  ))}
+                </>
               ) : tableData.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="py-6 sm:py-8 text-center text-tertiary">No orders found.</td>

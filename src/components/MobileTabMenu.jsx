@@ -8,6 +8,7 @@ import BalanceCard from './dashboard/cards/BalanceCard';
 import { FiCopy } from 'react-icons/fi';
 import Toast from './common/Toast';
 import { DateTime } from 'luxon';
+import { SkeletonCard } from "./common/Skeletons";
 
 const overlayVariants = {
   hidden: { opacity: 0, pointerEvents: 'none' },
@@ -73,17 +74,20 @@ const MobileTabMenu = ({ onClose }) => {
   const [codeLoading, setCodeLoading] = useState(false);
   const [toast, setToast] = useState({ show: false, message: "" });
   const [showAccount, setShowAccount] = useState(true);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const countdownRef = useRef();
 
   // Fetch initial data on open
   useEffect(() => {
+    setLoading(true);
     fetchUserDetails(); // Refresh user balance
     fetchUserAccounts().then(setAccounts).catch(() => setAccounts([]));
     fetchNumbers({ status: 'active', start: 0 }).then(({ numbers }) => {
       if (numbers.length > 0) {
         setActiveNumber(numbers[0]);
       }
+      setLoading(false);
     });
   }, []);
 
@@ -133,29 +137,31 @@ const MobileTabMenu = ({ onClose }) => {
   }, [activeNumber]);
 
   return (
-    <AnimatePresence>
+  <AnimatePresence>
       {toast.show && <Toast type={toast.type || "success"} message={toast.message} onClose={() => setToast({ show: false, message: "" })} />}
-      <motion.div
+    <motion.div
         className="fixed inset-0 bg-black/20 z-50 backdrop-blur-md"
-        onClick={onClose}
-        initial="hidden"
-        animate="visible"
-        exit="hidden"
-        variants={overlayVariants}
-      />
-      <motion.div
+      onClick={onClose}
+      initial="hidden"
+      animate="visible"
+      exit="hidden"
+      variants={overlayVariants}
+    />
+    <motion.div
         className="fixed left-1/2 bottom-30 z-50 -translate-x-1/2 flex flex-col items-center w-[90vw] max-w-lg"
-        initial="hidden"
-        animate="visible"
+      initial="hidden"
+      animate="visible"
         exit="exit"
-        variants={menuVariants}
-      >
+      variants={menuVariants}
+    >
         <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-2xl p-4 w-full shadow-2xl shadow-black/20 max-h-[calc(100vh-150px)] overflow-y-auto thin-scrollbar">
           <div className="mb-2">
-            <BalanceCard isSimple={true} />
+            {loading ? <SkeletonCard className="min-h-[80px]" /> : <BalanceCard isSimple={true} />}
           </div>
 
-          {activeNumber && secondsLeft > 0 && (
+          {loading ? (
+            <SkeletonCard className="max-h-[100px] mb-4" />
+          ) : activeNumber && secondsLeft > 0 && (
              <div 
                 className="bg-black/5 dark:bg-white/5 p-3 rounded-lg mb-4 cursor-pointer hover:bg-black/10"
                 onClick={() => handleNavigate(`/dashboard/manage-numbers/${activeNumber.ID}`)}
@@ -178,7 +184,9 @@ const MobileTabMenu = ({ onClose }) => {
              </div>
           )}
 
-          {accounts.length > 0 && (
+          {loading ? (
+            <SkeletonCard className="min-h-[80px] mb-4" />
+          ) : accounts.length > 0 && (
             <div className="bg-black/5 dark:bg-white/5 p-3 rounded-lg mb-4">
               <h3 className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1 uppercase tracking-wider">Virtual Account</h3>
               {accounts.map(acc => (
@@ -192,7 +200,7 @@ const MobileTabMenu = ({ onClose }) => {
                   <button onClick={() => handleCopy(acc.account_number, "Account number copied!")} className="p-2 rounded-full hover:bg-black/10 dark:hover:bg-white/10">
                     <FiCopy className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                   </button>
-                </div>
+              </div>
               ))}
             </div>
           )}
@@ -201,13 +209,13 @@ const MobileTabMenu = ({ onClose }) => {
             <QuickAction icon="/icons/wallet.svg" label="Fund Wallet" onClick={() => handleNavigate('/dashboard/wallet')} />
             <QuickAction icon="/icons/buy-number.svg" label="Numbers" onClick={() => handleNavigate('/dashboard/manage-numbers')} />
             <QuickAction icon="/icons/social-media.svg" label="Accounts" onClick={() => handleNavigate('/dashboard/manage-orders')} />
-          </div>
         </div>
-        {/* Arrow */}
+      </div>
+      {/* Arrow */}
         <div className="w-0 h-0 border-l-[15px] border-l-transparent border-r-[15px] border-r-transparent border-t-[15px] border-t-white/70 dark:border-t-gray-800/70" />
-      </motion.div>
-    </AnimatePresence>
-  );
+    </motion.div>
+  </AnimatePresence>
+);
 };
 
 export default MobileTabMenu;
