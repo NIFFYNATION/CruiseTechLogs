@@ -43,7 +43,7 @@ export const fetchNumberTypes = async () => {
 };
 
 export const fetchCountries = async (typeObj) => {
-  console.log('fetchCountries called with:', typeObj);
+  // console.log('fetchCountries called with:', typeObj);
   if (!typeObj || !typeObj.type || !typeObj.network) return [];
   const cacheKey = `countries_${typeObj.type}_${typeObj.network}`;
   // Try to get from localStorage/cookies first

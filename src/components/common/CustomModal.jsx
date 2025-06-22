@@ -235,16 +235,8 @@ const CustomModal = ({
                 </div>
               </div>
             ) : (
-              (React.Children.count(children) > 0 ? (
-                <div className="flex flex-col items-center justify-center py-16">
-                  {React.cloneElement(emptyIcon, { className: "w-12 h-12 mb-4 text-quaternary" })}
-                  <div className="text-text-secondary font-semibold mt-2 text-center break-words max-w-xs">
-                    {emptyMessage}
-                  </div>
-                  <div className="mt-4 w-full flex justify-center">
-                    {children}
-                  </div>
-                </div>
+              (children == null || React.Children.count(children) > 0 ? (
+               <> {children}</>
               ) : (
                 <div className="flex flex-col items-center justify-center py-16">
                   {React.cloneElement(emptyIcon, { className: "w-12 h-12 mb-4 text-quaternary" })}

@@ -1,7 +1,7 @@
 import React from "react";
 import CustomModal from "../../common/CustomModal";
 
-const CategorySelect = ({ open, onClose, categories, onSelect }) => (
+const CategorySelect = ({ open, onClose, categories, onSelect, loading }) => (
   <CustomModal
     open={open}
     onClose={onClose}
@@ -9,6 +9,7 @@ const CategorySelect = ({ open, onClose, categories, onSelect }) => (
     enableSearch={true}
     searchPlaceholder="Search categories"
     list={categories}
+    loading={loading}
     onSelect={null}
     renderItem={(category, idx) => (
       <button

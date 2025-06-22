@@ -16,19 +16,27 @@ const SocialMediaAccounts = () => {
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [platformsLoading, setPlatformsLoading] = useState(false);
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
   const navigate = useNavigate();
   const prevCategoryID = useRef();
 
-  // Fetch platforms and categories on mount
+  // Fetch categories on mount
   useEffect(() => {
-    fetchCategories().then(setCategories);
+    setCategoriesLoading(true);
+    fetchCategories()
+      .then((data) => setCategories(data))
+      .finally(() => setCategoriesLoading(false));
     setCategoryModalOpen(true);
   }, []);
 
   // Fetch platforms when a new category is selected
   useEffect(() => {
     if (selectedCategory && selectedCategory.ID !== prevCategoryID.current) {
-      fetchPlatforms(selectedCategory.ID).then(setPlatforms);
+      setPlatformsLoading(true);
+      fetchPlatforms(selectedCategory.ID)
+        .then((data) => setPlatforms(data))
+        .finally(() => setPlatformsLoading(false));
       prevCategoryID.current = selectedCategory.ID;
     }
   }, [selectedCategory]);
@@ -168,6 +176,7 @@ const SocialMediaAccounts = () => {
           setPlatformModalOpen(false);
         }}
         onSelectCategory={() => { setPlatformModalOpen(false); setCategoryModalOpen(true); }}
+        loading={platformsLoading}
       />
 
       {/* Category Modal */}
@@ -180,6 +189,7 @@ const SocialMediaAccounts = () => {
           setCategoryModalOpen(false);
           setPlatformModalOpen(true);
         }}
+        loading={categoriesLoading}
       />
     </div>
   );
