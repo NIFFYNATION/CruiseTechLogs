@@ -39,7 +39,7 @@ const NumberTypeSelectModal = ({ open, onClose, onSelect }) => {
       closeable={false}
       list={numberTypes}
       showFooter={true}
-     
+      loading={loading}
       renderItem={(type, idx) => (
         <React.Fragment key={type.value}>
           <button
@@ -62,11 +62,6 @@ const NumberTypeSelectModal = ({ open, onClose, onSelect }) => {
         </React.Fragment>
       )}
     >
-      {loading && (
-        <div className="flex justify-center items-center py-8 text-gray-500">
-          Loading...
-        </div>
-      )}
       {!loading && numberTypes.length === 0 && (
         <div className="flex justify-center items-center py-8 text-gray-400 bg-background">
           No number types found.

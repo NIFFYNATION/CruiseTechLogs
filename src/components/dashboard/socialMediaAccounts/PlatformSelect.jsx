@@ -1,7 +1,7 @@
 import React from "react";
 import CustomModal from "../../common/CustomModal";
 
-const PlatformSelect = ({ open, onClose, platforms, onSelect, onSelectCategory }) => (
+const PlatformSelect = ({ open, onClose, platforms, onSelect, onSelectCategory, loading }) => (
   <CustomModal
     open={open}
     onClose={onClose}
@@ -26,6 +26,7 @@ const PlatformSelect = ({ open, onClose, platforms, onSelect, onSelectCategory }
         </span>
       </button>
     )}
+    loading={loading}
   >
     {platforms.length === 0 && (
       <button
