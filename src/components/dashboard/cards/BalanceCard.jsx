@@ -1,14 +1,15 @@
 import React from "react";
 import { useUser } from "../../../contexts/UserContext";
+import { money_format } from "../../../utils/formatUtils"; // <-- use utility
+import { useNavigate } from "react-router-dom";
+import { SkeletonBalanceCard } from "../../common/Skeletons";
 
 const BalanceCard = ({ isSimple = false }) => {
   const { user, loading } = useUser();
-
+  const navigate = useNavigate();
   if (loading || !user) {
     return (
-      <div className={`rounded-[20px] relative overflow-hidden h-[calc(100%-0px)] bg-[#FF6B00] flex items-center justify-center${isSimple ? " p-4 min-h-[120px]" : ""}`}>
-        <span className="text-white">Loading...</span>
-      </div>
+      <SkeletonBalanceCard isSimple={isSimple} />
     );
   }
 
@@ -24,7 +25,7 @@ const BalanceCard = ({ isSimple = false }) => {
         <div className="text-center">
           <p className={`text-white/90 text-md mb-0  mt-0 md:mt-4 ${isSimple ? "md:mb-2" : "md:mb-6"}`}>Your Total Balance</p>
           <h2 className={`text-white font-bold text-[42px] `}>
-            ₦ {user.balance ? user.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00"}
+            {money_format(user.balance)}
           </h2>
         </div>
         {!isSimple && (
@@ -32,7 +33,7 @@ const BalanceCard = ({ isSimple = false }) => {
             <button
               type="button"
               className="flex items-center gap-2 px-4 md:px-6 py-3 bg-white rounded-full text-[#1A1A1A] text-sm font-medium hover:bg-white/90 transition-colors"
-              onClick={() => { /* handle add funds */ }}
+              onClick={() => navigate("/dashboard/wallet")}
             >
               <img src="/icons/add-circle.svg" alt="" className="h-6 w-6" />
               Add Funds
@@ -40,7 +41,7 @@ const BalanceCard = ({ isSimple = false }) => {
             <button
               type="button"
               className="flex items-center gap-2 px-4 md:px-6 py-3 bg-white rounded-full text-[#1A1A1A] text-sm font-medium hover:bg-white/90 transition-colors"
-              onClick={() => { /* handle transactions */ }}
+              onClick={() => navigate("/dashboard/transactions")}
             >
               <img src="/icons/list-broken.svg" alt="" className="h-6 w-6" />
               Transactions

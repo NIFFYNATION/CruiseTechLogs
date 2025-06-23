@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { IoClose } from "react-icons/io5";
-import { FiSearch } from "react-icons/fi";
+import { FiSearch, FiBox } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 
 const overlayVariants = {
@@ -14,16 +14,11 @@ const modalVariantsDesktop = (customHeight) => ({
   exit: { opacity: 0, scale: 0.97, y: 30, height: customHeight || undefined, transition: { duration: 0.2, delay: 0 } },
 });
 
-const modalVariantsMobile = (fullHeight, customHeight) => ({
-  hidden: { y: "100%", opacity: 0, height: customHeight || "90vh" },
-  visible: {
-    y: 0,
-    opacity: 1,
-    height: fullHeight ? (customHeight || "calc(100vh + 30px)") : (customHeight || "auto"),
-    transition: { type: "spring", stiffness: 300, damping: 30, delay: 0 }
-  },
-  exit: { y: "100%", opacity: 0, height: customHeight || "90vh", transition: { duration: 0.25, delay: 0 } },
-});
+const modalVariantsMobile = {
+  hidden: { y: "100%" },
+  visible: { y: 0, transition: { type: "spring", stiffness: 400, damping: 40 } },
+  exit: { y: "100%", transition: { duration: 0.2 } },
+};
 
 const isMobile = () => typeof window !== "undefined" && window.innerWidth < 768;
 
@@ -34,7 +29,7 @@ const CustomModal = ({
   title,
   description,
   headerIcon = null,
-  reloadAction, // <-- add this prop
+  reloadAction,
   children,
   showCloseButton = true,
   className = "",
@@ -47,59 +42,39 @@ const CustomModal = ({
   renderItem,
   customHeight,
   closeable = true,
+  loading = false,
+  emptyMessage = "No items found.",
+  emptyIcon = <FiBox className="w-12 h-12 mb-4 text-gray-300" />,
   ...rest
 }) => {
   const mobile = isMobile();
   const [search, setSearch] = useState("");
-  const [fullHeight, setFullHeight] = useState(false);
   const [internalOpen, setInternalOpen] = useState(defaultOpen);
   const searchInputRef = useRef(null);
-  const lastDownOnInput = useRef(false);
 
-  // Sync internal open state with prop if provided
   useEffect(() => {
     if (typeof openProp === "boolean") {
       setInternalOpen(openProp);
     }
   }, [openProp]);
 
-  useEffect(() => {
-    lastDownOnInput.current = false;
-  }, [internalOpen]);
-
-  const handleMouseDown = (e) => {
-    if (
-      searchInputRef.current &&
-      (e.target === searchInputRef.current || searchInputRef.current.contains(e.target))
-    ) {
-      lastDownOnInput.current = true;
-    } else {
-      lastDownOnInput.current = false;
-    }
-  };
-
-  const handleOverlayClick = (e) => {
-    if (
-      e.target === e.currentTarget &&
-      !lastDownOnInput.current
-    ) {
+  const handleClose = () => {
+    if (closeable && onClose) {
       onClose();
     }
-    lastDownOnInput.current = false;
+  };
+  
+  const handleOverlayClick = (e) => {
+    if (e.target === e.currentTarget) {
+      handleClose();
+    }
   };
 
-  // Handle search logic if enabled
   const handleSearch = (e) => {
     setSearch(e.target.value);
     if (onSearch) onSearch(e.target.value);
   };
 
-  // Height logic for mobile
-  const handleSearchFocus = () => {
-    if (mobile) setFullHeight(true);
-  };
-
-  // List rendering logic
   let filteredList = list;
   if (enableSearch && search && Array.isArray(list)) {
     filteredList = list.filter(
@@ -109,41 +84,56 @@ const CustomModal = ({
     );
   }
 
-  // --- Only return null after all hooks are called ---
   if (!internalOpen) return null;
-
-  // Helper to detect mobile (reliable on render)
-  const isMobileDevice = typeof window !== "undefined" && window.innerWidth < 768;
 
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+        className={`fixed inset-0 z-50 flex justify-center ${mobile ? 'items-end' : 'items-center'} backdrop-blur-md`}
         initial="hidden"
         animate="visible"
         exit="hidden"
         variants={overlayVariants}
-        style={{
-          zIndex: 9999, // Lower than ConfirmDialog's z-index
-        }}
+        onClick={handleOverlayClick}
+        style={{ zIndex: 9999 }}
       >
         <motion.div
-          className={`rounded-xl w-full max-w-3xl mx-2 p-0 overflow-hidden shadow-lg relative bg-bgLayout/60 ${mobile ? "-mb-30 flex flex-col fixed bottom-0 left-0 right-0 max-w-full" : ""} ${className}`}
+          className={`
+            ${mobile 
+              ? "w-full flex flex-col bg-white/80 dark:bg-gray-900/10 backdrop-blur-xl rounded-t-2xl shadow-2xl max-h-[90vh]" 
+              : "flex flex-col bg-bgLayout/60 rounded-xl w-full max-w-3xl mx-2 shadow-lg max-h-[90vh]"
+            }
+            p-0 relative ${className}`
+          }
           initial="hidden"
           animate="visible"
           exit="exit"
-          variants={mobile ? modalVariantsMobile(fullHeight, customHeight) : modalVariantsDesktop(customHeight)}
-          onClick={e => e.stopPropagation()}
+          variants={mobile ? modalVariantsMobile : modalVariantsDesktop(customHeight)}
+          onClick={(e) => e.stopPropagation()}
+          drag={mobile ? "y" : false}
+          dragConstraints={{ top: 0, bottom: 0 }}
+          dragElastic={0.2}
+          onDragEnd={(event, info) => {
+            if (info.offset.y > 150 || info.velocity.y > 600) {
+              handleClose();
+            }
+          }}
           {...rest}
           style={{
             ...(rest.style || {}),
-            zIndex: 9999, // Lower than ConfirmDialog's z-index
-            position: "relative",
+            zIndex: 9999,
+            position: mobile ? "fixed" : "relative",
+            bottom: mobile ? 0 : undefined,
           }}
         >
-          {/* Title, Icon, Reload, and Close Icon (desktop only) */}
+          {mobile && (
+            <div className="w-full flex justify-center pt-3 pb-2 flex-shrink-0">
+              <div className="w-10 h-1.5 bg-gray-300 dark:bg-gray-600 rounded-full" />
+            </div>
+          )}
+
           {(title || showCloseButton || headerIcon || reloadAction !== undefined) && (
-            <div className={`px-6 py-4 bg-bgLayout/60 border-b border-border-grey flex items-center justify-between ${mobile ? "pb-2" : ""}`}>
+            <div className={`px-6 py-4 border-b border-border-grey flex items-center justify-between flex-shrink-0 ${mobile ? "pb-2 bg-transparent" : "bg-bgLayout/60"}`}>
               <div className="flex items-center gap-2">
                 {headerIcon && <span className="mr-2">{headerIcon}</span>}
                 <div>
@@ -164,41 +154,48 @@ const CustomModal = ({
                   </button>
                 )}
                 {showCloseButton && closeable && (
-                  <button className="text-2xl text-text-primary" onClick={onClose}>
-                    <IoClose />
+                  <button
+                    onClick={handleClose}
+                    aria-label="Close"
+                    className="shadow-md p-1.5 rounded-full bg-quaternary/5 hover:bg-quaternary/10 dark:bg-quaternary/50 dark:hover:bg-quaternary/10 backdrop-blur-md text-white-500"
+                  >
+                    <IoClose className="text-2xl text-white" />
                   </button>
                 )}
               </div>
             </div>
           )}
-          {/* Search */}
-          {enableSearch && (
-            <div className="px-6 py-0 pb-3 bg-bgLayout/10 border-2 border-border-grey">
+
+          {enableSearch && !loading && Array.isArray(list) && list.length > 0 && (
+            <div className={`px-2 py-0 pb-3 flex-shrink-0 ${mobile ? "bg-transparent" : "bg-bgLayout/10"}`}>
               <div className="relative">
                 <FiSearch
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                   size={18}
                 />
                 <input
+                  ref={searchInputRef}
                   type="text"
                   placeholder={searchPlaceholder}
                   className="w-full font-semibold border-1 border-border-grey mt-1 rounded shadow-lg pl-10 pr-4 py-2.5 focus:outline-none"
                   value={search}
                   onChange={handleSearch}
-                  onFocus={handleSearchFocus}
                 />
               </div>
             </div>
           )}
-        {Array.isArray(list) && list.length > 0 && (
-            <div
-                className="px-6 -mt-0 pb-2 max-h-[340px] md:max-h-[340px] overflow-y-auto "
-                style={
-                    mobile
-                        ? { maxHeight: fullHeight ? "calc(100vh - 100px)" : "calc(90vh - 100px)" }
-                        : {}
-                }
-            >
+          
+          <div className="flex-1 overflow-y-auto thin-scrollbar">
+            {loading ? (
+              <div className="flex flex-col items-center justify-center py-16">
+                <svg className="animate-spin h-10 w-10 text-quinary mb-4" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                </svg>
+                <span className="text-quinary font-semibold">Loading...</span>
+              </div>
+            ) : Array.isArray(filteredList) && filteredList.length > 0 ? (
+              <div className="px-6 -mt-0 pb-2">
                 <div
                     className={`grid md:grid-cols-2 gap-y-0 gap-x-4 mb-5 ${
                         filteredList.length <= 2 ? "md:grid-cols-1" : ""
@@ -210,16 +207,15 @@ const CustomModal = ({
                         ) : (
                             <button
                                 key={item.value || idx}
-                                className="flex items-center gap-3 py-3 px-2 rounded-lg hover:bg-[#F7F7F7] transition w-full text-left"
+                                className="flex items-center gap-3 py-3 px-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition w-full text-left"
                                 onClick={() => {
-                                    // Only close if item has a name and value
                                     if (
                                         (item.name && item.name.trim() !== "") &&
                                         (item.value && String(item.value).trim() !== "")
                                     ) {
                                         if (item.onClick) item.onClick(item);
                                         if (rest.onSelect) rest.onSelect(item);
-                                        onClose();
+                                        handleClose();
                                     }
                                 }}
                             >
@@ -237,46 +233,36 @@ const CustomModal = ({
                         )
                     )}
                 </div>
-            </div>
-        )}
-        {/* Children as fallback/wrapper */}
-          {(!Array.isArray(list) || list.length === 0) && children}
-          {/* Footer */}
+              </div>
+            ) : (
+              (children == null || React.Children.count(children) > 0 ? (
+               <> {children}</>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-16">
+                  {React.cloneElement(emptyIcon, { className: "w-12 h-12 mb-4 text-quaternary" })}
+                  <div className="text-text-secondary font-semibold mt-2 text-center break-words max-w-xs">
+                    {emptyMessage}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+          
           {showFooter && (
             footerContent ? (
               footerContent
             ) : (
-              <>
-                {/* Desktop footer */}
-                <div className="hidden md:flex justify-end border-t border-border-grey px-6 py-4 bg-bgLayout/60 border-b-3 rounded-b-xl border-b-[#FA5A15]">
-                  {closeable && (
-                    <button
-                      className="border border-quinary text-quinary rounded-full px-6 py-2 font-semibold hover:bg-quinary hover:text-white transition"
-                      onClick={onClose}
-                    >
-                      Cancel
-                    </button>
-                  )}
-                </div>
-                {/* Mobile footer: force to bottom of page */}
-                {isMobileDevice && (
-                  <div
-                    className="fixed bottom-0 left-0 right-0 z-[9999] flex justify-end border-t border-border-grey px-4 py-3 bg-white md:hidden"
-                    style={{
-                      boxShadow: "0 -2px 12px 0 rgba(0,0,0,0.04)",
-                    }}
-                  >
-                    {closeable && (
-                      <button
-                        className="border border-primary text-primary rounded-full px-6 py-2 font-semibold hover:bg-primary hover:text-background transition w-full"
-                        onClick={onClose}
-                      >
-                        Cancel
-                      </button>
-                    )}
-                  </div>
+              <div >
+                {closeable && (
+                  <></>
+                  // <button
+                  //   className="border border-quinary text-quinary rounded-full px-6 py-2 font-semibold hover:bg-quinary hover:text-white transition"
+                  //   onClick={handleClose}
+                  // >
+                  //   Cancel
+                  // </button>
                 )}
-              </>
+              </div>
             )
           )}
         </motion.div>

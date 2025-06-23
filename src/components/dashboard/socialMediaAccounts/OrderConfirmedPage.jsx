@@ -1,166 +1,313 @@
 import React from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "../../common/Button";
-import LoginRulesModal from "./LoginRulesModal";
+import { fetchOrderDetails, fetchLoginDetails } from '../../../services/socialAccountService';
+import Toast from '../../common/Toast';
+import CustomModal from '../../common/CustomModal';
+import { money_format } from '../../../utils/formatUtils';
+import { jsPDF } from "jspdf";
+
+function decodeHtml(html) {
+  if (!html) return '';
+  return html
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr.replace(/-/g, '/'));
+  return d.toLocaleString(undefined, {
+    year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true
+  });
+}
+
+const isMobile = () => typeof window !== "undefined" && window.innerWidth < 768;
 
 const OrderConfirmedPage = () => {
-  const location = useLocation();
   const navigate = useNavigate();
-  // Get order details from navigation state
-  const { order } = location.state || {};
-
-  const [downloadOpen, setDownloadOpen] = React.useState(false);
-  const downloadRef = React.useRef(null);
+  const { id: urlOrderID } = useParams();
+  const [order, setOrder] = React.useState(null);
+  const [account, setAccount] = React.useState(null);
+  const [logins, setLogins] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
   const [rulesOpen, setRulesOpen] = React.useState(false);
+  const [detailsOpen, setDetailsOpen] = React.useState(false);
+  const [dropdownOpen, setDropdownOpen] = React.useState(false);
+  const [toast, setToast] = React.useState({ show: false, message: '', type: 'info' });
 
-  // Close dropdown when clicking outside
+  // Fetch order and logins
   React.useEffect(() => {
-    function handleClickOutside(event) {
-      if (downloadRef.current && !downloadRef.current.contains(event.target)) {
-        setDownloadOpen(false);
+    let cancelled = false;
+    async function fetchAll() {
+      setLoading(true);
+      setOrder(null);
+      setAccount(null);
+      setLogins([]);
+      const orderData = await fetchOrderDetails(urlOrderID);
+      if (!orderData) {
+        setOrder(null);
+        setLoading(false);
+        return;
       }
+      if (cancelled) return;
+      setOrder(orderData);
+      setAccount(orderData.account || null);
+      let loginArr = [];
+      if (orderData.loginIDs) {
+        const ids = String(orderData.loginIDs).split(',').map(id => id.trim()).filter(Boolean);
+        if (ids.length > 0) {
+          const results = await Promise.all(ids.map(id => fetchLoginDetails(id)));
+          loginArr = results.filter(Boolean);
+        }
+      }
+      setLogins(loginArr);
+      setLoading(false);
     }
-    if (downloadOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [downloadOpen]);
+    fetchAll();
+    return () => { cancelled = true; };
+  }, [urlOrderID]);
 
-  // Fallback: If no order, redirect to social-media-accounts
-  React.useEffect(() => {
-    if (!order) {
-      navigate("/dashboard/social-media-accounts", { replace: true });
-    }
-  }, [order, navigate]);
+  // Not found UI
+  if (!loading && !order) {
+    return (
+      <div className="bg-background rounded-xl p-4 sm:p-8 flex flex-col items-center justify-center min-h-[300px]">
+        <h2 className="text-xl font-semibold text-primary mb-4">Account not found</h2>
+        <Button
+          variant="orange"
+          size="md"
+          className="rounded-full shadow-md"
+          onClick={() => navigate('/dashboard/accounts')}
+        >
+          Buy an Account
+        </Button>
+      </div>
+    );
+  }
 
-  if (!order) return null;
+  // Loading spinner
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[300px]">
+        <svg className="animate-spin h-8 w-8 text-quinary" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+        </svg>
+      </div>
+    );
+  }
+
+  // Account info
+  const platform = account?.platform;
+  const accountTitle = account?.title || 'Account';
+  const platformIcon = platform?.icon;
+  const platformName = platform?.name || '';
+  const platformUrl = platform?.login_url || '';
+  const description = decodeHtml(account?.description);
+  const rulesHtml = decodeHtml(account?.Aditional_auth_info);
+
+  // Copy all logins as txt
+  const handleCopyAll = () => {
+    if (!logins.length) return;
+    const txt = logins.map(l => l.login_details).join('\n');
+    navigator.clipboard.writeText(txt).then(() => {
+      setToast({ show: true, message: 'All logins copied!', type: 'success' });
+    });
+    setDropdownOpen(false);
+  };
+  // Download all logins as txt
+  const handleDownloadAll = () => {
+    if (!logins.length) return;
+    const txt = logins.map(l => l.login_details).join('\n');
+    const blob = new Blob([txt], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `logins_${order.ID}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setToast({ show: true, message: 'Downloaded as txt!', type: 'success' });
+    setDropdownOpen(false);
+  };
+  // Download as PDF
+  const handleDownloadPDF = () => {
+    if (!logins.length) return;
+    const doc = new jsPDF();
+    doc.setFontSize(14);
+    doc.text(`Order ID: ${order.ID}`, 10, 15);
+    doc.text(`Account: ${accountTitle}`, 10, 25);
+    doc.text(`Platform: ${platformName}`, 10, 35);
+    doc.text(`Date: ${formatDate(order.date)}`, 10, 45);
+    doc.text(`Amount: ${money_format(order.amount)}`, 10, 55);
+    doc.text('Logins:', 10, 70);
+    let y = 80;
+    logins.forEach((login, idx) => {
+      doc.setFontSize(12);
+      doc.text(`LOGIN ${idx + 1} (${login.username}):`, 10, y);
+      y += 7;
+      const details = login.login_details.split('\n');
+      details.forEach(line => {
+        doc.text(line, 14, y);
+        y += 7;
+      });
+      y += 2;
+      if (y > 270) { doc.addPage(); y = 20; }
+    });
+    doc.save(`logins_${order.ID}.pdf`);
+    setToast({ show: true, message: 'Downloaded as PDF!', type: 'success' });
+    setDropdownOpen(false);
+  };
+  // Copy individual login
+  const handleCopyLogin = (login) => {
+    navigator.clipboard.writeText(login.login_details).then(() => {
+      setToast({ show: true, message: 'Login copied!', type: 'success' });
+    });
+  };
+
+  // Responsive check
+  const mobile = isMobile();
 
   return (
     <div className="bg-background rounded-xl p-4 sm:p-8 ">
+      {toast.show && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast({ ...toast, show: false })}
+        />
+      )}
+      {/* Icon and title left-aligned */}
+      <div className="flex items-center gap-2 mb-4">
+        {platformIcon && (
+          <img src={platformIcon} alt={platformName} className="w-7 h-7 inline-block align-middle mr-2" />
+        )}
+        <h2 className="text-xl font-semibold text-primary">{accountTitle}</h2>
+      </div>
+      {/* Additional Details (Rules) */}
+      {rulesHtml && (
+        <div className="mb-4 bg-white rounded-lg p-4 shadow-sm flex flex-col gap-2">
+          <div className="font-semibold text-primary mb-1 flex items-center gap-2">Login Rules / Additional Details</div>
+          <div className="text-sm text-text-secondary line-clamp-3 overflow-hidden" dangerouslySetInnerHTML={{ __html: rulesHtml }} />
+          <Button
+            variant="outline"
+            size="xs"
+            className="w-fit mt-2"
+            onClick={() => setDetailsOpen(true)}
+          >
+            View More
+          </Button>
+        </div>
+      )}
+      {/* Description */}
+      {description && (
+        <div className="mb-4 bg-white rounded-lg p-4 shadow-sm">
+          <div className="font-semibold text-primary mb-1">Description</div>
+          <div className="text-sm text-text-secondary" dangerouslySetInnerHTML={{ __html: description }} />
+        </div>
+      )}
+      {/* Order Info */}
       <div className="border-b border-border-grey p-2 pb-8 mb-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
-          <h2 className="text-xl font-semibold text-primary mb-2 sm:mb-0">Order Confirmed</h2>
-          <div className="relative" ref={downloadRef}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div><span className="">Order ID – </span><span className="text-primary font-mono font-bold">{order.ID}</span></div>
+          <div><span className="">Account ID – </span><span className="text-primary font-mono font-bold">{order.accountID}</span></div>
+          <div><span className="">Type of Account – </span><span className="text-primary font-semibold font-bold">{accountTitle}</span></div>
+          <div><span className="">Price – </span><span className="text-primary font-bold font-bold">{money_format(order.amount)}</span></div>
+          <div><span className="">Quantity – </span><span className="text-primary font-bold font-bold">{order.no_of_orders}</span></div>
+          <div><span className="">Date – </span><span className="text-primary font-bold font-bold">{formatDate(order.date)}</span></div>
+        </div>
+      </div>
+      {/* Logins Section */}
+      <div className="bg-white rounded-2xl shadow-xl p-4 md:p-2 mb-6 flex flex-col items-cente border-b-1 border-[#FFDE59]">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-4">
+          <h3 className="text-lg md:text-xl font-semibold text-primary mb-2 md:mb-0">Account Access Details</h3>
+          {logins.length > 0 && (
+            <div className="relative">
             <Button
-              variant="orange"
+                variant="outline"
               size="sm"
-              className="flex items-center gap-2 px-5 py-2"
-              onClick={() => setDownloadOpen((open) => !open)}
-            >
-              Download Login Details
-              <svg
-                className="w-5 h-5 text-background"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                viewBox="0 0 24 24"
+                className="px-3 py-1 flex items-center gap-2"
+                onClick={() => setDropdownOpen((open) => !open)}
               >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-              </svg>
+                <img src="/icons/download.svg" alt="Download" className="w-5 h-5" />
+                Download Logins
+                <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
             </Button>
-            {downloadOpen && (
-              <div className="absolute left-0 md:left-auto right-0 md:right-0 mt-2 px-3 py-3 w-52 bg-white rounded-xl shadow-lg z-50">
+              {dropdownOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg z-50 border border-border-grey">
+                  <button
+                    className="w-full text-left px-4 py-3 hover:bg-bgLayout text-primary font-medium"
+                    onClick={handleCopyAll}
+                  >
+                    Copy All Logins
+                  </button>
+                  <button
+                    className="w-full text-left px-4 py-3 hover:bg-bgLayout text-primary font-medium"
+                    onClick={handleDownloadAll}
+                  >
+                    Download as TXT
+                  </button>
                 <button
-                  className="w-full text-left px-3 py-3 hover:bg-bgLayout text-primary font-medium"
-                  onClick={() => {
-                    setDownloadOpen(false);
-                    alert("Download as PDF");
-                  }}
+                    className="w-full text-left px-4 py-3 hover:bg-bgLayout text-primary font-medium"
+                    onClick={handleDownloadPDF}
                 >
                   Download as PDF
-                </button>
-                <div className="border-t border-bgLayout" />
-                <button
-                  className="w-full text-left px-3 py-3 hover:bg-bgLayout text-primary font-medium"
-                  onClick={() => {
-                    setDownloadOpen(false);
-                    alert("Download as txt");
-                  }}
-                >
-                  Download as txt
                 </button>
               </div>
             )}
           </div>
+          )}
         </div>
-        <div className="space-y-2">
-          <div>
-            <span className="">Order ID – </span>
-            <span className="text-primary font-mono font-bold">{order.orderId}</span>
-          </div>
-          <div>
-            <span className="">Account ID – </span>
-            <span className="text-primary font-mono font-bold">{order.accountId}</span>
-          </div>
-          <div>
-            <span className="">Type of Account – </span>
-            <span className="text-primary font-semibold font-bold">{order.accountType}</span>
-          </div>
-          <div>
-            <span className="">Price – </span>
-            <span className="text-primary font-bold font-bold">₦{order.price}</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-white rounded-2xl shadow-xl p-4 md:p-2 mb-6 flex flex-col items-cente border-b-1 border-[#FFDE59]">
-        <h3 className="text-xl md:text-2xl font-semibold text-primary text-left md:text-center px- md:px-2 mt-8 mb-0 md:mb-6 tracking-wide">
-          ACCOUNT ACCESS DETAILS
-        </h3>
         <div className="w-full px-0 md:px-8 pb-8">
-          <div className="bg-background rounded-xl p-">
-            <div className="mb-6 flex items-center gap-2">
-              <span className="font-semibold text-primary text-base">LOGIN 1 ID</span>
-              <span className="font-semibold text-text-primary text-base">– {order.loginId}</span>
+          {logins.length === 0 ? (
+            <div className="text-center text-tertiary py-8">No login details found for this order.</div>
+          ) : (
+            logins.map((login, idx) => (
+              <div key={login.ID || idx} className="bg-background rounded-xl p-4 mb-6">
+                <div className="mb-2 flex flex-col sm:flex-row sm:items-center gap-2 justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-primary text-base">LOGIN {idx + 1} ID</span>
+                    <span className="font-semibold text-text-primary text-base">– {login.username}</span>
+                    {login.preview_link && (
+                      <a href={login.preview_link} target="_blank" rel="noopener noreferrer" className="ml-2 text-quinary underline text-xs">View</a>
+                    )}
+                  </div>
+                  {mobile ? (
+                    <button
+                      className="p-2 rounded-full hover:bg-quaternary/20 transition"
+                      onClick={() => handleCopyLogin(login)}
+                      aria-label="Copy Login"
+                    >
+                      <svg className="w-5 h-5 text-quinary" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" strokeWidth="2"/><rect x="3" y="3" width="13" height="13" rx="2" stroke="currentColor" strokeWidth="2"/></svg>
+                    </button>
+                  ) : (
+                    <Button variant="outline" size="xs" className="px-2 py-1" onClick={() => handleCopyLogin(login)}>Copy</Button>
+                  )}
             </div>
             <div className="overflow-x-auto w-full">
               <p className="text-xs sm:text-sm font-mono text-text-secondary break-all whitespace-pre-wrap leading-relaxed min-w-[310px]">
-                {order.loginDetails}
+                    {login.login_details}
               </p>
             </div>
           </div>
-          {/* Divider */}
-          <div className="border-t border-bgLayout mt-6" />
-          {/* View additional details button */}
-          <button
-            className="w-full flex items-center gap-6 text-left text-[16px] font-medium text-quinary mt-2 py-2 px- focus:outline-none"
-            
-            onClick={() => alert("Show additional details")}
-          >
-            View additional details
-            <svg
-              className="w-5 h-5 text-quinary"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
+            ))
+          )}
         </div>
-        {/* Read Facebook Login Rules button */}
-        
       </div>
-      <div className="w-full flex justify-center md:justify-start pb-8">
-          <Button
-            variant="orange"
-            size="md"
-            className="w-full max-w-xs rounded-full shadow-md mt-2"
-            onClick={() => setRulesOpen(true)}
-          >
-            Read {order.platform || "Facebook"} Login Rules
-          </Button>
-        </div>
-        <LoginRulesModal
-      open={rulesOpen}
-      onClose={() => setRulesOpen(false)}
-      platform={order.platform || "Facebook"}
-    />
+      {/* Additional Details Modal */}
+      <CustomModal
+        open={detailsOpen}
+        onClose={() => setDetailsOpen(false)}
+        title={platformName + ' Login Rules / Additional Details'}
+        showFooter={false}
+        className="max-w-lg"
+      >
+        <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: rulesHtml || '<div>No additional rules provided.</div>' }} />
+      </CustomModal>
     </div>
-   
   );
 };
 

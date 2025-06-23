@@ -30,13 +30,13 @@ const MenuItem = ({ imageSrc, text, to }) => {
       className={`flex items-center ${isCollapsed ? 'justify-center' : 'mx-2'} font-semibold gap-3 px-6 py-4 text-[15px] 
         ${isActive 
           ? 'text-quaternary bg-quaternary-light' 
-          : 'text-text-secondary hover:text-quaternary hover:bg-quaternary-light'
+          : 'text-black/80 hover:text-quaternary hover:bg-quaternary-light'
         } 
         rounded-lg group transition-colors`}
     >
       <div 
         className={`w-5 h-5 transition-colors ${
-          isActive ? 'bg-quaternary' : 'bg-text-secondary group-hover:bg-quaternary'
+          isActive ? 'bg-quaternary' : 'bg-black/50 group-hover:bg-quaternary'
         }`}
         style={{
           WebkitMask: `url(${imageSrc}) center center / contain no-repeat`,
@@ -125,6 +125,7 @@ const Sidebar = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Always fetch from API on mount/reload
     fetchUserProfile()
       .then(data => {
         setUser({
@@ -165,12 +166,12 @@ const Sidebar = () => {
     { imageSrc: "/icons/home.svg", text: "Home", to: "/dashboard" },
     { imageSrc: "/icons/manage-numbers.svg", text: "Manage Numbers", to: "/dashboard/manage-numbers" },
     { imageSrc: "/icons/buy-number.svg", text: "Buy Number", to: "/dashboard/buy-numbers" },
-    { imageSrc: "/icons/social-media.svg", text: "Social Media Accounts", to: "/dashboard/social-media-accounts" },
+    { imageSrc: "/icons/social-media.svg", text: "Social Media Accounts", to: "/dashboard/accounts" },
+    { imageSrc: "/icons/orders.svg", text: "Manage Orders", to: "/dashboard/manage-orders" },
   ];
   const transactionsMenu = [
     { imageSrc: "/icons/wallet.svg", text: "Wallet", to: "/dashboard/wallet" },
     { imageSrc: "/icons/transactions.svg", text: "Transactions", to: "/dashboard/transactions" },
-    { imageSrc: "/icons/orders.svg", text: "Manage Orders", to: "/dashboard/manage-orders" },
     { imageSrc: "/icons/api-key.svg", text: "API Key", to: "/dashboard/api-page" },
   ];
   const userGuideMenu = [
@@ -186,22 +187,25 @@ const Sidebar = () => {
     <>
       {/* Dark overlay for mobile */}
       <AnimatePresence>
-        {isMobile && !isCollapsed && (
-          <motion.div
-            className="fixed inset-0 bg-black/50 z-30 lg:hidden"
-            onClick={toggleSidebar}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-          />
-        )}
-      </AnimatePresence>
+      {isMobile && !isCollapsed && (
+        <motion.div
+          className="fixed inset-0 z-90 lg:hidden bg-black/10 backdrop-blur-xs border border-black/10"
+          onClick={toggleSidebar}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+        />
+      )}
+    </AnimatePresence>
+
       
       <motion.aside
-        className={`sidebar-scrollbar fixed left-0 top-0 h-screen 
+       className={`sidebar-scrollbar fixed left-0 top-0 h-screen 
           ${isCollapsed ? 'w-[80px]' : 'w-[270px]'} 
-          bg-background z-100 overflow-y-auto`}
+          bg-background z-100 overflow-y-auto 
+          bg-gradient-to-br from-rose-50/20 to-stone-50
+          ${isMobile ? 'backdrop-blur-md bg-white/50  bg-gradient-to-br from-rose-50/20 to-stone-50 border border-white/20' : ''}`}
         initial="closed"
         animate={isMobile && isCollapsed ? "closed" : "open"}
         variants={sidebarVariants}
@@ -266,7 +270,7 @@ const Sidebar = () => {
               <h3 className="text-lg font-semibold text-text-secondary mb-1 mt-8">
                 {user.name}
               </h3>
-              <p className="text-sm font-semibold text-text-grey">
+              <p className="text-sm font-semibold text-black/80">
                 {user.email}
               </p>
               

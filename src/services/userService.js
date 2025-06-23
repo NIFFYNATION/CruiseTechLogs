@@ -21,13 +21,7 @@ export const refreshUserToken = async (currentToken) => {
 };
 
 export const fetchUserProfile = async () => {
-  // cookiesManager.clearAll();
-  // Try to get user profile from cookiesManager first
-  const cachedUser = cookiesManager.getUser();
-  if (cachedUser) {
-    console.log(cachedUser)
-    return cachedUser;
-  }
+  // Always fetch from API, ignore cache
   try {
     const response = await axiosInstance.get(`${API_BASE_URL}/user/get`);
     if (response.status !== 200) {
@@ -35,7 +29,6 @@ export const fetchUserProfile = async () => {
       console.warn(`User Profile Warning [${response.status}]: ${message}`);
       throw new Error(message);
     }
-    cookiesManager.setUser(response.data.data); // Cache user profile
     return response.data.data; // Return user profile data
   } catch (error) {
     console.error(`User Profile Error [${error.status}]: ${error.message}`);
@@ -118,3 +111,4 @@ export const fetchUserTransactions = async ({ start = 0 } = {}) => {
     return { transactions: [], next: null };
   }
 };
+

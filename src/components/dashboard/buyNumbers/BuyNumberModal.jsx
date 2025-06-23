@@ -15,9 +15,10 @@ const BuyNumberModal = ({
 }) => {
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(""); // For highlighted error line
 
+  // Always render ToastPortal if toast is set, even if modal is closed
   if (!open || !service || !country) {
-    // Always render ToastPortal if toast is set, even if modal is closed
     return (
       <>
         {toast && (
@@ -34,37 +35,48 @@ const BuyNumberModal = ({
 
   const handleBuy = async () => {
     setToast(null);
+    setErrorMsg("");
     setLoading(true);
     try {
-      const result = await bookNumber(service.id);
-      if (result.code === 200) {
-        setToast({
-          type: "success",
-          message: result.message || "Number booked successfully!",
-        });
-        if (onBuy) onBuy(result.data);
-      } else {
-        setToast({
-          type: "error",
-          message: result.message || "Failed to book number.",
-        });
+      if (!service?.id) {
+        setErrorMsg("Invalid service selected. Please try again.");
+        setLoading(false);
+        return;
       }
+      // Prevent double click
+      if (loading) return;
+
+      // Book number (now throws on error)
+      const result = await bookNumber(service.id);
+
+      setToast({
+        type: "success",
+        message: result.message || "Number booked successfully!",
+      });
+      if (onBuy) onBuy(result.data);
     } catch (err) {
+      // err.message is always present from numberService
+      setErrorMsg(err.message || "Failed to book number. Please check your connection and try again.");
       setToast({
         type: "error",
-        message: err.message || "Failed to book number.",
+        message: err.message || "Failed to book number. Please check your connection and try again.",
       });
     } finally {
       setLoading(false);
     }
   };
 
-  // Always render Toast outside modal so it stays above everything
+  // Clear errorMsg on modal close
+  const handleClose = () => {
+    setErrorMsg("");
+    onClose && onClose();
+  };
+
   return (
     <>
       <CustomModal
         open={open}
-        onClose={onClose}
+        onClose={handleClose}
         title="Buy Number"
         showFooter={false}
         className="max-w-xl"
@@ -108,7 +120,11 @@ const BuyNumberModal = ({
                 Set-up Fee: <span className="text-primary font-semibold">FREE</span>
               </span>
               <span className="text-xs text-text-grey">
-                Cost: <span className="text-primary font-semibold">{service.cost}</span>
+                Cost: <span className="text-primary font-semibold">
+                  {typeof service.cost === "number"
+                    ? service.cost.toLocaleString("en-NG", { style: "currency", currency: "NGN" })
+                    : `₦${service.cost ? String(service.cost).replace(/^₦/, '').replace(/^N/, '').trim() : "0.00"}`}
+                </span>
               </span>
             </div>
           </div>
@@ -121,6 +137,12 @@ const BuyNumberModal = ({
               You'll be charged, but automatically refunded if no OTP is received.
             </span>
           </div>
+          {/* display error message here too */}
+          {errorMsg && (
+            <div className="mt-3 px-4 py-2 rounded bg-red-100 border border-red-400 text-danger font-semibold text-sm">
+              {errorMsg}
+            </div>
+          )}
         </div>
         {/* Footer */}
         <div className="flex justify-end gap-4 border-t border-border-grey px-6 py-4">
@@ -136,7 +158,7 @@ const BuyNumberModal = ({
             onClick={handleBuy}
             disabled={loading}
           >
-            {loading ? "Processing..." : "Buy Number & Continue"}
+            {loading ? "Processing..." : "Buy Number"}
           </button>
         </div>
       </CustomModal>

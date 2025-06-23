@@ -1,9 +1,11 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { isUserLoggedIn } from '../controllers/userController'; // Import userController
 
 const ProtectedRoute = ({ children }) => {
-  if (!isUserLoggedIn()) {
+  const location = useLocation();
+
+  if (!isUserLoggedIn() && location.pathname !== '/') {
     return <Navigate to="/login" replace />; // Redirect to login if user is not logged in
   }
 

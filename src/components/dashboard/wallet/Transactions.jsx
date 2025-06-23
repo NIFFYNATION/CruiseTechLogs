@@ -1,15 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { fetchUserTransactions } from "../../../services/userService";
-
-// Helper to format amount as Naira
-const formatNaira = (amount) =>
-  "₦" + Number(amount).toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-// Helper to truncate long strings
-const truncate = (str, max = 12) => {
-  if (!str) return "";
-  return str.length > max ? str.slice(0, max) + "..." : str;
-};
+import { money_format, truncate } from "../../../utils/formatUtils"; // <-- use utilities
+import SectionHeader from "../../common/SectionHeader";
+import { SkeletonTableRow } from "../../common/Skeletons";
 
 const Transactions = ({
   onFundWallet,
@@ -22,6 +16,7 @@ const Transactions = ({
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [expanded, setExpanded] = useState({}); // { [id]: true }
+  const navigate = useNavigate();
 
   const listRef = useRef(null);
 
@@ -90,29 +85,17 @@ const Transactions = ({
   };
 
   return (
-    <div className="mt-2">
+    <div className="mt-5">
       <div className="bg-white rounded-lg shadow p-4 sm:p-8">
         {/* Sticky Header with Fund Account Button */}
-        <div
-          className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-2 mb-4 gap-4 sticky top-0 z-10 bg-white"
-          style={{ position: "sticky", top: 0 }}
+        <SectionHeader
+          title={title}
+          buttonText={!fundButton ? "Fund Account" : undefined}
+          onButtonClick={!fundButton ? () => navigate("/dashboard/wallet") : undefined}
         >
-          <div className="flex items-center gap-2 text-sm text-tertiary">
-            <h2 className="text-xl font-semibold mb-6 text-primary">{title}</h2>
-          </div>
-          <div className="flex items-center gap-2 ml-auto">
-            {fundButton ? (
-              fundButton
-              ) : (
-                <button
-                className="bg-quinary hover:bg-[#ff8c1a] text-white font-semibold rounded-full px-4 py-2 text-sm transition-colors"
-                onClick={onFundWallet}
-              >
-                Fund Account
-                </button>
-            )}
-          </div>
-        </div>
+          {fundButton}
+        </SectionHeader>
+
         {/* Table */}
         <div
           ref={listRef}
@@ -125,8 +108,8 @@ const Transactions = ({
                 <th className="py-2 px-1">View</th>
                 <th className="py-2 px-1">Type</th>
                 <th className="py-2 px-1">Amount</th>
-                <th className="py-2 px-1">Action</th>
-                <th className="py-2 px-1">Current</th>
+                <th className="py-2 px-1 sm:table-cell">Action</th>
+                <th className="py-2 px-1 sm:table-cell">Current</th>
                 {/* Hide on small screens */}
                 <th className="py-2 px-1 hidden sm:table-cell">ID</th>
                 <th className="py-2 px-1 hidden sm:table-cell">Service ID</th>
@@ -134,9 +117,7 @@ const Transactions = ({
             </thead>
             <tbody>
               {loading ? (
-                <tr>
-                  <td colSpan={7} className="text-center py-8 text-tertiary">Loading...</td>
-                </tr>
+                Array.from({ length: 3 }).map((_, i) => <SkeletonTableRow key={i} cols={7} />)
               ) : transactions.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="text-center py-8 text-tertiary">No transactions found.</td>
@@ -171,7 +152,7 @@ const Transactions = ({
                       <td
                         className={`py-2 px-1 font-semibold `}
                       >
-                        {formatNaira(tx.amount)}
+                        {money_format(tx.amount)}
                       </td>
                       <td
                         className={`py-2 px-1 font-semibold 
@@ -183,7 +164,7 @@ const Transactions = ({
                           <span className="text-danger capitalize">Debit</span>
                         )}
                       </td>
-                      <td className="py-2 px-1 font-semibold text-primary">{formatNaira(tx.current_balance)}</td>
+                      <td className="py-2 px-1 font-semibold text-primary">{money_format(tx.current_balance)}</td>
                       {/* Only show on sm+ */}
                       <td className="py-2 px-1 hidden sm:table-cell">{tx.ID}</td>
                       <td className="py-2 px-1 text-text-primary max-w-[90px] truncate hidden sm:table-cell" title={tx.forID}>
@@ -212,7 +193,7 @@ const Transactions = ({
                             </div>
                             <div>
                               <span className="font-semibold text-text-secondary">Amount Left:</span>{" "}
-                              <span className="font-mono">{formatNaira(tx.amount_left)}</span>
+                              <span className="font-mono">{money_format(tx.amount_left)}</span>
                             </div>
                             <div>
                               <span className="font-semibold text-text-secondary">Order/For ID:</span>{" "}
@@ -221,13 +202,13 @@ const Transactions = ({
                             <div>
                               <span className="font-semibold text-text-secondary">Order Type:</span>{" "}
                               <span className="font-mono">{tx.trans_for}</span>
-                    </div>
-                    <div>
+                            </div>
+                            <div>
                               <span className="font-semibold text-text-secondary">Date:</span>{" "}
                               <span className="font-mono">{tx.date}</span>
                             </div>
-                    </div>
-                  </td>
+                          </div>
+                        </td>
                       </tr>
                     )}
                   </React.Fragment>

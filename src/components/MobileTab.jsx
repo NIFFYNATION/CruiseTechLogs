@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import MobileTabMenu from './MobileTabMenu';
+import { motion } from 'framer-motion';
 
 // Use image paths for icons
 const tabs = [
   { name: 'Home', path: '/dashboard', icon: '/icons/tabHome.svg' },
-  { name: 'Number', path: '/dashboard/buy-numbers', icon: '/icons/tabBuyNum.svg' },
-  { name: 'Accounts', path: '/dashboard/social-media-accounts', icon: '/icons/tabSocial.svg' },
+  { name: 'Buy No.', path: '/dashboard/buy-numbers', icon: '/icons/tabBuyNum.svg' },
+  { name: 'Buy Acct.', path: '/dashboard/accounts', icon: '/icons/tabSocial.svg' },
   { name: 'Wallet', path: '/dashboard/wallet', icon: '/icons/tabWallet.svg' },
 ];
 
@@ -52,13 +53,19 @@ const Tabs = () => {
   
       <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[95vw] max-w-md">
       <div className="absolute bottom-9 left-1/2 -translate-x-1/2 z-10">
-            <button
+            <motion.button
               className="p-0 "
               onClick={() => setMenuOpen((open) => !open)}
               aria-label="Open menu"
+              whileTap={{ scale: 0.9 }}
             >
-              <img className="w-14 h-14 rounded-full" src="/icons/mobileTab.svg" alt="mobileTab" />
-            </button>
+              <motion.div
+                animate={{ rotate: menuOpen ? 135 : 0 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+              >
+                <img className="w-14 h-14 rounded-full" src="/icons/mobileTab.svg" alt="mobileTab" />
+              </motion.div>
+            </motion.button>
           </div>
         <div className="relative flex items-center justify-between bg-[#f7f5f2]/98 border-1 border-black/10 rounded-full shadow-lg px-4 py-3 cutout-top-circle">
           {/* Central FAB */}
@@ -66,20 +73,13 @@ const Tabs = () => {
   
           {/* Tabs */}
           <div className="flex justify-between w-full">
-            {tabs.map((tab, idx) => {
-              if (idx === 2) {
-                return (
-                  <React.Fragment key={tab.name}>
-                    <TabItem tab={tabs[0]} isActive={location.pathname === tabs[0].path} />
-                    <TabItem tab={tabs[1]} isActive={location.pathname === tabs[1].path} />
-                    <div className="w-16" /> {/* Spacer for FAB */}
-                    <TabItem tab={tabs[2]} isActive={location.pathname === tabs[2].path} />
-                    <TabItem tab={tabs[3]} isActive={location.pathname === tabs[3].path} />
-                  </React.Fragment>
-                );
-              }
-              return null;
-            })}
+            {tabs.slice(0, 2).map(tab => (
+              <TabItem key={tab.path} tab={tab} isActive={location.pathname === tab.path} />
+            ))}
+            <div className="w-16" /> {/* Spacer for FAB */}
+            {tabs.slice(2).map(tab => (
+              <TabItem key={tab.path} tab={tab} isActive={location.pathname === tab.path} />
+            ))}
           </div>
         </div>
       </div>

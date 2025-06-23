@@ -7,8 +7,9 @@ import { DateTime } from 'luxon';
 
 // Helper: parse date string to UTC timestamp (seconds)
 function parseDateToTimestamp(dateStr) {
-  if (!dateStr) return null;
-   return new Date(dateStr.replace(" ", "T")).getTime() / 1000; // Convert to seconds
+  if (!dateStr || typeof dateStr !== "string") return null;
+  // Defensive: ensure dateStr is a string before replace
+  return new Date(dateStr.replace(" ", "T")).getTime() / 1000; // Convert to seconds
 }
 
 // Helper: get current time in Africa/Lagos timezone in seconds
@@ -20,12 +21,13 @@ function getNowLagosSeconds() {
 // Helper: get seconds left until expiration (using Lagos time)
 function getSecondsLeft(dateStr, expiration) {
   if (!dateStr || !expiration) {  return 0;}
-  // dateStr is the start time, expiration is seconds to add
-  const startTs = parseDateToTimestamp(dateStr);
+  // Defensive: ensure dateStr is a string
+  // If dateStr is a number (timestamp), use it directly; else parse
+  const startTs = typeof dateStr === "number"
+    ? dateStr
+    : parseDateToTimestamp(dateStr);
   const expireTs = startTs + Number(expiration);
-  // Get current Lagos time in seconds
   const nowLagos = getNowLagosSeconds();
-  // console.log(expireTs, nowLagos, dateStr);
   return expireTs - nowLagos;
 }
 
@@ -92,33 +94,9 @@ const NumberDetailsModal = ({
   const intervalRef = useRef();
   const countdownRef = useRef();
 
-  // Calculate seconds left for countdown (using UTC)
-  useEffect(() => {
-    if (!open) return;
-    let active = true;
-    function updateCountdown() {
-      let secs = 0;
-      // Prefer expire_date if available, else use date + expiration
-      if (expire_date) {
-        const expireTs = parseDateToTimestamp(expire_date);
-        const nowLagos = getNowLagosSeconds();
-        secs = expireTs - nowLagos;
-      } else if (date && expiration) {
-        secs = getSecondsLeft(date, expiration);
-      }
-      if (active) setSecondsLeft(secs > 0 ? secs : 0);
-    }
-    updateCountdown();
-    countdownRef.current = setInterval(updateCountdown, 1000);
-    return () => {
-      active = false;
-      clearInterval(countdownRef.current);
-    };
-  }, [open, date, expiration, expire_date]);
-
   // Determine if number is still active based on countdown
-  // status === 1 means active, and secondsLeft > 0 means not expired
-  const isStillActive = status === 1 && secondsLeft > 0;
+  // status === 1 or status === "active", and secondsLeft > 0 means not expired
+  const isStillActive = ((status === "active" || status === 1) && secondsLeft > 0);
 
   // Fetch code/messages from API
   const fetchCode = useCallback(
@@ -163,6 +141,49 @@ const NumberDetailsModal = ({
     [orderId]
   );
 
+  // Calculate seconds left for countdown (using UTC)
+  useEffect(() => {
+    if (!open) return;
+    let active = true;
+    function updateCountdown() {
+      let secs = 0;
+      // Prefer expire_date if available, else use date + expiration
+      if (date && expiration) {
+        secs = getSecondsLeft(date, expiration);
+      } else if (expire_date) {
+        const expireTs = parseDateToTimestamp(expire_date);
+        const nowLagos = getNowLagosSeconds();
+        secs = expireTs - nowLagos;
+      }
+      if (active) setSecondsLeft(secs > 0 ? secs : 0);
+    }
+    updateCountdown();
+    countdownRef.current = setInterval(updateCountdown, 1000);
+    return () => {
+      active = false;
+      clearInterval(countdownRef.current);
+    };
+  }, [open, date, expiration, expire_date]);
+
+  // Poll every 30s if active (background)
+  useEffect(() => {
+    if (!open) {
+      clearInterval(intervalRef.current);
+      return;
+    }
+    if (open && isStillActive && orderId) {
+      intervalRef.current = setInterval(() => {
+        setIsBackground(true);
+        fetchCode(true);
+      }, 30000);
+      return () => clearInterval(intervalRef.current);
+    }
+    // Always clear interval when modal is closed or not active
+    return () => {
+      clearInterval(intervalRef.current);
+    };
+  }, [open, isStillActive, orderId, fetchCode]);
+
   // Fetch code/messages on open
   useEffect(() => {
     if (open && orderId) {
@@ -180,21 +201,6 @@ const NumberDetailsModal = ({
     await fetchCode(false);
     setReloadDisabled(false);
   };
-
-  // Poll every 30s if active (background)
-  useEffect(() => {
-    if (open && isStillActive && orderId) {
-      intervalRef.current = setInterval(() => {
-        setIsBackground(true);
-        fetchCode(true);
-      }, 30000);
-      return () => clearInterval(intervalRef.current);
-    }
-    // Always clear interval when modal is closed or not active
-    return () => {
-      clearInterval(intervalRef.current);
-    };
-  }, [open, isStillActive, orderId, fetchCode]);
 
   // Copy number handler
   const handleCopyNumber = () => {
@@ -282,8 +288,8 @@ const NumberDetailsModal = ({
       >
         {/* Note */}
         <p className="px-6 pt-4 pb-2 text-[14px] text-text-secondary">
-          Note: Number takes only 10 minutes for you to verify, it means it expires after 10 minutes. Please verify number immediately, if code is taking time, kindly reload number.
-        </p>
+        Note: The number is valid for the duration of the countdown. Please verify it as soon as possible. If the code is delayed, try reloading the number.
+           </p>
         {/* Number Section */}
         <div className="px-6 py-4 mx-6 my-4 border-border-grey border-t border-b">
           <div className="flex items-center gap-2 mb-2">
@@ -316,6 +322,16 @@ const NumberDetailsModal = ({
               <span className="text-xs text-text-grey ml-2">
                 Expires at: {formatUTCDate(expire_date)}
               </span>
+            )}
+            {/* Add Close Number button if active */}
+            {isStillActive && (
+              <button
+                className="ml-4 bg-danger text-white rounded-full px-4 py-1 text-xs font-semibold hover:bg-danger/80 transition"
+                onClick={() => setConfirmOpen(true)}
+                disabled={closeLoading}
+              >
+                {closeLoading ? "Closing..." : "Close Number"}
+              </button>
             )}
           </div>
         </div>

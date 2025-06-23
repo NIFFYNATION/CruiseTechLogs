@@ -51,7 +51,15 @@ const Signup = () => {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Left Section */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center bg-background py-8 px-4 sm:px-6 lg:px-8 h-screen md:h-auto">
+      <div className="w-full lg:w-1/2 flex flex-col items-center justify-center bg-gradient-to-r from-red-500/2 to-orange-500/5 py-8 px-4 sm:px-6 lg:px-8 h-screen md:h-auto">
+          <div className="flex justify-center mb-6">
+            <img
+              src="/images/CruiseTech-2.svg"
+              alt="CruiseTech Logo"
+              className="h-12"
+              style={{ maxWidth: 160 }}
+            />
+          </div>
         <FormSection
           title="Create Your Account"
           subtitle="Join us and start your journey today!"
@@ -59,62 +67,71 @@ const Signup = () => {
           {/* Signup Form */}
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
             <InputField
+            className="bg-transparent focus:ring-quinary focus:border-quinary"
               id="name"
               name="name"
               type="text"
               placeholder="Full Name"
-            className='focus:ring-quinary focus:border-quinary'
+            
 
               value={formData.name}
               onChange={handleChange}
-              icon={<MdPerson className="h-5 w-5 text-text-secondary" />}
+              icon={<MdPerson className="h-5 w-5 text-text-secondary/10" />}
             />
             <InputField
+                        className="bg-transparent focus:ring-quinary focus:border-quinary"
+
               id="email"
               name="email"
               type="email"
               placeholder="Email Address"
-            className='focus:ring-quinary focus:border-quinary'
+            
 
               value={formData.email}
               onChange={handleChange}
-              icon={<MdEmail className="h-5 w-5 text-text-secondary" />}
+              icon={<MdEmail className="h-5 w-5 text-text-secondary/10" />}
             />
             <InputField
+                        className="bg-transparent focus:ring-quinary focus:border-quinary"
+
               id="phoneNumber"
               name="phoneNumber"
               type="text"
               placeholder="Phone Number"
-            className='focus:ring-quinary focus:border-quinary'
+            
 
               value={formData.phoneNumber}
               onChange={handleChange}
-              icon={<MdPerson className="h-5 w-5 text-text-secondary" />}
+              icon={<MdPerson className="h-5 w-5 text-text-secondary/10" />}
             />
             <InputField
+                       className="bg-transparent focus:ring-quinary focus:border-quinary"
+
               id="password"
               name="password"
               type="password"
               placeholder="Password"
-            className='focus:ring-quinary focus:border-quinary'
+           
 
               value={formData.password}
               onChange={handleChange}
-              icon={<RiLockPasswordLine className="h-5 w-5 text-text-secondary" />}
+              icon={<RiLockPasswordLine className="h-5 w-5 text-text-secondary/10" />}
               showToggle
               onToggle={() => setShowPassword(!showPassword)}
               isToggled={showPassword}
             />
             <InputField
+                        className="bg-transparent focus:ring-quinary focus:border-quinary"
+
               id="confirmPassword"
               name="confirmPassword"
               type="password"
               placeholder="Confirm Password"
-            className='focus:ring-quinary focus:border-quinary'
+              
 
               value={formData.confirmPassword}
               onChange={handleChange}
-              icon={<RiLockPasswordLine className="h-5 w-5 text-text-secondary" />}
+              icon={<RiLockPasswordLine className="h-5 w-5 text-text-secondary/10" />}
               showToggle
               onToggle={() => setShowConfirmPassword(!showConfirmPassword)}
               isToggled={showConfirmPassword}

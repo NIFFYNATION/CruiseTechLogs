@@ -43,7 +43,7 @@ export const fetchNumberTypes = async () => {
 };
 
 export const fetchCountries = async (typeObj) => {
-  console.log('fetchCountries called with:', typeObj);
+  // console.log('fetchCountries called with:', typeObj);
   if (!typeObj || !typeObj.type || !typeObj.network) return [];
   const cacheKey = `countries_${typeObj.type}_${typeObj.network}`;
   // Try to get from localStorage/cookies first
@@ -136,14 +136,13 @@ export const bookNumber = async (id) => {
   try {
     const url = `${API_URLS.BOOKNUMBER}?id=${encodeURIComponent(id)}`;
     const response = await axiosInstance.get(url);
+     if (response.status !== 200) {
+      const message = response.data?.message || 'Failed to book number';
+      throw new Error(message);
+    }
     return response.data;
   } catch (error) {
-    return {
-      code: error.response?.status || 500,
-      status: "error",
-      message: error.response?.data?.message || error.message || "Failed to book number",
-      data: null,
-    };
+      throw new Error( error.response?.data?.message || error.message || "Failed to book number");
   }
 };
 

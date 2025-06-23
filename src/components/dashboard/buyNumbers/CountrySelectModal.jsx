@@ -67,8 +67,9 @@ const CountrySelectModal = ({ open, onClose, onSelect, type }) => {
       enableSearch={true}
       searchPlaceholder="Search for countries"
       list={countries}
+      loading={loading}
       onSelect={country => {
-        onSelect(country);
+        // onSelect(country);
       }}
       renderItem={(country, idx) => (
         <motion.button
@@ -105,11 +106,6 @@ const CountrySelectModal = ({ open, onClose, onSelect, type }) => {
         </motion.button>
       )}
     >
-      {loading && (
-        <div className="flex justify-center items-center py-8 text-gray-500">
-          Loading...
-        </div>
-      )}
       {!loading && countries.length === 0 && (
         <div className="flex justify-center items-center py-8 text-gray-400 bg-background">
           No countries found.

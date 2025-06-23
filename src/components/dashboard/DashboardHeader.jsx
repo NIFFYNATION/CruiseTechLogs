@@ -16,6 +16,7 @@ const DashboardHeader = () => {
 
   // Fetch user record from fetchUserProfile
   useEffect(() => {
+    // Always fetch from API on mount/reload
     fetchUserProfile()
       .then(data => {
         setUser({
