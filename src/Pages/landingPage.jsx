@@ -14,7 +14,7 @@ export default function LandingPage() {
 
            {/* Teal Background Extension */}
            <div 
-            className="absolute top-0 right-0 h-full bg-primary w-[35%] md:w-[33%]" 
+            className="absolute top-0 right-0 h-full bg-quinary w-[50%] md:w-[33%]" 
             style={{
               clipPath: 'polygon(15% 0, 100% 0, 100% 100%, 0% 100%)',
              
@@ -38,9 +38,20 @@ export default function LandingPage() {
           {/* Login Button */}
           <div className="relative z-20 ">
             <Button
-              variant="ghost"
+              variant="primary"
+              size="lg"
+              className="py-0 group bg-white text-quinary hover:bg-background hover:text-primary"
               to="/login"
-              icon={<img src="/icons/login.svg" alt="Login" className="h-5 w-5" />}
+              icon={
+                <span
+                  className="h-5 w-5 items-center flex justify-center bg-quinary group-hover:bg-primary transition-colors duration-200"
+                  style={{
+                    WebkitMask: `url(/icons/login.svg) center center / contain no-repeat`,
+                    mask: `url(/icons/login.svg) center center / contain no-repeat`,
+                  }}
+                  aria-label="Login Icon"
+                />
+              }
             >
               Login
             </Button>
@@ -50,9 +61,9 @@ export default function LandingPage() {
       </header>
 
       {/* Main content */}
-      <main className="flex-grow bg-secondary">
+      <main className="flex-grow bg-">
         <div className="container mx-auto px-4 mt-16 sm:px-6 lg:px-16">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center ">
             {/* Left Column - Text Content */}
             <div className="space-y-4 sm:space-y-6 md:space-y-8 max-w-xl mx-auto lg:mx-0">
               {/* Telegram Join Button */}
@@ -85,7 +96,7 @@ export default function LandingPage() {
               {/* Get Started Button */}
               <div className="flex justify-center lg:justify-start">
                 <Button
-                  variant="primary"
+                  variant="quinary"
                   size="lg"
                   to="/registration"
                   fullWidth
@@ -133,15 +144,15 @@ export default function LandingPage() {
           </div>
         </div>
          {/* Features Section */}
-      <section className="container mx-auto sm:px-4 lg:px-16">
+      <section className="container mx-auto sm:px-4 lg:px-16 pb-16">
         {/* Orange/Brown Gradient Line */}
         <div className="h-2 rounded-2xl rounded-b-none bg-gradient-to-r from-[#0B4B5A] via-[#D9700A] to-[#D9700A]"></div>
         
         <div className="container bg-background rounded-2xl rounded-t-none mx-auto px-4 py-8 sm:py-12">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 ">
             {/* Secure Card */}
-            <div className="bg-background p-4 sm:p-6 rounded-lg shadow-2xl">
-              <div className="bg-primary w-12 sm:w-14 h-12 sm:h-14 rounded-full flex items-center justify-center mb-3 sm:mb-4">
+            <div className="bg-background p-4 sm:p-6 rounded-lg shadow-xl">
+              <div className="bg-quinary w-12 sm:w-14 h-12 sm:h-14 rounded-full flex items-center justify-center mb-3 sm:mb-4">
                  <img src="/icons/secure.svg" alt="Secure" className="w-6 sm:w-7 h-6 sm:h-7" />
               </div>
               <h3 className="text-lg text-text-secondary font-bold mb-2">Secure</h3>
@@ -151,8 +162,8 @@ export default function LandingPage() {
             </div>
 
             {/* Quality Assurance Card */}
-            <div className="bg-background p-4 sm:p-6 rounded-lg shadow-2xl">
-              <div className="bg-primary w-12 sm:w-14 h-12 sm:h-14 rounded-full flex items-center justify-center mb-3 sm:mb-4">
+            <div className="bg-background p-4 sm:p-6 rounded-lg shadow-xl">
+              <div className="bg-quinary w-12 sm:w-14 h-12 sm:h-14 rounded-full flex items-center justify-center mb-3 sm:mb-4">
                <img src="/icons/assurance.svg" alt="Quality Assurance" className="w-6 sm:w-7 h-6 sm:h-7" />
               </div>
               <h3 className="text-lg text-text-secondary font-bold mb-2">Quality Assurance</h3>
@@ -162,8 +173,8 @@ export default function LandingPage() {
             </div>
 
             {/* Authentic Profiles Card */}
-            <div className="bg-background p-4 sm:p-6 rounded-lg shadow-2xl">
-              <div className="bg-primary w-12 sm:w-14 h-12 sm:h-14 rounded-full flex items-center justify-center mb-3 sm:mb-4">
+            <div className="bg-background p-4 sm:p-6 rounded-lg shadow-xl">
+              <div className="bg-quinary w-12 sm:w-14 h-12 sm:h-14 rounded-full flex items-center justify-center mb-3 sm:mb-4">
                 <img src="/icons/authentic-profiles.svg" alt="Authentic Profiles" className="w-6 sm:w-7 h-6 sm:h-7" />
               </div>
               <h3 className="text-lg text-text-secondary font-bold mb-2">Authentic Profiles</h3>
@@ -173,8 +184,8 @@ export default function LandingPage() {
             </div>
 
             {/* Engagement Metrics Card */}
-            <div className="bg-background p-4 sm:p-6 rounded-lg shadow-2xl">
-              <div className="bg-primary w-12 sm:w-14 h-12 sm:h-14 rounded-full flex items-center justify-center mb-3 sm:mb-4">
+            <div className="bg-background p-4 sm:p-6 rounded-lg shadow-xl">
+              <div className="bg-quinary w-12 sm:w-14 h-12 sm:h-14 rounded-full flex items-center justify-center mb-3 sm:mb-4">
               <img src="/icons/engagement-metrics.svg" alt="Engagement Metrics" className="w-6 sm:w-7 h-6 sm:h-7" />
               </div>
               <h3 className="text-lg text-text-secondary font-bold mb-2">Engagement Metrics</h3>
@@ -187,7 +198,7 @@ export default function LandingPage() {
       </section>
 
       {/* Platforms Section */}
-      <section className="bg-secondary py-16">
+      <section className="bg- py-16">
         <div className="container-fluid mx-auto">
           {/* Section Header */}
           <div className="text-center mb-12">
@@ -295,7 +306,7 @@ export default function LandingPage() {
       </section>
 
       {/* Know Us Better Section */}
-      <section className="py-16 bg-[#0A52661A]">
+      <section className="py-16 bg-quaternary-light">
         <div className="container mx-auto px-4 sm:px-6 lg:px-16">
           <div className="grid grid-cols-1 items-center lg:grid-cols-2 gap-12">
             {/* Left Column */}
@@ -305,7 +316,8 @@ export default function LandingPage() {
                 At Cruise Tech Marketplace, we understand the value of a strong digital presence. Our platform is designed to empower individuals and businesses to access authentic social media accounts effortlessly.
               </p>
               <Button
-                variant="primary"
+                variant="quinary"
+                
               >
                 Learn More...
               </Button>
@@ -320,7 +332,7 @@ export default function LandingPage() {
               {/* Wide Selection of Platforms */}
               <div className=' p-6   '>
                 <div className="flex items-center gap-6 ">
-                  <div className="bg-primary p-4 rounded-full flex-shrink-0">
+                  <div className="bg-quinary p-4 rounded-full flex-shrink-0">
                     <img src="/icons/platforms.svg" alt="Platforms" className="w-6 h-6" />
                   </div>
                   <div>
@@ -339,7 +351,7 @@ export default function LandingPage() {
                 <div className="h-2 w-full rounded-full rounded-b-none bg-gradient-to-r from-[#0B4B5A] via-[#D9700A] to-[#D9700A] mb-4"></div>
                <div className='p-6'>
                 <div className="flex items-center gap-6">
-                  <div className="bg-primary p-4 rounded-full flex-shrink-0">
+                  <div className="bg-quinary p-4 rounded-full flex-shrink-0">
                     <img src="/icons/support.svg" alt="Support" className="w-6 h-6" />
                   </div>
                   <div>
@@ -358,7 +370,7 @@ export default function LandingPage() {
                   <div className="h-2 w-full rounded-full rounded-b-none bg-gradient-to-r from-[#0B4B5A] via-[#D9700A] to-[#D9700A] mb-4"></div>
               <div className='p-6'>
                 <div className="flex items-center gap-6">
-                  <div className="bg-primary p-4 rounded-full flex-shrink-0">
+                  <div className="bg-quinary p-4 rounded-full flex-shrink-0">
                     <img src="/icons/authentic-profiles.svg" alt="Quality" className="w-6 h-6" />
                   </div>
                   <div>
@@ -376,7 +388,7 @@ export default function LandingPage() {
       </section>
 
       {/* How it Works Section */}
-      <section className="py-12 sm:py-16 bg-secondary">
+      <section className="py-12 sm:py-16 bg-">
         <div className="container mx-auto px-4 sm:px-6 lg:px-16">
           {/* Section Header */}
           <div className="text-center mb-8 sm:mb-12">
@@ -390,7 +402,7 @@ export default function LandingPage() {
             <div className="relative w-full max-w-[400px] mx-auto">
               {/* Blue background card - skewed */}
               <div style={{clipPath: 'polygon(0 6%, 100% 0, 100% 100%, 0 93%)'}} 
-                className="bg-primary mx-3 sm:mx-6 rounded-[20px] absolute w-[90%] sm:w-80 h-full">
+                className="bg-quinary mx-3 sm:mx-6 rounded-[20px] absolute w-[90%] sm:w-80 h-full">
               </div>
 
               {/* White front card */}
@@ -409,7 +421,7 @@ export default function LandingPage() {
                 <p className="text-text-primary text-start text-sm mb-4 sm:mb-6">
                   Create your CruiseTechlogs account to begin exploring our curated selection of social media accounts. Registration is quick, easy, and free.
                 </p>
-                <button className="bg-primary self-start w-10 sm:w-12 h-10 sm:h-12 rounded-full flex items-center justify-center mt-auto">
+                <button className="bg-quinary self-start w-10 sm:w-12 h-10 sm:h-12 rounded-full flex items-center justify-center mt-auto">
                   <img 
                     src="/icons/arrow.svg" 
                     alt="Create Account" 
@@ -423,7 +435,7 @@ export default function LandingPage() {
             <div className="relative w-full max-w-[400px] mx-auto">
               {/* Copy the same structure as Card 1, just change content */}
               <div style={{clipPath: 'polygon(0 6%, 100% 0, 100% 100%, 0 93%)'}} 
-                className="bg-primary mx-3 sm:mx-6 rounded-[20px] absolute w-[90%] sm:w-80 h-98">
+                className="bg-quinary mx-3 sm:mx-6 rounded-[20px] absolute w-[90%] sm:w-80 h-98">
               </div>
 
               <div style={{clipPath: 'polygon(0 0, 90% 6%, 92% 91%, 0 100%)', 
@@ -439,7 +451,7 @@ export default function LandingPage() {
                 <p className="text-text-primary text-start text-sm mb-4 sm:mb-6">
                   Browse and buy social media accounts presented in your needs. Filter by platform niches, and guidance to find your perfect match.
                 </p>
-                <button className="bg-primary self-start w-10 sm:w-12 h-10 sm:h-12 rounded-full flex items-center justify-center mt-auto">
+                <button className="bg-quinary self-start w-10 sm:w-12 h-10 sm:h-12 rounded-full flex items-center justify-center mt-auto">
                   <img 
                     src="/icons/arrow.svg" 
                     alt="Create Account" 
@@ -453,7 +465,7 @@ export default function LandingPage() {
             <div className="relative w-full max-w-[400px] mx-auto">
               {/* Copy the same structure as Card 1, just change content */}
               <div style={{clipPath: 'polygon(0 6%, 100% 0, 100% 100%, 0 93%)'}} 
-                className="bg-primary mx-3 sm:mx-6 rounded-[20px] absolute w-[90%] sm:w-80 h-full">
+                className="bg-quinary mx-3 sm:mx-6 rounded-[20px] absolute w-[90%] sm:w-80 h-full">
               </div>
 
               <div style={{clipPath: 'polygon(0 0, 90% 6%, 92% 91%, 0 100%)', 
@@ -469,7 +481,7 @@ export default function LandingPage() {
                 <p className="text-text-primary text-start text-sm mb-4 sm:mb-6">
                   Get detailed account insights, including engagement rates and follower demographics. Our verification process ensures authenticity and quality.
                 </p>
-                <button className="bg-primary  self-start w-10 sm:w-12 h-10 sm:h-12 rounded-full flex items-center justify-center mt-auto">
+                <button className="bg-quinary  self-start w-10 sm:w-12 h-10 sm:h-12 rounded-full flex items-center justify-center mt-auto">
                   <img 
                     src="/icons/arrow.svg" 
                     alt="Create Account" 
@@ -483,7 +495,7 @@ export default function LandingPage() {
             <div className="relative w-full max-w-[400px] mx-auto">
               {/* Copy the same structure as Card 1, just change content */}
               <div style={{clipPath: 'polygon(0 6%, 100% 0, 100% 100%, 0 93%)'}} 
-                className="bg-primary mx-3 sm:mx-6 rounded-[20px] absolute w-[90%] sm:w-80 h-full">
+                className="bg-quinary mx-3 sm:mx-6 rounded-[20px] absolute w-[90%] sm:w-80 h-full">
               </div>
 
               <div style={{clipPath: 'polygon(0 0, 90% 6%, 92% 91%, 0 100%)', 
@@ -499,7 +511,7 @@ export default function LandingPage() {
                 <p className="text-text-primary text-start text-sm mb-4 sm:mb-6">
                   Securely purchase your chosen social media account with our smooth transaction process. Enjoy flexible payment pricing for an easy experience.
                 </p>
-                <button className="bg-primary  self-start w-10 sm:w-12 h-10 sm:h-12 rounded-full flex items-center justify-center mt-auto">
+                <button className="bg-quinary  self-start w-10 sm:w-12 h-10 sm:h-12 rounded-full flex items-center justify-center mt-auto">
                   <img 
                     src="/icons/arrow.svg" 
                     alt="Create Account" 
@@ -513,12 +525,12 @@ export default function LandingPage() {
             <div className="relative w-full max-w-[400px] mx-auto">
               {/* Copy the same structure as Card 1, just change content */}
               <div style={{clipPath: 'polygon(0 6%, 100% 0, 100% 100%, 0 93%)'}} 
-                className="bg-primary mx-3 sm:mx-6 rounded-[20px] absolute w-[90%] sm:w-80 h-full">
+                  className="bg-quinary mx-3 sm:mx-6 rounded-[20px] absolute w-[90%] sm:w-80 h-full">
               </div>
 
               <div style={{clipPath: 'polygon(0 0, 90% 6%, 92% 91%, 0 100%)', 
-  borderTopRightRadius: '120px',
-  borderBottomRightRadius: '120px'}} 
+                    borderTopRightRadius: '120px',
+                    borderBottomRightRadius: '120px'}} 
                 className="relative bg-background rounded-[20px] p-6 sm:p-8 pr-16 sm:pr-20 w-full text-center min-h-[350px] sm:min-h-[400px] flex flex-col items-center">
                 <img 
                   src="/enjoy-account.png" 
@@ -529,7 +541,7 @@ export default function LandingPage() {
                 <p className="text-text-primary text-start text-sm mb-4 sm:mb-6">
                   Begin your online presence with your new social media account. Connect with your audience and achieve your marketing goals.
                 </p>
-                <button className="bg-primary  self-start w-10 sm:w-12 h-10 sm:h-12 rounded-full flex items-center justify-center mt-auto">
+                <button className="bg-quinary  self-start w-10 sm:w-12 h-10 sm:h-12 rounded-full flex items-center justify-center mt-auto">
                   <img 
                     src="/icons/arrow.svg" 
                     alt="Create Account" 
@@ -599,19 +611,19 @@ export default function LandingPage() {
 
             {/* Social Media Links */}
             <div className="w-full md:w-1/3  flex justify-center gap-6">
-              <a href="#" className="text-primary transition-colors">
+              <a href="#" className="text-quinary transition-colors">
                 <FaFacebookF size={20} />
               </a>
-              <a href="#" className="text-primary transition-colors">
+              <a href="#" className="text-quinary transition-colors">
                 <FaTwitter size={20} />
               </a>
-              <a href="#" className="text-primary transition-colors">
+              <a href="#" className="text-quinary transition-colors">
                 <FaTiktok size={20} />
               </a>
-              <a href="#" className="text-primary transition-colors">
+              <a href="#" className="text-quinary transition-colors">
                 <FaInstagram size={20} />
               </a>
-              <a href="#" className="text-primary transition-colors">
+              <a href="#" className="text-quinary transition-colors">
                 <FaTelegram size={20} />
               </a>
             </div>
@@ -626,7 +638,7 @@ export default function LandingPage() {
           </div>
 
           {/* Bottom section with copyright and links */}
-          <div className="text-sm md:text-[15px] text-text-secondary font-semibold flex flex-wrap justify-center gap-x-2 gap-y-1 pt-4 border-t">
+          <div className="text-sm md:text-[15px] text-text-secondary font-semibold flex flex-wrap justify-center gap-x-2 gap-y-1 pt-4 border-t border-t-quinary">
             <span>© 2025 Cruisetechlogs</span>
             <span className="hidden md:inline">|</span>
             <a href="/privacy-policy" className=" transition-colors">Privacy Policy</a>

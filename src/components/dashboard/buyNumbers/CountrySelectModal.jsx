@@ -73,11 +73,11 @@ const CountrySelectModal = ({ open, onClose, onSelect, type }) => {
       renderItem={(country, idx) => (
         <motion.button
           key={country.id || country.name || idx}
-          className="flex items-center gap-3 py-1 px-2 rounded-lg hover:bg-[#F7F7F7] transition w-full text-left"
-          onClick={() => {
-            onSelect(country);
-            onClose();
-          }}
+                    className="flex items-center gap-3 py-1 px-2 rounded-lg hover:bg-[#F7F7F7] transition w-full text-left"
+                    onClick={() => {
+                      onSelect(country);
+                      onClose();
+                    }}
           custom={idx}
           initial="hidden"
           animate="visible"

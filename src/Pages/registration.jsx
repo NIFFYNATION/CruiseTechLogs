@@ -107,7 +107,7 @@ const Registration = () => {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-background">
       {/* Left Sidebar - Progress */}
-      <div className="w-full lg:w-1/3 items-center lg:max-w-xs bg-background-alt m-0 sm:m-2 lg:m-6 px-6 py-6 lg:px-8 lg:py-18 ">
+      <div className="w-full lg:w-1/3 items-center lg:max-w-xs bg-quaternary-light m-0 sm:m-2 lg:m-6 px-6 py-6 lg:px-8 lg:py-18 ">
         {/* Logo - Make it centered on mobile */}
         <div className="mb-6 lg:mb-12 text-center lg:text-left">
           <img src="/light_logo.png" alt="CruiseTech" className="h-6 sm:h-8 inline-block" />
@@ -121,8 +121,8 @@ const Registration = () => {
           {/* Personal Details Step */}
           <div className="flex items-center">
             <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center ${
-              step === 1 ? 'bg-primary text-background' : 
-              isStepCompleted(1) ? 'bg-primary text-background' : 
+              step === 1 ? 'bg-quinary text-background' : 
+              isStepCompleted(1) ? 'bg-quinary text-background' : 
               'bg-tertiary'
             }`}>
               {isStepCompleted(1) ? (
@@ -140,7 +140,7 @@ const Registration = () => {
 
           {/* Vertical Line - Hidden on mobile, shown on desktop */}
           <div className={`w-1.5 h-16 ${
-            isStepCompleted(1) ? 'bg-primary' : 'bg-tertiary'
+            isStepCompleted(1) ? 'bg-quinary' : 'bg-tertiary'
           } ml-5 hidden lg:block`}></div>
 
           {/* Horizontal Line - Shown on mobile, hidden on desktop */}
@@ -149,8 +149,8 @@ const Registration = () => {
           {/* Email Verification Step */}
           <div className="flex items-center">
             <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center ${
-              step === 2 ? 'bg-primary text-background' : 
-              isStepCompleted(2) ? 'bg-primary text-background' : 
+              step === 2 ? 'bg-quinary text-background' : 
+              isStepCompleted(2) ? 'bg-quinary text-background' : 
               'bg-tertiary'
             }`}>
               {isStepCompleted(2) ? (
@@ -168,17 +168,17 @@ const Registration = () => {
 
           {/* Vertical Line - Hidden on mobile, shown on desktop */}
           <div className={`w-1.5 h-16 ${
-            isStepCompleted(2) ? 'bg-primary' : 'bg-tertiary'
+            isStepCompleted(2) ? 'bg-quinary' : 'bg-tertiary'
           } ml-5 hidden lg:block`}></div>
 
           {/* Horizontal Line - Shown on mobile, hidden on desktop */}
-          <div className={`flex-1 h-1.5 self-center ${isStepCompleted(2) ? 'bg-primary' : 'bg-tertiary'} mx-4 sm:mx-6 lg:hidden`}></div>
+          <div className={`flex-1 h-1.5 self-center ${isStepCompleted(2) ? 'bg-quinary' : 'bg-tertiary'} mx-4 sm:mx-6 lg:hidden`}></div>
 
           {/* Set Account Password Step */}
           <div className="flex items-center">
             <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center ${
-              step === 3 ? 'bg-primary text-background' : 
-              isStepCompleted(3) ? 'bg-primary text-background' : 
+              step === 3 ? 'bg-quinary text-background' : 
+              isStepCompleted(3) ? 'bg-quinary text-background' : 
               'bg-tertiary'
             }`}>
               {isStepCompleted(3) ? (
@@ -431,7 +431,7 @@ const Registration = () => {
                 Didn't receive code? Check your spam folder or{' '}
                 <button 
                   onClick={handleResendCode}
-                  className="text-primary hover:text-primary-light font-medium hover:underline"
+                  className="text-quinary hover:text-primary-light font-medium hover:underline"
                 >
                   Resend Code
                 </button>

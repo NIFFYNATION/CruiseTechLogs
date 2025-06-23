@@ -6,7 +6,8 @@ const InputField = ({
   type = 'text',
   placeholder,
   value,
-  className,
+  className = "",
+
   onChange,
   icon,
   showToggle,

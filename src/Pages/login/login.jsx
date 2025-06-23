@@ -9,6 +9,7 @@ import FormSection from '../../components/common/FormSection';
 import SocialButtons from '../../components/common/SocialButtons';
 import Side from './side';
 import { loginUser } from '../../services/authService'; // Import API service
+import { Button } from '../../components/common/Button';
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -87,6 +88,8 @@ const Login = () => {
               name="email"
               type="email"
               placeholder="Email Address"
+            className='focus:ring-quinary focus:border-quinary'
+
               value={formData.email}
               onChange={handleChange}
               icon={<MdEmail className="h-5 w-5 text-text-secondary" />}
@@ -97,6 +100,8 @@ const Login = () => {
               name="password"
               type="password"
               placeholder="Password"
+            className='focus:ring-quinary focus:border-quinary'
+
               value={formData.password}
               onChange={handleChange}
               icon={<RiLockPasswordLine className="h-5 w-5 text-text-secondary" />}
@@ -122,13 +127,14 @@ const Login = () => {
                 </label>
               </div>
               <div className="text-sm">
-                <Link to="/forgot-password" className="font-medium text-primary hover:text-primary-light">
+                <Link to="/forgot-password" className="font-medium text-quinary hover:text-primary">
                   Forgot Password?
                 </Link>
               </div>
             </div>
-            <button
+            <Button
               type="submit"
+              variant="quinary"
               className={`w-full py-2 rounded-md transition-colors ${
                 isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-primary hover:bg-primary-light'
               }`}
@@ -141,13 +147,14 @@ const Login = () => {
               ) : (
                 'Log In'
               )}
-            </button>
+            </Button>
+            
           </form>
 
           {/* Sign up link */}
           <div className="text-center text-sm">
             <span className="text-text-secondary">Don't have an account? </span>
-            <Link to="/signup" className="font-medium text-primary hover:text-primary-light">
+            <Link to="/signup" className="font-medium text-quinary hover:text-primary">
               Create an account
             </Link>
           </div>

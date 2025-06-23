@@ -6,6 +6,7 @@ import InputField from '../../components/common/InputField';
 import FormSection from '../../components/common/FormSection';
 import Side from '../login/side';
 import { signupController } from '../../controllers/authController'; // Import auth controller
+import { Button } from '../../components/common/Button';
 
 const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -62,6 +63,8 @@ const Signup = () => {
               name="name"
               type="text"
               placeholder="Full Name"
+            className='focus:ring-quinary focus:border-quinary'
+
               value={formData.name}
               onChange={handleChange}
               icon={<MdPerson className="h-5 w-5 text-text-secondary" />}
@@ -71,6 +74,8 @@ const Signup = () => {
               name="email"
               type="email"
               placeholder="Email Address"
+            className='focus:ring-quinary focus:border-quinary'
+
               value={formData.email}
               onChange={handleChange}
               icon={<MdEmail className="h-5 w-5 text-text-secondary" />}
@@ -80,6 +85,8 @@ const Signup = () => {
               name="phoneNumber"
               type="text"
               placeholder="Phone Number"
+            className='focus:ring-quinary focus:border-quinary'
+
               value={formData.phoneNumber}
               onChange={handleChange}
               icon={<MdPerson className="h-5 w-5 text-text-secondary" />}
@@ -89,6 +96,8 @@ const Signup = () => {
               name="password"
               type="password"
               placeholder="Password"
+            className='focus:ring-quinary focus:border-quinary'
+
               value={formData.password}
               onChange={handleChange}
               icon={<RiLockPasswordLine className="h-5 w-5 text-text-secondary" />}
@@ -101,6 +110,8 @@ const Signup = () => {
               name="confirmPassword"
               type="password"
               placeholder="Confirm Password"
+            className='focus:ring-quinary focus:border-quinary'
+
               value={formData.confirmPassword}
               onChange={handleChange}
               icon={<RiLockPasswordLine className="h-5 w-5 text-text-secondary" />}
@@ -110,19 +121,21 @@ const Signup = () => {
             />
             {error && <p className="text-red-500 text-sm">{error}</p>} {/* Display error */}
             {successMessage && <p className="text-green-500 text-sm">{successMessage}</p>} {/* Display success */}
-            <button
+            <Button
               type="submit"
-              className="w-full bg-primary text-background py-2 rounded-md hover:bg-primary-light transition-colors"
+              variant='quinary'
+              className="w-full bg-primary rounded-md"
               disabled={isLoading} // Disable button while loading
             >
               {isLoading ? 'Submitting...' : 'Sign Up'} {/* Show loading text */}
-            </button>
+            </Button>
+            
           </form>
 
           {/* Login link */}
           <div className="text-center text-sm">
             <span className="text-text-secondary">Already have an account? </span>
-            <Link to="/login" className="font-medium text-primary hover:text-primary-light">
+            <Link to="/login" className="font-medium text-quinary hover:text-primary">
               Log in
             </Link>
           </div>
