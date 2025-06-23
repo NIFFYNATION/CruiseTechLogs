@@ -27,7 +27,7 @@ export default function LandingPage() {
           {/* Logo Section */}
           <div className="flex items-center">
             <img 
-              src="public/light_logo.png" 
+              src="/light_logo.png" 
               alt="CruiseTech Logo" 
               className="h-8 sm:h-10 md:h-12"
             />
