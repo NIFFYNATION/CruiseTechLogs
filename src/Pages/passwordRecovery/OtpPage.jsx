@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import {Link, useLocation, useNavigate } from 'react-router-dom';
 import OtpInput from '../../components/common/OtpInput';
 import { Button } from '../../components/common/Button';
+import Side from '../login/side';
+import FormSection from '../../components/common/FormSection';
 
 const OtpPage = () => {
   const [otp, setOtp] = useState(['', '', '', '', '']);
@@ -37,13 +39,25 @@ const OtpPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="w-full max-w-xl p-8 rounded-lg shadow bg-white">
-        <h2 className="text-2xl font-bold mb-4 text-quinary">Enter Verification Code</h2>
-        <p className="mb-6 text-text-secondary">
+<div className="min-h-screen flex flex-col lg:flex-row">
+{/* Left Section */}
+<div className="w-full lg:w-1/2 flex flex-col items-center justify-center bg-gradient-to-r from-red-500/2 to-orange-500/5 py-8 px-4 sm:px-6 lg:px-8 h-screen md:h-auto">
+  <div className="flex justify-center mb-6">
+      <img
+        src="/images/CruiseTech-2.svg"
+        alt="CruiseTech Logo"
+        className="h-12"
+        style={{ maxWidth: 160 }}
+      />
+    </div>
+  <FormSection
+    title="Enter Verification Code"
+    subtitle=""
+  >
+    <p className="mt-2 text-sm text-text-secondary">
           We sent a code to <span className="font-medium">{email}</span>
         </p>
-        <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6">
           <OtpInput
             value={otp}
             onChange={setOtp}
@@ -79,8 +93,16 @@ const OtpPage = () => {
             Back
           </Button>
         </div>
-      </div>
-    </div>
+        <div className="mt-4 text-center text-sm">
+          <Link to="/login" className="text-primary hover:underline">Back to Login</Link>
+        </div>
+  
+  </FormSection>
+</div>
+
+{/* Right Section */}
+<Side  />
+</div>
   );
 };
 

@@ -27,7 +27,8 @@ export default function LandingPage() {
           {/* Logo Section */}
           <div className="flex items-center">
             <img 
-              src="/light_logo.png" 
+                              src="/images/CruiseTech-2.svg" 
+ 
               alt="CruiseTech Logo" 
               className="h-8 sm:h-10 md:h-12"
             />
@@ -66,17 +67,19 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center ">
             {/* Left Column - Text Content */}
             <div className="space-y-4 sm:space-y-6 md:space-y-8 max-w-xl mx-auto lg:mx-0">
-              {/* Telegram Join Button */}
-              <a href="#" 
+              {/* Whatsapp Join Button */}
+              <a     href="https://whatsapp.com/channel/0029Vb9rsBW0LKZKBGTI940l"
+
                 className="inline-flex items-center gap-2 bg-[#D9700A1A] backdrop-blur-sm 
                   px-4 sm:px-6 
                   py-2 sm:py-3 
                   rounded-full text-black hover:bg-background transition-all
                   w-full sm:w-auto justify-center sm:justify-start"
               >
-                <FaTelegram className="text-[#229ED9] text-lg sm:text-2xl" />
+                                  <img className="align-self-start" src="/icons/whatsapp.svg" alt="WhatsApp" />
+
                 <span className="text-sm sm:text-base md:text-lg font-medium text-[#D9700A] whitespace-nowrap">
-                  Join Our Telegram for news and update
+                  Join our whatsapp for news and update
                 </span>
               </a>
 

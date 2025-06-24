@@ -352,7 +352,7 @@ const Sidebar = () => {
         <div className="px-4 pt-6 pb-4">
           {isCollapsed ? (
             <a
-              href="https://whatsapp.com/your-channel-link" // <-- Replace with your actual channel link
+              href="https://whatsapp.com/channel/0029Vb9rsBW0LKZKBGTI940l" 
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center w-12 h-12 bg-success rounded-lg hover:bg-[#5FD66933] transition-colors"
@@ -383,7 +383,7 @@ const Sidebar = () => {
         {/* Logout Button */}
         <div className={`${isCollapsed ? 'px-4' : 'px-6'} pb-6 `}>
           <button
-            onClick={handleLogout} // Attach logout handler
+            onClick={handleLogout}
             className={`w-full bg-quinary hover:bg-quaternary text-white py-3 rounded-lg flex items-center justify-center gap-2 transition-colors ${isCollapsed ? 'px-2' : ''}`}
           >
             <img className='' src="/icons/logout.svg" alt="Logout Icon" />

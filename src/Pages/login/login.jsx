@@ -72,27 +72,7 @@ const Login = () => {
           title="Log in to your Account"
           subtitle="Welcome back!"
         >
-          {/* Website Logo */}
           
-
-          {/* Social Login Buttons */}
-          {/* <SocialButtons
-            buttons={[
-              { icon: <FcGoogle className="h-5 w-5" />, label: 'Google' },
-              { icon: <FaFacebook className="h-5 w-5 text-blue-600" />, label: 'Facebook' },
-            ]}
-          /> */}
-
-          {/* Divider */}
-          {/* <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-secondary"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 text-text-secondary">or continue with email</span>
-            </div>
-          </div> */}
-
           {/* Login Form */}
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
             <InputField
