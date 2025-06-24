@@ -67,11 +67,11 @@ export default function LandingPage() {
         <div className="container mx-auto px-4 mt-16 sm:px-6 lg:px-16">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center ">
             {/* Left Column - Text Content */}
-            <div className="space-y-4 sm:space-y-6 md:space-y-8 max-w-xl mx-auto lg:mx-0">
+            <div className="space-y-4 sm:space-y-6 text-center lg:text-start md:space-y-8 max-w-xl mx-auto lg:mx-0">
               {/* Whatsapp Join Button */}
               <a     href="https://whatsapp.com/channel/0029Vb9rsBW0LKZKBGTI940l"
 
-                className="inline-flex items-center gap-2 bg-[#D9700A1A] backdrop-blur-sm 
+                className="inline-flex  gap-2 bg-[#D9700A1A] backdrop-blur-sm 
                   px-4 sm:px-6 
                   py-2 sm:py-3 
                   rounded-full text-black hover:bg-background transition-all
@@ -112,7 +112,7 @@ export default function LandingPage() {
             </div>
 
             {/* Right Column - Image and Floating Icons */}
-            <div className="relative h-full mt-8 lg:mt-0">
+            <div className="relative h-full">
               {/* Main Image */}
               <div className="relative z-10">
                 <img 
@@ -125,22 +125,22 @@ export default function LandingPage() {
               {/* Floating Social Media Icons */}
               <div className="absolute inset-0 z-0">
                 {/* Instagram Icon */}
-                <div className="absolute top-[5%] left-[22%] bg-[#D9700A] p-2 sm:p-3 rounded-lg transform rotate-12 shadow-lg hidden sm:block">
+                <div className="absolute top-[5%] left-[22%] bg-[#D9700A] p-2 sm:p-3 rounded-lg transform rotate-12 shadow-lg ">
                   <FaInstagram className="text-background text-xl sm:text-2xl" />
                 </div>
 
                 {/* Twitter/X Icon */}
-                <div className="absolute top-[15%] right-[24%] bg-red-500 p-2 sm:p-3 rounded-lg transform -rotate-12 shadow-lg hidden sm:block">
+                <div className="absolute top-[15%] right-[24%] bg-red-500 p-2 sm:p-3 rounded-lg transform -rotate-12 shadow-lg">
                   <FaTwitter className="text-background text-xl sm:text-2xl" />
                 </div>
 
                 {/* Facebook Icon */}
-                <div className="absolute top-[30%] left-[10%] bg-blue-600 p-2 sm:p-3 rounded-lg transform rotate-12 hidden sm:block">
+                <div className="absolute top-[30%] left-[10%] bg-blue-600 p-2 sm:p-3 rounded-lg transform rotate-12">
                   <FaFacebookF className="text-background text-xl sm:text-2xl" />
                 </div>
 
                 {/* Thumbs Up Icon */}
-                <div className="absolute bottom-[30%] left-[20%] bg-primary p-2 sm:p-3 rounded-lg transform -rotate-12 shadow-lg hidden sm:block">
+                <div className="absolute bottom-[30%] left-[20%] bg-primary p-2 sm:p-3 rounded-lg transform -rotate-12 shadow-lg">
                   <FaThumbsUp className="text-background text-xl sm:text-2xl" />
                 </div>
               </div>
