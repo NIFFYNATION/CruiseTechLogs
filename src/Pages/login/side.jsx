@@ -6,7 +6,7 @@ import { RiKakaoTalkFill } from 'react-icons/ri'
 const Side = () => {
     return (
        
-            <div className="w-full lg:w-1/2 bg-primary flex flex-col items-center justify-center text-background p-4 sm:p-6 lg:p-8 relative overflow-hidden min-h-[600px] lg:min-h-screen hidden lg:block">
+            <div className="w-full lg:w-1/2 bg-quinary flex flex-col items-center justify-center text-background p-4 sm:p-6 lg:p-8 relative overflow-hidden min-h-[600px] lg:min-h-screen hidden lg:block">
                 {/* <div className="absolute bottom-4 -left-45 w-48 h-48 md:w-100 md:h-100 bg-primary-light rounded-full -translate-y-1/2 translate-x-1/2 opacity-10 "></div> */}
 
                 <div className="absolute 

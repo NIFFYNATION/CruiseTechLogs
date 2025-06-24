@@ -6,7 +6,8 @@ const InputField = ({
   type = 'text',
   placeholder,
   value,
-  className,
+  className = "",
+
   onChange,
   icon,
   showToggle,
@@ -26,7 +27,7 @@ const InputField = ({
         name={name}
         type={isToggled ? 'text' : type}
         required
-        className={`appearance-none rounded-md relative block w-full pl-10 px-3 py-2 border border-secondary bg-background text-text-primary placeholder-text-secondary/70 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm ${className}`}
+        className={`appearance-none rounded-md relative block w-full px-3 py-2 border border-secondary bg-background text-text-primary placeholder-text-secondary/70 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm ${className}`}
         placeholder={placeholder}
         value={value}
         onChange={onChange}

@@ -9,6 +9,7 @@ import FormSection from '../../components/common/FormSection';
 import SocialButtons from '../../components/common/SocialButtons';
 import Side from './side';
 import { loginUser } from '../../services/authService'; // Import API service
+import { Button } from '../../components/common/Button';
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -60,38 +61,20 @@ const Login = () => {
       
       <div className="w-full lg:w-1/2 flex flex-col items-center justify-center bg-gradient-to-r from-red-500/2 to-orange-500/5 py-8 px-4 sm:px-6 lg:px-8 h-screen md:h-auto">
         <div className="flex justify-center mb-6">
-            <img
-              src="/images/CruiseTech-2.svg"
-              alt="CruiseTech Logo"
-              className="h-12"
-              style={{ maxWidth: 160 }}
-            />
+        <Link to="/">
+     <img
+        src="/images/CruiseTech-2.svg"
+        alt="CruiseTech Logo"
+        className="h-12"
+        style={{ maxWidth: 160 }}
+      />
+     </Link>
           </div>
         <FormSection
           title="Log in to your Account"
           subtitle="Welcome back!"
         >
-          {/* Website Logo */}
           
-
-          {/* Social Login Buttons */}
-          {/* <SocialButtons
-            buttons={[
-              { icon: <FcGoogle className="h-5 w-5" />, label: 'Google' },
-              { icon: <FaFacebook className="h-5 w-5 text-blue-600" />, label: 'Facebook' },
-            ]}
-          /> */}
-
-          {/* Divider */}
-          {/* <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-secondary"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 text-text-secondary">or continue with email</span>
-            </div>
-          </div> */}
-
           {/* Login Form */}
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
             <InputField
@@ -99,7 +82,8 @@ const Login = () => {
               name="email"
               type="email"
               placeholder="Email Address"
-              className="bg-transparent"
+            className='focus:ring-quinary focus:border-quinary'
+
               value={formData.email}
               onChange={handleChange}
               icon={<MdEmail className="h-5 w-5 text-text-secondary/10" />}
@@ -110,10 +94,11 @@ const Login = () => {
               name="password"
               type="password"
               placeholder="Password"
+            className='focus:ring-quinary focus:border-quinary'
+
               value={formData.password}
               onChange={handleChange}
-              icon={<RiLockPasswordLine className="h-5 w-5 text-text-secondary/10" />}
-              className="bg-transparent"
+              icon={<RiLockPasswordLine className="h-5 w-5 text-text-secondary" />}
               showToggle
               onToggle={() => setShowPassword(!showPassword)}
               isToggled={showPassword}
@@ -136,13 +121,14 @@ const Login = () => {
                 </label>
               </div>
               <div className="text-sm">
-                <Link to="/forgot-password" className="font-medium text-primary hover:text-primary-light">
+                <Link to="/forgot-password" className="font-medium text-quinary hover:text-primary">
                   Forgot Password?
                 </Link>
               </div>
             </div>
-            <button
+            <Button
               type="submit"
+              variant="quinary"
               className={`w-full py-2 rounded-md transition-colors ${
                 isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#FF6B00] hover:bg-primary- text-white'
               }`}
@@ -155,13 +141,14 @@ const Login = () => {
               ) : (
                 'Log In'
               )}
-            </button>
+            </Button>
+            
           </form>
 
           {/* Sign up link */}
           <div className="text-center text-sm">
             <span className="text-text-secondary">Don't have an account? </span>
-            <Link to="/signup" className="font-medium text-primary hover:text-primary-light">
+            <Link to="/signup" className="font-medium text-quinary hover:text-primary">
               Create an account
             </Link>
           </div>

@@ -17,6 +17,9 @@ import ApiPage from './components/dashboard/apiKey/ApiPage';
 import ProfileSettings from './components/dashboard/profileSettings/ProfileSettings';
 import HelpCenter from './components/dashboard/helpCenter/HelpCenter';
 import ManageOrders from './components/dashboard/manageOrders/ManageOrders';
+import ForgotPassword from './Pages/passwordRecovery/ForgotPassword';
+import OtpPage from './Pages/passwordRecovery/OtpPage';
+import ResetPassword from './Pages/login/ResetPassword';
 import ProtectedRoute from './routes/ProtectedRoute';
 import StagesPage from './components/dashboard/stages/StagesPage';
 
@@ -26,6 +29,7 @@ const ManageNumbersWithOrderId = (props) => {
   // orderId can be undefined if not present
   return <ManageNumbers orderId={params.orderId} {...props} />;
 };
+
 
 export const router = createBrowserRouter([
   {
@@ -75,6 +79,9 @@ export const router = createBrowserRouter([
           { path: 'stages', element: <StagesPage /> },
         ],
       },
+      { path: '/forgot-password', element: <ForgotPassword /> },
+      { path: '/otp', element: <OtpPage /> },
+      { path: '/reset-password', element: <ResetPassword /> },
     ],
   },
 ]);

@@ -6,6 +6,7 @@ import InputField from '../../components/common/InputField';
 import FormSection from '../../components/common/FormSection';
 import Side from '../login/side';
 import { signupController } from '../../controllers/authController'; // Import auth controller
+import { Button } from '../../components/common/Button';
 
 const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -52,12 +53,14 @@ const Signup = () => {
       {/* Left Section */}
       <div className="w-full lg:w-1/2 flex flex-col items-center justify-center bg-gradient-to-r from-red-500/2 to-orange-500/5 py-8 px-4 sm:px-6 lg:px-8 h-screen md:h-auto">
           <div className="flex justify-center mb-6">
-            <img
-              src="/images/CruiseTech-2.svg"
-              alt="CruiseTech Logo"
-              className="h-12"
-              style={{ maxWidth: 160 }}
-            />
+          <Link to="/">
+     <img
+        src="/images/CruiseTech-2.svg"
+        alt="CruiseTech Logo"
+        className="h-12"
+        style={{ maxWidth: 160 }}
+      />
+     </Link>
           </div>
         <FormSection
           title="Create Your Account"
@@ -66,41 +69,52 @@ const Signup = () => {
           {/* Signup Form */}
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
             <InputField
-            className="bg-transparent"
+            className="bg-transparent focus:ring-quinary focus:border-quinary"
               id="name"
               name="name"
               type="text"
               placeholder="Full Name"
+            
+
               value={formData.name}
               onChange={handleChange}
               icon={<MdPerson className="h-5 w-5 text-text-secondary/10" />}
             />
             <InputField
-            className="bg-transparent"
+                        className="bg-transparent focus:ring-quinary focus:border-quinary"
+
               id="email"
               name="email"
               type="email"
               placeholder="Email Address"
+            
+
               value={formData.email}
               onChange={handleChange}
               icon={<MdEmail className="h-5 w-5 text-text-secondary/10" />}
             />
             <InputField
-            className="bg-transparent"
+                        className="bg-transparent focus:ring-quinary focus:border-quinary"
+
               id="phoneNumber"
               name="phoneNumber"
               type="text"
               placeholder="Phone Number"
+            
+
               value={formData.phoneNumber}
               onChange={handleChange}
               icon={<MdPerson className="h-5 w-5 text-text-secondary/10" />}
             />
             <InputField
-            className="bg-transparent"
+                       className="bg-transparent focus:ring-quinary focus:border-quinary"
+
               id="password"
               name="password"
               type="password"
               placeholder="Password"
+           
+
               value={formData.password}
               onChange={handleChange}
               icon={<RiLockPasswordLine className="h-5 w-5 text-text-secondary/10" />}
@@ -109,11 +123,14 @@ const Signup = () => {
               isToggled={showPassword}
             />
             <InputField
-            className="bg-transparent"
+                        className="bg-transparent focus:ring-quinary focus:border-quinary"
+
               id="confirmPassword"
               name="confirmPassword"
               type="password"
               placeholder="Confirm Password"
+              
+
               value={formData.confirmPassword}
               onChange={handleChange}
               icon={<RiLockPasswordLine className="h-5 w-5 text-text-secondary/10" />}
@@ -123,19 +140,21 @@ const Signup = () => {
             />
             {error && <p className="text-red-500 text-sm">{error}</p>} {/* Display error */}
             {successMessage && <p className="text-green-500 text-sm">{successMessage}</p>} {/* Display success */}
-            <button
+            <Button
               type="submit"
-              className="w-full bg-[#FF6B00] text-background py-2 rounded-md hover:bg-primary-light transition-colors"
+              variant='quinary'
+              className="w-full bg-primary rounded-md"
               disabled={isLoading} // Disable button while loading
             >
               {isLoading ? 'Submitting...' : 'Sign Up'} {/* Show loading text */}
-            </button>
+            </Button>
+            
           </form>
 
           {/* Login link */}
           <div className="text-center text-sm">
             <span className="text-text-secondary">Already have an account? </span>
-            <Link to="/login" className="font-medium text-primary hover:text-primary-light">
+            <Link to="/login" className="font-medium text-quinary hover:text-primary">
               Log in
             </Link>
           </div>

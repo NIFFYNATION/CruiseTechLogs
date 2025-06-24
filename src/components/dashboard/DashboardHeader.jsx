@@ -7,6 +7,8 @@ import { logoutUser } from '../../controllers/userController'; // Import logoutU
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import { fetchNotificationCount } from '../../services/notificationService';
 import eventBus from '../../utils/eventBus';
+import { Link } from 'react-router';
+
 
 const DashboardHeader = () => {
   const { toggleSidebar, isCollapsed } = useSidebar();
@@ -115,11 +117,14 @@ const DashboardHeader = () => {
           </button>
 
           <div className='md:hidden m-auto'>
-          <img 
+            <Link to="/">
+            <img 
                 src="/images/CruiseTech-2.svg" 
                 alt="CruiseTech" 
                 className="h-8" 
               />
+            </Link>
+          
           </div>
           {/* Middle - Search Bar */}
           <div className="hidden md:block flex-1 max-w-xl mx-2 md:mx-6">
