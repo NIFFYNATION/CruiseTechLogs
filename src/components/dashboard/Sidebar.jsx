@@ -211,21 +211,26 @@ const Sidebar = () => {
         variants={sidebarVariants}
       >
         {/* Logo and Close Button Container */}
-        <div className={`${isCollapsed ? 'px-2' : 'px-6'} py-4 flex items-center justify-between`}>
+        <div className={`${isCollapsed ? 'px-2' : 'px-6'} py-4 flex items-center justify-center`}>
           {/* Logo */}
           {isCollapsed ? (
-            <img 
+           <Link to="/">
+             <img 
               src="/images/CruiseTech-1.svg" 
               alt="CruiseTech Icon" 
               className="h-8 w-8 mx-auto" 
             />
+           </Link>
           ) : (
             <div className="flex items-center justify-end md:justify-between md:justify-center w-full">
+              <Link to="/">
               <img 
                 src="/images/CruiseTech-2.svg" 
                 alt="CruiseTech" 
                 className="h-8 hidden md:flex" 
               />
+              </Link>
+            
               {/* Close Button - Only show on mobile */}
               <button 
                 onClick={toggleSidebar}
