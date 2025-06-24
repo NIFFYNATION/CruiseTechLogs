@@ -26,12 +26,13 @@ export default function LandingPage() {
           
           {/* Logo Section */}
           <div className="flex items-center">
+          <Link to="/">
             <img 
-                              src="/images/CruiseTech-2.svg" 
+            src="/images/CruiseTech-2.svg" 
  
               alt="CruiseTech Logo" 
               className="h-8 sm:h-10 md:h-12"
-            />
+            /></Link>
           </div>
 
          
@@ -571,17 +572,21 @@ export default function LandingPage() {
             </div>
 
             {/* Right Column - Content */}
-            <div className="text-background space-y-6">
+            <div className="text-background space-y-6 py-6">
               <h2 className="text-4xl sm:text-5xl font-bold ">Ready to buy?</h2>
               <p className="text-lg sm:text-xl">
                 That's why we are here, join us today and start buying your account from our market today.
               </p>
-              <Link 
-                to="/market" 
-                className="inline-flex items-center gap-2 bg-background text-primary px-6 py-3 rounded-full hover:bg-opacity-90 transition-all"
-              >
-                <span className="font-medium">Go to Market</span>
-              </Link>
+            
+              <Button
+                  variant="quinary"
+                  size="lg"
+                  to="/dashboard/buy-numbers"
+                  fullWidth
+                  className="sm:w-auto"
+                >
+                  Go to Market
+                </Button>
             </div>
           </div>
         </div>
@@ -605,11 +610,13 @@ export default function LandingPage() {
           <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4 md:gap-0">
             {/* Logo */}
             <div className="w-full md:w-1/3 flex justify-center md:justify-start">
-              <img 
-                src="public/light_logo.png" 
-                alt="CruiseTech Logo" 
-                className="h-10"
-              />
+            <Link to="/">
+            <img 
+            src="/images/CruiseTech-2.svg" 
+ 
+              alt="CruiseTech Logo" 
+              className="h-8 sm:h-10 md:h-12"
+            /></Link>
             </div>
 
             {/* Social Media Links */}
@@ -633,8 +640,8 @@ export default function LandingPage() {
 
             {/* Email Contact */}
             <div className="w-full md:w-1/3 flex justify-center md:justify-end items-center gap-2">
-              <MdEmail className="text-text-secondary" size={20} />
-              <a href="mailto:cruisetech40@gmail.com" className="text-text-secondary text-sm md:text-[15px] font-semibold transition-colors">
+              <MdEmail className="text-quinary" size={20} />
+              <a href="mailto:cruisetech40@gmail.com" className="text-quinary text-sm md:text-[15px] font-semibold transition-colors">
                 cruisetech40@gmail.com
               </a>
             </div>
