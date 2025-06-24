@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import MobileTabMenu from './MobileTabMenu';
 import { motion } from 'framer-motion';
+import eventBus from '../utils/eventBus';
 
 // Use image paths for icons
 const tabs = [
@@ -14,11 +15,27 @@ const tabs = [
 const Tabs = () => {
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isHidden, setIsHidden] = useState(false);
 
   // Hide the FAB menu when route changes
   React.useEffect(() => {
     setMenuOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    const handleDrawerOpen = () => setIsHidden(true);
+    const handleDrawerClose = () => setIsHidden(false);
+
+    eventBus.on('drawer:open', handleDrawerOpen);
+    eventBus.on('drawer:close', handleDrawerClose);
+
+    return () => {
+      eventBus.remove('drawer:open', handleDrawerOpen);
+      eventBus.remove('drawer:close', handleDrawerClose);
+    };
+  }, []);
+
+  if (isHidden) return null;
 
   return (
     <>

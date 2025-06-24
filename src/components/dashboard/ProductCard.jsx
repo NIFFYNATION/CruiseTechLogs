@@ -167,8 +167,8 @@ const ProductCard = ({
                 {loadingTotal
                   ? "Loading stock..."
                   : formattedTotalStock !== null && formattedTotalStock !== undefined
-                    ? `${formattedTotalStock} Accounts in Stock`
-                    : "Accounts in Stock"}
+                    ? `${formattedTotalStock}  pcs available`
+                    : " pcs available"}
               </button>
             </div>
           </div>

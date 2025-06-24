@@ -48,7 +48,7 @@ const CartQuantityControl = ({
     </div>
     {showAvailable && (
       <span className="text-quinary font-semibold text-xs md:text-base">
-        {available} Accounts Available
+        {available}  pcs available
       </span>
     )}
     

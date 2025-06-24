@@ -18,6 +18,7 @@ import ProfileSettings from './components/dashboard/profileSettings/ProfileSetti
 import HelpCenter from './components/dashboard/helpCenter/HelpCenter';
 import ManageOrders from './components/dashboard/manageOrders/ManageOrders';
 import ProtectedRoute from './routes/ProtectedRoute';
+import StagesPage from './components/dashboard/stages/StagesPage';
 
 // Wrapper to pass orderId param to ManageNumbers
 const ManageNumbersWithOrderId = (props) => {
@@ -71,6 +72,7 @@ export const router = createBrowserRouter([
           { path: 'api-page', element: <ApiPage /> },
           { path: 'profile-settings', element: <ProfileSettings /> },
           { path: 'help-center', element: <HelpCenter /> },
+          { path: 'stages', element: <StagesPage /> },
         ],
       },
     ],

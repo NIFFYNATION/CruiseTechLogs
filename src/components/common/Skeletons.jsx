@@ -62,8 +62,23 @@ export const SkeletonNumberCard = () => (
   </div>
 );
 
-export const SkeletonBuyAccountCard = () => (
-  <div className="bg-white rounded-xl shadow p-4 animate-pulse flex flex-col justify-between min-h-[120px] sm:min-h-[200px] cursor-pointer bg-gradient-to-tl from-rose-50/50 to-white-50 border-b-2 border-[#FEBB4F]">
+export const SkeletonNotification = ({ className = "" }) => (
+  <div className={`flex items-start gap-3 py-3 animate-pulse ${className}`}>
+    <div className="w-10 h-10 rounded-full bg-gray-200 mt-1" />
+    <div className="flex-1">
+      <div className="flex justify-between items-center mb-1">
+        <div className="h-4 bg-gray-200 rounded w-1/3" />
+        <div className="h-3 bg-gray-200 rounded w-1/6" />
+      </div>
+      <div className="h-3 bg-gray-200 rounded w-full mb-1" />
+      <div className="h-3 bg-gray-200 rounded w-3/4" />
+    </div>
+    <div className="w-2 h-2 bg-gray-200 rounded-full mt-2 ml-2" />
+  </div>
+);
+
+export const SkeletonBuyAccountCard = ({ className = "" }) => (
+  <div className={`bg-white rounded-xl shadow p-6 animate-pulse ${className}`}>
     {/* Mobile Layout */}
     <div className="flex sm:hidden">
       <div className="w-8 h-8 rounded-full bg-gray-200 mr-3" />

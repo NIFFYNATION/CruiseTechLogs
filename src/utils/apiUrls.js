@@ -14,5 +14,13 @@ export const API_URLS = {
   ORDERS: `${API_BASE_URL}/account/orders`,
   ORDER_DETAILS: `${API_BASE_URL}/account/order`,
   LOGIN_DETAILS: `${API_BASE_URL}/account/fetch/logins`,
+  USER_EDIT: `${API_BASE_URL}/user/edit`,
+  USER_CHANGE_PASSWORD: `${API_BASE_URL}/user/changepassword`,
+  USER_NOTIFICATIONS: `${API_BASE_URL}/user/notifications`,
+  USER_NOTIFICATION_COUNT: `${API_BASE_URL}/user/notification/no`,
+  USER_NOTIFICATION_SEEN: `${API_BASE_URL}/user/notification/seen`,
+  CONTENT_HELP: `${API_BASE_URL}/content/help`,
+  STAGES: `${API_BASE_URL}/content/stages`,
+  USER_GENERATE_API: `${API_BASE_URL}/user/gen/api`,
   // Add other endpoints as needed
 };

@@ -1,0 +1,7 @@
+ <svg class="animated_badge_svg" width="75" height="100" viewBox="0 0 75 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle class="badge_circle" cx="37.5" cy="37.5" r="33.5" fill="#211502" stroke="#993e06" stroke-width="8" />
+                <path class="badge_number" 
+      d="M36 30C32.69 30 30 32.69 30 36C30 39.31 32.69 42 36 42C39.31 42 42 39.31 42 36C42 32.69 39.31 30 36 30ZM36 40C33.79 40 32 38.21 32 36C32 33.79 33.79 32 36 32C38.21 32 40 33.79 40 36C40 38.21 38.21 40 36 40Z" 
+      fill="white">
+</path>
+            </svg>

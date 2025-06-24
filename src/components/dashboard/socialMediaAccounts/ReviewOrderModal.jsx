@@ -16,6 +16,8 @@ const ReviewOrderModal = ({
   quantity,
   product,
   isProcessing,
+  discountPercent = 0,
+  discountedPrice = null,
 }) => {
   if (!open) return null;
 
@@ -24,8 +26,9 @@ const ReviewOrderModal = ({
   const info = hasCart ? (cart[0].item || cart[0]) : (product || {});
   const accountTitle = info.title || '';
   const accountPlatform = info.platform?.label || info.platform?.name || '';
-  const accountPrice = info.amount || info.price || '';
-  const unitAmount = Number(String(info.amount || info.price || 0).replace(/,/g, ""));
+  // Use discountedPrice if provided, else info.amount/price
+  const accountPrice = discountedPrice != null ? discountedPrice : (info.amount || info.price || '');
+  const unitAmount = Number(String(accountPrice || 0).replace(/,/g, ""));
   const effectiveQuantity = hasCart ? cart.length : (quantity || 0);
   const totalAmount = hasCart
     ? cart.reduce((sum, item) => sum + Number(String(item.amount || item.price).replace(/,/g, "")), 0)
@@ -47,8 +50,11 @@ const ReviewOrderModal = ({
               <div className="text-xs text-text-secondary">
                 Platform: <span className="text-primary font-semibold">{accountPlatform}</span>
               </div>
-              <div className="text-xs text-text-secondary">
+              <div className="text-xs text-text-secondary flex items-center gap-2">
                 Price per Account: <span className="text-primary font-semibold">{money_format(accountPrice)}</span>
+                {discountPercent > 0 && (
+                  <span className="ml-2 text-green-600 text-xs font-bold">-{discountPercent}%</span>
+                )}
               </div>
             </div>
             <div className="flex flex-col items-end">

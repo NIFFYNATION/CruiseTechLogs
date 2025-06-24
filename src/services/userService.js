@@ -112,3 +112,48 @@ export const fetchUserTransactions = async ({ start = 0 } = {}) => {
   }
 };
 
+export const editUserProfile = async (data) => {
+  // data: { first_name, last_name, email, phone_number, gender }
+  try {
+    const response = await axiosInstance.post(API_URLS.USER_EDIT, data);
+    if (response.status === 200 && response.data?.status === 'success') {
+      return { success: true, data: response.data.data };
+    } else {
+      return { success: false, message: response.data?.message || 'Failed to update profile.' };
+    }
+  } catch (error) {
+    return { success: false, message: error.message || 'Failed to update profile.' };
+  }
+};
+
+export const changeUserPassword = async (data) => {
+  // data: { password, current_password, confirm_password }
+  try {
+    const response = await axiosInstance.post(API_URLS.USER_CHANGE_PASSWORD, data);
+    if (response.status === 200 && response.data?.status === 'success') {
+      return { success: true, data: response.data.data };
+    } else {
+      return { success: false, message: response.data?.message || 'Failed to change password.' };
+    }
+  } catch (error) {
+    console.error('Failed to change password:', error);
+    return { success: false, message: error.message || 'An error occurred' };
+  }
+};
+
+export const generateApiKey = async (password) => {
+  if (!password) {
+    return { success: false, message: 'Password is required.' };
+  }
+  try {
+    const res = await axiosInstance.post(API_URLS.USER_GENERATE_API, { password: btoa(password) });
+    if (res.data && res.data.status === 'success' && res.data.data?.key) {
+      return { success: true, key: res.data.data.key };
+    } else {
+      return { success: false, message: res.data.message || 'An unknown error occurred' };
+    }
+  } catch (error) {
+    return { success: false, message: error.message || 'Failed to generate API key.' };
+  }
+};
+

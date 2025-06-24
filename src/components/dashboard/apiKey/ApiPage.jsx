@@ -1,189 +1,126 @@
 import React, { useState } from "react";
-import { FiSearch, FiCopy, FiTrash2 } from "react-icons/fi";
+import { FiCopy, FiEye, FiEyeOff } from "react-icons/fi";
 import { motion } from "framer-motion";
-import TopControls from "../../common/TopControls";
-import ReusableModal from "../../common/ReusableModal";
+import CustomModal from "../../common/CustomModal";
 import CreateApiKeyModal from "./CreateApiKeyModal";
-import "./ApiPage.css";
-
-const mockApiKeys = [
-  {
-    id: 1,
-    key: "960fdde8bb5edce6df4d6b6ff61254d0d24d66c5150f7f8c9e4a33",
-    date: "2025-03-10",
-  },
-  {
-    id: 2,
-    key: "960fdde8bb5edce6df4d6b6ff61254d0d24d66c5150f7f8c9e4a33",
-    date: "2025-03-10",
-  },
-  {
-    id: 3,
-    key: "960fdde8bb5edce6df4d6b6ff61254d0d24d66c5150f7f8c9e4a33",
-    date: "2025-03-10",
-  },
-];
+import { generateApiKey } from "../../../services/userService";
+import Toast from "../../common/Toast";
 
 const ApiPage = () => {
-  const [search, setSearch] = useState("");
-  const [selected, setSelected] = useState([]);
-  const [apiKeys, setApiKeys] = useState(mockApiKeys);
-  const [page, setPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [modalOpen, setModalOpen] = useState(false);
-  
-  const handleSelect = (id) => {
-    setSelected((prev) =>
-      prev.includes(id) ? prev.filter((sid) => sid !== id) : [...prev, id]
-    );
+  const [passwordModalOpen, setPasswordModalOpen] = useState(false);
+  const [newApiKey, setNewApiKey] = useState(null);
+  const [showKey, setShowKey] = useState(true);
+  const [toast, setToast] = useState({ show: false, message: "", type: "info" });
+
+  const handleGenerateApiKey = async (password) => {
+    setPasswordModalOpen(false);
+    const result = await generateApiKey(password);
+    if (result.success) {
+      setNewApiKey(result.key);
+      setShowKey(true); // Always show the key when newly generated
+      setToast({
+        show: true,
+        message: "API Key generated successfully!",
+        type: "success",
+      });
+    } else {
+      setToast({
+        show: true,
+        message: result.message || "Failed to generate API key.",
+        type: "error",
+      });
+    }
   };
 
-  const handleCopy = (key) => {
-    navigator.clipboard.writeText(key);
-    // Optionally show a toast
-  };
-
-  const handleDelete = (id) => {
-    setApiKeys((prev) => prev.filter((k) => k.id !== id));
-    setSelected((prev) => prev.filter((sid) => sid !== id));
-    // Optionally show a toast
-  };
-
-  // Filtered keys
-  const filteredKeys = apiKeys.filter((k) =>
-    k.key.toLowerCase().includes(search.toLowerCase())
-  );
-
-  // Handle modal submit
-  const handleGenerateApiKey = (password) => {
-    setModalOpen(false);
-    // TODO: Call your API to generate the key with the password
-    // Optionally show a toast or update state
+  const handleCopy = () => {
+    if (!newApiKey) return;
+    navigator.clipboard.writeText(newApiKey);
+    setToast({ show: true, message: "API Key copied!", type: "success" });
   };
 
   return (
     <div className="p-6 md:p-10">
+      {toast.show && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast({ ...toast, show: false })}
+        />
+      )}
+
       {/* Header */}
       <div className="mb-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-          <h1 className="text-2xl md:text-3xl font-bold text-text-primary mb-2">Your API Key</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-text-primary mb-2">
+            Your API Key
+          </h1>
           <motion.button
             whileTap={{ scale: 0.97 }}
             className="bg-quaternary w-fit text-white font-semibold rounded-full px-6 py-3 shadow hover:bg-quaternary/90 transition flex items-center"
-            onClick={() => setModalOpen(true)}
+            onClick={() => setPasswordModalOpen(true)}
           >
-            <img className='w-5 h-5 mr-2 ' src="/icons/add-bold.svg" alt="" />
+            <img className="w-5 h-5 mr-2 " src="/icons/add-bold.svg" alt="" />
             <span className="text-sm">Create API Key</span>
           </motion.button>
         </div>
         <p className="text-text-secondary text-sm">
-          Note that you can only see your API Key once. But you can always generate a new key.<br />
-          <span className="text-quaternary font-medium cursor-pointer hover:underline">Click here</span> to view API documentation
+          Note that you can only see your API Key once. But you can always
+          generate a new key.
+          <br />
+          <span className="text-quaternary font-medium cursor-pointer hover:underline">
+            Click here
+          </span>{" "}
+          to view API documentation
         </p>
       </div>
 
-      {/* Modal */}
-      <ReusableModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
+      {/* Password Modal */}
+      <CustomModal
+        open={passwordModalOpen}
+        onClose={() => setPasswordModalOpen(false)}
         title="Create API Key"
+        showFooter={false}
       >
         <CreateApiKeyModal
-          onClose={() => setModalOpen(false)}
+          onClose={() => setPasswordModalOpen(false)}
           onSubmit={handleGenerateApiKey}
         />
-      </ReusableModal>
+      </CustomModal>
 
-      {/* Card */}
-      <div className="bg-white rounded-2xl shadow p-4 md:p-8">
-        {/* Search & Controls */}
-        <div className="mb-4">
-        <div className="relative w-full py-6">
-            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-text-grey" size={20} />
+      {/* Display New API Key */}
+      {newApiKey && (
+        <div className="bg-white rounded-2xl shadow p-6 md:p-8 mt-8">
+          <h2 className="text-lg font-semibold mb-2 text-primary">
+            Your New API Key
+          </h2>
+          <p className="text-sm text-text-secondary mb-4">
+            Please copy this key and store it securely. You will not be able to
+            see it again after you leave this page.
+          </p>
+          <div className="flex items-center gap-4 bg-bgLayout p-4 rounded-lg">
             <input
-              type="text"
-              placeholder="Search..."
-              className="w-full font-semibold border border-border-grey rounded-sm pl-10 pr-4 py-2.5 focus:outline-none"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              type={showKey ? "text" : "password"}
+              readOnly
+              value={newApiKey}
+              className="flex-1 bg-transparent outline-none font-mono text-text-primary"
             />
+            <button
+              onClick={() => setShowKey(!showKey)}
+              className="p-2 text-text-secondary hover:text-primary"
+              title={showKey ? "Hide Key" : "Show Key"}
+            >
+              {showKey ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+            </button>
+            <button
+              onClick={handleCopy}
+              className="p-2 text-text-secondary hover:text-success"
+              title="Copy Key"
+            >
+              <FiCopy size={20} />
+            </button>
           </div>
-        <TopControls page={page} setPage={setPage} />
-
         </div>
-
-        {/* Table */}
-        <div className="max-w-[320px] sm:max-w-[650px] lg:max-w-full w-full overflow-x-auto">
-          <table className="min-w-[900px] overflow-x-auto w-full text-left">
-            <thead>
-              <tr className="border-b border-secondary">
-                <th className="py-3 px-2 w-10">
-                  <input
-                    type="checkbox"
-                    className="custom-checkbox "
-                    checked={selected.length === filteredKeys.length && filteredKeys.length > 0}
-                    onChange={() =>
-                      setSelected(
-                        selected.length === filteredKeys.length
-                          ? []
-                          : filteredKeys.map((k) => k.id)
-                      )
-                    }
-                  />
-                </th>
-                <th className="py-3 px-2 text-sm font-semibold text-tertiary">API Keys</th>
-                <th className="py-3 px-2 text-sm font-semibold text-tertiary">Date Generated</th>
-                <th className="py-3 px-2 text-sm font-semibold text-tertiary">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredKeys.map((k) => (
-                <tr key={k.id} className="border-b border-secondary hover:bg-secondary-light hover:cursor-pointer transition">
-                  <td className="py-3 px-2">
-                    <input
-                      type="checkbox"
-                    className="custom-checkbox"
-
-                      checked={selected.includes(k.id)}
-                      onChange={() => handleSelect(k.id)}
-                    />
-                  </td>
-                  <td className="py-3 px-2  text-[15px] truncate">{k.key}</td>
-                  <td className="py-3 px-2 text-[15px] text-primary font-semibold">
-                    {/* Use native Date formatting instead of dayjs */}
-                    {new Date(k.date).toLocaleDateString("en-GB", {
-                      day: "2-digit",
-                      month: "short",
-                      year: "numeric",
-                    })}
-                  </td>
-                  <td className="py-3 px-2 flex gap-3">
-                    <button
-                      onClick={() => handleCopy(k.key)}
-                      className="p-2 rounded hover:bg-secondary transition"
-                      title="Copy"
-                    >
-                      <FiCopy className="text-success" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(k.id)}
-                      className="p-2 rounded hover:bg-secondary transition"
-                      title="Delete"
-                    >
-                      <FiTrash2 className="text-quaternary" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-              {filteredKeys.length === 0 && (
-                <tr>
-                  <td colSpan={4} className="py-8 text-center text-tertiary">No API keys found.</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      )}
     </div>
   );
 };
