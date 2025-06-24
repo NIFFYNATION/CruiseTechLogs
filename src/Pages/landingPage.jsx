@@ -582,8 +582,7 @@ export default function LandingPage() {
                   variant="quinary"
                   size="lg"
                   to="/dashboard/buy-numbers"
-                  fullWidth
-                  className="sm:w-auto"
+                  className="w-fit  sm:w-auto"
                 >
                   Go to Market
                 </Button>

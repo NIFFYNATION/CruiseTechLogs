@@ -34,12 +34,14 @@ const ForgotPassword = () => {
 
 <div className="w-full lg:w-1/2 flex flex-col items-center justify-center bg-gradient-to-r from-red-500/2 to-orange-500/5 py-8 px-4 sm:px-6 lg:px-8 h-screen md:h-auto">
   <div className="flex justify-center mb-6">
-      <img
+     <Link to="/">
+     <img
         src="/images/CruiseTech-2.svg"
         alt="CruiseTech Logo"
         className="h-12"
         style={{ maxWidth: 160 }}
       />
+     </Link>
     </div>
   <FormSection
     title="Forgot Password?"
