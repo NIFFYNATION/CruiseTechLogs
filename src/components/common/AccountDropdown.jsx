@@ -6,6 +6,10 @@ import ProfileActions from "./profileActionButtons";
 import { fetchUserDetails, defaultUser } from '../../controllers/userController';
 import UserProgress from "./UserProgress";
 import UserAvatar from "./UserAvatar"; // Import UserAvatar
+import DropdownCard from "./DropdownCard";
+import SidebarDrawer from "./SidebarDrawer";
+import { extractLastNumber } from "../../utils/formatUtils";
+import { useNavigate } from 'react-router-dom';
 
 // Animation variants
 const overlayVariants = {
@@ -27,9 +31,11 @@ const AccountDropdown = ({
   onLogout,
   onKnowMore,
   onClose,
+  open = true,
 }) => {
   const [user, setUser] = useState(propUser || null);
   const [loading, setLoading] = useState(!propUser);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!propUser) {
@@ -44,124 +50,111 @@ const AccountDropdown = ({
 
   const safeUser = user || defaultUser;
 
+  // Add a handler to close dropdown and then call onEditProfile
+  const handleEditProfile = () => {
+    if (onClose) onClose();
+    if (onEditProfile) onEditProfile();
+  };
+
+  // Get level badge icon
+  const levelNum = extractLastNumber(safeUser.nextStage) || extractLastNumber(safeUser.stage?.name);
+  const badgeUrl = levelNum
+    ? `/icons/level-badge-${levelNum}.svg`
+    : '/icons/level-badge.svg';
+
   if (loading) {
     // Optionally, replace with a spinner or skeleton
     return null;
   }
 
   return (
-  <>
-    {/* MOBILE: Right-side drawer and overlay */}
-      <AnimatePresence>
-    <div className="md:hidden">
-          <motion.div
-            className="fixed inset-0 z-50"
-            onClick={onClose}
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
-            variants={overlayVariants}
-          >
-            <motion.div
-              className="absolute inset-0 bg-black/2 backdrop-blur-sm"
-              variants={overlayVariants}
-            />
-            <motion.div
-              className="absolute top-0 right-0 h-full w-[97vw] max-w-xs bg-white/80 shadow-2xl z-50 flex flex-col backdrop-blur-md"
-          style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
-          onClick={e => e.stopPropagation()}
-              initial="hidden"
-              animate="visible"
-              exit="hidden"
-              variants={drawerVariants}
-        >
-          {/* Close Button */}
-          <div className="flex justify-end p-8">
-            <button className="text-2xl text-text-primary" onClick={onClose}>
-              <IoClose />
-            </button>
-          </div>
-          {/* Avatar and Level */}
-          <div className="flex flex-col items-center mb-8">
-                <UserAvatar
-                  src={safeUser.profile_image ?? ''}
-                  alt={safeUser.name}
-                  size={80}
-                  showLevel={true}
-                  level={safeUser.stage?.name}
-                />
-                <div className="font-semibold text-lg text-text-primary mt-4">{safeUser.first_name}</div>
-                <div className="text-[#777777] text-sm font-semibold mb-2">{safeUser.email}</div>
-          </div>
-          {/* Progress Section */}
-          <div className="border-t border-text-grey pt-4 mb-10 p-6">
-                <UserProgress
-                  percentage={safeUser.percentage}
-                  stageName={safeUser.stage?.name}
-                  nextStage={safeUser.nextStage}
-                />
-            <button
-              className="w-full bg-quinary hover:bg-quaternary text-white font-semibold rounded-full py-2 mt-8 transition-colors"
-              onClick={onKnowMore}
-            >
-              Know more about discount
-            </button>
-          </div>
-          {/* Actions */}
-              <ProfileActions onEditProfile onLogout />
-            </motion.div>
-          </motion.div>
+    <>
+      {/* MOBILE: SidebarDrawer */}
+      <SidebarDrawer open={open} onClose={onClose}>
+        {/* Close Button */}
+        <div className="flex justify-end p-8">
+          <button className="text-2xl text-text-primary" onClick={onClose}>
+            <IoClose />
+          </button>
         </div>
-      </AnimatePresence>
-    {/* DESKTOP: Original dropdown, untouched */}
-      <AnimatePresence>
-        <div className="hidden md:block ">
-          <motion.div
-            className="absolute right-0 mt-8 w-[300px] md:w-[370px] rounded-2xl shadow-xl z-50 bg-white/90 backdrop-blur-md"
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
-            variants={dropdownVariants}
+        {/* Avatar and Level */}
+        <div className="flex flex-col items-center mb-8">
+          <UserAvatar
+            src={safeUser.profile_image ?? ''}
+            alt={safeUser.name}
+            size={80}
+            showLevel={true}
+            level={safeUser.stage?.name}
+            badgeUrl={badgeUrl}
+          />
+          <div className="font-semibold text-lg text-text-primary mt-4">{safeUser.first_name}</div>
+          <div className="text-[#777777] text-sm font-semibold mb-2">{safeUser.email}</div>
+        </div>
+        {/* Progress Section */}
+        <div className="border-t border-text-grey pt-4 mb-10 p-6">
+          <UserProgress
+            percentage={safeUser.percentage}
+            stageName={safeUser.stage?.name}
+            nextStage={safeUser.nextStage}
+          />
+          <button
+            className="w-full bg-quinary hover:bg-quaternary text-white font-semibold rounded-full py-2 mt-8 transition-colors"
+            onClick={() => {
+              if (onClose) onClose();
+              setTimeout(() => navigate('/dashboard/stages'), 100); // ensure sidebar closes first
+            }}
           >
+            Know more about discount
+          </button>
+        </div>
+        {/* Actions */}
+        <ProfileActions onEditProfile={handleEditProfile} onLogout={onLogout} />
+      </SidebarDrawer>
+      {/* DESKTOP: DropdownCard */}
+      <DropdownCard>
         {/* Top Section */}
-            <div className="flex items-center gap-4 mb-4 p-4  border-b-1 border-[#C7C7C7] rounded-t-2xl">
-              <UserAvatar
-                src={safeUser.profile_image}
-                alt={safeUser.first_name}
-                size={64}
-                showLevel={false}
-                level={safeUser.stage?.name}
+        <div className="flex items-center gap-4 mb-4 p-4 border-b-1 border-[#C7C7C7] rounded-t-2xl">
+          <UserAvatar
+            src={safeUser.profile_image}
+            alt={safeUser.first_name}
+            size={64}
+            showLevel={false}
+            level={safeUser.stage?.name}
+            badgeUrl={badgeUrl}
           />
           <div>
-                <h3 className="font-semibold text-lg text-text-primary">{safeUser.first_name}</h3>
+            <h3 className="font-semibold text-lg text-text-primary">{safeUser.first_name}</h3>
             <div className="flex items-center gap-2 mt-1">
-                  <span className="flex items-center gap-1 text-[#A97B2A] px-3 py-1 rounded-full bg-[#A97B2A]/20 text-xs font-semibold">
-                <span className="inline-block w-4 h-4 bg-[url('/level-badge.png')] bg-cover" />
-                    Level {safeUser.level}
+              <span className="flex items-center gap-1 text-[#A97B2A] px-3 py-1 rounded-full bg-[#A97B2A]/20 text-xs font-semibold">
+                <img src={badgeUrl} alt="level badge" className="w-4 h-4 inline-block mr-1" />
+                Level {safeUser.level}
               </span>
             </div>
             <div className="flex items-center gap-4 mt-2">
-            <FaEnvelope className="text-[#777777]" />
-                  <span className="text-[#777777] text-sm font-semibold">{safeUser.email}</span>
+              <FaEnvelope className="text-[#777777]" />
+              <span className="text-[#777777] text-sm font-semibold">{safeUser.email}</span>
             </div>
           </div>
         </div>
         {/* Progress Section */}
         <div className="pt-4 p-8">
-              <UserProgress
-                percentage={safeUser.percentage}
-                stageName={safeUser.stage?.name}
-                nextStage={safeUser.nextStage}
-              />
-              <span className="text-xs font-semibold text-primary">Read about discount </span>
+          <UserProgress
+            percentage={safeUser.percentage}
+            stageName={safeUser.stage?.name}
+            nextStage={safeUser.nextStage}
+          />
+          <button
+            onClick={() => navigate('/dashboard/stages')}
+            className="mt-4 px-4 py-2 text-sm font-bold text-white bg-quinary rounded-full shadow hover:bg-quaternary transition-colors focus:outline-none focus:ring-2 focus:ring-quinary focus:ring-offset-2"
+          >
+            Read about discount
+          </button>
         </div>
         {/* Actions */}
-            <ProfileActions onEditProfile onLogout />
-          </motion.div>
-        </div>
-      </AnimatePresence>
-  </>
-);
+        <ProfileActions onEditProfile={handleEditProfile} onLogout={onLogout} />
+      </DropdownCard>
+    </>
+  );
 };
 
 export default AccountDropdown;

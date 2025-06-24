@@ -1,43 +1,27 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { FaWallet } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
+import DropdownCard from "./DropdownCard";
+import SidebarDrawer from "./SidebarDrawer";
+import {
+  fetchNotifications,
+  markNotificationAsRead,
+} from "../../services/notificationService";
+import CustomModal from "./CustomModal";
+import { DateTime } from "luxon";
+import { SkeletonNotification } from "./Skeletons";
 
-const notifications = [
-  {
-    id: 1,
-    title: "Wallet Topup",
-    description: "Successfully added funds to account",
-    amount: "+ ₦ 20,000",
-    time: "1m",
-    unread: true,
-  },
-  // ...repeat as needed
-  {
-    id: 2,
-    title: "Wallet Topup",
-    description: "Successfully added funds to account",
-    amount: "+ ₦ 20,000",
-    time: "1m",
-    unread: true,
-  },
-  {
-    id: 3,
-    title: "Wallet Topup",
-    description: "Successfully added funds to account",
-    amount: "+ ₦ 20,000",
-    time: "1m",
-    unread: true,
-  },
-  {
-    id: 3,
-    title: "Wallet Topup",
-    description: "Successfully added funds to account",
-    amount: "+ ₦ 20,000",
-    time: "1m",
-    unread: true,
-  },
-];
+function formatRelativeTime(dateStr) {
+  if (!dateStr) return "";
+  try {
+    const dt = DateTime.fromSQL(dateStr, { zone: "utc" }).toLocal();
+    if (!dt.isValid) return "";
+    return dt.toRelative();
+  } catch (e) {
+    return "";
+  }
+}
 
 // Animation variants
 const overlayVariants = {
@@ -54,136 +38,168 @@ const dropdownVariants = {
 };
 const itemVariants = {
   hidden: { opacity: 0, x: 20 },
-  visible: i => ({
+  visible: (i) => ({
     opacity: 1,
     x: 0,
-    transition: { delay: i * 0.07, type: "spring", stiffness: 200, damping: 20 }
+    transition: {
+      delay: i * 0.07,
+      type: "spring",
+      stiffness: 200,
+      damping: 20,
+    },
   }),
 };
 
-const NotificationDropdown = ({ onMarkRead, onClose }) => (
-  <>
-    {/* MOBILE: Right-side drawer and overlay */}
-    <AnimatePresence>
-      <div className="md:hidden">
-        {/* Overlay */}
-        <motion.div
-          className="fixed inset-0 z-40 bg-black/60"
-          onClick={onClose}
-          initial="hidden"
-          animate="visible"
-          exit="hidden"
-          variants={overlayVariants}
-        />
-        {/* Drawer */}
-        <motion.div
-          className="fixed top-0 right-0 h-full w-[97vw] max-w-xs bg-background z-50 shadow-2xl p-4"
-          style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
-          initial="hidden"
-          animate="visible"
-          exit="hidden"
-          variants={drawerVariants}
-        >
-          <div className="flex justify-between items-center mb-4">
-            <span className="font-semibold text-lg text-text-primary">Notifications</span>
-            <button className="text-2xl text-text-primary" onClick={onClose}>
-              <IoClose />
-            </button>
+const NotificationDropdown = ({ onClose, open = true }) => {
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedNotification, setSelectedNotification] = useState(null);
+
+  useEffect(() => {
+    if (open) {
+      setLoading(true);
+      fetchNotifications()
+        .then(({ notifications: fetchedNotifications, error }) => {
+          if (!error && Array.isArray(fetchedNotifications)) {
+            setNotifications(fetchedNotifications);
+          }
+        })
+        .finally(() => setLoading(false));
+    }
+  }, [open]);
+
+  const handleNotificationClick = (notification) => {
+    setSelectedNotification(notification);
+    if (notification.status === "1") {
+      markNotificationAsRead(notification.ID).then((res) => {
+        if (res.success) {
+          setNotifications((prev) =>
+            prev.map((n) =>
+              n.ID === notification.ID ? { ...n, status: "0" } : n
+            )
+          );
+        }
+      });
+    }
+  };
+
+  const handleMarkAllRead = async () => {
+    const unread = notifications.filter((n) => n.status === "1");
+    if (unread.length === 0) return;
+
+    const promises = unread.map((n) => markNotificationAsRead(n.ID));
+    await Promise.all(promises);
+
+    setNotifications((prev) =>
+      prev.map((n) => (n.status === "1" ? { ...n, status: "0" } : n))
+    );
+  };
+
+  const renderNotification = (n, idx) => (
+    <motion.div
+      key={n.id + idx}
+      custom={idx}
+      initial="hidden"
+      animate="visible"
+      variants={itemVariants}
+      onClick={() => handleNotificationClick(n)}
+      className="cursor-pointer"
+    >
+      <div className="flex items-start gap-3 py-3">
+        <div className="w-10 h-10 rounded-full flex items-center justify-center mt-1 bg-[#D9700A0D]">
+          <img
+            className="w-5 h-5 [filter:invert(48%)_sepia(79%)_saturate(2476%)_hue-rotate(346deg)_brightness(118%)_contrast(119%)]"
+            src={n.icon || "/icons/bell.svg"}
+            alt="notification-icon"
+          />
+        </div>
+        <div className="flex-1">
+          <div className="flex justify-between items-center">
+            <span className="font-semibold text-text-primary">{n.title}</span>
+            
           </div>
-          <button
-            className="block text-success font-medium text-sm hover:underline mb-2"
-            onClick={onMarkRead}
-          >
-            Mark as read
+          <div
+            className="text-xs text-text-grey line-clamp-2"
+            dangerouslySetInnerHTML={{ __html: n.description }}
+          />
+          <span className="text-sm text-text-grey">
+              {formatRelativeTime(n.date)}
+            </span>
+        </div>
+        {n.status === "1" && (
+          <span className="w-2 h-2 bg-quinary rounded-full mt-2 ml-2 flex-shrink-0" />
+        )}
+      </div>
+      {idx !== notifications.length - 1 && (
+        <div className="border-b border-text-grey" />
+      )}
+    </motion.div>
+  );
+
+  const notificationContent = (
+    <div>
+      {loading ? (
+        Array.from({ length: 3 }).map((_, i) => <SkeletonNotification key={i} />)
+      ) : notifications.length === 0 ? (
+        <div className="text-center py-10 text-text-secondary">
+          No notifications yet.
+        </div>
+      ) : (
+        notifications.map(renderNotification)
+      )}
+    </div>
+  );
+
+  return (
+    <>
+      {/* MOBILE: Right-side drawer and overlay */}
+      <SidebarDrawer open={open} onClose={onClose}>
+        <div className="flex justify-between items-center mb-4">
+          <span className="font-semibold text-lg text-text-primary">
+            Notifications
+          </span>
+          <button className="text-2xl text-text-primary" onClick={onClose}>
+            <IoClose />
           </button>
-          <div>
-            {notifications.map((n, idx) => (
-              <motion.div
-                key={n.id + idx}
-                custom={idx}
-                initial="hidden"
-                animate="visible"
-                variants={itemVariants}
-              >
-                <div className="flex items-start gap-3 py-3">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center mt-1 bg-[#D9700A0D]">
-                    <img className="w-5 h-5 [filter:invert(48%)_sepia(79%)_saturate(2476%)_hue-rotate(346deg)_brightness(118%)_contrast(119%)]" src="/icons/wallet-topup.svg" alt="wallet-topup" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex justify-between items-center">
-                      <span className="font-semibold text-text-primary">{n.title}</span>
-                      <span className="text-sm text-text-grey">{n.time}</span>
-                    </div>
-                    <div className="text-xs text-text-grey">{n.description}</div>
-                    <div className="text-sm font-bold text-success mt-1">{n.amount}</div>
-                  </div>
-                  {n.unread && (
-                    <span className="w-2 h-2 bg-quinary rounded-full mt-2 ml-2" />
-                  )}
-                </div>
-                {idx !== notifications.length - 1 && (
-                  <div className="border-b border-text-grey" />
-                )}
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-      </div>
-    </AnimatePresence>
-    {/* DESKTOP: Original dropdown, untouched */}
-    <AnimatePresence>
-      <div className="hidden md:block">
-        <motion.div
-          className="absolute -right-12 md:-left-35 mt-8 w-[290px] md:w-[350px] bg-background rounded-2xl shadow-xl z-50 p-4"
-          initial="hidden"
-          animate="visible"
-          exit="hidden"
-          variants={dropdownVariants}
+        </div>
+        <button
+          className="block text-success font-medium text-sm hover:underline mb-2"
+          onClick={handleMarkAllRead}
         >
-          <div className="flex justify-between items-center mb-4">
-            <span className="font-semibold text-lg text-text-primary">Notification</span>
-            <button
-              className="text-success font-medium text-sm hover:underline"
-              onClick={onMarkRead}
-            >
-              Mark as read
-            </button>
-          </div>
-          <div>
-            {notifications.map((n, idx) => (
-              <motion.div
-                key={n.id + idx}
-                custom={idx}
-                initial="hidden"
-                animate="visible"
-                variants={itemVariants}
-              >
-                <div className="flex items-start gap-3 py-3">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center mt-1 bg-[#D9700A0D]">
-                    <img className="w-5 h-5 [filter:invert(48%)_sepia(79%)_saturate(2476%)_hue-rotate(346deg)_brightness(118%)_contrast(119%)]" src="/icons/wallet-topup.svg" alt="wallet-topup" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex justify-between items-center">
-                      <span className="font-semibold text-text-primary">{n.title}</span>
-                      <span className="text-xs text-text-grey">{n.time}</span>
-                    </div>
-                    <p className="text-xs text-text-grey">{n.description}</p>
-                    <p className="text-sm font-bold text-success mt-1">{n.amount}</p>
-                  </div>
-                  {n.unread && (
-                    <span className="w-2 h-2 bg-quinary rounded-full mt-2 ml-2" />
-                  )}
-                </div>
-                {idx !== notifications.length - 1 && (
-                  <div className="border-b border-text-grey" />
-                )}
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-      </div>
-    </AnimatePresence>
-  </>
-);
+          Mark all as read
+        </button>
+        {notificationContent}
+      </SidebarDrawer>
+      {/* DESKTOP: DropdownCard */}
+      <DropdownCard>
+        <div className="flex justify-between items-center mb-4">
+          <span className="font-semibold text-lg text-text-primary">
+            Notification
+          </span>
+          <button
+            className="text-success font-medium text-sm hover:underline"
+            onClick={handleMarkAllRead}
+          >
+            Mark all as read
+          </button>
+        </div>
+        {notificationContent}
+      </DropdownCard>
+
+      <CustomModal
+        open={!!selectedNotification}
+        onClose={() => setSelectedNotification(null)}
+        title={selectedNotification?.title}
+        showFooter={false}
+        className="max-w-lg"
+      >
+        <div
+          className="prose max-w-none p-4"
+          dangerouslySetInnerHTML={{ __html: selectedNotification?.description }}
+        />
+      </CustomModal>
+    </>
+  );
+};
 
 export default NotificationDropdown;

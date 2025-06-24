@@ -3,17 +3,33 @@ import { useSidebar } from '../../contexts/SidebarContext';
 import NotificationDropdown from '../common/NotificationDropdown';
 import AccountDropdown from '../common/AccountDropdown';
 import { fetchUserProfile } from '../../services/userService'; // Use fetchUserProfile
+import { logoutUser } from '../../controllers/userController'; // Import logoutUser
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { fetchNotificationCount } from '../../services/notificationService';
+import eventBus from '../../utils/eventBus';
 import { Link } from 'react-router';
+
 
 const DashboardHeader = () => {
   const { toggleSidebar, isCollapsed } = useSidebar();
-  const [showDropdown, setShowDropdown] = useState(false);
+  const [showNotificationDropdown, setShowNotificationDropdown] = useState(false);
   const [showAccountDropdown, setShowAccountDropdown] = useState(false);
   const bellRef = useRef(null);
   const dropdownRef = useRef(null);
   const profileRef = useRef(null);
   const accountDropdownRef = useRef(null);
   const [user, setUser] = useState(null); // State to store user details
+  const [notificationCount, setNotificationCount] = useState(0);
+  const navigate = useNavigate(); // Add this line
+
+  useEffect(() => {
+    const isAnyDrawerOpen = showNotificationDropdown || showAccountDropdown;
+    eventBus.dispatch(isAnyDrawerOpen ? 'drawer:open' : 'drawer:close');
+  }, [showNotificationDropdown, showAccountDropdown]);
+
+  const refreshNotifCount = () => {
+    fetchNotificationCount().then(setNotificationCount);
+  };
 
   // Fetch user record from fetchUserProfile
   useEffect(() => {
@@ -33,6 +49,11 @@ const DashboardHeader = () => {
           email: '',
         });
       });
+    refreshNotifCount(); // Initial fetch
+
+    const interval = setInterval(refreshNotifCount, 60000); // Poll every 60 seconds
+
+    return () => clearInterval(interval);
   }, []);
 
   // Hide notification dropdown when clicking outside
@@ -44,10 +65,10 @@ const DashboardHeader = () => {
         bellRef.current &&
         !bellRef.current.contains(event.target)
       ) {
-        setShowDropdown(false);
+        setShowNotificationDropdown(false);
       }
     }
-    if (showDropdown) {
+    if (showNotificationDropdown) {
       document.addEventListener("mousedown", handleClickOutside);
     } else {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -55,7 +76,7 @@ const DashboardHeader = () => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [showDropdown]);
+  }, [showNotificationDropdown]);
 
   // Hide account dropdown when clicking outside
   useEffect(() => {
@@ -131,36 +152,30 @@ const DashboardHeader = () => {
 
         {/* Right Side - Notification & Profile */}
         <div className="flex items-center gap-2 md:gap-4">
-          {/* Notification Bell */}
-          <div className="relative">
-            <button
-              ref={bellRef}
-              className="relative p-2 bg-quaternary-light rounded-full"
-              onClick={() => setShowDropdown((v) => !v)}
-            >
-              <svg 
-                width="20" 
-                height="20" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="2" 
-                className="text-quaternary md:w-[22px] md:h-[22px]"
-              >
-                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-              </svg>
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-danger rounded-full"/>
-            </button>
-            {showDropdown && (
-              <div ref={dropdownRef}>
-                <NotificationDropdown 
-                  onMarkRead={() => {}} 
-                  onClose={() => setShowDropdown(false)}
-                />
-              </div>
+          {/* Notification Icon */}
+          <button
+            onClick={() => setShowNotificationDropdown((prev) => !prev)}
+            className="relative p-2 rounded-full hover:bg-gray-200"
+          >
+            <img src="/icons/bell.svg" alt="Notifications" className="w-6 h-6" />
+            {notificationCount > 0 && (
+              <span className="absolute top-0 right-0 bg-quinary text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                {notificationCount}
+              </span>
             )}
-          </div>
+          </button>
+
+          {showNotificationDropdown && (
+            <div ref={dropdownRef}>
+              <NotificationDropdown
+                onMarkRead={() => console.log('Marking all as read...')}
+                onClose={() => {
+                  setShowNotificationDropdown(false);
+                  refreshNotifCount();
+                }}
+              />
+            </div>
+          )}
 
           {/* Profile Dropdown */}
           <div className="relative">
@@ -191,8 +206,14 @@ const DashboardHeader = () => {
               <div ref={accountDropdownRef}>
                 <AccountDropdown
                   user={user} // Pass user details to AccountDropdown
-                  onEditProfile={() => {/* handle edit */}}
-                  onLogout={() => {/* handle logout */}}
+                  onEditProfile={() => {
+                    setShowAccountDropdown(false);
+                    navigate('/dashboard/profile-settings');
+                  }}
+                  onLogout={() => {
+                    setShowAccountDropdown(false);
+                    logoutUser();
+                  }}
                   onKnowMore={() => {/* handle know more */}}
                   onClose={() => setShowAccountDropdown(false)}
                 />

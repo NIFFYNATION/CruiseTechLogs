@@ -1,4 +1,5 @@
 import { registerUser, loginUser } from '../services/authService';
+import { fetchUserDetails } from './userController';
 
 export const signupController = async (formData) => {
   const { name, email, password, confirmPassword, phoneNumber } = formData;
@@ -26,6 +27,7 @@ export const loginController = async (credentials) => {
       password: btoa(credentials.password), // Encode password in Base64
     });
     localStorage.setItem('authToken', response.data.token.token); // Store token in localStorage
+    await fetchUserDetails(); // Fetch and store user details
     console.log('Login successful:', response);
     return response; // Return API response
   } catch (error) {

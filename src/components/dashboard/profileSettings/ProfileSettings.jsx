@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
-import InputField from "../../common/InputField";
-import { Button } from "../../common/Button";
-import { fetchUserProfile } from "../../../services/userService"; // Add this import
 import UserAvatar from "../../common/UserAvatar";
+import Toast from "../../common/Toast";
+import ProfileForm from "../../common/ProfileForm";
+import PasswordForm from "../../common/PasswordForm";
+import { fetchUserProfile, editUserProfile, changeUserPassword } from "../../../services/userService";
+import { fetchUserDetails } from "../../../controllers/userController";
 
 const TABS = [
   {
@@ -26,7 +28,7 @@ const ProfileSettings = () => {
   const [activeTab, setActiveTab] = useState("profile");
 
   // Profile form state
-  const [form, setForm] = useState({
+  const [profile, setProfile] = useState({
     firstName: "",
     lastName: "",
     email: "",
@@ -34,13 +36,8 @@ const ProfileSettings = () => {
     gender: "",
     accountId: "",
   });
-
-  // Password form state
-  const [passwordForm, setPasswordForm] = useState({
-    current: "",
-    new: "",
-    confirm: "",
-  });
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [passwordLoading, setPasswordLoading] = useState(false);
 
   const [notificationPrefs, setNotificationPrefs] = useState([
     { push: false, email: true, sms: false },
@@ -48,9 +45,12 @@ const ProfileSettings = () => {
     { push: true, email: true, sms: true },
   ]);
 
+  const [saving, setSaving] = useState(false);
+  const [toast, setToast] = useState({ show: false, message: '', type: 'info' });
+
   useEffect(() => {
     fetchUserProfile().then((data) => {
-      setForm({
+      setProfile({
         firstName: data?.first_name || "",
         lastName: data?.last_name || "",
         email: data?.email || "",
@@ -61,14 +61,37 @@ const ProfileSettings = () => {
     });
   }, []);
 
-  const handleProfileChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+  const handleProfileSubmit = async (values) => {
+    setProfileLoading(true);
+    setToast({ show: false, message: '', type: 'info' });
+    const payload = {
+      first_name: values.firstName,
+      last_name: values.lastName,
+      email: values.email,
+      phone_number: values.phone,
+      gender: values.gender,
+    };
+    const result = await editUserProfile(payload);
+    if (result.success) {
+      await fetchUserDetails();
+      setToast({ show: true, message: 'Profile updated successfully!', type: 'success' });
+      setProfile(values);
+    } else {
+      setToast({ show: true, message: result.message || 'Failed to update profile.', type: 'error' });
+    }
+    setProfileLoading(false);
   };
 
-  const handlePasswordChange = (e) => {
-    const { name, value } = e.target;
-    setPasswordForm((prev) => ({ ...prev, [name]: value }));
+  const handlePasswordSubmit = async (values) => {
+    setPasswordLoading(true);
+    setToast({ show: false, message: '', type: 'info' });
+    const result = await changeUserPassword(values);
+    if (result.success) {
+      setToast({ show: true, message: 'Password changed successfully!', type: 'success' });
+    } else {
+      setToast({ show: true, message: result.message || 'Failed to change password.', type: 'error' });
+    }
+    setPasswordLoading(false);
   };
 
   const handleToggle = (groupIdx, type) => {
@@ -88,7 +111,7 @@ const ProfileSettings = () => {
       aria-pressed={enabled}
     >
       <span
-        className={`inline-block w-2 h-2 md:w-5 md:h-5 transform bg-white rounded-full shadow transition-transform duration-200
+        className={`inline-block w-2 h-2 md:w-5 md:h-5 transform bg-white rounded-full  transition-transform duration-200
           ${enabled ? "translate-x-4" : "translate-x-1"}`}
       />
       <span className="sr-only">{label}</span>
@@ -97,6 +120,13 @@ const ProfileSettings = () => {
 
   return (
     <div className="mt-6">
+      {toast.show && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast({ ...toast, show: false })}
+        />
+      )}
       <div className="w-full px-4 md:px-10 text-2xl font-semibold mb-8">Account Settings</div>
       
       {/* Mobile Tab Bar */}
@@ -164,11 +194,10 @@ const ProfileSettings = () => {
           </div>
         </div>
         {/* Right: Content */}
-        <div className="flex-1 bg-white rounded-2xl shadow p-6 md:p-10">
+        <div className="flex-1 bg-white p-6 md:p-10">
           {/* Profile */}
           {activeTab === "profile" && (
             <>
-              {/* Avatar Section */}
               <div className="flex flex-col md:flex-row justify-between items-center mb-8">
                 <div className="relative">
                   <UserAvatar/>
@@ -179,167 +208,21 @@ const ProfileSettings = () => {
                     <img src="/icons/camera.svg" alt="Change" className="w-7 h-7" />
                   </button>
                 </div>
-              {/* <div className="md:w-1/2 flex flex-col justify-center items-center gap-4">
-                  <div className="flex gap-2 mt-4">
-                    <Button variant="primary" size="sm" shape="rounded">
-                      Upload New
-                    </Button>
-                    <Button variant="danger" size="sm" shape="rounded">
-                      Delete Avatar
-                    </Button>
-                  </div>
-                  <div className="text-sm text-tertiary mt-2">
-                    Allowed JPG or PNG. Max size of 800K
-                  </div>
-                </div> */}
               </div>
-
-              {/* Personal Details */}
-              <div>
-                <h2 className="text-xl font-semibold mb-1">Personal Details</h2>
-                <p className="text-tertiary mb-6 text-sm">
-                  To change your personal detail, edit and save from here
-                </p>
-                <form className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block mb-2 font-medium">First Name</label>
-                      <InputField
-                        name="firstName"
-                        value={form.firstName}
-                        onChange={handleProfileChange}
-                        className="py-4 px-4 bg-bgLayout"
-                      />
-                    </div>
-                    <div>
-                      <label className="block mb-2 font-medium">Last Name</label>
-                      <InputField
-                        name="lastName"
-                        value={form.lastName}
-                        onChange={handleProfileChange}
-                        className="py-4 px-4 bg-bgLayout"
-                      />
-                    </div>
-                    <div>
-                      <label className="block mb-2 font-medium">Email Address</label>
-                      <InputField
-                        name="email"
-                        value={form.email}
-                        onChange={handleProfileChange}
-                        className="py-4 px-4 bg-bgLayout"
-                      />
-                    </div>
-                    <div>
-                      <label className="block mb-2 font-medium">Phone Number</label>
-                      <InputField
-                        name="phone"
-                        value={form.phone}
-                        onChange={handleProfileChange}
-                        className="py-4 px-4 bg-bgLayout"
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="">
-                      <label className="block mb-2 font-medium">Gender</label>
-                      <div className="flex justify-between gap-4">
-                        <label className="flex items-center gap-2 border border-secondary rounded-lg py-4 px-6 bg-bgLayout w-full">
-                          <input
-                            type="radio"
-                            name="gender"
-                            value="male"
-                            checked={form.gender === "male"}
-                            onChange={handleProfileChange}
-                            className="accent-quaternary"
-                          />
-                          Male
-                        </label>
-                        <label className="flex items-center gap-2 border border-secondary rounded-lg py-4 px-6 bg-bgLayout w-full">
-                          <input
-                            type="radio"
-                            name="gender"
-                            value="female"
-                            checked={form.gender === "female"}
-                            onChange={handleProfileChange}
-                            className="accent-quaternary"
-                          />
-                          Female
-                        </label>
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block mb-2 font-medium">Account ID</label>
-                      <input
-                        type="text"
-                        value={form.accountId}
-                        disabled
-                        className="w-full border border-secondary rounded-lg px-4 py-3 bg-secondary-light text-tertiary"
-                      />
-                    </div>
-                  </div>
-                  <Button
-                    type="submit"
-                    variant="quinary"
-                    size="lg"
-                    shape="rounded"
-                    className="mt-6"
-                  >
-                    Save Settings
-                  </Button>
-                </form>
-              </div>
+              <ProfileForm
+                initialValues={profile}
+                onSubmit={handleProfileSubmit}
+                loading={profileLoading}
+              />
             </>
           )}
 
           {/* Password */}
           {activeTab === "password" && (
-            <>
-              <h2 className="text-xl font-semibold mb-1">Change Password</h2>
-              <p className="text-tertiary mb-6 text-sm">
-                To change your password please confirm here
-              </p>
-              <form className="space-y-6 ">
-                <div>
-                  <label className="block mb-2 font-medium">Current Password</label>
-                  <InputField
-                    name="current"
-                    type="password"
-                    value={passwordForm.current}
-                    onChange={handlePasswordChange}
-                    className="py-3 px-4 bg-bgLayout"
-                  />
-                </div>
-                <div>
-                  <label className="block mb-2 font-medium">New Password</label>
-                  <InputField
-                    name="new"
-                    type="password"
-                    value={passwordForm.new}
-                    onChange={handlePasswordChange}
-                    className="py-3 px-4 bg-bgLayout"
-                  />
-                </div>
-                <div>
-                  <label className="block mb-2 font-medium">Confirm Password</label>
-                  <InputField
-                    name="confirm"
-                    type="password"
-                    value={passwordForm.confirm}
-                    onChange={handlePasswordChange}
-                    className="py-3 px-4 bg-bgLayout"
-                  />
-                </div>
-                <Button
-                  type="submit"
-                  variant="quinary"
-                  size="lg"
-                  shape="rounded"
-                  className="mt-6"
-                >
-                  Change Password
-                </Button>
-              </form>
-            </>
+            <PasswordForm
+              onSubmit={handlePasswordSubmit}
+              loading={passwordLoading}
+            />
           )}
           {/* Notification */}
           {activeTab === "notification" && (
@@ -380,7 +263,7 @@ const ProfileSettings = () => {
                   shape="rounded"
                   className="mt-6"
                 >
-                  Save Settings
+                 Save Profile
                 </Button>
               </form>
             </div>

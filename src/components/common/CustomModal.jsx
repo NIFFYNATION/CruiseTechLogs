@@ -50,6 +50,7 @@ const CustomModal = ({
   const mobile = isMobile();
   const [search, setSearch] = useState("");
   const [internalOpen, setInternalOpen] = useState(defaultOpen);
+  const [isInputFocused, setIsInputFocused] = useState(false);
   const searchInputRef = useRef(null);
 
   useEffect(() => {
@@ -89,18 +90,18 @@ const CustomModal = ({
   return (
     <AnimatePresence>
       <motion.div
-        className={`fixed inset-0 z-50 flex justify-center ${mobile ? 'items-end' : 'items-center'} backdrop-blur-md`}
+        className={`fixed inset-0 z-50 flex justify-center ${mobile ? (isInputFocused ? 'items-start pt-4' : 'items-end') : 'items-center'} backdrop-blur-md`}
         initial="hidden"
         animate="visible"
         exit="hidden"
         variants={overlayVariants}
         onClick={handleOverlayClick}
-        style={{ zIndex: 9999 }}
+        style={{ zIndex: 2147483646 }}
       >
         <motion.div
           className={`
             ${mobile 
-              ? "w-full flex flex-col bg-white/80 dark:bg-gray-900/10 backdrop-blur-xl rounded-t-2xl shadow-2xl max-h-[90vh]" 
+              ? `w-full flex flex-col bg-white/80 dark:bg-gray-900/10 backdrop-blur-xl rounded-t-2xl shadow-2xl ${isInputFocused ? 'h-[90vh]' : 'max-h-[90vh]'} transition-height duration-300 ease-in-out`
               : "flex flex-col bg-bgLayout/60 rounded-xl w-full max-w-3xl mx-2 shadow-lg max-h-[90vh]"
             }
             p-0 relative ${className}`
@@ -110,23 +111,25 @@ const CustomModal = ({
           exit="exit"
           variants={mobile ? modalVariantsMobile : modalVariantsDesktop(customHeight)}
           onClick={(e) => e.stopPropagation()}
-          drag={mobile ? "y" : false}
+          drag={mobile && !isInputFocused ? "y" : false}
           dragConstraints={{ top: 0, bottom: 0 }}
           dragElastic={0.2}
           onDragEnd={(event, info) => {
-            if (info.offset.y > 150 || info.velocity.y > 600) {
-              handleClose();
+            if (mobile && !isInputFocused) {
+              if (info.offset.y > 150 || info.velocity.y > 600) {
+                handleClose();
+              }
             }
           }}
           {...rest}
           style={{
             ...(rest.style || {}),
-            zIndex: 9999,
+            zIndex: 2147483647,
             position: mobile ? "fixed" : "relative",
             bottom: mobile ? 0 : undefined,
           }}
         >
-          {mobile && (
+          {mobile && !isInputFocused && (
             <div className="w-full flex justify-center pt-3 pb-2 flex-shrink-0">
               <div className="w-10 h-1.5 bg-gray-300 dark:bg-gray-600 rounded-full" />
             </div>
@@ -180,6 +183,8 @@ const CustomModal = ({
                   className="w-full font-semibold border-1 border-border-grey mt-1 rounded shadow-lg pl-10 pr-4 py-2.5 focus:outline-none"
                   value={search}
                   onChange={handleSearch}
+                  onFocus={() => mobile && setIsInputFocused(true)}
+                  onBlur={() => mobile && setIsInputFocused(false)}
                 />
               </div>
             </div>

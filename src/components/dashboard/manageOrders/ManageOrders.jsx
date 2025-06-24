@@ -117,7 +117,7 @@ const ManageOrders = () => {
     if (!searchActive || searchLoading || !searchNext) return;
     const el = tableRef.current;
     if (!el) return;
-    if (el.scrollHeight - el.scrollTop - el.clientHeight < 80) {
+    if (el.scrollHeight - el.scrollTop - el.clientHeight < 200) {
       setSearchLoading(true);
       fetchOrders({ start: searchNext, search })
         .then(({ accounts, next: newNext, error }) => {

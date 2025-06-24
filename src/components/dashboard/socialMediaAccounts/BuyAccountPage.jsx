@@ -14,6 +14,7 @@ import {
 import { money_format } from "../../../utils/formatUtils";
 import Toast from "../../common/Toast";
 import { SkeletonTableRow, SkeletonBuyAccountCard } from "../../common/Skeletons";
+import { useUser } from '../../../contexts/UserContext';
 
 const BuyAccountPage = () => {
   const location = useLocation();
@@ -107,10 +108,20 @@ const BuyAccountPage = () => {
     ? plainDescription.slice(0, 120) + "..."
     : plainDescription;
 
-  // Fetch latest account details if ID is present in URL
+  const { user } = useUser();
+
+  // Determine discount percent (from user.stage.discount)
+  const discountPercent = user?.stage?.discount ? Number(user.stage.discount) : 0;
+  // Calculate discounted price
+  const basePrice = Number(String(usedProduct.amount || usedProduct.price).replace(/,/g, ''));
+  const discountedPrice = discountPercent > 0 ? Math.round(basePrice * (1 - discountPercent / 100)) : basePrice;
+
+  // Always fetch latest account details on mount or when urlAccountID or product changes
   useEffect(() => {
-    if (!urlAccountID) return;
-    fetchAccountDetails(urlAccountID)
+    let accountIdToFetch = urlAccountID || product?.ID || product?.accountID;
+    if (!accountIdToFetch) return;
+    setDetailsLoading(true);
+    fetchAccountDetails(accountIdToFetch)
       .then((data) => {
         if (data) {
           setUsedProduct((prev) => ({
@@ -132,7 +143,7 @@ const BuyAccountPage = () => {
       .finally(() => {
         setDetailsLoading(false);
       });
-  }, [urlAccountID]);
+  }, [urlAccountID, product]);
 
   // Fetch logins in batch on mount (or when product changes)
   useEffect(() => {
@@ -278,7 +289,7 @@ const BuyAccountPage = () => {
         <div className="flex-1">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <h3 className="font-semibold text-base text-primary">{usedProduct.title}</h3>
-            <span className="font-semibold text-primary text-lg">{money_format(usedProduct.amount)}</span>
+            <span className="font-semibold text-primary text-lg">{money_format(discountedPrice)}{discountPercent > 0 && <span className="ml-2 text-green-600 text-xs font-bold">-{discountPercent}%</span>}</span>
           </div>
           <div className="flex flex-row sm:flex-row sm:items-center sm:justify-between mt-1">
             <span className="text-xs text-text-secondary py-2">
@@ -536,7 +547,7 @@ const BuyAccountPage = () => {
                       {login.accountId || login.ID}
                     </td> */}
                     <td className="text-primary font-semibold text-xs sm:text-base whitespace-nowrap">
-                      {money_format(usedProduct.amount)}
+                      {money_format(discountedPrice)}
                     </td>
                     <td className="">
                       <a
@@ -561,7 +572,7 @@ const BuyAccountPage = () => {
                               id: Date.now() + Math.random(),
                               platform: usedPlatform,
                               accountId: login.accountId || login.ID,
-                              price: usedProduct.amount,
+                              price: discountedPrice,
                               item: usedProduct,
                               username: login.username ?? undefined,
                               preview_link: login.preview_link,
@@ -599,7 +610,7 @@ const BuyAccountPage = () => {
               id: Date.now() + Math.random(),
               platform: usedPlatform,
               accountId: loginToAdd.accountId || loginToAdd.ID,
-              price: usedProduct.amount,
+              price: discountedPrice,
               item: usedProduct,
               username: loginToAdd.username ?? undefined,
               preview_link: loginToAdd.preview_link,
@@ -613,6 +624,8 @@ const BuyAccountPage = () => {
         }
       }}
       isProcessing={isOrdering}
+      discountPercent={discountPercent}
+      discountedPrice={discountedPrice}
     />
      </>
   );

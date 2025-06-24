@@ -17,7 +17,7 @@ const WelcomeSection = () => {
         {/* Right Column Cards - Flex on tablet, stack on mobile and desktop */}
         <div className="flex flex-col md:flex-row lg:flex-col gap-4 md:gap-6 mt-0 sm:mt-6 md:mt-8 lg:mt-0">
           {/* Order Card */}  
-          <div className="bg-background hidden md:block mt-8 sm:mt-0 rounded-[15px] border-b-primary border-b-2 p-4 shadow-[0_4px_20px_rgba(0,0,0,0.05)] flex-1">
+          {/* <div className="bg-background hidden md:block mt-8 sm:mt-0 rounded-[15px] border-b-primary border-b-2 p-4 shadow-[0_4px_20px_rgba(0,0,0,0.05)] flex-1">
             <div className="flex justify-between items-start">
               <div className="w-full">
                 <h3 className="text-text-primary text-base font-semibold mb-2">Your Total Order</h3>
@@ -29,7 +29,7 @@ const WelcomeSection = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* Get Number Card */}
           <div className="bg-background mt-8 md:mt-0 rounded-[15px] border-b-primary border-b-2 px-6 pt-6 shadow-[0_4px_20px_rgba(0,0,0,0.05)] flex-1">
@@ -43,7 +43,7 @@ const WelcomeSection = () => {
                 <button 
                  onClick={() => navigate("/dashboard/buy-numbers")}
                 className="mb-4 px-5 py-2.5 bg-[#015C67] text-white text-sm rounded-full font-medium">
-                  Buy Number Now
+                  Buy Number
                 </button>
               </div>
               <img 
@@ -54,7 +54,7 @@ const WelcomeSection = () => {
             </div>
           </div>
           {/* Buy Social Media Accounts */}
-          <div className="block md:hidden mt-8 md:mt-0 rounded-[15px] border-b-quinary border-b-2 pl-6 pt-6 shadow-[0_4px_20px_rgba(0,0,0,0.05)] flex-1 "
+          <div className="block mt-8 md:mt-0 rounded-[15px] border-b-quinary border-b-2 pl-6 pt-6 shadow-[0_4px_20px_rgba(0,0,0,0.05)] flex-1 "
             style={{
               background: `linear-gradient(rgba(255, 106, 0, 0.03), rgba(255, 107, 0, 0.1)), url('/background-buyaccounts.svg') no-repeat center center`,
               backgroundSize: '600px 500px'
@@ -71,7 +71,7 @@ const WelcomeSection = () => {
               <button 
                onClick={() => navigate("/dashboard/accounts")}
               className="px-5 py-2.5 bg-quinary hover:bg-quaternary text-white text-sm rounded-full font-medium">
-                  Buy Account Now
+                  Buy Account
                 </button>
               <img 
                 src="/icons/holding-smartphone.svg" 

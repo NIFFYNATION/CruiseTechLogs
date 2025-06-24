@@ -3,7 +3,7 @@ import React from 'react';
 const FormSection = ({ children, title, subtitle }) => {
   return (
     <div
-      className="max-w-md w-full space-y-6 p-6 sm:p-8 rounded-lg bg-background/30 shadow-lg"
+      className="max-w-md w-full space-y-6 p-6 sm:p-8 rounded-lg bg-background/30"
       style={{
         backdropFilter: 'blur(12px) saturate(180%)',
         WebkitBackdropFilter: 'blur(12px) saturate(180%)',
