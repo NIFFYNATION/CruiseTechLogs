@@ -48,11 +48,11 @@ export default function LandingPage() {
             {loggedIn ? (
               <div className="relative inline-block text-left">
                 <button
-                  className="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow hover:bg-background hover:text-primary transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-white/90 rounded-full shadow hover:bg-background hover:text-primary transition-colors"
                   onClick={() => setDropdownOpen((open) => !open)}
                 >
                   <img src={user.avatar || '/icons/female.svg'} alt="avatar" className="w-8 h-8 rounded-full" />
-                  <span className="font-semibold text-quinary">{(user.name && user.name.length > 10) ? user.name.slice(0, 10) : user.name || 'User'}</span>
+                  <span className="font-semibold text-quinary">{(user.name && user.name.length > 8) ? user.name.slice(0, 8) : user.name || 'User'}</span>
                   <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
                 </button>
                 {dropdownOpen && (
@@ -127,7 +127,7 @@ export default function LandingPage() {
                 <Button
                   variant="quinary"
                   size="lg"
-                  to="/registration"
+                  to="/signup"
                   fullWidth
                   className="sm:w-auto"
                 >
@@ -606,7 +606,7 @@ export default function LandingPage() {
               <Button
                   variant="quinary"
                   size="lg"
-                  to="/dashboard/buy-numbers"
+                  to="/login"
                   className="w-fit  sm:w-auto"
                 >
                   Go to Market
