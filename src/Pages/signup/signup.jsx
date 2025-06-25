@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { MdEmail, MdPerson } from 'react-icons/md';
 import { RiLockPasswordLine } from 'react-icons/ri';
@@ -7,6 +7,7 @@ import FormSection from '../../components/common/FormSection';
 import Side from '../login/side';
 import { signupController } from '../../controllers/authController'; // Import auth controller
 import { Button } from '../../components/common/Button';
+import { isUserLoggedIn } from '../../controllers/userController';
 
 const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -22,6 +23,12 @@ const Signup = () => {
   const [successMessage, setSuccessMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(false); // State for loading animation
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isUserLoggedIn()) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

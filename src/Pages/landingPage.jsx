@@ -1,12 +1,18 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { FaFacebookF, FaTwitter, FaTelegram, FaInstagram, FaThumbsUp } from 'react-icons/fa'
 import { FaTiktok } from 'react-icons/fa6'
 import { MdEmail } from 'react-icons/md'
 import Marquee from 'react-fast-marquee'
 import { Button } from '../components/common/Button'
+import { isUserLoggedIn, getUserData } from '../controllers/userController'
 
 export default function LandingPage() {
+  const navigate = useNavigate()
+  const loggedIn = isUserLoggedIn()
+  const user = loggedIn ? getUserData() : null
+  const [dropdownOpen, setDropdownOpen] = React.useState(false)
+
   return (
     <div className="w-full min-h-screen flex flex-col">
       <header className="w-full bg-background relative ">
@@ -39,24 +45,43 @@ export default function LandingPage() {
           
           {/* Login Button */}
           <div className="relative z-20 ">
-            <Button
-              variant="primary"
-              size="lg"
-              className="py-0 group bg-white text-quinary hover:bg-background hover:text-primary"
-              to="/login"
-              icon={
-                <span
-                  className="h-5 w-5 items-center flex justify-center bg-quinary group-hover:bg-primary transition-colors duration-200"
-                  style={{
-                    WebkitMask: `url(/icons/login.svg) center center / contain no-repeat`,
-                    mask: `url(/icons/login.svg) center center / contain no-repeat`,
-                  }}
-                  aria-label="Login Icon"
-                />
-              }
-            >
-              Login
-            </Button>
+            {loggedIn ? (
+              <div className="relative inline-block text-left">
+                <button
+                  className="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow hover:bg-background hover:text-primary transition-colors"
+                  onClick={() => setDropdownOpen((open) => !open)}
+                >
+                  <img src={user.avatar || '/icons/female.svg'} alt="avatar" className="w-8 h-8 rounded-full" />
+                  <span className="font-semibold text-quinary">{(user.name && user.name.length > 10) ? user.name.slice(0, 10) : user.name || 'User'}</span>
+                  <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                </button>
+                {dropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg z-50 border border-border-grey">
+                    <button className="w-full text-left px-4 py-3 hover:bg-bgLayout text-primary font-medium" onClick={() => { setDropdownOpen(false); navigate('/dashboard/'); }}>Dashboard</button>
+                    <button className="w-full text-left px-4 py-3 hover:bg-bgLayout text-primary font-medium" onClick={() => { setDropdownOpen(false); navigate('/dashboard/wallet'); }}>Wallet</button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Button
+                variant="primary"
+                size="lg"
+                className="py-0 group bg-white text-quinary hover:bg-background hover:text-primary"
+                to="/login"
+                icon={
+                  <span
+                    className="h-5 w-5 items-center flex justify-center bg-quinary group-hover:bg-primary transition-colors duration-200"
+                    style={{
+                      WebkitMask: `url(/icons/login.svg) center center / contain no-repeat`,
+                      mask: `url(/icons/login.svg) center center / contain no-repeat`,
+                    }}
+                    aria-label="Login Icon"
+                  />
+                }
+              >
+                Login
+              </Button>
+            )}
           </div>
         </div>
         </div>

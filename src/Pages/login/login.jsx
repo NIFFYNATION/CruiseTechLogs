@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom'; // Add useNavigate for redirection
 import { FcGoogle } from 'react-icons/fc';
 import { FaFacebook } from 'react-icons/fa';
@@ -10,6 +10,7 @@ import SocialButtons from '../../components/common/SocialButtons';
 import Side from './side';
 import { loginUser } from '../../services/authService'; // Import API service
 import { Button } from '../../components/common/Button';
+import { isUserLoggedIn } from '../../controllers/userController';
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -21,6 +22,12 @@ const Login = () => {
   const [error, setError] = useState(null); // State for error handling
   const [isLoading, setIsLoading] = useState(false); // State for loading animation
   const navigate = useNavigate(); // Initialize navigation
+
+  useEffect(() => {
+    if (isUserLoggedIn()) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
