@@ -25,3 +25,16 @@ export const getStages = async () => {
     throw new Error(error.response?.data?.message || error.message || 'Failed to fetch stages');
   }
 };
+
+export const fetchLiveChatWidget = async () => {
+  try {
+    const res = await axiosInstance.get(API_URLS.CONTENT_LIVECHAT);
+    if (res.data && res.data.status === 'success' && res.data.data?.live_chat) {
+      return res.data.data.live_chat;
+    }
+    return null;
+  } catch (error) {
+    console.error('Failed to fetch live chat widget:', error);
+    return null;
+  }
+};

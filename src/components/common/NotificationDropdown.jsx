@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FaWallet } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
 import { motion } from "framer-motion";
@@ -11,6 +11,35 @@ import {
 import CustomModal from "./CustomModal";
 import { DateTime } from "luxon";
 import { SkeletonNotification } from "./Skeletons";
+import { htmlPreviewText, linkifyHtml  } from '../../utils/formatUtils';
+
+import parse, { domToReact } from 'html-react-parser';
+import he from 'he'; // For decoding HTML entities
+
+function SafeHtml({ html }) {
+  // Decode HTML entities like &lt;p&gt; => <p>
+  const decoded = he.decode(html || '');
+
+  const options = {
+    replace: (domNode) => {
+      if (domNode.name === 'a') {
+        const props = {
+          ...domNode.attribs,
+          className: 'text-primary underline',
+          target: '_blank',
+          rel: 'noopener noreferrer',
+        };
+        return <a {...props}>{domToReact(domNode.children, options)}</a>;
+      }
+    },
+  };
+
+  return (
+    <div className="prose max-w-none p-4">
+      {parse(decoded, options)}
+    </div>
+  );
+}
 
 function formatRelativeTime(dateStr) {
   if (!dateStr) return "";
@@ -54,6 +83,30 @@ const NotificationDropdown = ({ onClose, open = true }) => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState(null);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return;
+
+    function handleClickOutside(event) {
+      // This logic is for desktop only, where DropdownCard is used.
+      if (window.innerWidth < 768) return;
+
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        onClose();
+      }
+    }
+
+    // Using setTimeout to allow the event that triggered 'open' to pass.
+    const timer = setTimeout(() => {
+      document.addEventListener("mousedown", handleClickOutside);
+    }, 0);
+
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [open, onClose]);
 
   useEffect(() => {
     if (open) {
@@ -116,12 +169,10 @@ const NotificationDropdown = ({ onClose, open = true }) => {
         <div className="flex-1">
           <div className="flex justify-between items-center">
             <span className="font-semibold text-text-primary">{n.title}</span>
-            
           </div>
-          <div
-            className="text-xs text-text-grey line-clamp-2"
-            dangerouslySetInnerHTML={{ __html: n.description }}
-          />
+          <div className="text-xs text-text-grey line-clamp-2">
+            {htmlPreviewText(n.description, 80)}
+          </div>
           <span className="text-sm text-text-grey">
               {formatRelativeTime(n.date)}
             </span>
@@ -162,29 +213,33 @@ const NotificationDropdown = ({ onClose, open = true }) => {
             <IoClose />
           </button>
         </div>
-        <button
+        {/* <button
           className="block text-success font-medium text-sm hover:underline mb-2"
           onClick={handleMarkAllRead}
         >
           Mark all as read
-        </button>
+        </button> */}
         {notificationContent}
       </SidebarDrawer>
       {/* DESKTOP: DropdownCard */}
-      <DropdownCard>
-        <div className="flex justify-between items-center mb-4">
-          <span className="font-semibold text-lg text-text-primary">
-            Notification
-          </span>
-          <button
-            className="text-success font-medium text-sm hover:underline"
-            onClick={handleMarkAllRead}
-          >
-            Mark all as read
-          </button>
+      { !selectedNotification && (
+        <div ref={dropdownRef}>
+          <DropdownCard>
+            <div className="flex justify-between items-center mb-4">
+              <span className="font-semibold text-lg text-text-primary">
+                Notification
+              </span>
+              {/* <button
+                className="text-success font-medium text-sm hover:underline"
+                onClick={handleMarkAllRead}
+              >
+                Mark all as read
+              </button> */}
+            </div>
+            {notificationContent}
+          </DropdownCard>
         </div>
-        {notificationContent}
-      </DropdownCard>
+      )}
 
       <CustomModal
         open={!!selectedNotification}
@@ -193,10 +248,7 @@ const NotificationDropdown = ({ onClose, open = true }) => {
         showFooter={false}
         className="max-w-lg"
       >
-        <div
-          className="prose max-w-none p-4"
-          dangerouslySetInnerHTML={{ __html: selectedNotification?.description }}
-        />
+        <SafeHtml html={selectedNotification?.description} />
       </CustomModal>
     </>
   );

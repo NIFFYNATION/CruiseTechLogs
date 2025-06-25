@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FiSearch, FiBookmark, FiBox } from "react-icons/fi";
+import { FaBookmark } from "react-icons/fa";
 import CountrySelectModal from "../buyNumbers/CountrySelectModal";
 import CountryFlag from "react-country-flag";
 import NumberTypeSelectModal from "./NumberTypeSelectModal";
@@ -8,6 +9,7 @@ import { fetchServices } from '../../../services/numberService';
 import { useNavigate } from "react-router-dom";
 import NumberDetailsModal from "../manageNumbers/NumberDetailsModal";
 import { SkeletonNumberCard } from "../../common/Skeletons";
+import Toast from '../../common/Toast';
 
 const BuyNumbers = () => {
   const [search, setSearch] = useState("");
@@ -28,6 +30,14 @@ const BuyNumbers = () => {
   const [pendingNumber, setPendingNumber] = useState(null);
   const [shouldShowModal, setShouldShowModal] = useState(false); // control modal after redirect
   const navigate = useNavigate();
+  const [savedServiceIds, setSavedServiceIds] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('savedServices')) || [];
+    } catch {
+      return [];
+    }
+  });
+  const [toast, setToast] = useState({ show: false, message: '', type: 'info' });
 
   // Helper: does this type require country selection?
   const typeNeedsCountry = (type) =>
@@ -63,9 +73,37 @@ const BuyNumbers = () => {
     // eslint-disable-next-line
   }, [selectedNumberType, selectedCountry]);
 
-  const filteredServices = services.filter((service) =>
-    service.name?.toLowerCase().includes(search.toLowerCase())
-  );
+  // Helper: toggle bookmark
+  const toggleBookmark = (serviceId) => {
+    setSavedServiceIds(prev => {
+      let updated;
+      let isSaved;
+      if (prev.includes(serviceId)) {
+        updated = prev.filter(id => id !== serviceId);
+        isSaved = false;
+      } else {
+        updated = [serviceId, ...prev];
+        isSaved = true;
+      }
+      localStorage.setItem('savedServices', JSON.stringify(updated));
+      setToast({
+        show: true,
+        message: isSaved ? 'Service saved!' : 'Service removed from saved!',
+        type: isSaved ? 'success' : 'info',
+      });
+      return updated;
+    });
+  };
+
+  // Filter and sort: saved services first
+  const filteredServices = services
+    .filter((service) => service.name?.toLowerCase().includes(search.toLowerCase()))
+    .sort((a, b) => {
+      const aSaved = savedServiceIds.includes(a.id || a.ID);
+      const bSaved = savedServiceIds.includes(b.id || b.ID);
+      if (aSaved === bSaved) return 0;
+      return aSaved ? -1 : 1;
+    });
 
   const handleBuyClick = (service) => {
     setSelectedService(service);
@@ -278,20 +316,32 @@ const BuyNumbers = () => {
                 ? service.cost.toLocaleString("en-NG", { style: "currency", currency: "NGN" })
                 : `₦${service.cost ? String(service.cost).replace(/^₦/, '').replace(/^N/, '').trim() : "0.00"}`;
 
+              const isSaved = savedServiceIds.includes(service.id || service.ID);
+
               return (
                 <div
                   key={idx}
                   onClick={() => handleBuyClick(service)}
                   className="flex items-center rounded-xl shadow-sm px-4 py-4 mb-0 border-b-1 border-[#FFDE59] relative bg-gradient-to-tl from-rose-50/50 to-white-50"
-                  // style={{ boxShadow: "0 2px 4px 0 rgba(255, 106, 0, 0.03)" }}
                 >
                   <img src={iconUrl} alt={service.name} className="w-6 mr-4" />
                   <div className="flex-1">
                     <div className="font-semibold">{service.name}</div>
                     <h3 className="text-primary font-semibold">{formattedCost}</h3>
                   </div>
-                  <button className="ml-2">
-                    <FiBookmark className="w-5 h-5 text-[#FF6B00]" />
+                  <button
+                    className="ml-2"
+                    onClick={e => {
+                      e.stopPropagation(); // Prevent triggering buy
+                      toggleBookmark(service.id || service.ID);
+                    }}
+                    aria-label={isSaved ? "Unsave service" : "Save service"}
+                  >
+                    {isSaved ? (
+                      <FaBookmark className="w-5 h-5 text-[#FF6B00] fill-[#FF6B00]" />
+                    ) : (
+                      <FiBookmark className="w-5 h-5 text-[#FF6B00]" />
+                    )}
                   </button>
                 </div>
               );
@@ -344,6 +394,13 @@ const BuyNumbers = () => {
           date={pendingNumber.date}
           expire_date={pendingNumber.expire_date}
           onNumberClosed={handlePendingNumberModalClose}
+        />
+      )}
+      {toast.show && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast({ ...toast, show: false })}
         />
       )}
     </div>

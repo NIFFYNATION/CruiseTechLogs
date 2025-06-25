@@ -26,16 +26,16 @@ const UserAvatar = ({
       />
       {showLevel && (
         <div
-          className="absolute -bottom-[17px] left-1/2 -translate-x-1/2 bg-white px-4 py-2 rounded-full shadow-sm flex items-center gap-1.5 w-25 justify-center"
+          className="absolute -bottom-[17px] left-1/2 -translate-x-1/2 bg-white px-4 py-2 rounded-full shadow-sm flex items-center gap-1 w-30 justify-center"
           style={{
-            minWidth: 60,
+            minWidth: 70,
             bottom: -18,
           }}
         >
           <img
             src={finalBadgeUrl}
             alt="level badge"
-            className="w-6 h-6 bg-white rounded-full border border-white shadow"
+            className="w-5 h-5 bg-white rounded-full border border-white shadow"
           />
           <span className="text-xs font-semibold text-[#A97B2A]">
             {typeof level === "string" ? level : `Level ${level}`}

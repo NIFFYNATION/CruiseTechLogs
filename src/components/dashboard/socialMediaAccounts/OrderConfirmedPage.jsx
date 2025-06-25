@@ -6,6 +6,10 @@ import Toast from '../../common/Toast';
 import CustomModal from '../../common/CustomModal';
 import { money_format } from '../../../utils/formatUtils';
 import { jsPDF } from "jspdf";
+import parse from 'html-react-parser';
+import he from 'he';
+import { linkifyHtml } from '../../../utils/formatUtils';
+import { FiDownload } from 'react-icons/fi';
 
 function decodeHtml(html) {
   if (!html) return '';
@@ -191,11 +195,13 @@ const OrderConfirmedPage = () => {
       {rulesHtml && (
         <div className="mb-4 bg-white rounded-lg p-4 shadow-sm flex flex-col gap-2">
           <div className="font-semibold text-primary mb-1 flex items-center gap-2">Login Rules / Additional Details</div>
-          <div className="text-sm text-text-secondary line-clamp-3 overflow-hidden" dangerouslySetInnerHTML={{ __html: rulesHtml }} />
+          <div className="text-sm text-text-secondary line-clamp-3 overflow-hidden">
+            {parse(he.decode(linkifyHtml(rulesHtml, 'text-primary')))}
+          </div>
           <Button
             variant="outline"
             size="xs"
-            className="w-fit mt-2"
+            className="w-fit mt-2 px-3"
             onClick={() => setDetailsOpen(true)}
           >
             View More
@@ -206,7 +212,9 @@ const OrderConfirmedPage = () => {
       {description && (
         <div className="mb-4 bg-white rounded-lg p-4 shadow-sm">
           <div className="font-semibold text-primary mb-1">Description</div>
-          <div className="text-sm text-text-secondary" dangerouslySetInnerHTML={{ __html: description }} />
+          <div className="text-sm text-text-secondary">
+            {parse(he.decode(linkifyHtml(description, 'text-primary')))}
+          </div>
         </div>
       )}
       {/* Order Info */}
@@ -232,7 +240,7 @@ const OrderConfirmedPage = () => {
                 className="px-3 py-1 flex items-center gap-2"
                 onClick={() => setDropdownOpen((open) => !open)}
               >
-                <img src="/icons/download.svg" alt="Download" className="w-5 h-5" />
+                <FiDownload className="w-5 h-5" />
                 Download Logins
                 <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
             </Button>
@@ -305,7 +313,9 @@ const OrderConfirmedPage = () => {
         showFooter={false}
         className="max-w-lg"
       >
-        <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: rulesHtml || '<div>No additional rules provided.</div>' }} />
+        <div className="prose max-w-none p-5">
+          {parse(he.decode(linkifyHtml(rulesHtml || '<div>No additional rules provided.</div>', 'text-primary')))}
+        </div>
       </CustomModal>
     </div>
   );

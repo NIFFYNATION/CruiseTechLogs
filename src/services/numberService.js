@@ -90,7 +90,7 @@ export const fetchServices = async ({ type, network, countryID = "" }) => {
   // Check localStorage for cached data and expiry
   try {
     const cachedRaw = localStorage.getItem(cacheKey);
-    if (cachedRaw) {
+    if (cachedRaw && cachedRaw != "" && cachedRaw != null) {
       const cached = JSON.parse(cachedRaw);
       if (cached.data && cached.expiry && Date.now() < cached.expiry) {
         return cached.data;

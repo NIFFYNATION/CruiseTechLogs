@@ -5,10 +5,14 @@ import DashboardHeader from './DashboardHeader';
 import { Outlet } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate for redirection
 import { isUserLoggedIn } from '../../controllers/userController'; // Import userController to check login status
+import { fetchLiveChatWidget } from '../../services/generalService';
+import parse from 'html-react-parser';
+import he from 'he';
 
 const DashboardLayout = () => {
     const [isAuthorized, setIsAuthorized] = useState(false); // State to track authorization
     const navigate = useNavigate();
+    const [liveChatWidget, setLiveChatWidget] = useState(null);
   
     useEffect(() => {
       if (!isUserLoggedIn()) {
@@ -17,6 +21,10 @@ const DashboardLayout = () => {
         setIsAuthorized(true); // Set authorization state to true
       }
     }, [navigate]);
+  
+    useEffect(() => {
+      fetchLiveChatWidget().then(setLiveChatWidget);
+    }, []);
   
     if (!isAuthorized) {
       return null; // Prevent rendering if user is not authorized
@@ -32,6 +40,12 @@ const DashboardLayout = () => {
           <Outlet />
         </main>
       </div>
+      {/* Style for chatway widget trigger */}
+      <style>{`.chatway--trigger-container { margin-bottom: 70px !important; }`}</style>
+      {/* Live Chat Widget */}
+      {liveChatWidget && (
+        <>{parse(he.decode(liveChatWidget))}</>
+      )}
     </SidebarProvider>
   );
 };
