@@ -5,7 +5,10 @@ body {
   background: #F4F4F4;
 }
 
+
 @theme {
+
+  
   --font-display: "poppins", "sans-serif";
 
   /* Light mode colors (default) */

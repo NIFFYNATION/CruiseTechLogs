@@ -1,6 +1,7 @@
 import React from 'react';
 import BalanceCard from './cards/BalanceCard'; // <-- Make sure this import exists and the file is present
 import { useNavigate } from "react-router-dom";
+import WhatsAppBanner from '../WhatsAppBanner';
 const WelcomeSection = () => {
   const navigate = useNavigate();
   return (
@@ -13,6 +14,7 @@ const WelcomeSection = () => {
         {/* Balance Card - Takes 2 columns */}
         <div className="col-span-2 h-full">
           <BalanceCard />
+          <WhatsAppBanner />
         </div>
         {/* Right Column Cards - Flex on tablet, stack on mobile and desktop */}
         <div className="flex flex-col md:flex-row lg:flex-col gap-4 md:gap-6 mt-0 sm:mt-6 md:mt-8 lg:mt-0">
@@ -54,10 +56,10 @@ const WelcomeSection = () => {
             </div>
           </div>
           {/* Buy Social Media Accounts */}
-          <div className="block mt-8 md:mt-0 rounded-[15px] border-b-quinary border-b-2 pl-6 pt-6 shadow-[0_4px_20px_rgba(0,0,0,0.05)] flex-1 "
+          <div className="block px-6 mt-8 md:mt-0 rounded-[15px] border-b-quinary border-b-2 pl-6 pt-6 shadow-[0_4px_20px_rgba(0,0,0,0.05)] flex-1 "
             style={{
               background: `linear-gradient(rgba(255, 106, 0, 0.03), rgba(255, 107, 0, 0.1)), url('/background-buyaccounts.svg') no-repeat center center`,
-              backgroundSize: '600px 500px'
+              backgroundSize: '700px 500px'
             }}>
             <div className=" items-end justify-between mt-auto">
               <div className="">

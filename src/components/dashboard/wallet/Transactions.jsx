@@ -202,13 +202,13 @@ const Transactions = ({
                             <div>
                               <span className="font-semibold text-text-secondary">Order Type:</span>{" "}
                               <span className="font-mono">{tx.trans_for}</span>
-                            </div>
-                            <div>
+                    </div>
+                    <div>
                               <span className="font-semibold text-text-secondary">Date:</span>{" "}
                               <span className="font-mono">{tx.date}</span>
                             </div>
-                          </div>
-                        </td>
+                    </div>
+                  </td>
                       </tr>
                     )}
                   </React.Fragment>
