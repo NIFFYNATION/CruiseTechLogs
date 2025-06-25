@@ -8,6 +8,7 @@ import { fetchUserCryptoWallet, fetchUserAccounts } from "../../../services/user
 import Transactions from "./Transactions";
 import BalanceCard from "../cards/BalanceCard";
 import { SkeletonCard } from "../../common/Skeletons";
+import { fetchUserDetails } from '../../../controllers/userController';
 
 const Wallet = () => {
   const [balance] = useState("0.00");
@@ -18,6 +19,11 @@ const Wallet = () => {
   // Virtual accounts state
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Always fetch latest user details when wallet is rendered
+    fetchUserDetails();
+  }, []);
 
   // Fetch crypto wallet and virtual accounts on mount
   useEffect(() => {

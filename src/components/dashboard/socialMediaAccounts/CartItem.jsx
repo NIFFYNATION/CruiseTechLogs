@@ -21,7 +21,7 @@ const CartItem = ({
       <span className="font-medium text-text-primary text-xs sm:text-base truncate">{item.username ?? item.platform.name}</span>
     </div>
     <span className="text-text-primary text-xs sm:text-base truncate max-w-[80px] sm:max-w-none">{item.accountId}</span>
-    <span className="text-primary font-semibold text-xs sm:text-base whitespace-nowrap">{money_format(item.amount)}</span>
+    <span className="text-primary font-semibold text-xs sm:text-base whitespace-nowrap">{money_format(item.price)}</span>
     {showView && (
       <button
         className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-lg bg-primary hover:bg-quinary transition hidden sm:flex"

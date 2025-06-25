@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { fetchHelpContent } from "../../../services/generalService";
+import { linkifyHtml } from '../../../utils/formatUtils';
+import parse from 'html-react-parser';
+import he from 'he';
 
 const HelpCenter = () => {
   const [helpContent, setHelpContent] = useState(null);
@@ -43,10 +46,9 @@ const HelpCenter = () => {
         {helpContent.title || "Help Center"}
       </h1>
       <div className="bg-white rounded-2xl shadow p-6 md:p-10 mx-auto border-b-4 border-quaternary">
-        <div
-          className="prose max-w-none"
-          dangerouslySetInnerHTML={{ __html: helpContent.description }}
-        />
+        <div className="prose max-w-none">
+          {parse(he.decode(linkifyHtml(helpContent.description, 'text-primary')))}
+        </div>
       </div>
     </div>
   );

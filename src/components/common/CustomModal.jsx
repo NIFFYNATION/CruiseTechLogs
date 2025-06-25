@@ -51,6 +51,7 @@ const CustomModal = ({
   const [search, setSearch] = useState("");
   const [internalOpen, setInternalOpen] = useState(defaultOpen);
   const [isInputFocused, setIsInputFocused] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
   const searchInputRef = useRef(null);
 
   useEffect(() => {
@@ -58,6 +59,12 @@ const CustomModal = ({
       setInternalOpen(openProp);
     }
   }, [openProp]);
+
+  useEffect(() => {
+    if (!internalOpen) {
+      setHasSearched(false); // Reset when modal closes
+    }
+  }, [internalOpen]);
 
   const handleClose = () => {
     if (closeable && onClose) {
@@ -76,6 +83,16 @@ const CustomModal = ({
     if (onSearch) onSearch(e.target.value);
   };
 
+  const handleSearchFocus = () => {
+    setIsInputFocused(true);
+    setHasSearched(true);
+  };
+
+  const handleSearchBlur = () => {
+    setIsInputFocused(false);
+    // Do NOT reset hasSearched here
+  };
+
   let filteredList = list;
   if (enableSearch && search && Array.isArray(list)) {
     filteredList = list.filter(
@@ -84,6 +101,8 @@ const CustomModal = ({
         (item.value && String(item.value).toLowerCase().includes(search.toLowerCase()))
     );
   }
+
+  const shouldFixHeight = mobile && hasSearched;
 
   if (!internalOpen) return null;
 
@@ -101,7 +120,7 @@ const CustomModal = ({
         <motion.div
           className={`
             ${mobile 
-              ? `w-full flex flex-col bg-white/80 dark:bg-gray-900/10 backdrop-blur-xl rounded-t-2xl shadow-2xl ${isInputFocused ? 'h-[90vh]' : 'max-h-[90vh]'} transition-height duration-300 ease-in-out`
+              ? `w-full flex flex-col bg-white/80 dark:bg-gray-900/10 backdrop-blur-xl rounded-t-2xl shadow-2xl ${shouldFixHeight ? 'h-[90vh]' : 'max-h-[90vh]'} transition-height duration-300 ease-in-out`
               : "flex flex-col bg-bgLayout/60 rounded-xl w-full max-w-3xl mx-2 shadow-lg max-h-[90vh]"
             }
             p-0 relative ${className}`
@@ -183,8 +202,8 @@ const CustomModal = ({
                   className="w-full font-semibold border-1 border-border-grey mt-1 rounded shadow-lg pl-10 pr-4 py-2.5 focus:outline-none"
                   value={search}
                   onChange={handleSearch}
-                  onFocus={() => mobile && setIsInputFocused(true)}
-                  onBlur={() => mobile && setIsInputFocused(false)}
+                  onFocus={handleSearchFocus}
+                  onBlur={handleSearchBlur}
                 />
               </div>
             </div>
@@ -213,13 +232,14 @@ const CustomModal = ({
                             <button
                                 key={item.value || idx}
                                 className="flex items-center gap-3 py-3 px-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition w-full text-left"
-                                onClick={() => {
+                                onMouseDown={() => {
                                     if (
                                         (item.name && item.name.trim() !== "") &&
                                         (item.value && String(item.value).trim() !== "")
                                     ) {
                                         if (item.onClick) item.onClick(item);
                                         if (rest.onSelect) rest.onSelect(item);
+                                        if (searchInputRef.current) searchInputRef.current.blur();
                                         handleClose();
                                     }
                                 }}

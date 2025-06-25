@@ -35,6 +35,7 @@ const ProfileSettings = () => {
     phone: "",
     gender: "",
     accountId: "",
+    profile_image: "",
   });
   const [profileLoading, setProfileLoading] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
@@ -57,6 +58,7 @@ const ProfileSettings = () => {
         phone: data?.phone_number || "",
         gender: data?.gender || "",
         accountId: data?.ID || "",
+        profile_image: data?.profile_image || ""
       });
     });
   }, []);
@@ -200,7 +202,7 @@ const ProfileSettings = () => {
             <>
               <div className="flex flex-col md:flex-row justify-between items-center mb-8">
                 <div className="relative">
-                  <UserAvatar/>
+                  <UserAvatar src={profile.profile_image} />
                   <button
                     className="absolute bottom-2 -right-2  text-white rounded-full p-"
                     title="Change Avatar"

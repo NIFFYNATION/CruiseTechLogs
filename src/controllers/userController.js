@@ -50,12 +50,9 @@ export const logoutUser = () => {
   document.cookie.split(";").forEach((c) => {
     document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date(0).toUTCString() + ";path=/");
   });
-  // Redirect to login page only if not already on login page
-  if (typeof window !== "undefined") {
-    const currentPath = window.location.pathname;
-    if (!currentPath.startsWith("/login") && !currentPath.startsWith("/")) {
-      window.location.href = "/login";
-    }
+  // Always redirect to login page
+  if (!currentPath.startsWith("/login") || typeof window !== "undefined") {
+    window.location.href = "/login";
   }
   console.log('User logged out successfully');
 };

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Button } from "../../common/Button";
-import { FiInfo, FiCopy } from "react-icons/fi";
+import { FiInfo, FiCopy, FiCheckCircle, FiXCircle } from "react-icons/fi";
 import ReviewOrderModal from "./ReviewOrderModal";
 import CartItem from "./CartItem";
 import CartQuantityControl from "./CartQuantityControl";
@@ -52,6 +52,9 @@ const BuyAccountPage = () => {
 
   // --- Search state ---
   const [searchTerm, setSearchTerm] = useState("");
+  const [pastedLinks, setPastedLinks] = useState([]);
+  const [matchedLogins, setMatchedLogins] = useState([]);
+  const [notFoundLinks, setNotFoundLinks] = useState([]);
 
   // State for description expand/collapse
   const [descExpanded, setDescExpanded] = useState(false);
@@ -84,25 +87,60 @@ const BuyAccountPage = () => {
     return logins.filter((login) => !cartLoginIds.has(login.accountId || login.ID));
   }, [logins, cart]);
 
+  // Handle paste event in search input
+  const handleSearchPaste = (e) => {
+    const pasted = e.clipboardData.getData('text');
+    if (pasted && pasted.includes('\n')) {
+      const links = pasted.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      setPastedLinks(links);
+      // We'll also set the searchTerm to the pasted value
+      setSearchTerm(pasted);
+    }
+  };
+
+  // Match pasted links to available logins
+  useEffect(() => {
+    if (pastedLinks.length === 0) {
+      setMatchedLogins([]);
+      setNotFoundLinks([]);
+      return;
+    }
+    // Use availableLogins (not in cart)
+    const found = [];
+    const notFound = [];
+    pastedLinks.forEach(link => {
+      const match = availableLogins.find(l => l.preview_link === link);
+      if (match) {
+        found.push(match);
+      } else {
+        notFound.push(link);
+      }
+    });
+    setMatchedLogins(found);
+    setNotFoundLinks(notFound);
+  }, [pastedLinks, availableLogins]);
+
   const filteredLogins = useMemo(() => {
     if (!searchTerm) {
       return availableLogins;
+    }
+    // If user pasted links, only show matched logins
+    if (pastedLinks.length > 0) {
+      return matchedLogins;
     }
     const searchTerms = searchTerm
       .split(/[\n,]+/)
       .map((t) => t.trim().toLowerCase())
       .filter(Boolean);
-
     if (searchTerms.length === 0) {
       return availableLogins;
     }
-
     return availableLogins.filter((login) => {
       const username = (login.username || "").toLowerCase();
       const link = (login.preview_link || "").toLowerCase();
       return searchTerms.some((term) => username.includes(term) || link.includes(term));
     });
-  }, [availableLogins, searchTerm]);
+  }, [availableLogins, searchTerm, pastedLinks, matchedLogins]);
 
   const shortDescriptionText = isLongDescription
     ? plainDescription.slice(0, 120) + "..."
@@ -200,8 +238,8 @@ const BuyAccountPage = () => {
         id: Date.now() + Math.random() + i,
         platform: usedPlatform,
         accountId: login.accountId || login.ID,
-        price: usedProduct.amount,
-        amount: usedProduct.amount, // pass amount
+        price: usedProduct.price || usedProduct.amount,
+        amount: usedProduct.price || usedProduct.amount, // pass amount
         item: usedProduct,
         username: login.username ?? undefined,
       });
@@ -211,7 +249,7 @@ const BuyAccountPage = () => {
 
   const handleCopyCart = () => {
     if (cart.length === 0) return;
-    const links = cart.map((item) => item.preview_link).join("\\n");
+    const links = cart.map((item) => item.preview_link).join("\n");
     navigator.clipboard
       .writeText(links)
       .then(() => {
@@ -260,6 +298,38 @@ const BuyAccountPage = () => {
       );
     } else {
       setToast({ show: true, message: `Order failed: ${result.message}`, type: 'error' });
+    }
+  };
+
+  // Add all matched logins to cart
+  const handleAddAllMatchedToCart = () => {
+    if (matchedLogins.length === 0) return;
+    setCart(prev => [
+      ...prev,
+      ...matchedLogins.map(login => ({
+        id: Date.now() + Math.random(),
+        platform: usedPlatform,
+        accountId: login.accountId || login.ID,
+        price: discountedPrice,
+        item: usedProduct,
+        username: login.username ?? undefined,
+        preview_link: login.preview_link,
+      }))
+    ]);
+    setPastedLinks([]);
+    setMatchedLogins([]);
+    setNotFoundLinks([]);
+    setSearchTerm("");
+  };
+
+  // Handle search input change
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    if (!value.trim()) {
+      setPastedLinks([]);
+      setMatchedLogins([]);
+      setNotFoundLinks([]);
     }
   };
 
@@ -342,10 +412,10 @@ const BuyAccountPage = () => {
             {cart.length === 0 && (
               <CartQuantityControl
                 quantity={quantity}
-                onIncrement={() => setQuantity((q) => Math.min(q + 1, availableLogins.length))}
+                onIncrement={() => setQuantity((q) => Math.min(q + 1, usedProduct.stock))}
                 onDecrement={() => setQuantity((q) => Math.max(q - 1, 0))}
                 onClearCart={() => setQuantity(0)}
-                available={availableLogins.length}
+                available={usedProduct.stock}
                 showAvailable={true}
               />
             )}
@@ -503,7 +573,8 @@ const BuyAccountPage = () => {
               placeholder="Search by username or preview link"
               className="w-full border border-border-grey rounded-lg pl-12 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={handleSearchChange}
+              onPaste={handleSearchPaste}
             />
             <img
               src="/icons/search.svg"
@@ -512,6 +583,41 @@ const BuyAccountPage = () => {
             />
           </div>
         </div>
+
+        {/* If user pasted links, show improved summary and add-all button */}
+        {pastedLinks.length > 0 && (
+          <div className="mb-4 border border-yellow-300 rounded-xl p-4 bg-gradient-to-br from-yellow-50 to-white/80 shadow-sm">
+            <div className="flex items-center gap-3 mb-2">
+              <FiCheckCircle className="w-5 h-5 text-green-500" />
+              <span className="font-semibold text-green-700 text-base">
+                {matchedLogins.length} login{matchedLogins.length !== 1 ? 's' : ''} found
+              </span>
+              <FiXCircle className="w-5 h-5 text-red-400 ml-4" />
+              <span className="font-semibold text-red-500 text-base">
+                {notFoundLinks.length} not found
+              </span>
+            </div>
+            {notFoundLinks.length > 0 && (
+              <div className="text-xs text-danger mb-2 flex items-start gap-2">
+                <span className="font-bold">Not found:</span>
+                <ul className="list-disc ml-4">
+                  {notFoundLinks.map((link, i) => (
+                    <li key={i} className="break-all text-red-600">{link}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {matchedLogins.length > 0 && (
+              <button
+                className="mt-2 bg-gradient-to-r from-quinary to-quaternary text-white font-bold rounded-full px-6 py-2 text-sm shadow-lg hover:from-quaternary hover:to-quinary transition-colors focus:outline-none focus:ring-2 focus:ring-quinary focus:ring-offset-2"
+                onClick={handleAddAllMatchedToCart}
+              >
+                <img src="/icons/cart.svg" alt="Add" className="inline-block w-4 h-4 mr-2 align-middle" />
+                Add all found logins to cart
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Table */}
         <div className="overflow-x-auto">

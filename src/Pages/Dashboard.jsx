@@ -4,7 +4,7 @@ import WelcomeSection from '../components/dashboard/WelcomeSection';
 import ProductCard from '../components/dashboard/ProductCard';
 import TransactionsTable from '../components/dashboard/TransactionsTable';
 import ProductSection from '../components/dashboard/ProductSection';
-import { isUserLoggedIn } from '../controllers/userController'; // Import userController
+import { isUserLoggedIn, fetchUserDetails } from '../controllers/userController'; // Import userController
 import Transactions from '../components/dashboard/wallet/Transactions';
 
 const productData = [
@@ -18,6 +18,11 @@ const productData = [
 
 const Dashboard = () => {
   const [isAuthorized, setIsAuthorized] = useState(false); // State to track authorization
+
+  useEffect(() => {
+    // On dashboard mount, fetch latest user details from API
+    fetchUserDetails();
+  }, []);
 
   return (
     <>

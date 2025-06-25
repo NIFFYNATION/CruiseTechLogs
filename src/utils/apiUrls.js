@@ -21,6 +21,7 @@ export const API_URLS = {
   USER_NOTIFICATION_SEEN: `${API_BASE_URL}/user/notification/seen`,
   CONTENT_HELP: `${API_BASE_URL}/content/help`,
   STAGES: `${API_BASE_URL}/content/stages`,
+  CONTENT_LIVECHAT: `${API_BASE_URL}/content/livechat`,
   USER_GENERATE_API: `${API_BASE_URL}/user/gen/api`,
   // Add other endpoints as needed
 };
