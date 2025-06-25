@@ -9,7 +9,7 @@ const ProtectedRoute = ({ children }) => {
     return <Navigate to="/login" replace />; // Redirect to login if user is not logged in
   }
 
-  return children; // Render the protected component if user is logged in
+  return (location.pathname !== '/') ? children : <></>; // Render the protected component if user is logged in
 };
 
 export default ProtectedRoute;

@@ -41,7 +41,7 @@ const DashboardLayout = () => {
         </main>
       </div>
       {/* Style for chatway widget trigger */}
-      <style>{`.chatway--trigger-container { margin-bottom: 70px !important; }`}</style>
+      <style>{`.chatway--trigger-container { margin-bottom: 70px !important; opacity: 0.5 }`}</style>
       {/* Live Chat Widget */}
       {liveChatWidget && (
         <>{parse(he.decode(liveChatWidget))}</>
