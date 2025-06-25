@@ -3,7 +3,7 @@ import React from "react";
 const WHATSAPP_CHANNEL_URL = "https://whatsapp.com/channel/0029Vb9rsBW0LKZKBGTI940l" 
 ; // Replace with your actual channel link
 
-const bannerWidth = 1200; // Adjust if your banner is wider/narrower
+const bannerWidth = 1100; // Adjust if your banner is wider/narrower
 
 const WhatsAppBanner = () => (
   <div
@@ -14,18 +14,19 @@ const WhatsAppBanner = () => (
   >
     <div className="w-full h-full overflow-hidden relative" style={{ width: bannerWidth }}>
       <div
-        className="flex items-center gap-4 whitespace-nowrap"
+        className=" items-center gap-4 whitespace-nowrap"
         style={{ width: "max-content" }}
       >
-        <div className="flex-shrink-0">
+        <div className="flex gap-4 items-center">
           <img
             src="/icons/whatsapp-white.svg"
             alt="WhatsApp"
             className="w-14 h-14"
           />
+          <h3 className="text-white font-semibold text-lg mb-1 inline-block mr-4">Join our WhatsApp Channel.</h3>
+
         </div>
         <div className="flex-1 min-w-[300px]">
-          <h3 className="text-white font-semibold text-lg mb-1 inline-block mr-4">Join our WhatsApp Channel.</h3>
           <p className="text-white/80 text-sm mb-3 inline-block">
             Get instant updates, support, and exclusive offers directly on WhatsApp!
           </p>
