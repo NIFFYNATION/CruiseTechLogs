@@ -1,4 +1,4 @@
-import { registerUser, loginUser } from '../services/authService';
+import { registerUser, loginUser, forgetPassword, resetPassword } from '../services/authService';
 import { fetchUserDetails } from './userController';
 
 export const signupController = async (formData) => {
@@ -33,5 +33,23 @@ export const loginController = async (credentials) => {
   } catch (error) {
     console.error('Login failed:', error.message);
     throw new Error(error.message); // Propagate error
+  }
+};
+
+export const forgetPasswordController = async (email) => {
+  try {
+    const response = await forgetPassword(email);
+    return response;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+export const resetPasswordController = async ({ email, code, password, confirm_password }) => {
+  try {
+    const response = await resetPassword({ email, code, password, confirm_password });
+    return response;
+  } catch (error) {
+    throw new Error(error.message);
   }
 };

@@ -148,11 +148,56 @@ const BuyAccountPage = () => {
 
   const { user } = useUser();
 
-  // Determine discount percent (from user.stage.discount)
-  const discountPercent = user?.stage?.discount ? Number(user.stage.discount) : 0;
-  // Calculate discounted price
-  const basePrice = Number(String(usedProduct.amount || usedProduct.price).replace(/,/g, ''));
-  const discountedPrice = discountPercent > 0 ? Math.round(basePrice * (1 - discountPercent / 100)) : basePrice;
+  // Calculate discount based on user stage and order quantity
+  const calculateDiscount = useMemo(() => {
+    if (!user?.stage) return { discountAmount: 0, discountPercent: 0, isEligible: false };
+    
+    const { discount, discount_type, no_order } = user.stage;
+    const discountValue = Number(discount) || 0;
+    const requiredQuantity = Number(no_order) || 0;
+    
+    // Determine order quantity (quantity takes priority over cart.length if quantity > 0)
+    const orderQuantity = quantity > 0 ? quantity : cart.length;
+    
+    // Check if user qualifies for discount
+    const isEligible = orderQuantity >= requiredQuantity;
+    
+    if (!isEligible) {
+      return { discountAmount: 0, discountPercent: 0, isEligible: false };
+    }
+    
+    // Calculate total before discount
+    const totalBeforeDiscount = cart.length > 0
+      ? cart.reduce((sum, item) => sum + (Number(String(item.amount || item.price || 0).replace(/,/g, "")) || 0), 0)
+      : quantity > 0
+      ? quantity * (Number(String(usedProduct.amount || usedProduct.price || 0).replace(/,/g, "")) || 0)
+      : 0;
+    
+    let discountAmount = 0;
+    let discountPercent = 0;
+    
+    if (discount_type === "percentage") {
+      discountPercent = discountValue;
+      discountAmount = Math.round(totalBeforeDiscount * (discountValue / 100));
+    } else if (discount_type === "fixed") {
+      discountAmount = discountValue;
+      discountPercent = totalBeforeDiscount > 0 ? Math.round((discountValue / totalBeforeDiscount) * 100) : 0;
+    }
+    
+    return { discountAmount, discountPercent, isEligible: true };
+  }, [user?.stage, quantity, cart, usedProduct.amount, usedProduct.price]);
+
+  // Calculate final total with discount applied
+  const totalBeforeDiscount = cart.length > 0
+    ? cart.reduce((sum, item) => sum + (Number(String(item.amount || item.price || 0).replace(/,/g, "")) || 0), 0)
+    : quantity > 0
+    ? quantity * (Number(String(usedProduct.amount || usedProduct.price || 0).replace(/,/g, "")) || 0)
+    : 0;
+
+  const finalTotal = totalBeforeDiscount - calculateDiscount.discountAmount;
+
+  // Get base price for individual items (no discount applied to individual prices)
+  const basePrice = Number(String(usedProduct.amount || usedProduct.price || 0).replace(/,/g, '')) || 0;
 
   // Always fetch latest account details on mount or when urlAccountID or product changes
   useEffect(() => {
@@ -202,7 +247,7 @@ const BuyAccountPage = () => {
   }, [urlAccountID, usedProduct]);
 
   const total = cart.reduce(
-    (sum, item) => sum + Number(String(item.price).replace(/,/g, "")),
+    (sum, item) => sum + (Number(String(item.price || 0).replace(/,/g, "")) || 0),
     0
   );
 
@@ -310,7 +355,7 @@ const BuyAccountPage = () => {
         id: Date.now() + Math.random(),
         platform: usedPlatform,
         accountId: login.accountId || login.ID,
-        price: discountedPrice,
+        price: basePrice,
         item: usedProduct,
         username: login.username ?? undefined,
         preview_link: login.preview_link,
@@ -359,7 +404,7 @@ const BuyAccountPage = () => {
         <div className="flex-1">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <h3 className="font-semibold text-base text-primary">{usedProduct.title}</h3>
-            <span className="font-semibold text-primary text-lg">{money_format(discountedPrice)}{discountPercent > 0 && <span className="ml-2 text-green-600 text-xs font-bold">-{discountPercent}%</span>}</span>
+            <span className="font-semibold text-primary text-lg">{money_format(basePrice)}{calculateDiscount.isEligible && calculateDiscount.discountPercent > 0 && <span className="ml-2 text-green-600 text-xs font-bold">-{calculateDiscount.discountPercent}%</span>}</span>
           </div>
           <div className="flex flex-row sm:flex-row sm:items-center sm:justify-between mt-1">
             <span className="text-xs text-text-secondary py-2">
@@ -398,6 +443,11 @@ const BuyAccountPage = () => {
             <span className="text-xs text-text-secondary mt-1 sm:mt-0 ">
               Platform - <span className="text-primary font-semibold">{usedPlatform.name}</span>
             </span>
+            {user?.stage && !calculateDiscount.isEligible && (
+              <span className="text-xs text-orange-600 font-medium">
+                Add {Math.max(0, (Number(user.stage.no_order) || 0) - (quantity > 0 ? quantity : cart.length))} more for {user.stage.discount || 0}{user.stage.discount_type === "percentage" ? "%" : ""} discount
+              </span>
+            )}
           </div>
         </div>
       </div>
@@ -422,15 +472,11 @@ const BuyAccountPage = () => {
           </div>
           <p className="font-semibold text-primary hidden sm:block">
             Total: <span></span> 
-            {money_format(
-              cart.length > 0
-                ? cart.reduce(
-                    (sum, item) => sum + Number(String(item.amount || item.price).replace(/,/g, "")),
-                    0
-                  )
-                : quantity > 0
-                ? quantity * Number(String(usedProduct.amount || usedProduct.price).replace(/,/g, ""))
-                : 0
+            {money_format(finalTotal)}
+            {calculateDiscount.isEligible && calculateDiscount.discountAmount > 0 && (
+              <span className="ml-2 text-green-600 text-xs font-bold">
+                (Save {money_format(calculateDiscount.discountAmount)})
+              </span>
             )}
           </p>
         </div>
@@ -509,19 +555,13 @@ const BuyAccountPage = () => {
               <p className="text-base font-semibold mb-2">
                 Total –{" "}
                 <span className="text-primary font-bold">
-                  {money_format(
-                    cart.length > 0
-                      ? cart.reduce(
-                          (sum, item) =>
-                            sum + Number(String(item.amount || item.price).replace(/,/g, "")),
-                          0
-                        )
-                      : quantity > 0
-                      ? quantity *
-                        Number(String(usedProduct.amount || usedProduct.price).replace(/,/g, ""))
-                      : 0
-                  )}
+                  {money_format(finalTotal)}
                 </span>
+                {calculateDiscount.isEligible && calculateDiscount.discountAmount > 0 && (
+                  <span className="ml-2 text-green-600 text-xs font-bold">
+                    (Save {money_format(calculateDiscount.discountAmount)})
+                  </span>
+                )}
               </p>
               <div className="flex w-full flex-col gap-2">
                 <Button
@@ -653,7 +693,7 @@ const BuyAccountPage = () => {
                       {login.accountId || login.ID}
                     </td> */}
                     <td className="text-primary font-semibold text-xs sm:text-base whitespace-nowrap">
-                      {money_format(discountedPrice)}
+                      {money_format(basePrice)}
                     </td>
                     <td className="">
                       <a
@@ -678,7 +718,7 @@ const BuyAccountPage = () => {
                               id: Date.now() + Math.random(),
                               platform: usedPlatform,
                               accountId: login.accountId || login.ID,
-                              price: discountedPrice,
+                              price: basePrice,
                               item: usedProduct,
                               username: login.username ?? undefined,
                               preview_link: login.preview_link,
@@ -716,7 +756,7 @@ const BuyAccountPage = () => {
               id: Date.now() + Math.random(),
               platform: usedPlatform,
               accountId: loginToAdd.accountId || loginToAdd.ID,
-              price: discountedPrice,
+              price: basePrice,
               item: usedProduct,
               username: loginToAdd.username ?? undefined,
               preview_link: loginToAdd.preview_link,
@@ -730,8 +770,11 @@ const BuyAccountPage = () => {
         }
       }}
       isProcessing={isOrdering}
-      discountPercent={discountPercent}
-      discountedPrice={discountedPrice}
+      discountPercent={calculateDiscount.discountPercent}
+      discountedPrice={basePrice}
+      discountAmount={calculateDiscount.discountAmount}
+      isEligibleForDiscount={calculateDiscount.isEligible}
+      finalTotal={finalTotal}
     />
      </>
   );

@@ -23,5 +23,8 @@ export const API_URLS = {
   STAGES: `${API_BASE_URL}/content/stages`,
   CONTENT_LIVECHAT: `${API_BASE_URL}/content/livechat`,
   USER_GENERATE_API: `${API_BASE_URL}/user/gen/api`,
+  FORGET_PASSWORD: `${API_BASE_URL}/auth/forgetpassword`,
+  RESET_PASSWORD: `${API_BASE_URL}/auth/resetpassword`,
+  LOGOUT: `${API_BASE_URL}/auth/logout`,
   // Add other endpoints as needed
 };

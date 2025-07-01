@@ -153,12 +153,11 @@ const Sidebar = () => {
       });
   }, []);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     if (isMobile) {
       toggleSidebar();
     }
-    logoutUser();
-    navigate('/login');
+    await logoutUser();
   };
 
   // Menu items for animation mapping

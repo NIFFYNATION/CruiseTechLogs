@@ -5,6 +5,7 @@ import FormSection from '../../components/common/FormSection';
 import Side from '../login/side';
 
 import { Button } from '../../components/common/Button';
+import { forgetPasswordController } from '../../controllers/authController';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
@@ -15,16 +16,23 @@ const ForgotPassword = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
-    // Simulate API call
     if (!email) {
       setError('Please enter your email.');
       return;
     }
     setSent(true);
-    // In real app, send email and handle errors
-    setTimeout(() => {
-      navigate('/otp', { state: { email, for: 'reset' } });
-    }, 1200);
+    try {
+      const response = await forgetPasswordController(email);
+      if (response && (response.code === 200 || response.code === 201)) {
+        navigate('/reset-password', { state: { email } });
+      } else {
+        setError(response?.message || 'Failed to send reset code.');
+        setSent(false);
+      }
+    } catch (err) {
+      setError(err.message || 'Failed to send reset code.');
+      setSent(false);
+    }
   };
 
   return (

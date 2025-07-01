@@ -7,7 +7,7 @@ const bannerWidth = 1100; // Adjust if your banner is wider/narrower
 
 const WhatsAppBanner = () => (
   <div
-    className="rounded-[20px] mt-6 p-6 py-10 bg-gradient-to-r from-[#25D366] to-[#128C7E] shadow-lg overflow-hidden relative group hidden md:block"
+    className="rounded-[20px] mt-6 p-6 py-10 bg-gradient-to-r from-[#e6ffec]/50 to-[#cafcd7]/50 shadow-lg overflow-hidden relative group hidden md:block"
     style={{ minHeight: 128, maxWidth: bannerWidth, textDecoration: "none" }}
     tabIndex={0}
     aria-label="Join our WhatsApp Channel"
@@ -19,15 +19,15 @@ const WhatsAppBanner = () => (
       >
         <div className="flex gap-4 items-center">
           <img
-            src="/icons/whatsapp-white.svg"
+            src="/icons/whatsapp.svg"
             alt="WhatsApp"
             className="w-14 h-14"
           />
-          <h3 className="text-white font-semibold text-lg mb-1 inline-block mr-4">Join our WhatsApp Channel.</h3>
+          <h3 className="text-green-500 font-semibold text-lg mb-1 inline-block mr-4">Join our WhatsApp Channel.</h3>
 
         </div>
         <div className="flex-1 min-w-[300px]">
-          <p className="text-white/80 text-sm mb-3 inline-block">
+          <p className="text-green-500/80 text-sm mb-3 inline-block">
             Get instant updates, support, and exclusive offers directly on WhatsApp!
           </p>
           <a
