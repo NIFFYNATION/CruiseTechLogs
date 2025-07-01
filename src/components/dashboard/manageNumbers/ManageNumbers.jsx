@@ -312,7 +312,7 @@ const ManageNumbers = ({ orderId }) => {
                         <div className="flex  gap-2 w-full justify-center items-center">
                           <button
                             className="bg-quinary hover:bg-[#ff8c1a] text-white font-semibold rounded-full px-4 py-1.5 text-sm flex items-center gap-2 transition-colors"
-                            onClick={() => setActiveTab("Active")}
+                            onClick={() => navigate('/dashboard/buy-numbers')}
                           >
                             + Buy Number
                           </button>
