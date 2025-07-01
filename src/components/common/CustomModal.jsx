@@ -59,11 +59,43 @@ const CustomModal = ({
       setInternalOpen(openProp);
     }
   }, [openProp]);
-
+  
   useEffect(() => {
-    if (!internalOpen) {
+    if (internalOpen) { 
+  }
+  if (!internalOpen) {
       setHasSearched(false); // Reset when modal closes
     }
+  }, [internalOpen]);
+
+
+    // Hide/show .chatway--trigger-container when modal is open/closed
+    useEffect(() => {
+      if (typeof window === 'undefined') return;
+      const containers = document.querySelectorAll('.chatway--trigger-container');
+      if (internalOpen) {
+        containers.forEach(el => { el.style.display = 'none'; });
+      } else {
+        containers.forEach(el => { el.style.display = 'block'; });
+      }
+      return () => {
+        containers.forEach(el => { el.style.display = 'block'; });
+      };
+    }, [internalOpen]);
+    
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const body = document.body;
+    const prevOverflow = body.style.overflow;
+    if (internalOpen) {
+      body.style.overflow = 'hidden';
+    } else {
+      body.style.overflow = prevOverflow || '';
+    }
+    return () => {
+      body.style.overflow = prevOverflow || '';
+    };
   }, [internalOpen]);
 
   const handleClose = () => {

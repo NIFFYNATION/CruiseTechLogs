@@ -6,10 +6,10 @@ import cookiesManager from '../utils/cookiesManager';
 
 export const fetchNumberTypes = async () => {
   // Try to get from cookies/localStorage first
-  const cached = cookiesManager.getNumberTypes();
-  if (cached && Array.isArray(cached) && cached.length > 0) {
-    return { code: 200, data: cached };
-  }
+  // const cached = cookiesManager.getNumberTypes();
+  // if (cached && Array.isArray(cached) && cached.length > 0) {
+  //   return { code: 200, data: cached };
+  // }
 
   // Prevent duplicate requests by returning a single promise if already fetching
   if (fetchNumberTypes._pending) return fetchNumberTypes._pending;

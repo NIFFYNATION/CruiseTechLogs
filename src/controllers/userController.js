@@ -1,4 +1,5 @@
 import { refreshUserToken, fetchUserProfile } from '../services/userService';
+import { logoutUserApi } from '../services/authService';
 
 // Default user fallback
 export const defaultUser = {
@@ -43,18 +44,24 @@ export const isTokenExpired = () => {
   return currentTime > userData.token.expiry_date; // Compare current time with token expiry
 };
 
-export const logoutUser = () => {
-  localStorage.removeItem('authToken'); // Remove token
-  localStorage.removeItem('userData'); // Remove user data
-  // Remove all cookies
-  document.cookie.split(";").forEach((c) => {
-    document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date(0).toUTCString() + ";path=/");
-  });
-  // Always redirect to login page
-  if (!currentPath.startsWith("/login") || typeof window !== "undefined") {
-    window.location.href = "/login";
+export const logoutUser = async () => {
+  try {
+    await logoutUserApi();
+  } catch (e) {
+    // Optionally log error, but proceed to clear local data anyway
+    console.error('Logout API error:', e.message);
   }
-  console.log('User logged out successfully');
+  localStorage.removeItem('authToken');
+  localStorage.removeItem('userData');
+  // Remove all cookies
+  document.cookie.split(';').forEach((c) => {
+    document.cookie = c.replace(/^ +/, '').replace(/=.*/, '=;expires=' + new Date(0).toUTCString() + ';path=/');
+  });
+  // Only redirect if not already on / or /login
+  const path = window.location.pathname;
+  if (path !== '/' && path !== '/login') {
+    window.location.href = '/login';
+  }
 };
 
 export const refreshToken = async () => {

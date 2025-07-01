@@ -210,9 +210,9 @@ const DashboardHeader = () => {
                     setShowAccountDropdown(false);
                     navigate('/dashboard/profile-settings');
                   }}
-                  onLogout={() => {
+                  onLogout={async () => {
                     setShowAccountDropdown(false);
-                    logoutUser();
+                    await logoutUser();
                   }}
                   onKnowMore={() => {/* handle know more */}}
                   onClose={() => setShowAccountDropdown(false)}
