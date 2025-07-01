@@ -82,21 +82,21 @@ const CustomModal = ({
         containers.forEach(el => { el.style.display = 'block'; });
       };
     }, [internalOpen]);
-    
+
   // Lock body scroll when modal is open
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const body = document.body;
-    const prevOverflow = body.style.overflow;
-    if (internalOpen) {
-      body.style.overflow = 'hidden';
-    } else {
-      body.style.overflow = prevOverflow || '';
-    }
-    return () => {
-      body.style.overflow = prevOverflow || '';
-    };
-  }, [internalOpen]);
+  // useEffect(() => {
+  //   if (typeof window === 'undefined') return;
+  //   const body = document.body;
+  //   const prevOverflow = body.style.overflow;
+  //   if (internalOpen) {
+  //     body.style.overflow = 'hidden';
+  //   } else {
+  //     body.style.overflow = prevOverflow || '';
+  //   }
+  //   return () => {
+  //     body.style.overflow = prevOverflow || '';
+  //   };
+  // }, [internalOpen]);
 
   const handleClose = () => {
     if (closeable && onClose) {
