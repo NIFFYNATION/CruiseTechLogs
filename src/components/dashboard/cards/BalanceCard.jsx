@@ -15,7 +15,7 @@ const BalanceCard = ({ isSimple = false }) => {
 
   return (
     <div
-      className={`rounded-[20px] relative overflow-hidden  ${isSimple ? "p-4 min-h-[120px]" : "max-h-300"}`}
+      className={`user-balance rounded-[20px] relative overflow-hidden  ${isSimple ? "p-4 min-h-[120px]" : "max-h-300"}`}
       style={{
         background: `#FF6B00 url('/balance-card-bg.png') no-repeat center center`,
         backgroundSize: "cover",

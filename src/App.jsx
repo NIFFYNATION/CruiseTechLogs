@@ -1,4 +1,4 @@
-import {  useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { ThemeToggle } from './components/common/ThemeToggle'
@@ -6,6 +6,7 @@ import Tabs from './components/MobileTab'
 import { UserProvider } from './contexts/UserContext';
 import { SidebarProvider } from './contexts/SidebarContext';
 import ProtectedRoute from './routes/ProtectedRoute';
+import PageSpinner from './components/dashboard/PageSpinner';
 
 
 // ScrollToTop component to handle scrolling to top on route changes
@@ -20,7 +21,18 @@ function ScrollToTop() {
 }
 
 function App() {
-  
+  const [initialLoading, setInitialLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate initial loading (replace with real data loading if needed)
+    const timer = setTimeout(() => setInitialLoading(false), 800);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (initialLoading) {
+    return <PageSpinner />;
+  }
+
   return (
     
     <UserProvider>

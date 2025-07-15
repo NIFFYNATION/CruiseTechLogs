@@ -86,7 +86,7 @@ const Transactions = ({
 
   return (
     <div className="mt-5">
-      <div className="bg-white rounded-lg shadow p-4 sm:p-8">
+      <div className="bg-white rounded-lg shadow p-4 sm:p-8 transactions-tour">
         {/* Sticky Header with Fund Account Button */}
         <SectionHeader
           title={title}

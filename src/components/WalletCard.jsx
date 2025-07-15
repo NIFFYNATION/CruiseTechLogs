@@ -6,7 +6,7 @@ const WalletCard = ({ balance, onAddFunds, onTransactions }) => {
 
   return (
     <div
-      className="rounded-[20px] relative overflow-hidden h-full bg-gradient-to-br from-[#FF6B00] to-[#FFB347]"
+      className="rounded-[20px] relative overflow-hidden h-full bg-gradient-to-br from-[#FF6B00] to-[#FFB347] user-balance"
             style={{
               background: `#FF6B00 url('/balance-card-bg.png') no-repeat center center`,
         backgroundSize: "cover",

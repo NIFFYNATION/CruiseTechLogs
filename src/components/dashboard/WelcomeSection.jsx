@@ -34,7 +34,7 @@ const WelcomeSection = () => {
           </div> */}
 
           {/* Get Number Card */}
-          <div className="bg-background mt-8 md:mt-0 rounded-[15px] border-b-primary border-b-2 px-6 pt-6 shadow-[0_4px_20px_rgba(0,0,0,0.05)] flex-1">
+          <div className="bg-background mt-8 md:mt-0 rounded-[15px] border-b-primary border-b-2 px-6 pt-6 shadow-[0_4px_20px_rgba(0,0,0,0.05)] flex-1 dashboard-buy-number">
             <div className="flex items-end justify-between mt-auto">
               <div className="">
                 <h3 className="text-text-primary text-lg font-semibold mb-2">Get Number</h3>
@@ -56,7 +56,7 @@ const WelcomeSection = () => {
             </div>
           </div>
           {/* Buy Social Media Accounts */}
-          <div className="block px-6 mt-8 md:mt-0 rounded-[15px] border-b-quinary border-b-2 pl-6 pt-6 shadow-[0_4px_20px_rgba(0,0,0,0.05)] flex-1 "
+          <div className="block px-6 mt-8 md:mt-0 rounded-[15px] border-b-quinary border-b-2 pl-6 pt-6 shadow-[0_4px_20px_rgba(0,0,0,0.05)] flex-1 buy-account-tour"
             style={{
               background: `linear-gradient(rgba(255, 106, 0, 0.03), rgba(255, 107, 0, 0.1)), url('/background-buyaccounts.svg') no-repeat center center`,
               backgroundSize: '700px 500px'
