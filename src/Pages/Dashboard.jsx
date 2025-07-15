@@ -12,9 +12,7 @@ import Joyride from 'react-joyride';
 
 
 const Dashboard = () => {
-  const [isAuthorized, setIsAuthorized] = useState(false); // State to track authorization
-  const [showWelcome, setShowWelcome] = useState(false);
-  const [runTour, setRunTour] = useState(false);
+  const [runTour, setRunTour] = useState(true); // Always true on mount
   const { user } = useUser();
   const navigate = useNavigate();
 
@@ -96,41 +94,6 @@ const Dashboard = () => {
     // On dashboard mount, fetch latest user details from API
     fetchUserDetails();
   }, []);
-
-  const DEBUG_ALWAYS_SHOW_TOUR = false;
-
-  useEffect(() => {
-    if (!user || !user.email) return;
-    if (DEBUG_ALWAYS_SHOW_TOUR) {
-      setRunTour(true);
-      // Optionally, always show welcome modal too for debug
-      setShowWelcome(true);
-      return;
-    }
-    const key = `welcome_popup_last_shown_${user.email}`;
-    const tourKey = `dashboard_tour_last_shown_${user.email}`;
-    const lastShown = localStorage.getItem(key);
-    const lastTour = localStorage.getItem(tourKey);
-    const now = Date.now();
-    const oneMonth = 30 * 24 * 60 * 60 * 1000;
-    if (!lastShown || now - Number(lastShown) > oneMonth) {
-      setShowWelcome(true);
-      localStorage.setItem(key, now.toString());
-    } else if (!lastTour || now - Number(lastTour) > oneMonth) {
-      setRunTour(true);
-      localStorage.setItem(tourKey, now.toString());
-    }
-  }, [user]);
-
-  // When welcome modal closes, start the tour and set the tour timestamp
-  const handleWelcomeClose = () => {
-    setShowWelcome(false);
-    setRunTour(true);
-    if (user && user.email) {
-      const tourKey = `dashboard_tour_last_shown_${user.email}`;
-      localStorage.setItem(tourKey, Date.now().toString());
-    }
-  };
 
   return (
     <>
