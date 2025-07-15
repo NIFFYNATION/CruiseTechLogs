@@ -72,7 +72,10 @@ const CustomModal = ({
     // Hide/show .chatway--trigger-container when modal is open/closed
     useEffect(() => {
       if (typeof window === 'undefined') return;
-      const containers = document.querySelectorAll('.chatway--trigger-container');
+      const containers = [
+        ...document.querySelectorAll('.chatway--trigger-container'),
+        ...document.querySelectorAll('.live-chat-container'),
+      ];
       if (internalOpen) {
         containers.forEach(el => { el.style.display = 'none'; });
       } else {

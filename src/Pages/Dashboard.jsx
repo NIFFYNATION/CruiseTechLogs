@@ -12,7 +12,7 @@ import Joyride from 'react-joyride';
 
 
 const Dashboard = () => {
-  const [runTour, setRunTour] = useState(true); // Always true on mount
+  const [runTour, setRunTour] = useState(false);
   const { user } = useUser();
   const navigate = useNavigate();
 
@@ -93,6 +93,12 @@ const Dashboard = () => {
   useEffect(() => {
     // On dashboard mount, fetch latest user details from API
     fetchUserDetails();
+    // Show tour only once per device
+    const tourKey = 'dashboard_tour_shown_v1';
+    if (!localStorage.getItem(tourKey)) {
+      setRunTour(true);
+      localStorage.setItem(tourKey, 'true');
+    }
   }, []);
 
   return (
