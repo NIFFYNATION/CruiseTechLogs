@@ -1,11 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom'; // Add navigation for redirection
 import WelcomeSection from '../components/dashboard/WelcomeSection';
-import { fetchUserDetails } from '../controllers/userController';
+import ProductCard from '../components/dashboard/ProductCard';
+import TransactionsTable from '../components/dashboard/TransactionsTable';
+import ProductSection from '../components/dashboard/ProductSection';
+import { isUserLoggedIn, fetchUserDetails } from '../controllers/userController'; // Import userController
+import Transactions from '../components/dashboard/wallet/Transactions';
 import { useUser } from '../contexts/UserContext';
 import Joyride from 'react-joyride';
 
+
+
 const Dashboard = () => {
+  const [isAuthorized, setIsAuthorized] = useState(false); // State to track authorization
   const [showWelcome, setShowWelcome] = useState(false);
   const [runTour, setRunTour] = useState(false);
   const { user } = useUser();
@@ -96,6 +103,7 @@ const Dashboard = () => {
     if (!user || !user.email) return;
     if (DEBUG_ALWAYS_SHOW_TOUR) {
       setRunTour(true);
+      // Optionally, always show welcome modal too for debug
       setShowWelcome(true);
       return;
     }
@@ -192,8 +200,11 @@ const Dashboard = () => {
           }
         }}
       />
-      {/* WelcomeSection and other main dashboard content */}
       <WelcomeSection />
+      {/* Transactions Table */}
+      <div className="transactions-tour">
+        <Transactions isRecent={true} title='Recent Transactions'/>
+      </div>
     </>
   );
 };
