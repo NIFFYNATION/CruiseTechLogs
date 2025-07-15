@@ -21,6 +21,7 @@ import ForgotPassword from './Pages/passwordRecovery/ForgotPassword';
 import ResetPassword from './Pages/login/ResetPassword';
 import ProtectedRoute from './routes/ProtectedRoute';
 import StagesPage from './components/dashboard/stages/StagesPage';
+import NotFoundPage from './Pages/NotFoundPage';
 
 // Wrapper to pass orderId param to ManageNumbers
 const ManageNumbersWithOrderId = (props) => {
@@ -80,6 +81,7 @@ export const router = createBrowserRouter([
       },
       { path: '/forgot-password', element: <ForgotPassword /> },
       { path: '/reset-password', element: <ResetPassword /> },
+      { path: '*', element: <NotFoundPage /> },
     ],
   },
 ]);
