@@ -78,9 +78,18 @@ export const resetPassword = async ({ email, code, password, confirm_password })
 };
 
 export const logoutUserApi = async () => {
+  // Check for Bearer token before attempting logout
+  const token = localStorage.getItem('authToken');
+  if (!token || token.trim() === '') {
+    // No token, nothing to do
+    return { success: false, message: 'No active session.' };
+  }
   try {
-    const response = await axiosInstance.post(API_URLS.LOGOUT, {}, {
-      headers: { 'Content-Type': 'application/json' },
+    const response = await axiosInstance.get(API_URLS.LOGOUT, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
     });
     if (![200, 201].includes(response.status)) {
       const message = response.data?.message || 'Logout failed';
@@ -88,7 +97,8 @@ export const logoutUserApi = async () => {
     }
     return response.data;
   } catch (error) {
-    throw new Error(error.message || 'Logout failed');
+    // Do not retry, just return error
+    return { success: false, message: error.message || 'Logout failed' };
   }
 };
 

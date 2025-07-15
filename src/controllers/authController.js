@@ -28,10 +28,8 @@ export const loginController = async (credentials) => {
     });
     localStorage.setItem('authToken', response.data.token.token); // Store token in localStorage
     await fetchUserDetails(); // Fetch and store user details
-    console.log('Login successful:', response);
     return response; // Return API response
   } catch (error) {
-    console.error('Login failed:', error.message);
     throw new Error(error.message); // Propagate error
   }
 };

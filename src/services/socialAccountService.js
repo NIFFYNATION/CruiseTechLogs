@@ -27,7 +27,7 @@ export const fetchCategories = async () => {
 };
 
 export const fetchAccounts = async ({ page = 1, platform, category }) => {
-  console.log(platform, category)
+  // console.log(platform, category)
   if (!platform || !category) return [];
   try {
     const res = await axiosInstance.get(
@@ -58,14 +58,22 @@ export const fetchTotalInStock = async (accountID) => {
   }
 };
 
-export const fetchAccountLogins = async (accountID) => {
-  if (!accountID) return [];
-  let allLogins = [];
+// New: Paginated login fetcher for infinite scroll
+export function createAccountLoginsFetcher(accountID) {
   let page = 1;
-  let batchSize = 1;
-  let keepFetching = true;
+  let loading = false;
+  let hasMore = true;
+  let logins = [];
+  let listeners = [];
 
-  while (keepFetching) {
+  function notify() {
+    listeners.forEach((cb) => cb({ logins, hasMore, loading }));
+  }
+
+  async function fetchBatch() {
+    if (!accountID || loading || !hasMore) return;
+    loading = true;
+    notify();
     try {
       const res = await axiosInstance.get(
         `${API_BASE_URL}/account/fetch/logins?accountID=${accountID}&page=${page}`
@@ -75,20 +83,39 @@ export const fetchAccountLogins = async (accountID) => {
         Array.isArray(res.data.data) &&
         res.data.data.length > 0
       ) {
-        allLogins = allLogins.concat(res.data.data);
-        // After first batch, increase batch size for next fetches
-        if (batchSize === 1) batchSize = 30;
-        else batchSize += 30;
+        logins = logins.concat(res.data.data);
         page++;
+        hasMore = true;
       } else {
-        keepFetching = false;
+        hasMore = false;
       }
     } catch {
-      keepFetching = false;
+      hasMore = false;
+    } finally {
+      loading = false;
+      notify();
     }
   }
-  return allLogins;
-};
+
+  return {
+    getLogins: () => logins,
+    hasMore: () => hasMore,
+    loading: () => loading,
+    fetchInitial: async () => {
+      // Fetch first two batches only
+      await fetchBatch();
+      if (hasMore) await fetchBatch();
+    },
+    fetchMore: fetchBatch,
+    subscribe: (cb) => {
+      listeners.push(cb);
+      cb({ logins, hasMore, loading });
+      return () => {
+        listeners = listeners.filter((l) => l !== cb);
+      };
+    },
+  };
+}
 
 export const fetchAccountDetails = async (accountID) => {
   if (!accountID) return null;

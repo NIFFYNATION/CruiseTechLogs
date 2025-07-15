@@ -75,9 +75,8 @@ export const refreshToken = async () => {
     const refreshedToken = await refreshUserToken(userData.token.token); // Call userService
     userData.token = refreshedToken; // Update token in userData
     localStorage.setItem('userData', JSON.stringify(userData)); // Save updated userData
-    console.log('Token refreshed successfully');
   } catch (error) {
-    console.error('Error refreshing token:', error.message);
+    // console.error('Error refreshing token:', error.message);
   }
 };
 

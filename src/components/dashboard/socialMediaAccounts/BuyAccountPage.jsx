@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Button } from "../../common/Button";
 import { FiInfo, FiCopy, FiCheckCircle, FiXCircle } from "react-icons/fi";
@@ -6,10 +6,10 @@ import ReviewOrderModal from "./ReviewOrderModal";
 import CartItem from "./CartItem";
 import CartQuantityControl from "./CartQuantityControl";
 import {
-  fetchAccountLogins,
   fetchAccountDetails,
   buyAccount,
-} from "../../../services/socialAccountService"; // <-- import
+  createAccountLoginsFetcher,
+} from "../../../services/socialAccountService";
 // import PageSpinner from "../PageSpinner";
 import { money_format } from "../../../utils/formatUtils";
 import Toast from "../../common/Toast";
@@ -46,6 +46,10 @@ const BuyAccountPage = () => {
   // --- Loading states ---
   const [detailsLoading, setDetailsLoading] = useState(!!urlAccountID);
   const [loginsLoading, setLoginsLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false); // ADD
+  const [hasMoreLogins, setHasMoreLogins] = useState(true); // ADD
+  const loginsTableRef = useRef(null); // ADD
+  const loginsFetcherRef = useRef(null); // ADD
 
   // --- Logins state ---
   const [logins, setLogins] = useState([]);
@@ -228,23 +232,46 @@ const BuyAccountPage = () => {
       });
   }, [urlAccountID, product]);
 
-  // Fetch logins in batch on mount (or when product changes)
+  // Fetch logins in paginated batches on mount (or when product changes)
   useEffect(() => {
     let cancelled = false;
     const accountID = urlAccountID || usedProduct?.ID || usedProduct?.accountID;
     if (!accountID) return;
     setLoginsLoading(true);
-    fetchAccountLogins(accountID)
-      .then((data) => {
-        if (!cancelled) setLogins(Array.isArray(data) ? data : []);
-      })
-      .finally(() => {
-        if (!cancelled) setLoginsLoading(false);
-      });
+    setLoadingMore(false);
+    setLogins([]);
+    setHasMoreLogins(true);
+    // Create new fetcher instance
+    const fetcher = createAccountLoginsFetcher(accountID);
+    loginsFetcherRef.current = fetcher;
+    fetcher.subscribe(({ logins: newLogins, hasMore, loading }) => {
+      if (!cancelled) {
+        setLogins(newLogins);
+        setHasMoreLogins(hasMore);
+        setLoginsLoading(loading && newLogins.length === 0);
+        setLoadingMore(loading && newLogins.length > 0);
+      }
+    });
+    fetcher.fetchInitial();
     return () => {
       cancelled = true;
     };
   }, [urlAccountID, usedProduct]);
+
+  // Infinite scroll for logins table
+  useEffect(() => {
+    const el = loginsTableRef.current;
+    if (!el) return;
+    function handleScroll() {
+      if (loginsLoading || loadingMore || !hasMoreLogins) return;
+      if (el.scrollHeight - el.scrollTop - el.clientHeight < 120) {
+        // Near bottom
+        loginsFetcherRef.current && loginsFetcherRef.current.fetchMore();
+      }
+    }
+    el.addEventListener("scroll", handleScroll);
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, [loginsLoading, loadingMore, hasMoreLogins]);
 
   const total = cart.reduce(
     (sum, item) => sum + (Number(String(item.price || 0).replace(/,/g, "")) || 0),
@@ -467,6 +494,7 @@ const BuyAccountPage = () => {
                 onClearCart={() => setQuantity(0)}
                 available={usedProduct.stock}
                 showAvailable={true}
+                onChange={handleManualQuantityChange}
               />
             )}
           </div>
@@ -660,10 +688,17 @@ const BuyAccountPage = () => {
         )}
 
         {/* Table */}
-        <div className="overflow-x-auto">
+        <div
+          className="overflow-x-auto overflow-y-auto thin-scrollbar"
+          style={{ maxHeight: '60vh', minHeight: '120px', height: 'auto', maxWidth: '100%',
+            // Use 500px on desktop, 60vh on mobile
+            ...(window.innerWidth >= 768 ? { maxHeight: '500px' } : { maxHeight: '65vh' })
+          }}
+          ref={loginsTableRef}
+        >
           <table className="min-w-full text-sm">
             <thead>
-              <tr className="text-left text-tertiary border-b border-border-grey">
+              <tr className="sticky top-0 z-10 bg-white">
                 <th className="py-3 px-0 sm:px-6 font-semibold">Platform</th>
                 {/* <th className="py-3 px-0 sm:px-6 font-semibold">Account ID</th> */}
                 <th className="py-3 px-0 sm:px-6 font-semibold">Price</th>
@@ -732,6 +767,9 @@ const BuyAccountPage = () => {
                     </td>
                   </tr>
                 ))
+              )}
+              {loadingMore && (
+                <tr><td colSpan={5} className="text-center py-4 text-quinary">Loading more...</td></tr>
               )}
             </tbody>
           </table>

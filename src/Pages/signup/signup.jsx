@@ -45,7 +45,7 @@ const Signup = () => {
       const response = await signupController(formData); // Delegate logic to controller
       setSuccessMessage(response.message);
       localStorage.setItem('authToken', response.data.token.token); // Store token
-      console.log('Signup successful:', response);
+      // console.log('Signup successful:', response);
       setTimeout(() => navigate('/dashboard'), 2000); // Redirect
     } catch (err) {
       console.error('Signup failed:', err);
