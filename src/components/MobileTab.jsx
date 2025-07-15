@@ -68,7 +68,7 @@ const Tabs = () => {
       {/* Popup Menu */}
       {menuOpen && <MobileTabMenu onClose={() => setMenuOpen(false)} />}
   
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[95vw] max-w-md">
+      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[95vw] max-w-md dashboard-tabmenu">
       <div className="absolute bottom-9 left-1/2 -translate-x-1/2 z-10">
             <motion.button
               className="p-0 "

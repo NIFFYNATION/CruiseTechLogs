@@ -6,6 +6,7 @@ const CartQuantityControl = ({
   onIncrement,
   onDecrement,
   onClearCart,
+  onChange, // allow direct onChange
   available = 0,
   showAvailable = true,
   className = "gap-10   lg:gap-32",
@@ -29,10 +30,22 @@ const CartQuantityControl = ({
         min={0}
         max={available}
         value={quantity}
-        // onChange={() => {}}
+        onChange={e => {
+          const val = Number(e.target.value);
+          if (onChange) {
+            onChange(val);
+          } else {
+            if (val === 0 || e.target.value === "") {
+              onClearCart && onClearCart();
+            } else if (val > quantity && onIncrement) {
+              onIncrement();
+            } else if (val < quantity && onDecrement) {
+              onDecrement();
+            }
+          }
+        }}
         className="flex-1 h-full text-center text-2xl text-primary font-semibold bg-transparent outline-none border-none"
         style={{ width: 50, borderRight: '1.5px solid #0B4B5A' }}
-        
       />
       <button
         className="flex-1 h-full flex items-center justify-center text-2xl text-primary hover:bg-primary/10 transition"

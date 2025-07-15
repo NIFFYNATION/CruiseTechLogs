@@ -33,7 +33,6 @@ axiosInstance.interceptors.request.use(
 
     // Attach Bearer token if available
     const token = cookies.getToken();
-    console.log(token);
     if (token && token.trim() !== '') {
       config.headers['Authorization'] = `Bearer ${token}`;
     } else {
