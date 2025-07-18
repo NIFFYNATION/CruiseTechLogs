@@ -34,7 +34,7 @@ const DashboardLayout = () => {
     useEffect(() => {
       const chatway = document.querySelector('.chatway--trigger-container');
       if (chatway) {
-        chatway.style.display = showChatPanel ? 'block' : 'none';
+        chatway.style.setProperty('display', showChatPanel ? 'block' : 'none', 'important');
       }
     }, [showChatPanel]);
 
@@ -58,7 +58,7 @@ const DashboardLayout = () => {
           </main>
         </div>
         {/* Style for chatway widget trigger */}
-        <style>{`.chatway--trigger-container { margin-bottom: 125px !important; } .live-chat-container { margin-bottom: 170px;} .live-chat-toggle{ margin-bottom: 60px;}`}</style>
+        <style>{`.chatway--trigger-container { margin-bottom: 125px !important;  display: none !important; } .live-chat-container { margin-bottom: 170px;} .live-chat-toggle{ margin-bottom: 60px;}`}</style>
         {/* Animation styles for chat panel */}
         <style>{`
           @keyframes fade-in-up {

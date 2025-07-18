@@ -15,6 +15,7 @@ import { money_format } from "../../../utils/formatUtils";
 import Toast from "../../common/Toast";
 import { SkeletonTableRow, SkeletonBuyAccountCard } from "../../common/Skeletons";
 import { useUser } from '../../../contexts/UserContext';
+import CleanText from "../../common/helper";
 
 const BuyAccountPage = () => {
   const location = useLocation();
@@ -147,7 +148,7 @@ const BuyAccountPage = () => {
   }, [availableLogins, searchTerm, pastedLinks, matchedLogins]);
 
   const shortDescriptionText = isLongDescription
-    ? plainDescription.slice(0, 120) + "..."
+    ? plainDescription.slice(0, 300) + "..."
     : plainDescription;
 
   const { user } = useUser();
@@ -298,25 +299,9 @@ const BuyAccountPage = () => {
     if (cart.length > 0) setCart(prev => prev.slice(0, -1));
   };
 
-  // Handler for manual quantity change: clear cart and add new items with correct amount
+  // Handler for manual quantity change: only update quantity, do not auto-select logins
   const handleManualQuantityChange = (val) => {
-    if (!logins.length) return setCart([]);
-    // Only allow up to available logins
-    const count = Math.min(val, logins.length);
-    const newCart = [];
-    for (let i = 0; i < count; i++) {
-      const login = logins[i];
-      newCart.push({
-        id: Date.now() + Math.random() + i,
-        platform: usedPlatform,
-        accountId: login.accountId || login.ID,
-        price: usedProduct.price || usedProduct.amount,
-        amount: usedProduct.price || usedProduct.amount, // pass amount
-        item: usedProduct,
-        username: login.username ?? undefined,
-      });
-    }
-    setCart(newCart);
+    setQuantity(val);
   };
 
   const handleCopyCart = () => {
@@ -438,7 +423,7 @@ const BuyAccountPage = () => {
               {plainDescription && (
                 <span>
                   {isLongDescription && !descExpanded ? (
-                    <span>{shortDescriptionText}</span>
+                    <span>  <CleanText rawText={shortDescriptionText} /></span>
                   ) : (
                     <span dangerouslySetInnerHTML={{ __html: fullDescriptionHtml }} />
                   )}
@@ -471,7 +456,7 @@ const BuyAccountPage = () => {
               Platform - <span className="text-primary font-semibold">{usedPlatform.name}</span>
             </span>
             {user?.stage && !calculateDiscount.isEligible && (
-              <span className="text-xs text-orange-600 font-medium">
+              <span className="block sm:inline text-xs text-orange-600 font-medium">
                 Add {Math.max(0, (Number(user.stage.no_order) || 0) - (quantity > 0 ? quantity : cart.length))} more for {user.stage.discount || 0}{user.stage.discount_type === "percentage" ? "%" : ""} discount
               </span>
             )}

@@ -10,6 +10,7 @@ import parse from 'html-react-parser';
 import he from 'he';
 import { linkifyHtml } from '../../../utils/formatUtils';
 import { FiDownload } from 'react-icons/fi';
+import CleanText from "../../common/helper";
 
 function decodeHtml(html) {
   if (!html) return '';
@@ -208,15 +209,7 @@ const OrderConfirmedPage = () => {
           </Button>
         </div>
       )}
-      {/* Description */}
-      {description && (
-        <div className="mb-4 bg-white rounded-lg p-4 shadow-sm">
-          <div className="font-semibold text-primary mb-1">Description</div>
-          <div className="text-sm text-text-secondary">
-            {parse(he.decode(linkifyHtml(description, 'text-primary')))}
-          </div>
-        </div>
-      )}
+     
       {/* Order Info */}
       <div className="border-b border-border-grey p-2 pb-8 mb-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -314,7 +307,7 @@ const OrderConfirmedPage = () => {
         className="max-w-lg"
       >
         <div className="prose max-w-none p-5">
-          {parse(he.decode(linkifyHtml(rulesHtml || '<div>No additional rules provided.</div>', 'text-primary')))}
+         {parse(he.decode(linkifyHtml(rulesHtml || '<div>No additional rules provided.</div>', 'text-primary')))}
         </div>
       </CustomModal>
     </div>

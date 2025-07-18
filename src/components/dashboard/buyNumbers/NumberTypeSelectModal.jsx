@@ -36,7 +36,7 @@ const NumberTypeSelectModal = ({ open, onClose, onSelect }) => {
       defaultOpen={open}
       title="Choose Number Category"
       description={"Select which category you want to buy number from"}
-      closeable={false}
+      closeable={true}
       list={numberTypes}
       showFooter={true}
       loading={loading}

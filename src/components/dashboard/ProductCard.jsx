@@ -113,8 +113,8 @@ const ProductCard = ({
             {loadingTotal
               ? "Loading stock..."
               : formattedTotalStock !== null && formattedTotalStock !== undefined
-                ? `${formattedTotalStock} Accounts in Stock`
-                : "Accounts in Stock"}
+                ? `${formattedTotalStock} pcs available`
+                : "pcs available"}
           </button>
           <div className="flex justify-between items-center mt-2">
             <div className="font-bold text-lg text-primary mr-4">{money_format(price)}</div>
