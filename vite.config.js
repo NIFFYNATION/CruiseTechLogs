@@ -6,6 +6,14 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   plugins: [react(),
     tailwindcss(),
+    viteStaticCopy({
+      targets: [
+        {
+          src: '.htaccess',
+          dest: '.'  // This copies .htaccess to the root of dist
+        }
+      ]
+    })
   ],
   
 })

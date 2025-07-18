@@ -455,17 +455,18 @@ const BuyAccountPage = () => {
             <span className="text-xs text-text-secondary mt-1 sm:mt-0 ">
               Platform - <span className="text-primary font-semibold">{usedPlatform.name}</span>
             </span>
-            {user?.stage && !calculateDiscount.isEligible && (
-              <span className="block w-full sm:inline text-xs text-orange-600 font-medium mt-2 sm:mt-0">
-                Add {Math.max(0, (Number(user.stage.no_order) || 0) - (quantity > 0 ? quantity : cart.length))} more for {user.stage.discount || 0}{user.stage.discount_type === "percentage" ? "%" : ""} discount
-              </span>
-            )}
+            
           </div>
         </div>
       </div>
     </div>
 
     <div className="bg-background shadow-xl px-0 sm:px-6 lg:px-8 py-4 sm:py-6 rounded-lg min-h-screen">
+    {user?.stage && !calculateDiscount.isEligible && (
+              <span className="ms-6 block w-full sm:inline text-xs text-orange-600 font-medium mt-2 sm:mt-0">
+                Add {Math.max(0, (Number(user.stage.no_order) || 0) - (quantity > 0 ? quantity : cart.length))} more for {user.stage.discount || 0}{user.stage.discount_type === "percentage" ? "%" : ""} discount
+              </span>
+            )}
       {/* Cart/Quantity Section */}
       <div className="bg-white p-6 py-0 border-b border-bgLayout">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-4">
