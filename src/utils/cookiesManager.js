@@ -4,8 +4,10 @@ const cookiesManager = {
   // --- User Token ---
   setToken: (token) => {
     if (token) {
-      localStorage.setItem('authToken', token);
-      document.cookie = `authToken=${token}; path=/;`;
+      // If token is an object, store token.token; else store as is
+      const tokenValue = typeof token === 'object' && token.token ? token.token : token;
+      localStorage.setItem('authToken', tokenValue);
+      document.cookie = `authToken=${tokenValue}; path=/;`;
     }
   },
   getToken: () => {

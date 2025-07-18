@@ -54,19 +54,18 @@ const Login = () => {
       localStorage.setItem('authToken', response.data.token.token);
       localStorage.setItem('userData', JSON.stringify(response.data));
 
-      // Fetch latest user details and update context
-      const userProfile = await fetchUserDetails();
+      // Set user context from new userData
       setUser({
-        name: (userProfile?.first_name && userProfile?.last_name)
-          ? `${userProfile.first_name} ${userProfile.last_name}`
-          : (userProfile?.fullName || 'User'),
-        email: userProfile?.email || '',
-        avatar: userProfile?.profile_image
-          ? userProfile.profile_image
-          : (userProfile?.avatar || '/icons/female.svg'),
-        stage: userProfile?.stage || { name: 'Level 1' },
-        percentage: typeof userProfile?.percentage === 'number' ? userProfile.percentage : 0,
-        ...userProfile,
+        name: (response.data.first_name && response.data.last_name)
+          ? `${response.data.first_name} ${response.data.last_name}`
+          : (response.data.fullName || 'User'),
+        email: response.data.email || '',
+        avatar: response.data.profile_image
+          ? response.data.profile_image
+          : (response.data.avatar || '/icons/female.svg'),
+        stage: response.data.stage || { name: 'Level 1' },
+        percentage: typeof response.data.percentage === 'number' ? response.data.percentage : 0,
+        ...response.data,
       });
 
       // Redirect to dashboard

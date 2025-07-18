@@ -14,6 +14,11 @@ export const signupController = async (formData) => {
       password: btoa(password), // Encode password in Base64
       confirm_password: btoa(confirmPassword), // Encode confirm password in Base64
     });
+    // Save full user data and token if present
+    if (response.data && response.data.token && response.data.ID) {
+      localStorage.setItem('authToken', response.data.token.token);
+      localStorage.setItem('userData', JSON.stringify(response.data));
+    }
     return response; // Return API response
   } catch (error) {
     throw new Error(error.message); // Propagate error
@@ -26,8 +31,9 @@ export const loginController = async (credentials) => {
       email: credentials.email,
       password: btoa(credentials.password), // Encode password in Base64
     });
-    localStorage.setItem('authToken', response.data.token.token); // Store token in localStorage
-    await fetchUserDetails(); // Fetch and store user details
+    // Save full user data and token
+    localStorage.setItem('authToken', response.data.token.token);
+    localStorage.setItem('userData', JSON.stringify(response.data));
     return response; // Return API response
   } catch (error) {
     throw new Error(error.message); // Propagate error

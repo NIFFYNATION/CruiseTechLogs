@@ -21,27 +21,14 @@ export const isUserLoggedIn = () => {
 export const getUserData = () => {
   const userData = localStorage.getItem('userData');
   if (!userData) return defaultUser; // Return default user if no data
-
-  const parsedData = JSON.parse(userData);
-
-  const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-
-  // Transform the response to match the format used in the code
-  return {
-    name: `${capitalize(parsedData.first_name || 'Unknown')} ${capitalize(parsedData.last_name || '')}`.trim(),
-    email: parsedData.email || 'No email provided',
-    avatar: parsedData.profile_image || '/icons/female.svg', // Default avatar
-    level: parsedData.level || 1, // Default level
-    progress: parsedData.progress || 10, // Default progress
-  };
+  return JSON.parse(userData);
 };
 
 export const isTokenExpired = () => {
   const userData = getUserData();
   if (!userData || !userData.token) return true; // If no user data or token, consider expired
-
   const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
-  return currentTime > userData.token.expiry_date; // Compare current time with token expiry
+  return currentTime > (userData.token.expiry_date || 0); // Compare current time with token expiry
 };
 
 export const logoutUser = async () => {
@@ -66,15 +53,15 @@ export const logoutUser = async () => {
 
 export const refreshToken = async () => {
   const userData = getUserData();
-  if (!userData || !userData.token) {
+  if (!userData || !userData.ID || !userData.token) {
     console.error('No user data or token available for refresh.');
     return;
   }
-
   try {
-    const refreshedToken = await refreshUserToken(userData.token.token); // Call userService
+    const refreshedToken = await refreshUserToken(userData.ID); // Pass userID
     userData.token = refreshedToken; // Update token in userData
     localStorage.setItem('userData', JSON.stringify(userData)); // Save updated userData
+    localStorage.setItem('authToken', refreshedToken.token); // Update authToken for axios
   } catch (error) {
     // console.error('Error refreshing token:', error.message);
   }
@@ -93,8 +80,19 @@ export const getUserEmail = () => {
 export const fetchUserDetails = async () => {
   try {
     const userProfile = await fetchUserProfile(); // Call userService
-    localStorage.setItem('userData', JSON.stringify(userProfile)); // Update localStorage
-    return userProfile;
+    // Merge with existing userData to preserve token
+    const existing = localStorage.getItem('userData');
+    let merged = userProfile;
+    if (existing) {
+      try {
+        const prev = JSON.parse(existing);
+        merged = { ...prev, ...userProfile, token: prev.token };
+      } catch {
+        merged = userProfile;
+      }
+    }
+    localStorage.setItem('userData', JSON.stringify(merged)); // Update localStorage
+    return merged;
   } catch (error) {
     console.error('Error fetching user details:', error.message);
     return defaultUser; // Return default user on error

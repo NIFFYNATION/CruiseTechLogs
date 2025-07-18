@@ -26,5 +26,6 @@ export const API_URLS = {
   FORGET_PASSWORD: `${API_BASE_URL}/auth/forgetpassword`,
   RESET_PASSWORD: `${API_BASE_URL}/auth/resetpassword`,
   LOGOUT: `${API_BASE_URL}/auth/logout`,
+  REFRESH_TOKEN: `${API_BASE_URL}/auth/refresh`,
   // Add other endpoints as needed
 };

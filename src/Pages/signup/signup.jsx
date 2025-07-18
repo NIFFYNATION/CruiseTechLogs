@@ -44,6 +44,22 @@ const Signup = () => {
     try {
       const response = await signupController(formData); // Delegate logic to controller
       setSuccessMessage(response.message);
+      if (response.data && response.data.token && response.data.ID) {
+        setUser({
+          name: (response.data.first_name && response.data.last_name)
+            ? `${response.data.first_name} ${response.data.last_name}`
+            : (response.data.fullName || 'User'),
+          email: response.data.email || '',
+          avatar: response.data.profile_image
+            ? response.data.profile_image
+            : (response.data.avatar || '/icons/female.svg'),
+          stage: response.data.stage || { name: 'Level 1' },
+          percentage: typeof response.data.percentage === 'number' ? response.data.percentage : 0,
+          ...response.data,
+        });
+        navigate('/dashboard');
+        return;
+      }
       localStorage.setItem('authToken', response.data.token.token); // Store token
       // console.log('Signup successful:', response);
       setTimeout(() => navigate('/dashboard'), 2000); // Redirect
