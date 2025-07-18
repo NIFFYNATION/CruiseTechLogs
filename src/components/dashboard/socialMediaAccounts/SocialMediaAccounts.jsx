@@ -58,6 +58,21 @@ const SocialMediaAccounts = () => {
     }
   }, [selectedPlatform, selectedCategory]);
 
+  useEffect(() => {
+    if (
+      selectedCategory &&
+      Array.isArray(platforms)
+    ) {
+      if (platforms.length === 1) {
+        setSelectedPlatform(platforms[0]);
+        setPlatformModalOpen(false);
+      } else {
+        setSelectedPlatform(null); // reset platform if multiple
+        setPlatformModalOpen(true); // ensure modal opens for multiple
+      }
+    }
+  }, [platforms, selectedCategory]);
+
   // Handler to fetch total in stock for an accountID
   const handleGetTotalStock = async (accountID) => {
     return await fetchTotalInStock(accountID);
@@ -187,7 +202,7 @@ const SocialMediaAccounts = () => {
         onSelect={(category) => {
           setSelectedCategory(category);
           setCategoryModalOpen(false);
-          setPlatformModalOpen(true);
+          setPlatformModalOpen(true); // always open
         }}
         loading={categoriesLoading}
       />

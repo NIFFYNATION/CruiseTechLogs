@@ -2,35 +2,7 @@ import React from 'react';
 import { IoCalendarOutline } from 'react-icons/io5';
 
 const TransactionsTable = ({ transactions = [] }) => {
-  const defaultTransactions = [
-    {
-      id: 1,
-      title: "Wallet Topup",
-      date: "10 Mar, 2025 at 5:43PM",
-      status: "Successful",
-      paymentMethod: "Credit Card",
-      cardNumber: "**** 8989",
-      amount: "1,200"
-    },
-    {
-      id: 2,
-      title: "Wallet Topup",
-      date: "10 Mar, 2025 at 5:43PM",
-      status: "Failed",
-      paymentMethod: "Credit Card",
-      cardNumber: "**** 8989",
-      amount: "1,200"
-    },
-    {
-      id: 3,
-      title: "Wallet Topup",
-      date: "10 Mar, 2025 at 5:43PM",
-      status: "Successful",
-      paymentMethod: "Credit Card",
-      cardNumber: "**** 8989",
-      amount: "1,200"
-    }
-  ];
+  const defaultTransactions = [];
 
   const displayTransactions = transactions.length > 0 ? transactions : defaultTransactions;
 

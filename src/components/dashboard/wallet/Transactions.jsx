@@ -146,7 +146,7 @@ const Transactions = ({
                         </button>
                       </td>
                       <td className="py-2 px-1">
-                        <span className="font-semibold text-text-primary">{tx.trans_for}</span>
+                        <span className="font-semibold text-text-primary">{(tx.trans_for == 'orders-refrund') ? 'orders-refund' : tx.trans_for}</span>
                         <p className="text-xs text-tertiary">{tx.date}</p>
                       </td>
                       <td

@@ -163,7 +163,7 @@ const BuyNumbers = () => {
             />
             <div className="items-center">
               <h3 className="font-medium">
-                {selectedNumberType?.label || "Short Term Number 1 (USA)"}
+                {selectedNumberType?.label || "Select a category"}
               </h3>
               <p className={`text-xs ${selectedNumberType?.duration ? "text-quinary" : "text-text-grey"}`}>
                 {selectedNumberType?.duration
@@ -216,22 +216,23 @@ const BuyNumbers = () => {
       </div>
 
       {/* Main Card */}
-      <div className="bg-background rounded-lg  p-4 md:p-8">
-        {/* Search and View Rented Numbers */}
-        {(services.length > 0 || search) && (
-          <div className="relative w-full mb-2">
-            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-text-grey" size={20} />
-            <input
-              type="text"
-              placeholder="Search Service"
-              className="w-full font-semibold border border-border-grey rounded-sm pl-10 pr-4 py-2.5 focus:outline-none"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-        )}
+      {selectedNumberType ? (
+        <div className="bg-background rounded-lg  p-4 md:p-8">
+          {/* Search and View Rented Numbers */}
+          {(services.length > 0 || search) && (
+            <div className="relative w-full mb-2">
+              <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-text-grey" size={20} />
+              <input
+                type="text"
+                placeholder="Search Service"
+                className="w-full font-semibold border border-border-grey rounded-sm pl-10 pr-4 py-2.5 focus:outline-none"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+          )}
 
-        {/* Title */}
+          {/* Title */}
        {/* <div className="flex flex-col md:flex-row justify-between items-start md:items-center ">
        <h3 className="text-lg font-semibold my-8">Short Term Number 1 (USA)</h3>
         <button className="bg-quinary hover:bg-quaternary text-background rounded-full px-6 py-2.5 font-semibold transition-colors">
@@ -239,8 +240,8 @@ const BuyNumbers = () => {
           </button>
        </div> */}
 
-        {/* Tabs */}
-        {/* <div className="flex items-center border-b border-border-grey my-6">
+          {/* Tabs */}
+          {/* <div className="flex items-center border-b border-border-grey my-6">
           <button
             className={`py-2 px-4 font-semibold transition border-b-3 ${
               activeTab === "All Accounts"
@@ -263,9 +264,9 @@ const BuyNumbers = () => {
           </button>
         </div> */}
 
-        {/* Notice */}
-        <div className="hidden md:flex justify-between items-center bg-quaternary-light rounded-lg px-4 py-3 my-8">
-         <div className="grid md:flex gap-2 items-center">
+          {/* Notice */}
+          {/* <div className="hidden md:flex justify-between items-center bg-quaternary-light rounded-lg px-4 py-3 my-8 d-none">
+         <div className="grid md:flex gap-2 items-center d-none">
          <span className="font-bold">
             Note that the price are not fixed.
           </span>
@@ -276,79 +277,94 @@ const BuyNumbers = () => {
           <button className="text-xl text-[#FF6B00] font-bold px-2">
             <img src="/icons/cancel-outline.svg" alt="cancel" />
           </button>
-        </div>
+        </div> */}
 
-        {/* Accounts Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {servicesLoading ? (
-            Array.from({ length: 3 }).map((_, i) => <SkeletonNumberCard key={i} />)
-          ) : filteredServices.length === 0 ? (
-            <div className="col-span-3 flex flex-col items-center justify-center py-12 text-gray-400">
-              <FiBox className="w-16 h-16 mb-4 text-quinary" />
-              <div className="text-md font-semibold text-text-secondary mb-2">No services found.</div>
-              {search ? (
-                <div className="text-sm text-text-grey text-center">
-                  No services match <span className="font-semibold text-quinary">"{search}"</span>.<br />
-                  Try a different search term or clear your search.
-                </div>
-              ) : (
-                <div className="text-sm text-text-grey text-center">
-                  Try adjusting your filters or check back later for new services.
-                </div>
-              )}
-            </div>
-          ) : (
-            filteredServices.map((service, idx) => {
-              // JS logic for icon domain
-              const name = service.name?.split(/[ /]+/)[0] || "";
-              const nameLower = name.trim().toLowerCase();
-              let domain = `${nameLower}.com`;
-              if (
-                nameLower === "telegram" ||
-                nameLower === "signal"
-              ) {
-                domain = `${nameLower}.org`;
-              }
-              const iconUrl = `https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://${domain}&size=90`;
-
-              // Format cost as currency (Nigerian Naira)
-              const formattedCost = typeof service.cost === "number"
-                ? service.cost.toLocaleString("en-NG", { style: "currency", currency: "NGN" })
-                : `₦${service.cost ? String(service.cost).replace(/^₦/, '').replace(/^N/, '').trim() : "0.00"}`;
-
-              const isSaved = savedServiceIds.includes(service.id || service.ID);
-
-              return (
-                <div
-                  key={idx}
-                  onClick={() => handleBuyClick(service)}
-                  className="flex items-center rounded-xl shadow-sm px-4 py-4 mb-0 border-b-1 border-[#FFDE59] relative bg-gradient-to-tl from-rose-50/50 to-white-50"
-                >
-                  <img src={iconUrl} alt={service.name} className="w-6 mr-4" />
-                  <div className="flex-1">
-                    <div className="font-semibold">{service.name}</div>
-                    <h3 className="text-primary font-semibold">{formattedCost}</h3>
+          {/* Accounts Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {servicesLoading ? (
+              Array.from({ length: 3 }).map((_, i) => <SkeletonNumberCard key={i} />)
+            ) : filteredServices.length === 0 ? (
+              <div className="col-span-3 flex flex-col items-center justify-center py-12 text-gray-400">
+                <FiBox className="w-16 h-16 mb-4 text-quinary" />
+                <div className="text-md font-semibold text-text-secondary mb-2">No services found.</div>
+                {search ? (
+                  <div className="text-sm text-text-grey text-center">
+                    No services match <span className="font-semibold text-quinary">"{search}"</span>.<br />
+                    Try a different search term or clear your search.
                   </div>
-                  <button
-                    className="ml-2"
-                    onClick={e => {
-                      e.stopPropagation(); // Prevent triggering buy
-                      toggleBookmark(service.id || service.ID);
-                    }}
-                    aria-label={isSaved ? "Unsave service" : "Save service"}
+                ) : (
+                  <div className="text-sm text-text-grey text-center">
+                    Try adjusting your filters or check back later for new services.
+                  </div>
+                )}
+              </div>
+            ) : (
+              filteredServices.map((service, idx) => {
+                // JS logic for icon domain
+                const name = service.name?.split(/[ /]+/)[0] || "";
+                const nameLower = name.trim().toLowerCase();
+                let domain = `${nameLower}.com`;
+                if (
+                  nameLower === "telegram" ||
+                  nameLower === "signal"
+                ) {
+                  domain = `${nameLower}.org`;
+                }
+                const iconUrl = `https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://${domain}&size=90`;
+
+                // Format cost as currency (Nigerian Naira)
+                const formattedCost = typeof service.cost === "number"
+                  ? service.cost.toLocaleString("en-NG", { style: "currency", currency: "NGN" })
+                  : `₦${service.cost ? String(service.cost).replace(/^₦/, '').replace(/^N/, '').trim() : "0.00"}`;
+
+                const isSaved = savedServiceIds.includes(service.id || service.ID);
+
+                return (
+                  <div
+                    key={idx}
+                    onClick={() => handleBuyClick(service)}
+                    className="flex items-center rounded-xl shadow-sm px-4 py-4 mb-0 border-b-1 border-[#FFDE59] relative bg-gradient-to-tl from-rose-50/50 to-white-50"
                   >
-                    {isSaved ? (
-                      <FaBookmark className="w-5 h-5 text-[#FF6B00] fill-[#FF6B00]" />
-                    ) : (
-                      <FiBookmark className="w-5 h-5 text-[#FF6B00]" />
-                    )}
-                  </button>
-                </div>
-              );
-            })
-          )}
+                    <img src={iconUrl} alt={service.name} className="w-6 mr-4" />
+                    <div className="flex-1">
+                      <div className="font-semibold">{service.name}</div>
+                      <h3 className="text-primary font-semibold">{formattedCost}</h3>
+                    </div>
+                    <button
+                      className="ml-2"
+                      onClick={e => {
+                        e.stopPropagation(); // Prevent triggering buy
+                        toggleBookmark(service.id || service.ID);
+                      }}
+                      aria-label={isSaved ? "Unsave service" : "Save service"}
+                    >
+                      {isSaved ? (
+                        <FaBookmark className="w-5 h-5 text-[#FF6B00] fill-[#FF6B00]" />
+                      ) : (
+                        <FiBookmark className="w-5 h-5 text-[#FF6B00]" />
+                      )}
+                    </button>
+                  </div>
+                );
+              })
+            )}
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center py-16">
+          <img src="/icons/filter.svg" alt="Choose Category" className="w-16 h-16 mb-4" />
+          <h4 className="text-lg font-semibold text-text-secondary mb-2">Select a category to see available number services</h4>
+          <p className="text-sm text-text-grey mb-4 text-center">
+            Please select a <span className="font-semibold text-quinary">category</span> to view and purchase number services.
+          </p>
+          <button
+            className="bg-quinary hover:bg-quaternary text-white font-medium px-4 py-2 rounded-full text-sm transition"
+            onClick={() => setNumberTypeModalOpen(true)}
+          >
+            Choose Category
+          </button>
+        </div>
+      )}
 
       {/* Number Type Select Modal */}
       <NumberTypeSelectModal

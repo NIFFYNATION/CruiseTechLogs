@@ -31,7 +31,11 @@ const CartQuantityControl = ({
         max={available}
         value={quantity}
         onChange={e => {
-          const val = Number(e.target.value);
+          let val = Number(e.target.value);
+          // If the current value is 0 and user types a digit, overwrite the 0
+          if (quantity === 0 && e.target.value.length === 1 && e.target.value !== "0") {
+            val = Number(e.target.value);
+          }
           if (onChange) {
             onChange(val);
           } else {
