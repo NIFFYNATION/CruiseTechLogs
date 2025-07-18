@@ -456,7 +456,7 @@ const BuyAccountPage = () => {
               Platform - <span className="text-primary font-semibold">{usedPlatform.name}</span>
             </span>
             {user?.stage && !calculateDiscount.isEligible && (
-              <span className="block sm:inline text-xs text-orange-600 font-medium">
+              <span className="block w-full sm:inline text-xs text-orange-600 font-medium mt-2 sm:mt-0">
                 Add {Math.max(0, (Number(user.stage.no_order) || 0) - (quantity > 0 ? quantity : cart.length))} more for {user.stage.discount || 0}{user.stage.discount_type === "percentage" ? "%" : ""} discount
               </span>
             )}

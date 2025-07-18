@@ -2,20 +2,44 @@ import axiosInstance from '../utils/axiosInstance'; // Use centralized Axios ins
 import { API_URLS, API_BASE_URL } from '../utils/apiUrls';
 import cookiesManager from '../utils/cookiesManager'; // <-- Add this import
 
-export const refreshUserToken = async (currentToken) => {
+export const refreshUserToken = async (userID) => {
   try {
-    // Use token from cookiesManager if not provided
-    const token = currentToken || cookiesManager.getToken();
-    const response = await axiosInstance.post('/auth/refresh-token', { token });
-    if (response.status !== 200) {
+    if (!userID) throw new Error('User ID is required for token refresh');
+    // Get refresh_token from userData
+    const userDataRaw = localStorage.getItem('userData');
+    let refreshToken = null;
+    if (userDataRaw) {
+      try {
+        const userData = JSON.parse(userDataRaw);
+        refreshToken = userData.token?.refresh_token;
+      } catch {}
+    }
+    if (!refreshToken) throw new Error('No refresh token found');
+    const response = await axiosInstance.get(
+      `${API_URLS.REFRESH_TOKEN}?userID=${userID}`,
+      {
+        headers: {
+          Authorization: `Bearer ${refreshToken}`,
+        },
+      }
+    );
+    if (response.status !== 200 || response.data?.code !== 200) {
       const message = response.data?.message || 'Failed to refresh token';
-      console.warn(`Token Refresh Warning [${response.status}]: ${message}`);
       throw new Error(message);
     }
-    cookiesManager.setToken(response.data.token); // Cache refreshed token
-    return response.data.token; // Return refreshed token
+    // Response: { code, status, message, data: { token, refresh_token, expires_in, refresh_expires_in } }
+    const { token, refresh_token, expires_in, refresh_expires_in } = response.data.data;
+    // Compose token object for userData
+    const refreshedToken = {
+      token,
+      refresh_token,
+      expiry_date: Math.floor(Date.now() / 1000) + (expires_in || 3600),
+      refresh_expiry: Math.floor(Date.now() / 1000) + (refresh_expires_in || 604800),
+    };
+    localStorage.setItem('authToken', token);
+    return refreshedToken;
   } catch (error) {
-    console.error(`Token Refresh Error [${error.status}]: ${error.message}`);
+    console.error('Token Refresh Error:', error.message);
     throw new Error(error.message);
   }
 };
