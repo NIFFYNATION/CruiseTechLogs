@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { fetchOrders } from '../../../services/socialAccountService';
 import Toast from '../../common/Toast';
 import { SkeletonTableRow } from "../../common/Skeletons";
+import { formatDate, money_format } from '../../../utils/formatUtils';
 
 const ManageOrders = () => {
   const [orders, setOrders] = useState([]);
@@ -198,21 +199,84 @@ const ManageOrders = () => {
         </div>
         {/* Top Controls (optional, not used for API) */}
         {/* <TopControls page={page} setPage={setPage} /> */}
-        {/* Table */}
+        {/* Mobile Card Layout */}
+        <div className="block lg:hidden" ref={tableRef} style={{ maxHeight: '70vh', minHeight: 200, overflowY: 'auto' }}>
+          {isLoading ? (
+            <div className="space-y-4">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="bg-secondary-light rounded-lg p-4 animate-pulse">
+                  <div className="h-4 bg-secondary rounded w-3/4 mb-2"></div>
+                  <div className="h-3 bg-secondary rounded w-1/2 mb-2"></div>
+                  <div className="h-3 bg-secondary rounded w-1/4"></div>
+                </div>
+              ))}
+            </div>
+          ) : tableData.length === 0 ? (
+            <div className="text-center py-8 text-tertiary">No orders found.</div>
+          ) : (
+            <div className="space-y-3">
+              {tableData.map((order, idx) => (
+                <div
+                  key={order.ID || idx}
+                  className="bg-white border border-secondary rounded-lg p-4 hover:shadow-md transition-all cursor-pointer"
+                  onClick={() => navigate(`/dashboard/accounts/order/${order.ID}`)}
+                >
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-primary text-sm truncate" title={order.title}>
+                        {order.title}
+                      </h3>
+                      <p className="text-xs text-tertiary mt-1">Order ID: {order.ID}</p>
+                    </div>
+                    <button
+                      className="bg-quaternary rounded-lg p-2 hover:bg-quaternary/90 transition ml-3 flex-shrink-0"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/dashboard/accounts/order/${order.ID}`);
+                      }}
+                      aria-label="View Order"
+                    >
+                      <img src="/icons/eye-bold.svg" alt="View" className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4 text-sm">
+                    <div>
+                      <p className="text-xs text-tertiary mb-1">Amount</p>
+                      <p className="font-semibold text-quaternary">{money_format(order.amount)}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-tertiary mb-1">Quantity</p>
+                      <p className="font-medium">{order.no_of_orders}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-tertiary mb-1">Date</p>
+                      <div className="font-medium">
+                        <p className="text-sm">{formatDate(order.date).date}</p>
+                        <p className="text-xs text-tertiary">{formatDate(order.date).time}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Desktop Table Layout */}
         <div
-          className="max-w-[320px] sm:max-w-[650px] lg:max-w-full w-full overflow-x-auto"
+          className="hidden lg:block w-full overflow-x-auto"
           ref={tableRef}
           style={{ maxHeight: '70vh', minHeight: 200, overflowY: 'auto' }}
         >
-          <table className="min-w-[900px] overflow-x-auto w-full text-left">
+          <table className="w-full text-left">
             <thead className="sticky top-0 z-10 bg-background">
               <tr className="border-b border-secondary">
-                <th className="py-2 px-1 sm:py-3 sm:px-2 text-xs sm:text-sm font-semibold text-tertiary w-10 sm:w-12"></th>
-                <th className="py-2 px-1 sm:py-3 sm:px-2 text-xs sm:text-sm font-semibold text-tertiary hidden sm:table-cell">Order ID</th>
-                <th className="py-2 px-1 sm:py-3 sm:px-2 text-xs sm:text-sm font-semibold text-tertiary">Title</th>
-                <th className="py-2 px-1 sm:py-3 sm:px-2 text-xs sm:text-sm font-semibold text-tertiary">Amount</th>
-                <th className="py-2 px-1 sm:py-3 sm:px-2 text-xs sm:text-sm font-semibold text-tertiary">Qty.</th>
-                <th className="py-2 px-1 sm:py-3 sm:px-2 text-xs sm:text-sm font-semibold text-tertiary">Date</th>
+                <th className="py-3 px-4 text-sm font-semibold text-tertiary w-16">Action</th>
+                <th className="py-3 px-4 text-sm font-semibold text-tertiary">Order ID</th>
+                <th className="py-3 px-4 text-sm font-semibold text-tertiary">Title</th>
+                <th className="py-3 px-4 text-sm font-semibold text-tertiary">Amount</th>
+                <th className="py-3 px-4 text-sm font-semibold text-tertiary">Quantity</th>
+                <th className="py-3 px-4 text-sm font-semibold text-tertiary">Date</th>
               </tr>
             </thead>
             <tbody>
@@ -224,51 +288,61 @@ const ManageOrders = () => {
                 </>
               ) : tableData.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-6 sm:py-8 text-center text-tertiary">No orders found.</td>
+                  <td colSpan={6} className="py-8 text-center text-tertiary">No orders found.</td>
                 </tr>
               ) : (
                 tableData.map((order, idx) => (
-                  <tr key={order.ID || idx} className="border-b border-secondary hover:bg-secondary-light transition">
-                    <td className="py-2 px-1 sm:py-4 sm:px-2 text-center align-middle">
+                  <tr 
+                    key={order.ID || idx} 
+                    className="border-b border-secondary hover:bg-secondary-light transition cursor-pointer"
+                    onClick={() => navigate(`/dashboard/accounts/order/${order.ID}`)}
+                  >
+                    <td className="py-4 px-4 text-center">
                       <button
-                        className="bg-quaternary rounded-lg p-2 hover:bg-quaternary/90 transition w-full sm:w-auto"
-                        onClick={() => navigate(`/dashboard/accounts/order/${order.ID}`)}
+                        className="bg-quaternary rounded-lg p-2 hover:bg-quaternary/90 transition"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/dashboard/accounts/order/${order.ID}`);
+                        }}
                         aria-label="View Order"
                       >
-                        <img src="/icons/eye-bold.svg" alt="View" className="w-5 h-5 mx-auto" />
+                        <img src="/icons/eye-bold.svg" alt="View" className="w-5 h-5" />
                       </button>
                     </td>
-                    <td className="py-2 px-1 sm:py-4 sm:px-2 text-[13px] sm:text-[15px] hidden sm:table-cell">{order.ID}</td>
-                    <td className="py-2 px-1 sm:py-4 sm:px-2 font-semibold text-primary hover:underline cursor-pointer max-w-[120px] sm:max-w-xs truncate">
+                    <td className="py-4 px-4 text-sm font-medium">{order.ID}</td>
+                    <td className="py-4 px-4">
                       <span
-                        onClick={() => navigate(`/dashboard/accounts/order/${order.ID}`)}
-                        className="hover:underline cursor-pointer block truncate"
-                        tabIndex={0}
-                        role="button"
-                        style={{ outline: 'none' }}
+                        className="font-semibold text-primary hover:underline cursor-pointer block"
                         title={order.title}
                       >
                         {order.title}
                       </span>
                     </td>
-                    <td className="py-2 px-1 sm:py-4 sm:px-2 text-quaternary font-semibold text-[13px] sm:text-[15px]">₦ {order.amount}</td>
-                    <td className="py-2 px-1 sm:py-4 sm:px-2 text-[13px] sm:text-[15px]">{order.no_of_orders}</td>
-                    <td className="py-2 px-1 sm:py-4 sm:px-2 text-[13px] sm:text-[15px]">{order.date}</td>
+                    <td className="py-4 px-4 text-quaternary font-semibold">{money_format(order.amount)}</td>
+                    <td className="py-4 px-4 font-medium">{order.no_of_orders}</td>
+                    <td className="py-4 px-4">
+                      <div className="font-medium">
+                        <p className="text-sm">{formatDate(order.date).date}</p>
+                        <p className="text-xs text-tertiary">{formatDate(order.date).time}</p>
+                      </div>
+                    </td>
                   </tr>
                 ))
-              )}
-            </tbody>
-          </table>
-          {isLoadingMore && (
-            <div className="flex justify-center items-center py-4">
-              <svg className="animate-spin h-6 w-6 text-quinary" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-              </svg>
-              <span className="ml-2 text-quinary font-semibold">Loading more...</span>
-            </div>
-          )}
+               )}
+             </tbody>
+           </table>
         </div>
+        
+        {/* Loading More Indicator */}
+        {isLoadingMore && (
+          <div className="flex justify-center items-center py-4">
+            <svg className="animate-spin h-6 w-6 text-quinary" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+            </svg>
+            <span className="ml-2 text-quinary font-semibold">Loading more...</span>
+          </div>
+        )}
       </div>
     </div>
   );

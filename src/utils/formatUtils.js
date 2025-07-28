@@ -49,7 +49,7 @@ export function htmlPreviewText(html, maxLength = 80) {
 export function linkifyHtml(html, colorClass = 'text-primary') {
   if (!html) return '';
   // Regex for URLs (http, https, www)
-  const urlRegex = /((https?:\/\/|www\.)[\w\-._~:/?#[\]@!$&'()*+,;=%]+)(?![^<]*>|[^\[]*\])/gi;
+  const urlRegex = /((https?:\/\/|www\.)[\w\-._~:\/?#\[\]@!$&'()*+,;=%]+)(?![^<]*>|[^\[]*\])/gi;
   // Replace URLs with anchor tags
   return html.replace(urlRegex, (url) => {
     let href = url;
@@ -58,4 +58,26 @@ export function linkifyHtml(html, colorClass = 'text-primary') {
     }
     return `<a href="${href}" class="${colorClass}" target="_blank" rel="noopener noreferrer">${url}</a>`;
   });
+}
+
+// Format date string into readable date and time
+export function formatDate(dateString) {
+  try {
+    const date = new Date(dateString);
+    const options = { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric'
+    };
+    const timeOptions = {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    };
+    const formattedDate = date.toLocaleDateString('en-US', options);
+    const formattedTime = date.toLocaleTimeString('en-US', timeOptions);
+    return { date: formattedDate, time: formattedTime };
+  } catch (error) {
+    return { date: dateString, time: '' };
+  }
 }

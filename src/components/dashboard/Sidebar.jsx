@@ -166,7 +166,7 @@ const Sidebar = () => {
     { imageSrc: "/icons/manage-numbers.svg", text: "Manage Numbers", to: "/dashboard/manage-numbers" },
     { imageSrc: "/icons/buy-number.svg", text: "Buy Number", to: "/dashboard/buy-numbers" },
     { imageSrc: "/icons/social-media.svg", text: "Buy Social Accounts", to: "/dashboard/accounts" },
-    { imageSrc: "/icons/checklist.png", text: "Manage Social Accounts", to: "/dashboard/manage-orders" },
+    { imageSrc: "/icons/checklist.png", text: "Account History", to: "/dashboard/manage-orders" },
   ];
   const transactionsMenu = [
     { imageSrc: "/icons/wallet.svg", text: "Wallet", to: "/dashboard/wallet" },
