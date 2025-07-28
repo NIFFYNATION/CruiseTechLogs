@@ -38,7 +38,7 @@ const ManageOrders = () => {
       .finally(() => setLoading(false));
   }, [searchActive]);
 
-  // Infinite scroll for normal orders
+  // Infinite scroll for normal orders (desktop only)
   const handleScroll = useCallback(() => {
     if (searchActive || loadingMore || loading || !next) return;
     const el = tableRef.current;
@@ -59,18 +59,23 @@ const ManageOrders = () => {
     if (searchActive) return;
     const el = tableRef.current;
     if (!el) return;
-    el.addEventListener('scroll', handleScroll);
-    return () => el.removeEventListener('scroll', handleScroll);
+    // Only add scroll listener for desktop (lg and above)
+    const isDesktop = window.innerWidth >= 1024;
+    if (isDesktop) {
+      el.addEventListener('scroll', handleScroll);
+      return () => el.removeEventListener('scroll', handleScroll);
+    }
   }, [handleScroll, searchActive]);
 
-  // Auto-fetch more if not scrollable after first batch (normal orders)
+  // Auto-fetch more if not scrollable after first batch (desktop only)
   useEffect(() => {
     if (searchActive) return;
     const el = tableRef.current;
     if (!el || loading || loadingMore) return;
     if (orders.length === 0 || !next) return;
-    // Try up to 3 times to avoid infinite loop
-    if (el.scrollHeight <= el.clientHeight + 10 && autoFetchTries.current < 3) {
+    // Only auto-fetch for desktop
+    const isDesktop = window.innerWidth >= 1024;
+    if (isDesktop && el.scrollHeight <= el.clientHeight + 10 && autoFetchTries.current < 3) {
       autoFetchTries.current += 1;
       setLoadingMore(true);
       fetchOrders({ start: next })
@@ -151,7 +156,7 @@ const ManageOrders = () => {
     // eslint-disable-next-line
   }, [search]);
 
-  // Infinite scroll for search results
+  // Infinite scroll for search results (desktop only)
   const handleSearchScroll = useCallback(() => {
     if (!searchActive || searchLoading || !searchNext) return;
     const el = tableRef.current;
@@ -177,18 +182,23 @@ const ManageOrders = () => {
     if (!searchActive) return;
     const el = tableRef.current;
     if (!el) return;
-    el.addEventListener('scroll', handleSearchScroll);
-    return () => el.removeEventListener('scroll', handleSearchScroll);
+    // Only add scroll listener for desktop (lg and above)
+    const isDesktop = window.innerWidth >= 1024;
+    if (isDesktop) {
+      el.addEventListener('scroll', handleSearchScroll);
+      return () => el.removeEventListener('scroll', handleSearchScroll);
+    }
   }, [handleSearchScroll, searchActive]);
 
-  // Auto-fetch more if not scrollable after first batch (search orders)
+  // Auto-fetch more if not scrollable after first batch (desktop only)
   useEffect(() => {
     if (!searchActive) return;
     const el = tableRef.current;
     if (!el || searchLoading) return;
     if (searchOrders.length === 0 || !searchNext) return;
-    // Try up to 3 times to avoid infinite loop
-    if (el.scrollHeight <= el.clientHeight + 10 && autoFetchTries.current < 3) {
+    // Only auto-fetch for desktop
+    const isDesktop = window.innerWidth >= 1024;
+    if (isDesktop && el.scrollHeight <= el.clientHeight + 10 && autoFetchTries.current < 3) {
       autoFetchTries.current += 1;
       setSearchLoading(true);
       
@@ -208,10 +218,40 @@ const ManageOrders = () => {
     }
   }, [searchOrders, searchNext, searchLoading, searchActive, search]);
 
+  // Load more function for mobile
+  const handleLoadMore = () => {
+    if (searchActive) {
+      if (searchLoading || !searchNext) return;
+      setSearchLoading(true);
+      
+      const extractedUrls = processBulkLinks(search);
+      const searchQuery = extractedUrls.length > 1 ? extractedUrls.join(' ') : search;
+      
+      fetchOrders({ start: searchNext, search: searchQuery })
+        .then(({ accounts, next: newNext, error }) => {
+          if (error) setToast({ show: true, message: error, type: 'error' });
+          setSearchOrders(prev => [...prev, ...accounts]);
+          setSearchNext(newNext);
+        })
+        .finally(() => setSearchLoading(false));
+    } else {
+      if (loadingMore || !next) return;
+      setLoadingMore(true);
+      fetchOrders({ start: next })
+        .then(({ accounts, next: newNext, error }) => {
+          if (error) setToast({ show: true, message: error, type: 'error' });
+          setOrders(prev => [...prev, ...accounts]);
+          setNext(newNext);
+        })
+        .finally(() => setLoadingMore(false));
+    }
+  };
+
   // Table data to show
   const tableData = searchActive ? searchOrders : orders;
   const isLoading = searchActive ? searchLoading : loading;
   const isLoadingMore = searchActive ? searchLoading : loadingMore;
+  const hasMore = searchActive ? searchNext : next;
 
   return (
     <div className="p-4 md:p-10">
@@ -248,64 +288,89 @@ const ManageOrders = () => {
         {/* Top Controls (optional, not used for API) */}
         {/* <TopControls page={page} setPage={setPage} /> */}
         {/* Mobile Card Layout */}
-        <div className="block lg:hidden" ref={tableRef} style={{ maxHeight: '70vh', minHeight: 200, overflowY: 'auto' }}>
-          {isLoading ? (
-            <div className="space-y-4">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="bg-secondary-light rounded-lg p-4 animate-pulse">
-                  <div className="h-4 bg-secondary rounded w-3/4 mb-2"></div>
-                  <div className="h-3 bg-secondary rounded w-1/2 mb-2"></div>
-                  <div className="h-3 bg-secondary rounded w-1/4"></div>
-                </div>
-              ))}
-            </div>
-          ) : tableData.length === 0 ? (
-            <div className="text-center py-8 text-tertiary">No orders found.</div>
-          ) : (
-            <div className="space-y-3">
-              {tableData.map((order, idx) => (
-                <div
-                  key={order.ID || idx}
-                  className="bg-white border border-secondary rounded-lg p-4 hover:shadow-md transition-all cursor-pointer"
-                  onClick={() => navigate(`/dashboard/accounts/order/${order.ID}`)}
-                >
-                  <div className="flex justify-between items-start mb-3">
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-primary text-sm truncate" title={order.title}>
-                        {order.title}
-                      </h3>
-                      <p className="text-xs text-tertiary mt-1">Order ID: {order.ID}</p>
-                    </div>
-                    <button
-                      className="bg-quaternary rounded-lg p-2 hover:bg-quaternary/90 transition ml-3 flex-shrink-0"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(`/dashboard/accounts/order/${order.ID}`);
-                      }}
-                      aria-label="View Order"
-                    >
-                      <img src="/icons/eye-bold.svg" alt="View" className="w-4 h-4" />
-                    </button>
+        <div className="block lg:hidden">
+          <div className="space-y-3" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+            {isLoading ? (
+              <div className="space-y-4">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="bg-secondary-light rounded-lg p-4 animate-pulse">
+                    <div className="h-4 bg-secondary rounded w-3/4 mb-2"></div>
+                    <div className="h-3 bg-secondary rounded w-1/2 mb-2"></div>
+                    <div className="h-3 bg-secondary rounded w-1/4"></div>
                   </div>
-                  <div className="grid grid-cols-3 gap-4 text-sm">
-                    <div>
-                      <p className="text-xs text-tertiary mb-1">Amount</p>
-                      <p className="font-semibold text-quaternary">{money_format(order.amount)}</p>
+                ))}
+              </div>
+            ) : tableData.length === 0 ? (
+              <div className="text-center py-8 text-tertiary">No orders found.</div>
+            ) : (
+              <>
+                {tableData.map((order, idx) => (
+                  <div
+                    key={order.ID || idx}
+                    className="bg-white border border-secondary rounded-lg p-4 hover:shadow-md transition-all cursor-pointer"
+                    onClick={() => navigate(`/dashboard/accounts/order/${order.ID}`)}
+                  >
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-primary text-sm truncate" title={order.title}>
+                          {order.title}
+                        </h3>
+                        <p className="text-xs text-tertiary mt-1">Order ID: {order.ID}</p>
+                      </div>
+                      <button
+                        className="bg-quaternary rounded-lg p-2 hover:bg-quaternary/90 transition ml-3 flex-shrink-0"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/dashboard/accounts/order/${order.ID}`);
+                        }}
+                        aria-label="View Order"
+                      >
+                        <img src="/icons/eye-bold.svg" alt="View" className="w-4 h-4" />
+                      </button>
                     </div>
-                    <div>
-                      <p className="text-xs text-tertiary mb-1">Quantity</p>
-                      <p className="font-medium">{order.no_of_orders}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-tertiary mb-1">Date</p>
-                      <div className="font-medium">
-                        <p className="text-sm">{formatDate(order.date).date}</p>
-                        <p className="text-xs text-tertiary">{formatDate(order.date).time}</p>
+                    <div className="grid grid-cols-3 gap-4 text-sm">
+                      <div>
+                        <p className="text-xs text-tertiary mb-1">Amount</p>
+                        <p className="font-semibold text-quaternary">{money_format(order.amount)}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-tertiary mb-1">Quantity</p>
+                        <p className="font-medium">{order.no_of_orders}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-tertiary mb-1">Date</p>
+                        <div className="font-medium">
+                          <p className="text-sm">{formatDate(order.date).date}</p>
+                          <p className="text-xs text-tertiary">{formatDate(order.date).time}</p>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </>
+            )}
+          </div>
+          
+          {/* Load More Button for Mobile */}
+          {!isLoading && tableData.length > 0 && hasMore && (
+            <div className="flex justify-center mt-6">
+              <button
+                onClick={handleLoadMore}
+                disabled={isLoadingMore}
+                className="bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary/90 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {isLoadingMore ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                    </svg>
+                    Loading...
+                  </>
+                ) : (
+                  'Load More'
+                )}
+              </button>
             </div>
           )}
         </div>
@@ -381,16 +446,18 @@ const ManageOrders = () => {
            </table>
         </div>
         
-        {/* Loading More Indicator */}
-        {isLoadingMore && (
-          <div className="flex justify-center items-center py-4">
-            <svg className="animate-spin h-6 w-6 text-quinary" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-            </svg>
-            <span className="ml-2 text-quinary font-semibold">Loading more...</span>
-          </div>
-        )}
+        {/* Loading More Indicator for Desktop */}
+        <div className="hidden lg:block">
+          {isLoadingMore && (
+            <div className="flex justify-center items-center py-4">
+              <svg className="animate-spin h-6 w-6 text-quinary" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+              </svg>
+              <span className="ml-2 text-quinary font-semibold">Loading more...</span>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
