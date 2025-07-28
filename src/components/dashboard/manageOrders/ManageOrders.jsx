@@ -85,6 +85,20 @@ const ManageOrders = () => {
     }
   }, [orders, next, loading, loadingMore, searchActive]);
 
+  // Process bulk links - extract individual URLs from pasted text
+  const processBulkLinks = (text) => {
+    if (!text) return [];
+    
+    // Extract URLs using regex - matches http/https URLs
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const urls = text.match(urlRegex) || [];
+    
+    // Clean up URLs and remove duplicates
+    const cleanUrls = [...new Set(urls.map(url => url.trim()))];
+    
+    return cleanUrls;
+  };
+
   // Debounced search
   useEffect(() => {
     if (searchTimeout.current) clearTimeout(searchTimeout.current);
@@ -101,12 +115,36 @@ const ManageOrders = () => {
     setSearchNext(1);
     // Cancel previous fetch if any
     if (fetchController.current) fetchController.current.abort();
+    
     searchTimeout.current = setTimeout(() => {
-      fetchOrders({ start: 1, search })
+      // Check if search contains multiple URLs (bulk link search)
+      const extractedUrls = processBulkLinks(search);
+      let searchQuery = search;
+      
+      if (extractedUrls.length > 1) {
+        // For bulk link search, join URLs with spaces for API search
+        searchQuery = extractedUrls.join(' ');
+        setToast({ 
+          show: true, 
+          message: `Searching for ${extractedUrls.length} links...`, 
+          type: 'info' 
+        });
+      }
+      
+      fetchOrders({ start: 1, search: searchQuery })
         .then(({ accounts, next, error }) => {
           if (error) setToast({ show: true, message: error, type: 'error' });
           setSearchOrders(accounts);
           setSearchNext(next);
+          
+          // Show results summary for bulk search
+          if (extractedUrls.length > 1) {
+            setToast({ 
+              show: true, 
+              message: `Found ${accounts.length} orders matching the provided links`, 
+              type: 'success' 
+            });
+          }
         })
         .finally(() => setSearchLoading(false));
     }, 400);
@@ -120,7 +158,12 @@ const ManageOrders = () => {
     if (!el) return;
     if (el.scrollHeight - el.scrollTop - el.clientHeight < 200) {
       setSearchLoading(true);
-      fetchOrders({ start: searchNext, search })
+      
+      // Process search query for bulk links consistency
+      const extractedUrls = processBulkLinks(search);
+      const searchQuery = extractedUrls.length > 1 ? extractedUrls.join(' ') : search;
+      
+      fetchOrders({ start: searchNext, search: searchQuery })
         .then(({ accounts, next: newNext, error }) => {
           if (error) setToast({ show: true, message: error, type: 'error' });
           setSearchOrders(prev => [...prev, ...accounts]);
@@ -148,7 +191,12 @@ const ManageOrders = () => {
     if (el.scrollHeight <= el.clientHeight + 10 && autoFetchTries.current < 3) {
       autoFetchTries.current += 1;
       setSearchLoading(true);
-      fetchOrders({ start: searchNext, search })
+      
+      // Process search query for bulk links consistency
+      const extractedUrls = processBulkLinks(search);
+      const searchQuery = extractedUrls.length > 1 ? extractedUrls.join(' ') : search;
+      
+      fetchOrders({ start: searchNext, search: searchQuery })
         .then(({ accounts, next: newNext, error }) => {
           if (error) setToast({ show: true, message: error, type: 'error' });
           setSearchOrders(prev => [...prev, ...accounts]);
@@ -185,7 +233,7 @@ const ManageOrders = () => {
           <div className="relative w-full md:max-w-xs">
             <input
               type="text"
-              placeholder="Search by account title or order id"
+              placeholder="Search by account title, order id, or paste multiple links"
               className="w-full border border-border-grey rounded-lg pl-12 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               value={search}
               onChange={e => setSearch(e.target.value)}
