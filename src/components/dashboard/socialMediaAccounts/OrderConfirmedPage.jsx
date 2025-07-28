@@ -215,6 +215,8 @@ const OrderConfirmedPage = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <div><span className="">Order ID – </span><span className="text-primary font-mono font-bold">{order.ID}</span></div>
           <div><span className="">Account ID – </span><span className="text-primary font-mono font-bold">{order.accountID}</span></div>
+          <div><span className="">Payment ID – </span><span className="text-primary font-bold font-bold">{order.paymentID}</span></div>
+          <div><span className="">UserID – </span><span className="text-primary font-bold font-bold">{order.userID}</span></div>
           <div><span className="">Type of Account – </span><span className="text-primary font-semibold font-bold">{accountTitle}</span></div>
           <div><span className="">Price – </span><span className="text-primary font-bold font-bold">{money_format(order.amount)}</span></div>
           <div><span className="">Quantity – </span><span className="text-primary font-bold font-bold">{order.no_of_orders}</span></div>
@@ -271,7 +273,8 @@ const OrderConfirmedPage = () => {
                 <div className="mb-2 flex flex-col sm:flex-row sm:items-center gap-2 justify-between">
                   <div className="flex items-center gap-2">
                     <span className="font-semibold text-primary text-base">LOGIN {idx + 1} ID</span>
-                    <span className="font-semibold text-text-primary text-base">– {login.username}</span>
+                    {/* <span className="font-semibold text-text-primary text-base">– {login.username}</span> */}
+                    <span className="font-semibold text-text-primary text-base">: {login.ID}</span>
                     {login.preview_link && (
                       <a href={login.preview_link} target="_blank" rel="noopener noreferrer" className="ml-2 text-quinary underline text-xs">View</a>
                     )}
