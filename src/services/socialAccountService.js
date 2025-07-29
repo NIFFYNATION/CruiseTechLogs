@@ -152,7 +152,7 @@ export const buyAccount = async (accountID, payload) => {
   }
 };
 
-export const fetchOrders = async ({ start = 1, search = "" } = {}) => {
+export const fetchOrders = async ({ start = 0, search = "" } = {}) => {
   try {
     let url = `${API_BASE_URL}/account/orders?start=${start}`;
     if (search && search.trim() !== "") {

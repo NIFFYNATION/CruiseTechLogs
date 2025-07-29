@@ -29,7 +29,7 @@ const ManageOrders = () => {
   useEffect(() => {
     if (searchActive) return;
     setLoading(true);
-    fetchOrders({ start: 1 })
+    fetchOrders({ start: 0 })
       .then(({ accounts, next, error }) => {
         if (error) setToast({ show: true, message: error, type: 'error' });
         setOrders(accounts);
@@ -136,7 +136,7 @@ const ManageOrders = () => {
         });
       }
       
-      fetchOrders({ start: 1, search: searchQuery })
+      fetchOrders({ start: 0, search: searchQuery })
         .then(({ accounts, next, error }) => {
           if (error) setToast({ show: true, message: error, type: 'error' });
           setSearchOrders(accounts);
