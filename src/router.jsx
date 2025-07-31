@@ -17,6 +17,8 @@ import ApiPage from './components/dashboard/apiKey/ApiPage';
 import ProfileSettings from './components/dashboard/profileSettings/ProfileSettings';
 import HelpCenter from './components/dashboard/helpCenter/HelpCenter';
 import ManageOrders from './components/dashboard/manageOrders/ManageOrders';
+import DepositPage from './components/dashboard/deposit/DepositPage';
+import PaymentValidation from './components/dashboard/deposit/PaymentValidation';
 import ForgotPassword from './Pages/passwordRecovery/ForgotPassword';
 import ResetPassword from './Pages/login/ResetPassword';
 import ProtectedRoute from './routes/ProtectedRoute';
@@ -71,6 +73,8 @@ export const router = createBrowserRouter([
           { path: 'accounts/buy', element: <BuyAccountPage /> }, // fallback for old links
           { path: 'accounts/order/:id', element: <OrderConfirmedPage /> },
           { path: 'wallet', element: <Wallet /> },
+          { path: 'deposit', element: <DepositPage /> },
+          { path: 'deposit/validate', element: <PaymentValidation /> },
           { path: 'manage-orders', element: <ManageOrders /> },
           { path: 'transactions', element: <Transactions /> },
           { path: 'api-page', element: <ApiPage /> },

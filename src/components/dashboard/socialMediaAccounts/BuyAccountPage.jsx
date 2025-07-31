@@ -63,6 +63,9 @@ const BuyAccountPage = () => {
 
   // State for description expand/collapse
   const [descExpanded, setDescExpanded] = useState(false);
+  
+  // State for selected row highlighting
+  const [selectedRowId, setSelectedRowId] = useState(null);
 
   // --- Memos for description handling ---
   const { fullDescriptionHtml, plainDescription, isLongDescription } = useMemo(() => {
@@ -705,7 +708,13 @@ const BuyAccountPage = () => {
                 </tr>
               ) : (
                 filteredLogins.map((login, i) => (
-                  <tr key={login.ID || i} className="border-b border-border-grey">
+                  <tr 
+                    key={login.ID || i} 
+                    className={`border-b border-border-grey cursor-pointer transition-colors hover:bg-gray-50 ${
+                      selectedRowId === (login.ID || i) ? 'bg-blue-50 border-blue-200' : ''
+                    }`}
+                    onClick={() => setSelectedRowId(selectedRowId === (login.ID || i) ? null : (login.ID || i))}
+                  >
                     <td className="py-4 px-2 sm:px-6 flex items-center gap-2">
                       <img src={usedPlatform.icon} alt={usedPlatform.name} className="w-5 h-5 sm:w-6 sm:h-6" />
                       <span className="font-medium text-text-primary text-xs sm:text-base">{login.username ?? usedPlatform.name}</span>

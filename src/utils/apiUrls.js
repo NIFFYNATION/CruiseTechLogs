@@ -27,5 +27,9 @@ export const API_URLS = {
   RESET_PASSWORD: `${API_BASE_URL}/auth/resetpassword`,
   LOGOUT: `${API_BASE_URL}/auth/logout`,
   REFRESH_TOKEN: `${API_BASE_URL}/auth/refresh`,
+  
+  // deposit 
+  DEPOSIT_INI: `${API_BASE_URL}/deposit/ini`,
+  DEPOSIT_VALIDATE: `${API_BASE_URL}/deposit/validate`,
   // Add other endpoints as needed
 };
