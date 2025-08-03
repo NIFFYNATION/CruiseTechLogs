@@ -69,11 +69,11 @@ const CustomModal = ({
   }, [internalOpen]);
 
 
-    // Hide/show .chatway--trigger-container when modal is open/closed
+    // Hide/show .button__NbFWA when modal is open/closed
     useEffect(() => {
       if (typeof window === 'undefined') return;
       const containers = [
-        ...document.querySelectorAll('.chatway--trigger-container'),
+        ...document.querySelectorAll('.button__NbFWA'),
         ...document.querySelectorAll('.live-chat-container'),
       ];
       if (internalOpen) {
