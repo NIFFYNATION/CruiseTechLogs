@@ -67,7 +67,10 @@ const BuyNumbers = () => {
         ? selectedCountry?.id
         : undefined,
     })
-      .then((data) => setServices(Array.isArray(data) ? data : []))
+      .then((data) => {
+        const servicesArray = Array.isArray(data) ? data : [];
+        setServices(servicesArray);
+      })
       .catch(() => setServices([]))
       .finally(() => setServicesLoading(false));
     // eslint-disable-next-line
@@ -312,29 +315,53 @@ const BuyNumbers = () => {
                 }
                 const iconUrl = `https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://${domain}&size=90`;
 
-                // Format cost as currency (Nigerian Naira)
-                const formattedCost = typeof service.cost === "number"
-                  ? service.cost.toLocaleString("en-NG", { style: "currency", currency: "NGN" })
-                  : `₦${service.cost ? String(service.cost).replace(/^₦/, '').replace(/^N/, '').trim() : "0.00"}`;
+                const serviceId = service.id || service.ID;
+                const isSaved = savedServiceIds.includes(serviceId);
+                const hasMultipleCosts = typeof service.cost === 'object' && service.cost !== null;
 
-                const isSaved = savedServiceIds.includes(service.id || service.ID);
+                // Get price range for display
+                const getPriceRange = (costObj) => {
+                  if (typeof costObj !== 'object' || costObj === null) return null;
+                  const prices = Object.values(costObj);
+                  const minPrice = Math.min(...prices);
+                  const maxPrice = Math.max(...prices);
+                  return { min: minPrice, max: maxPrice };
+                };
+
+                const priceRange = hasMultipleCosts ? getPriceRange(service.cost) : null;
 
                 return (
                   <div
                     key={idx}
                     onClick={() => handleBuyClick(service)}
-                    className="flex items-center rounded-xl shadow-sm px-4 py-4 mb-0 border-b-1 border-[#FFDE59] relative bg-gradient-to-tl from-rose-50/50 to-white-50"
+                    className="flex items-center rounded-xl shadow-sm px-4 py-4 mb-0 border-b-1 border-[#FFDE59] relative bg-gradient-to-tl from-rose-50/50 to-white-50 hover:shadow-md transition-all cursor-pointer"
                   >
                     <img src={iconUrl} alt={service.name} className="w-6 mr-4" />
                     <div className="flex-1">
                       <div className="font-semibold">{service.name}</div>
-                      <h3 className="text-primary font-semibold">{formattedCost}</h3>
+                      
+                      {hasMultipleCosts ? (
+                        <div className="mt-1">
+                          <h3 className="text-primary font-semibold text-sm">
+                            ₦{priceRange.min.toLocaleString()} - ₦{priceRange.max.toLocaleString()}
+                          </h3>
+                          <p className="text-xs text-text-grey mt-1">
+                            Select price in modal (higher = better chances)
+                          </p>
+                        </div>
+                      ) : (
+                        <h3 className="text-primary font-semibold">
+                          {typeof service.cost === "number"
+                            ? service.cost.toLocaleString("en-NG", { style: "currency", currency: "NGN" })
+                            : `₦${service.cost ? String(service.cost).replace(/^₦/, '').replace(/^N/, '').trim() : "0.00"}`}
+                        </h3>
+                      )}
                     </div>
                     <button
                       className="ml-2"
                       onClick={e => {
                         e.stopPropagation(); // Prevent triggering buy
-                        toggleBookmark(service.id || service.ID);
+                        toggleBookmark(serviceId);
                       }}
                       aria-label={isSaved ? "Unsave service" : "Save service"}
                     >
@@ -392,6 +419,7 @@ const BuyNumbers = () => {
         onClose={() => setBuyModalOpen(false)}
         service={selectedService}
         country={selectedCountry}
+        selectedPriceKey={selectedService ? null : null} // Price selection is handled in modal
         onBuy={handleBuyNumber}
       />
       {/* Redirect to manage-numbers before showing modal */}

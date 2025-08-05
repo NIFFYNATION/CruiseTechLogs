@@ -129,20 +129,24 @@ export const fetchServices = async ({ type, network, countryID = "" }) => {
 /**
  * Book a number/account for a service.
  * @param {string} id - The service id (e.g. cXZ8fHNob3J0X3Rlcm18fDJ8fDV8fDU=)
+ * @param {string} priceID - Optional price ID for services with multiple costs
  * @returns {Promise<object>} - API response object
  */
-export const bookNumber = async (id) => {
+export const bookNumber = async (id, priceID = null) => {
   if (!id) throw new Error("Service id is required");
   try {
-    const url = `${API_URLS.BOOKNUMBER}?id=${encodeURIComponent(id)}`;
+    let url = `${API_URLS.BOOKNUMBER}?id=${encodeURIComponent(id)}`;
+    if (priceID) {
+      url += `&priceID=${encodeURIComponent(priceID)}`;
+    }
     const response = await axiosInstance.get(url);
-     if (response.status !== 200) {
+    if (response.status !== 200) {
       const message = response.data?.message || 'Failed to book number';
       throw new Error(message);
     }
     return response.data;
   } catch (error) {
-      throw new Error( error.response?.data?.message || error.message || "Failed to book number");
+    throw new Error( error.response?.data?.message || error.message || "Failed to book number");
   }
 };
 

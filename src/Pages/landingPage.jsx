@@ -468,8 +468,8 @@ export default function LandingPage() {
               </div>
 
               <div style={{clipPath: 'polygon(0 0, 90% 6%, 92% 91%, 0 100%)', 
-  borderTopRightRadius: '120px',
-  borderBottomRightRadius: '120px'}} 
+                  borderTopRightRadius: '120px',
+                  borderBottomRightRadius: '120px'}} 
                 className="relative bg-background rounded-[20px] p-6 sm:p-8 pr-16 sm:pr-20 w-full text-center min-h-[350px] sm:min-h-[400px] flex flex-col items-center">
                 <img 
                   src="/explore-accounts.png" 
