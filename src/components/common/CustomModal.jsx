@@ -69,11 +69,11 @@ const CustomModal = ({
   }, [internalOpen]);
 
 
-    // Hide/show .button__NbFWA when modal is open/closed
+    // Hide/show .button__zwSs5 when modal is open/closed
     useEffect(() => {
       if (typeof window === 'undefined') return;
       const containers = [
-        ...document.querySelectorAll('.button__NbFWA'),
+        ...document.querySelectorAll('.button__zwSs5'),
         ...document.querySelectorAll('.live-chat-container'),
       ];
       if (internalOpen) {
