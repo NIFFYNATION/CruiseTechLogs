@@ -11,11 +11,50 @@ const BuyNumberModal = ({
   onClose,
   service,
   country,
+  selectedPriceKey,
   onBuy,
 }) => {
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState(null);
   const [errorMsg, setErrorMsg] = useState(""); // For highlighted error line
+  const [modalSelectedPriceKey, setModalSelectedPriceKey] = useState(selectedPriceKey);
+
+  // Update modal selected price when prop changes
+  React.useEffect(() => {
+    setModalSelectedPriceKey(selectedPriceKey);
+  }, [selectedPriceKey]);
+
+  // Helper: get default price for service with multiple costs
+  const getDefaultPrice = (costObj) => {
+    if (typeof costObj !== 'object' || costObj === null) return null;
+    const prices = Object.values(costObj);
+    const avgPrice = prices.reduce((sum, price) => sum + price, 0) / prices.length;
+    // Find the price closest to average
+    let closestPrice = null;
+    let closestKey = null;
+    let minDiff = Infinity;
+    
+    Object.entries(costObj).forEach(([key, price]) => {
+      const diff = Math.abs(price - avgPrice);
+      if (diff < minDiff) {
+        minDiff = diff;
+        closestPrice = price;
+        closestKey = key;
+      }
+    });
+    
+    return { key: closestKey, price: closestPrice };
+  };
+
+  // Set default price if none selected
+  React.useEffect(() => {
+    if (service && typeof service.cost === 'object' && service.cost !== null && !modalSelectedPriceKey) {
+      const defaultPrice = getDefaultPrice(service.cost);
+      if (defaultPrice) {
+        setModalSelectedPriceKey(defaultPrice.key);
+      }
+    }
+  }, [service, modalSelectedPriceKey]);
 
   // Always render ToastPortal if toast is set, even if modal is closed
   if (!open || !service || !country) {
@@ -43,11 +82,19 @@ const BuyNumberModal = ({
         setLoading(false);
         return;
       }
+
+      // Check if price selection is required
+      if (typeof service.cost === 'object' && service.cost !== null && !modalSelectedPriceKey) {
+        setErrorMsg("Please select a price option before proceeding.");
+        setLoading(false);
+        return;
+      }
+
       // Prevent double click
       if (loading) return;
 
-      // Book number (now throws on error)
-      const result = await bookNumber(service.id);
+      // Book number with price ID if available
+      const result = await bookNumber(service.id, modalSelectedPriceKey);
 
       setToast({
         type: "success",
@@ -98,37 +145,89 @@ const BuyNumberModal = ({
                   <img
                     src={iconUrl}
                     alt={service.name}
-                    className="w-7 h-7"
+                    className="w-8 h-8"
                   />
                 );
               })()}
               <div>
-                <div className="font-semibold">{service.name}</div>
-                <div className="flex items-center gap-1 text-primary font-medium text-sm">
-                  <CountryFlag
-                    countryCode={country.value}
-                    svg
-                    className="w-5 h-5"
-                    style={{ borderRadius: "4px" }}
-                  />
-                  {country.name} ({country.code})
-                </div>
+                <h3 className="font-semibold text-primary">{service.name}</h3>
+                {typeof service.cost === 'object' && service.cost !== null ? (
+                  <div className="text-sm text-text-secondary">
+                    {(() => {
+                      const prices = Object.values(service.cost);
+                      const minPrice = Math.min(...prices);
+                      const maxPrice = Math.max(...prices);
+                      return (
+                        <span className="font-semibold text-primary">
+                          ₦{minPrice.toLocaleString()} - ₦{maxPrice.toLocaleString()}
+                        </span>
+                      );
+                    })()}
+                  </div>
+                ) : (
+                  <div className="text-sm text-text-secondary">
+                    <span className="font-semibold text-primary">
+                      {typeof service.cost === "number"
+                        ? service.cost.toLocaleString("en-NG", { style: "currency", currency: "NGN" })
+                        : `₦${service.cost ? String(service.cost).replace(/^₦/, '').replace(/^N/, '').trim() : "0.00"}`}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
-            <div className="flex flex-col items-end gap-1">
-              <span className="text-xs text-text-grey">
-                Set-up Fee: <span className="text-primary font-semibold">FREE</span>
-              </span>
-              <span className="text-xs text-text-grey">
-                Cost: <span className="text-primary font-semibold">
-                  {typeof service.cost === "number"
-                    ? service.cost.toLocaleString("en-NG", { style: "currency", currency: "NGN" })
-                    : `₦${service.cost ? String(service.cost).replace(/^₦/, '').replace(/^N/, '').trim() : "0.00"}`}
-                </span>
-              </span>
+            <div className="flex items-center gap-2">
+              <CountryFlag
+                countryCode={country.value}
+                svg
+                className="w-6 h-6"
+                style={{ borderRadius: "4px" }}
+              />
+              <span className="text-sm font-medium">{country.code}</span>
             </div>
           </div>
         </div>
+
+        {/* Price Selection for Multiple Costs */}
+        {typeof service.cost === 'object' && service.cost !== null && (
+          <div className="px-6 pb-4">
+            <div className="bg-gradient-to-br from-orange-50 to-yellow-50 border border-orange-200 rounded-xl p-4">
+              <h4 className="font-semibold text-primary mb-2">Select Your Price</h4>
+              <div className="text-xs text-text-grey mb-4">
+                Higher prices increase your chances of getting a number
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {Object.entries(service.cost).map(([priceKey, price]) => (
+                  <div
+                    key={priceKey}
+                    className={`relative cursor-pointer transition-all duration-200 ${
+                      modalSelectedPriceKey === priceKey
+                        ? 'ring-2 ring-quinary bg-quinary/10 border-quinary'
+                        : 'border border-gray-200 hover:border-quinary/50 hover:bg-orange-50/50'
+                    } rounded-lg p-3`}
+                    onClick={() => setModalSelectedPriceKey(priceKey)}
+                  >
+                    {modalSelectedPriceKey === priceKey && (
+                      <div className="absolute -top-1 -right-1 w-6 h-6 bg-quinary rounded-full flex items-center justify-center">
+                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                    )}
+                    <div className="text-center">
+                      <div className="text-lg font-bold text-primary">
+                        ₦{price.toLocaleString()}
+                      </div>
+                      <div className="text-xs text-text-grey mt-1">
+                        {priceKey === Object.keys(service.cost)[0] ? 'Budget' : 
+                         priceKey === Object.keys(service.cost)[Object.keys(service.cost).length - 1] ? 'Premium' : 'Standard'}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
         {/* Info Notice */}
         <div className="px-6 pb-4">
           <div className="flex items-center gap-2 bg-[#FFF4ED] border border-quinary rounded-lg px-4 py-3">
