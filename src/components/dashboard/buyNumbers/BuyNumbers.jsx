@@ -100,7 +100,10 @@ const BuyNumbers = () => {
 
   // Filter and sort: saved services first
   const filteredServices = services
-    .filter((service) => service.name?.toLowerCase().includes(search.toLowerCase()))
+    .filter((service) => {
+      const serviceName = service.name;
+      return serviceName && typeof serviceName === 'string' && serviceName.toLowerCase().includes(search.toLowerCase());
+    })
     .sort((a, b) => {
       const aSaved = savedServiceIds.includes(a.id || a.ID);
       const bSaved = savedServiceIds.includes(b.id || b.ID);
