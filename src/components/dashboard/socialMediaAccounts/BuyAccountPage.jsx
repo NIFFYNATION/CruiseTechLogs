@@ -60,6 +60,7 @@ const BuyAccountPage = () => {
   const [pastedLinks, setPastedLinks] = useState([]);
   const [matchedLogins, setMatchedLogins] = useState([]);
   const [notFoundLinks, setNotFoundLinks] = useState([]);
+  const [fetchingAllForNotFound, setFetchingAllForNotFound] = useState(false);
 
   // State for description expand/collapse
   const [descExpanded, setDescExpanded] = useState(false);
@@ -124,9 +125,53 @@ const BuyAccountPage = () => {
         notFound.push(link);
       }
     });
-    setMatchedLogins(found);
-    setNotFoundLinks(notFound);
-  }, [pastedLinks, availableLogins]);
+    
+    // If some links are not found and there are more logins to fetch, start fetching all remaining logins
+    if (notFound.length > 0 && hasMoreLogins && loginsFetcherRef.current && !fetchingAllForNotFound) {
+      setFetchingAllForNotFound(true);
+      setMatchedLogins(found);
+      setNotFoundLinks(notFound);
+    } else if (!fetchingAllForNotFound) {
+      setMatchedLogins(found);
+      setNotFoundLinks(notFound);
+    }
+  }, [pastedLinks, availableLogins, hasMoreLogins, fetchingAllForNotFound]);
+
+  // Handle fetching all logins when some pasted links are not found
+  useEffect(() => {
+    if (fetchingAllForNotFound && hasMoreLogins && loginsFetcherRef.current) {
+      const fetcher = loginsFetcherRef.current;
+      fetcher.fetchMore();
+    } else if (fetchingAllForNotFound && !hasMoreLogins) {
+      // All logins have been fetched, now re-check the not found links
+      setFetchingAllForNotFound(false);
+      
+      if (pastedLinks.length > 0) {
+        const finalFound = [];
+        const finalNotFound = [];
+        pastedLinks.forEach(link => {
+          const match = availableLogins.find(l => l.preview_link === link);
+          if (match) {
+            finalFound.push(match);
+          } else {
+            finalNotFound.push(link);
+          }
+        });
+        setMatchedLogins(finalFound);
+        setNotFoundLinks(finalNotFound);
+        
+        // Show toast notification about the final results
+        if (finalNotFound.length < notFoundLinks.length) {
+          const foundCount = notFoundLinks.length - finalNotFound.length;
+          setToast({ 
+            show: true, 
+            message: `Found ${foundCount} additional link(s) after loading all accounts!`, 
+            type: 'success' 
+          });
+        }
+      }
+    }
+  }, [fetchingAllForNotFound, hasMoreLogins, pastedLinks, availableLogins, notFoundLinks.length]);
 
   const filteredLogins = useMemo(() => {
     if (!searchTerm) {
@@ -382,6 +427,63 @@ const BuyAccountPage = () => {
     setSearchTerm("");
   };
 
+  // Add all available logins to cart
+  const handleAddAllAvailableToCart = async () => {
+    const accountID = urlAccountID || usedProduct?.ID || usedProduct?.accountID;
+    if (!accountID) return;
+    
+    setLoadingMore(true);
+    
+    try {
+      // Create a new fetcher to load all logins
+      const allLoginsFetcher = createAccountLoginsFetcher(accountID);
+      const allLogins = [];
+      
+      // Subscribe to get all logins
+      allLoginsFetcher.subscribe(({ logins: newLogins, hasMore }) => {
+        allLogins.splice(0, allLogins.length, ...newLogins);
+        
+        // If there are more logins, keep fetching
+        if (hasMore) {
+          allLoginsFetcher.fetchMore();
+        } else {
+          // All logins loaded, now add them to cart
+          const cartLoginIds = new Set(cart.map((item) => item.accountId));
+          const availableAllLogins = allLogins.filter((login) => !cartLoginIds.has(login.accountId || login.ID));
+          
+          if (availableAllLogins.length > 0) {
+            setCart(prev => [
+              ...prev,
+              ...availableAllLogins.map(login => ({
+                id: Date.now() + Math.random(),
+                platform: usedPlatform,
+                accountId: login.accountId || login.ID,
+                price: basePrice,
+                item: usedProduct,
+                username: login.username ?? undefined,
+                preview_link: login.preview_link,
+              }))
+            ]);
+            setToast({ show: true, message: `Added ${availableAllLogins.length} accounts to cart!`, type: 'success' });
+            // Scroll to bottom of page after adding items to cart
+            setTimeout(() => {
+              window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+            }, 100);
+          }
+          setLoadingMore(false);
+        }
+      });
+      
+      // Start fetching all logins
+      allLoginsFetcher.fetchInitial();
+      
+    } catch (error) {
+      console.error('Error loading all logins:', error);
+      setToast({ show: true, message: 'Failed to load all accounts', type: 'error' });
+      setLoadingMore(false);
+    }
+  };
+
   // Handle search input change
   const handleSearchChange = (e) => {
     const value = e.target.value;
@@ -525,35 +627,7 @@ const BuyAccountPage = () => {
                   />
                 ))}
               </div>
-              {/* Clear Cart Button - only when cart has items */}
-              <div className="flex justify-end mt-2 gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex items-center gap-2 px-3 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm"
-                  onClick={handleCopyCart}
-                  style={{
-                    minWidth: "auto",
-                    fontSize: "13px",
-                  }}
-                >
-                  <FiCopy className="w-4 h-4" />
-                  Copy Cart
-                </Button>
-                <Button
-                  variant="orange"
-                  size="sm"
-                  className="flex items-center gap-2 px-3 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm"
-                  onClick={onClearCart}
-                  style={{
-                    minWidth: "auto",
-                    fontSize: "13px",
-                  }}
-                >
-                  <img src="/icons/trash.svg" alt="Clear Cart" className="w-4 h-4" />
-                  Clear Cart
-                </Button>
-              </div>
+
             </>
           )}
         </div>
@@ -657,11 +731,19 @@ const BuyAccountPage = () => {
             {notFoundLinks.length > 0 && (
               <div className="text-xs text-danger mb-2 flex items-start gap-2">
                 <span className="font-bold">Not found:</span>
-                <ul className="list-disc ml-4">
-                  {notFoundLinks.map((link, i) => (
-                    <li key={i} className="break-all text-red-600">{link}</li>
-                  ))}
-                </ul>
+                <div className="flex-1">
+                  {fetchingAllForNotFound && (
+                    <div className="text-blue-600 mb-1 flex items-center gap-1">
+                      <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600"></div>
+                      <span className="text-xs">Searching all accounts...</span>
+                    </div>
+                  )}
+                  <ul className="list-disc ml-4">
+                    {notFoundLinks.map((link, i) => (
+                      <li key={i} className="break-all text-red-600">{link}</li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             )}
             {matchedLogins.length > 0 && (
@@ -675,6 +757,63 @@ const BuyAccountPage = () => {
             )}
           </div>
         )}
+
+        {/* Add all available logins button - only show when not searching */}
+          {!searchTerm && availableLogins.length > 0 && (
+            <div className="mb-4 flex justify-end">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleAddAllAvailableToCart}
+                disabled={loadingMore}
+                className="flex items-center gap-2"
+              >
+                {loadingMore ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
+                    Loading All...
+                  </>
+                ) : (
+                  <>
+                    <img src="/icons/cart.svg" alt="Add All" className="w-4 h-4" />
+                    Add All to Cart ({availableLogins.length}+)
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
+          
+          {/* Cart action buttons - show at top when cart has items */}
+          {cart.length > 0 && (
+            <div className="mb-4 flex justify-end gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2 px-3 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm"
+                onClick={handleCopyCart}
+                style={{
+                  minWidth: "auto",
+                  fontSize: "13px",
+                }}
+              >
+                <FiCopy className="w-4 h-4" />
+                Copy Cart
+              </Button>
+              <Button
+                variant="orange"
+                size="sm"
+                className="flex items-center gap-2 px-3 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm"
+                onClick={onClearCart}
+                style={{
+                  minWidth: "auto",
+                  fontSize: "13px",
+                }}
+              >
+                <img src="/icons/trash.svg" alt="Clear Cart" className="w-4 h-4" />
+                Clear Cart
+              </Button>
+            </div>
+          )}
 
         {/* Table */}
         <div

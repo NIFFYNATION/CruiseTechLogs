@@ -105,7 +105,7 @@ export const fetchServices = async ({ type, network, countryID = "" }) => {
   try {
     const response = await axiosInstance.get(
       url,
-      { timeout: 20000 } // 20 seconds timeout
+      { timeout: 100000 } 
     );
     if (response.status !== 200) {
       const message = response.data?.message || 'Failed to fetch services';

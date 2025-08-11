@@ -30,21 +30,7 @@ const VirtualAccountCard = ({ accounts = [], onCopy }) => {
         </div>
       ))}
       
-      {/* Other Payment Option Section */}
-      <div className="mt-6 pt-4 border-t border-gray-200">
-        <h5 className="font-semibold text-sm text-text-primary mb-1">Other Payment Option</h5>
-        <small className="text-xs text-text-secondary mb-3 block">
-          Click the fund account button below to try other method of funding your account.
-        </small>
-        <Button
-          variant="primary"
-          size="sm"
-          className="px-4 py-2"
-          onClick={() => window.location.href = "/dashboard/deposit"}
-        >
-          + Fund Account
-        </Button>
-      </div>
+      
     </div>
   );
 };
