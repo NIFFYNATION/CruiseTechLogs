@@ -12,6 +12,7 @@ import { loginUser } from '../../services/authService'; // Import API service
 import { Button } from '../../components/common/Button';
 import { isUserLoggedIn, fetchUserDetails } from '../../controllers/userController';
 import { useUser } from '../../contexts/UserContext';
+import { triggerRentalCronjob } from '../../services/rentalService';
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -55,7 +56,7 @@ const Login = () => {
       localStorage.setItem('userData', JSON.stringify(response.data));
 
       // Set user context from new userData
-      setUser({
+      const userData = {
         name: (response.data.first_name && response.data.last_name)
           ? `${response.data.first_name} ${response.data.last_name}`
           : (response.data.fullName || 'User'),
@@ -66,7 +67,13 @@ const Login = () => {
         stage: response.data.stage || { name: 'Level 1' },
         percentage: typeof response.data.percentage === 'number' ? response.data.percentage : 0,
         ...response.data,
-      });
+      };
+      setUser(userData);
+
+      // Trigger rental cronjob after successful login
+      if (response.data.userID || response.data.id) {
+        triggerRentalCronjob(response.data.userID || response.data.id);
+      }
 
       // Redirect to dashboard
       navigate('/dashboard');
