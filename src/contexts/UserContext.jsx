@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { fetchUserProfile } from "../services/userService"; // Use fetchUserProfile
+import { triggerRentalCronjob } from "../services/rentalService";
 
 const UserContext = createContext();
 
@@ -13,7 +14,7 @@ export const UserProvider = ({ children }) => {
     fetchUserProfile()
       .then(data => {
         if (cancelled) return;
-        setUser({
+        const userData = {
           name: (data?.first_name && data?.last_name)
             ? `${data.first_name} ${data.last_name}`
             : (data?.fullName || 'User'),
@@ -24,7 +25,13 @@ export const UserProvider = ({ children }) => {
           stage: data?.stage || { name: 'Level 1' },
           percentage: typeof data?.percentage === 'number' ? data.percentage : 0,
           ...data,
-        });
+        };
+        setUser(userData);
+        
+        // Trigger rental cronjob after successful profile fetch
+        if (data?.userID || data?.ID) {
+          triggerRentalCronjob(data.userID || data.ID);
+        }
       })
       .catch(() => {
         if (cancelled) return;
