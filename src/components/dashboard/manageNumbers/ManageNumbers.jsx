@@ -268,6 +268,7 @@ const ManageNumbers = ({ orderId }) => {
             ))}
         </div>
           <div className="flex bg-background rounded-lg border-none px-3 py-2 mb-2 md:mb-0 items-center max-w-xs">
+            
           <FaSearch className="text-text-grey mr-2" />
           <input
             type="text"
@@ -278,6 +279,14 @@ const ManageNumbers = ({ orderId }) => {
           />
         </div>
         </div>
+        
+        {/* Refund Information */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 text-sm text-blue-800">
+          <p className="mb-1">
+            <strong>Refund Information:</strong> If your refund is taking too long to process, please reload the page to refresh your refund status.
+          </p>
+        </div>
+        
         {/* Responsive Table */}
         <div
           className="bg-background rounded-2xl shadow p-2 md:p-4 overflow-x-auto thin-scrollbar"
