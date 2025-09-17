@@ -69,11 +69,11 @@ const CustomModal = ({
   }, [internalOpen]);
 
 
-    // Hide/show .button__uM5uj when modal is open/closed
+    // Hide/show .button__Qkvay when modal is open/closed
     useEffect(() => {
       if (typeof window === 'undefined') return;
       const containers = [
-        ...document.querySelectorAll('.button__uM5uj'),
+        ...document.querySelectorAll('.button__Qkvay'),
         ...document.querySelectorAll('.live-chat-container'),
       ];
       if (internalOpen) {
