@@ -8,6 +8,12 @@ const WelcomeSection = () => {
     <div className="mb-8 mt-8">
       {/* Welcome Text */}
       <h1 className="text-2xl font-semibold text-text-primary mb-6">Welcome back!</h1>
+      {/* Refund Information */}
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4 text-sm text-yellow-800">
+          <p className="mb-1">
+           We do not support fraud and are not responsible for bought product misuse.
+          </p>
+        </div>
 
       {/* Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-3 gap-0 lg:gap-6">
