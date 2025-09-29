@@ -479,6 +479,7 @@ const ManageNumbers = ({ orderId }) => {
         onCopyNumber={handleCopyNumber}
         onCopyCode={handleCopyCode}
         orderId={selectedNumber?.ID}
+        serviceName={selectedNumber?.serviceName}
         date={(selectedNumber?.create_timestamp != null || "") ? selectedNumber.create_timestamp : selectedNumber?.date}
         expire_date={selectedNumber?.expire_date}
         onNumberClosed={handleNumberClosed}

@@ -8,8 +8,10 @@ import Side from '../login/side';
 import { signupController } from '../../controllers/authController'; // Import auth controller
 import { Button } from '../../components/common/Button';
 import { isUserLoggedIn } from '../../controllers/userController';
+import { useUser } from '../../contexts/UserContext';
 
 const Signup = () => {
+  const { setUser } = useUser();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -18,6 +20,7 @@ const Signup = () => {
     password: '',
     confirmPassword: '',
     phoneNumber: '',
+    referralCode: '',
   });
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
@@ -126,6 +129,19 @@ const Signup = () => {
             
 
               value={formData.phoneNumber}
+              onChange={handleChange}
+              icon={<MdPerson className="h-5 w-5 text-text-secondary/10" />}
+            />
+            <InputField
+                        className="bg-transparent focus:ring-quinary focus:border-quinary"
+
+              id="referralCode"
+              name="referralCode"
+              type="text"
+              placeholder="Referral Code (Optional)"
+            
+
+              value={formData.referralCode}
               onChange={handleChange}
               icon={<MdPerson className="h-5 w-5 text-text-secondary/10" />}
             />

@@ -31,5 +31,12 @@ export const API_URLS = {
   // deposit 
   DEPOSIT_INI: `${API_BASE_URL}/deposit/ini`,
   DEPOSIT_VALIDATE: `${API_BASE_URL}/deposit/validate`,
+  
+  // Referral endpoints
+  REFERRAL_STATS: `${API_BASE_URL}/referral/stats`,
+  REFERRAL_GET: `${API_BASE_URL}/referral/get`,
+  
+  // WhatsApp verification endpoint
+  WHATSAPP_CHECK: `${API_BASE_URL}/check/whatsapp`,
   // Add other endpoints as needed
 };

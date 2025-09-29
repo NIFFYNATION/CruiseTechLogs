@@ -2,18 +2,25 @@ import { registerUser, loginUser, forgetPassword, resetPassword } from '../servi
 import { fetchUserDetails } from './userController';
 
 export const signupController = async (formData) => {
-  const { name, email, password, confirmPassword, phoneNumber } = formData;
+  const { name, email, password, confirmPassword, phoneNumber, referralCode } = formData;
   const [firstName, lastName] = name.split(' '); // Split name into first and last name
 
   try {
-    const response = await registerUser({
+    const registrationData = {
       email,
       first_name: firstName,
       last_name: lastName || '',
       phone_number: phoneNumber,
       password: btoa(password), // Encode password in Base64
       confirm_password: btoa(confirmPassword), // Encode confirm password in Base64
-    });
+    };
+
+    // Add referral code if provided
+    if (referralCode && referralCode.trim() !== '') {
+      registrationData.referral_code = referralCode.trim();
+    }
+
+    const response = await registerUser(registrationData);
     // Save full user data and token if present
     if (response.data && response.data.token && response.data.ID) {
       localStorage.setItem('authToken', response.data.token.token);
