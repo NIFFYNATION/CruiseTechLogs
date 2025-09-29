@@ -214,4 +214,24 @@ export const closeNumber = async (id) => {
   }
 };
 
+/**
+ * Check if a number is registered on WhatsApp
+ * @param {string} number - The phone number to check
+ * @returns {Promise<Object>} Response object with WhatsApp verification status
+ */
+export const checkWhatsAppNumber = async (number) => {
+  if (!number) throw new Error("Phone number is required");
+  try {
+    const response = await axiosInstance.get(`${API_URLS.WHATSAPP_CHECK}?number=${encodeURIComponent(number)}`);
+    return response.data;
+  } catch (error) {
+    return {
+      code: error.response?.status || 500,
+      status: "error",
+      message: error.response?.data?.message || error.message || "Failed to verify WhatsApp number",
+      data: null,
+    };
+  }
+};
+
 // Add more number-related API functions as needed, always using axiosInstance

@@ -1,6 +1,9 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import CustomModal from "../../common/CustomModal";
-import { fetchNumberCode, closeNumber } from "../../../services/numberService";
+import { fetchNumberCode, closeNumber, checkWhatsAppNumber } from "../../../services/numberService";
+
+// Feature flag to enable/disable WhatsApp verification
+const ENABLE_WHATSAPP_CHECK = false;
 import ToastPortal from "../common/ToastPortal";
 import ConfirmDialog from "../../common/ConfirmDialog";
 import { DateTime } from 'luxon';
@@ -77,6 +80,7 @@ const NumberDetailsModal = ({
   expire_date, // this is the absolute expiration date/time string (optional)
   onNumberClosed, // callback when number is closed
   orderId, // <-- add this prop!
+  serviceName, // service name for WhatsApp verification
   onReload,
   onCopyNumber,
   onCopyCode,
@@ -91,6 +95,8 @@ const NumberDetailsModal = ({
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [closeLoading, setCloseLoading] = useState(false);
   const [reloadDisabled, setReloadDisabled] = useState(false);
+  const [whatsappStatus, setWhatsappStatus] = useState(null);
+  const [whatsappLoading, setWhatsappLoading] = useState(false);
   const intervalRef = useRef();
   const countdownRef = useRef();
 
@@ -189,9 +195,10 @@ const NumberDetailsModal = ({
     if (open && orderId) {
       setIsBackground(false);
       fetchCode(false);
+      checkWhatsAppVerification();
     }
     // eslint-disable-next-line
-  }, [open, orderId]);
+  }, [open, orderId, serviceName]);
 
   // Reload handler
   const handleReload = async () => {
@@ -245,6 +252,27 @@ const NumberDetailsModal = ({
       });
     } finally {
       setCloseLoading(false);
+    }
+  };
+
+  const checkWhatsAppVerification = async () => {
+    if (!ENABLE_WHATSAPP_CHECK) return;
+    
+    if (serviceName?.toLowerCase() === "whatsapp" && number) {
+      setWhatsappLoading(true);
+      try {
+        const result = await checkWhatsAppNumber(number);
+        setWhatsappStatus(result);
+      } catch (error) {
+        setWhatsappStatus({
+          code: 500,
+          status: "error",
+          message: "Failed to verify WhatsApp number",
+          data: null
+        });
+      } finally {
+        setWhatsappLoading(false);
+      }
     }
   };
 
@@ -335,6 +363,34 @@ const NumberDetailsModal = ({
             )}
           </div>
         </div>
+        {/* WhatsApp Verification Section */}
+        {ENABLE_WHATSAPP_CHECK && serviceName?.toLowerCase() === "whatsapp" && (
+          <div className="px-6 py-4 mx-6 my-4 border-border-grey border-t border-b">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="font-semibold text-base">WhatsApp Status:</span>
+              {whatsappLoading ? (
+                <span className="text-blue-600 text-sm">Checking...</span>
+              ) : whatsappStatus ? (
+                <span
+                   className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
+                     whatsappStatus.status === "success"
+                       ? "bg-red-100 text-red-700"
+                       : "bg-green-100 text-green-700"
+                   }`}
+                 >
+                   {whatsappStatus.status === "success" ? "Registered" : "Not Registered"}
+                 </span>
+              ) : (
+                <span className="text-gray-500 text-sm">Unknown</span>
+              )}
+            </div>
+            {whatsappStatus && whatsappStatus.message && (
+              <div className="text-xs text-text-grey mt-1">
+                {whatsappStatus.message}
+              </div>
+            )}
+          </div>
+        )}
         {/* OTP Messages Section */}
         <div className="px-6 py-6 flex flex-col items-center w-full">
           <h3 className="text-center font-semibold text-lg mb-4">OTP MESSAGES</h3>
