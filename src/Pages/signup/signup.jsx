@@ -139,6 +139,8 @@ const Signup = () => {
               name="referralCode"
               type="text"
               placeholder="Referral Code (Optional)"
+              required={false}
+              
             
 
               value={formData.referralCode}
