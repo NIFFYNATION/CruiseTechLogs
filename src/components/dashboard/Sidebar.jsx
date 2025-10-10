@@ -163,8 +163,10 @@ const Sidebar = () => {
   // Menu items for animation mapping
   const dashboardMenu = [
     { imageSrc: "/icons/home.svg", text: "Home", to: "/dashboard" },
-    { imageSrc: "/icons/manage-numbers.svg", text: "Manage Numbers", to: "/dashboard/manage-numbers" },
+    { imageSrc: "/icons/transactions.svg", text: "Manage Rentals", to: "/dashboard/manage-numbers" },
     { imageSrc: "/icons/buy-number.svg", text: "Buy Number", to: "/dashboard/buy-numbers" },
+    { imageSrc: "/icons/email.svg", text: "Buy Emails", to: "/dashboard/buy-emails" },
+    // { imageSrc: "/icons/manage-email.svg", text: "Manage Emails", to: "/dashboard/manage-emails" },
     { imageSrc: "/icons/social-media.svg", text: "Buy Social Accounts", to: "/dashboard/accounts" },
     { imageSrc: "/icons/checklist.png", text: "Account History", to: "/dashboard/manage-orders" },
   ];

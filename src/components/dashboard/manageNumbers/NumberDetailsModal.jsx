@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import CustomModal from "../../common/CustomModal";
 import { fetchNumberCode, closeNumber, checkWhatsAppNumber } from "../../../services/numberService";
+import { FiMail, FiPhone } from "react-icons/fi";
 
 // Feature flag to enable/disable WhatsApp verification
 const ENABLE_WHATSAPP_CHECK = false;
@@ -85,6 +86,7 @@ const NumberDetailsModal = ({
   onCopyNumber,
   onCopyCode,
   verificationCode: initialVerificationCode,
+  type = 'number', // type of contact: 'number' or 'email'
 }) => {
   const [messages, setMessages] = useState([]);
   const [codeLoading, setCodeLoading] = useState(false);
@@ -294,11 +296,11 @@ const NumberDetailsModal = ({
 
   return (
     <>
-      {/* ConfirmDialog for closing number */}
+      {/* ConfirmDialog for closing number/email */}
       <ConfirmDialog
         open={confirmOpen}
-        title="Close Number"
-        message="Are you sure you want to close this number? This action cannot be undone."
+        title={`Close ${type === 'email' ? 'Email' : 'Number'}`}
+        message={`Are you sure you want to close this ${type === 'email' ? 'email' : 'number'}? This action cannot be undone.`}
         onConfirm={handleCloseNumber}
         onCancel={() => setConfirmOpen(false)}
         confirmText="Yes, Close"
@@ -308,7 +310,7 @@ const NumberDetailsModal = ({
       <CustomModal
         open={open}
         onClose={onClose}
-        title="Number Details"
+        title={type === 'email' ? "Email Details" : "Number Details"}
         showFooter={false}
         className="max-w-xl"
         reloadAction={handleReload}
@@ -316,16 +318,17 @@ const NumberDetailsModal = ({
       >
         {/* Note */}
         <p className="px-6 pt-4 pb-2 text-[14px] text-text-secondary">
-        Note: The number is valid for the duration of the countdown. Please verify it as soon as possible. If the code is delayed, try reloading the number.
+        Note: The {type === 'email' ? 'email' : 'number'} is valid for the duration of the countdown. Please verify it as soon as possible. If the code is delayed, try reloading the {type === 'email' ? 'email' : 'number'}.
            </p>
-        {/* Number Section */}
+        {/* Number/Email Section */}
         <div className="px-6 py-4 mx-6 my-4 border-border-grey border-t border-b">
           <div className="flex items-center gap-2 mb-2">
-            <span className="font-semibold text-base">Number:</span>
+            <span className="font-semibold text-base">{type === 'email' ? 'Email:' : 'Number:'}</span>
             <span className="font-semibold text-quinary">{number}</span>
-            <button onClick={handleCopyNumber} title="Copy number">
-              <img src="/icons/copy-bold.svg" alt="Copy number" />
+            <button onClick={handleCopyNumber} title={`Copy ${type === 'email' ? 'email' : 'number'}`}>
+              <img src="/icons/copy-bold.svg" alt={`Copy ${type === 'email' ? 'email' : 'number'}`} />
             </button>
+            {type === 'email' ? <FiMail className="ml-1 text-quinary" /> : <FiPhone className="ml-1 text-quinary" />}
           </div>
           <div className="flex items-center gap-2 mt-2">
             <span
@@ -351,14 +354,14 @@ const NumberDetailsModal = ({
                 Expires at: {formatUTCDate(expire_date)}
               </span>
             )}
-            {/* Add Close Number button if active */}
+            {/* Add Close Number/Email button if active */}
             {isStillActive && (
               <button
                 className="ml-4 bg-danger text-white rounded-full px-4 py-1 text-xs font-semibold hover:bg-danger/80 transition"
                 onClick={() => setConfirmOpen(true)}
                 disabled={closeLoading}
               >
-                {closeLoading ? "Closing..." : "Close Number"}
+                {closeLoading ? "Closing..." : `Close ${type === 'email' ? 'Email' : 'Number'}`}
               </button>
             )}
           </div>
@@ -391,16 +394,18 @@ const NumberDetailsModal = ({
             )}
           </div>
         )}
-        {/* OTP Messages Section */}
+        {/* Verification Messages Section */}
         <div className="px-6 py-6 flex flex-col items-center w-full">
-          <h3 className="text-center font-semibold text-lg mb-4">OTP MESSAGES</h3>
+          <h3 className="text-center font-semibold text-lg mb-4">{type === 'email' ? 'VERIFICATION CODES' : 'OTP MESSAGES'}</h3>
           <div className="w-full flex flex-col gap-4">
             {!isBackground && codeLoading ? (
               <div className="flex justify-center items-center py-8 text-quinary font-semibold text-lg">Loading...</div>
             ) : codeError ? (
               <div className="flex justify-center items-center py-8 text-danger text-sm">{codeError}</div>
             ) : messages.length === 0 ? (
-              <div className="flex justify-center items-center py-8 text-gray-400">No OTP messages received yet.</div>
+              <div className="flex justify-center items-center py-8 text-gray-400">
+                {type === 'email' ? 'No verification codes received yet.' : 'No OTP messages received yet.'}
+              </div>
             ) : (
               messages.map((msgObj, idx) => {
                 const otp = extractOtp(msgObj.message || "");

@@ -7,6 +7,8 @@ import DashboardLayout from './components/dashboard/DashboardLayout';
 import Dashboard from './Pages/Dashboard';
 import ManageNumbers from './components/dashboard/manageNumbers/ManageNumbers';
 import BuyNumbers from './components/dashboard/buyNumbers/BuyNumbers';
+import BuyEmails from './components/dashboard/buyEmails/BuyEmails';
+// import ManageEmails from './components/dashboard/manageEmails/ManageEmails';
 import App from './App';
 import SocialMediaAccounts from './components/dashboard/socialMediaAccounts/SocialMediaAccounts';
 import BuyAccountPage from './components/dashboard/socialMediaAccounts/BuyAccountPage';
@@ -67,8 +69,12 @@ export const router = createBrowserRouter([
           { path: '', element: <Dashboard /> },
           // Route with optional orderId param
           { path: 'manage-numbers', element: <ManageNumbersWithOrderId /> },
+          { path: 'manage-rentails', element: <ManageNumbersWithOrderId /> },
           { path: 'manage-numbers/:orderId', element: <ManageNumbersWithOrderId /> },
+          { path: 'manage-rentals/:orderId', element: <ManageNumbersWithOrderId /> },
           { path: 'buy-numbers', element: <BuyNumbers /> },
+          { path: 'buy-emails', element: <BuyEmails /> },
+          // { path: 'manage-emails', element: <ManageEmails /> },
           { path: 'accounts', element: <SocialMediaAccounts /> },
           { path: 'accounts/buy/:id', element: <BuyAccountPage /> }, // <-- add :id param
           { path: 'accounts/buy', element: <BuyAccountPage /> }, // fallback for old links
