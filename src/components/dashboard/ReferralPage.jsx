@@ -10,10 +10,16 @@ const ReferralPage = () => {
   const [referralLink, setReferralLink] = useState('');
   const [referrals, setReferrals] = useState([]);
   const [totalEarnings, setTotalEarnings] = useState(0);
+  const [referralBalance, setReferralBalance] = useState(0);
+  const [isTransferring, setIsTransferring] = useState(false);
+  
+  // Minimum transfer amount (configurable)
+  const MIN_TRANSFER_AMOUNT = 5000;
 
   const [stats, setStats] = useState({
     totalReferrals: 0,
-    totalEarnings: 0
+    totalEarnings: 0,
+    referralBalance: 0
   });
 
   const [dateFilter, setDateFilter] = useState('all');
@@ -44,10 +50,12 @@ const ReferralPage = () => {
       if (statsResponse.code === 200 && statsResponse.data) {
         const statsData = {
           totalReferrals: statsResponse.data.total_referrals || 0,
-          totalEarnings: parseFloat(statsResponse.data.total_amount || 0)
+          totalEarnings: parseFloat(statsResponse.data.total_amount || 0),
+          referralBalance: parseFloat(statsResponse.data.referral_balance || 0)
         };
         setStats(statsData);
         setTotalEarnings(statsData.totalEarnings);
+        setReferralBalance(statsData.referralBalance);
       }
 
       // Fetch referrals list
@@ -67,10 +75,37 @@ const ReferralPage = () => {
     } catch (error) {
       console.error('Error fetching referral data:', error);
       // Fallback to empty data on error
-      setStats({ totalReferrals: 0, totalEarnings: 0 });
+      setStats({ totalReferrals: 0, totalEarnings: 0, referralBalance: 0 });
       setTotalEarnings(0);
+      setReferralBalance(0);
       setReferrals([]);
       setFilteredReferrals([]);
+    }
+  };
+
+  const handleTransfer = async () => {
+    if (referralBalance < MIN_TRANSFER_AMOUNT || isTransferring) {
+      return;
+    }
+
+    setIsTransferring(true);
+    try {
+      const response = await transferReferralBalance();
+      
+      if (response.code === 200 && response.status === "success") {
+        // Success case
+        alert(response.message || `Successfully transferred ₦${referralBalance.toFixed(2)} to your main balance!`);
+        setReferralBalance(0);
+        setStats(prev => ({ ...prev, referralBalance: 0 }));
+      } else {
+        // API returned an error
+        alert(response.message || 'Transfer failed. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error transferring funds:', error);
+      alert('Transfer failed. Please try again.');
+    } finally {
+      setIsTransferring(false);
     }
   };
 
@@ -161,26 +196,41 @@ const ReferralPage = () => {
                 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-2 gap-4">
-                  {/* Total Referrals */}
+                  {/* Combined Referrals & Lifetime Earnings */}
                   <div className="text-center">
                     <div className="flex justify-center mb-2">
                       <div className="p-2 bg-primary/10 rounded-lg border border-primary/10">
-                        <FaUsers className="text-primary text-lg" />
+                        <FaUsers className="text-primary text-sm" />
                       </div>
                     </div>
-                    <p className="text-xs font-medium text-text-grey mb-1">Total Referrals</p>
-                    <p className="text-xl font-bold text-text-primary">{stats.totalReferrals}</p>
+                    <p className="text-xs font-medium text-text-grey mb-1">Referrals</p>
+                    <p className="text-lg font-bold text-text-primary mb-1">{stats.totalReferrals}</p>
+                    <div className="flex items-center justify-center space-x-1">
+                      <FaChartLine className="text-warning text-xs" />
+                      <p className="text-xs font-medium text-warning">₦{totalEarnings.toFixed(2)}</p>
+                    </div>
                   </div>
                   
-                  {/* Total Earnings */}
+                  {/* Available Balance with Transfer */}
                   <div className="text-center">
                     <div className="flex justify-center mb-2">
                       <div className="p-2 bg-success/10 rounded-lg border border-success/10">
-                        <span className="text-success text-lg font-bold">₦</span>
+                        <span className="text-success text-sm font-bold">₦</span>
                       </div>
                     </div>
-                    <p className="text-xs font-medium text-text-grey mb-1">Total Earnings</p>
-                    <p className="text-xl font-bold text-success">₦{totalEarnings.toFixed(2)}</p>
+                    <p className="text-xs font-medium text-text-grey mb-1">Available Balance</p>
+                    <p className="text-lg font-bold text-success mb-2">₦{referralBalance.toFixed(2)}</p>
+                    <button
+                      onClick={() => handleTransfer()}
+                      disabled={referralBalance < MIN_TRANSFER_AMOUNT || isTransferring}
+                      className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 ${
+                        referralBalance >= MIN_TRANSFER_AMOUNT && !isTransferring
+                          ? 'bg-success text-white hover:bg-success/90 hover:scale-105'
+                          : 'bg-text-grey/20 text-text-grey cursor-not-allowed'
+                      }`}
+                    >
+                      {isTransferring ? 'Transferring...' : 'Transfer'}
+                    </button>
                   </div>
                 </div>
                 
@@ -200,7 +250,7 @@ const ReferralPage = () => {
           
           {/* Separate Cards for Desktop */}
           <div className="hidden md:grid grid-cols-2 gap-6 mb-8">
-            {/* Total Referrals Card */}
+            {/* Combined Referrals & Lifetime Earnings Card */}
             <div className="group bg-background/90 backdrop-blur-xl rounded-[18px] border border-primary/20 shadow-[0_8px_32px_rgba(11,75,90,0.12)] p-6 relative overflow-hidden hover:shadow-[0_12px_40px_rgba(11,75,90,0.18)] transition-all duration-300 hover:-translate-y-1">
               <div className="relative z-10">
                 <div className="flex items-center justify-between mb-3">
@@ -213,16 +263,23 @@ const ReferralPage = () => {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-text-grey mb-1 group-hover:text-text-primary/80 transition-colors duration-300">Total Referrals</p>
-                  <p className="text-3xl font-bold text-text-primary group-hover:text-primary transition-colors duration-300">{stats.totalReferrals}</p>
-                  <div className="mt-2 flex items-center space-x-1">
-                    <div className="h-1 bg-primary rounded-full flex-1"></div>
-                    <span className="text-xs text-primary font-medium">Active</span>
+                  <p className="text-3xl font-bold text-text-primary group-hover:text-primary transition-colors duration-300 mb-3">{stats.totalReferrals}</p>
+                  
+                  {/* Lifetime Earnings Section */}
+                  <div className="border-t border-border-grey/20 pt-3">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <div className="p-2 bg-warning/10 rounded-lg border border-warning/10">
+                        <FaChartLine className="text-warning text-sm" />
+                      </div>
+                      <p className="text-sm font-medium text-text-grey">Lifetime Earnings</p>
+                    </div>
+                    <p className="text-xl font-bold text-warning">₦{totalEarnings.toFixed(2)}</p>
                   </div>
                 </div>
               </div>
             </div>
             
-            {/* Total Earnings Card */}
+            {/* Available Balance Card with Transfer */}
             <div className="group bg-background/90 backdrop-blur-xl rounded-[18px] border border-success/20 shadow-[0_8px_32px_rgba(34,197,94,0.12)] p-6 relative overflow-hidden hover:shadow-[0_12px_40px_rgba(34,197,94,0.18)] transition-all duration-300 hover:-translate-y-1">
               <div className="relative z-10">
                 <div className="flex items-center justify-between mb-3">
@@ -234,12 +291,27 @@ const ReferralPage = () => {
                   </div>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-text-grey mb-1 group-hover:text-text-primary/80 transition-colors duration-300">Total Earnings</p>
-                  <p className="text-3xl font-bold text-success group-hover:scale-105 transition-transform duration-300">₦{totalEarnings.toFixed(2)}</p>
-                  <div className="mt-2 flex items-center space-x-1">
-                    <div className="h-1 bg-success rounded-full flex-1"></div>
-                    <span className="text-xs text-success font-medium">+0.5%</span>
-                  </div>
+                  <p className="text-sm font-medium text-text-grey mb-1 group-hover:text-text-primary/80 transition-colors duration-300">Available Balance</p>
+                  <p className="text-3xl font-bold text-success group-hover:scale-105 transition-transform duration-300 mb-4">₦{referralBalance.toFixed(2)}</p>
+                  
+                  {/* Transfer Button */}
+                  <button
+                    onClick={() => handleTransfer()}
+                    disabled={referralBalance < MIN_TRANSFER_AMOUNT || isTransferring}
+                    className={`w-full py-3 px-4 rounded-xl font-medium transition-all duration-300 ${
+                      referralBalance >= MIN_TRANSFER_AMOUNT && !isTransferring
+                        ? 'bg-success text-white hover:bg-success/90 hover:scale-105 shadow-lg hover:shadow-xl'
+                        : 'bg-text-grey/20 text-text-grey cursor-not-allowed'
+                    }`}
+                  >
+                    {isTransferring ? 'Transferring...' : `Transfer to Main Balance`}
+                  </button>
+                  
+                  {referralBalance < MIN_TRANSFER_AMOUNT && (
+                    <p className="text-xs text-text-grey mt-2 text-center">
+                      Minimum transfer: ₦{MIN_TRANSFER_AMOUNT.toLocaleString()}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
@@ -366,8 +438,8 @@ const ReferralPage = () => {
                   <span className="text-quaternary text-xs md:text-sm font-bold">3</span>
                 </div>
                 <div>
-                  <h3 className="font-medium text-text-primary text-sm md:text-base">Direct Credit</h3>
-                  <p className="text-text-grey text-xs md:text-sm">Earnings are automatically credited to your account balance.</p>
+                  <h3 className="font-medium text-text-primary text-sm md:text-base">Referral Balance</h3>
+                  <p className="text-text-grey text-xs md:text-sm">Earnings are credited to your separate referral balance, not your main account balance.</p>
                 </div>
               </div>
               
@@ -376,8 +448,18 @@ const ReferralPage = () => {
                   <span className="text-warning text-xs md:text-sm font-bold">4</span>
                 </div>
                 <div>
-                  <h3 className="font-medium text-text-primary text-sm md:text-base">Usage Restriction</h3>
-                  <p className="text-text-grey text-xs md:text-sm">Referral earnings can only be used for website purchases and services.</p>
+                  <h3 className="font-medium text-text-primary text-sm md:text-base">Transfer Requirements</h3>
+                  <p className="text-text-grey text-xs md:text-sm">Minimum transfer amount is ₦{MIN_TRANSFER_AMOUNT.toLocaleString()} to move funds to your main balance.</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start space-x-2 md:space-x-3">
+                 <div className="w-5 h-5 md:w-6 md:h-6 bg-error/10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                   <span className="text-error text-xs md:text-sm font-bold">6</span>
+                 </div>
+                 <div>
+                   <h3 className="font-medium text-text-primary text-sm md:text-base">Usage Restriction</h3>
+                   <p className="text-text-grey text-xs md:text-sm">Referral earnings can only be used for website purchases and services.</p>
                 </div>
               </div>
             </div>

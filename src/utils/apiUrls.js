@@ -10,6 +10,13 @@ export const API_URLS = {
   BOOKNUMBER: `${API_BASE_URL}/rentals/new`,
   GET_NUMBERS: `${API_BASE_URL}/rentals/get`,
   GET_NUMBER_CODE: `${API_BASE_URL}/rentals/getcode`,
+  
+  // Email rental endpoints
+  EMAIL_TYPES: `${API_BASE_URL}/rentals/email/types`,
+  EMAIL_SERVICES: `${API_BASE_URL}/rentals/email/services`,
+  BOOK_EMAIL: `${API_BASE_URL}/rentals/email/rent`,
+
+
   BUY_ACCOUNT: `${API_BASE_URL}/account/buy`,
   ORDERS: `${API_BASE_URL}/account/orders`,
   ORDER_DETAILS: `${API_BASE_URL}/account/order`,
@@ -35,6 +42,7 @@ export const API_URLS = {
   // Referral endpoints
   REFERRAL_STATS: `${API_BASE_URL}/referral/stats`,
   REFERRAL_GET: `${API_BASE_URL}/referral/get`,
+  REFERRAL_TRANSFER: `${API_BASE_URL}/referral/transfer`,
   
   // WhatsApp verification endpoint
   WHATSAPP_CHECK: `${API_BASE_URL}/check/whatsapp`,

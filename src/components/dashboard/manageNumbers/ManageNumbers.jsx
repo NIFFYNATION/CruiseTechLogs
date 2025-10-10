@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { FaSearch, FaTrash } from "react-icons/fa";
+import { FaSearch, FaTrash, FaChevronDown } from "react-icons/fa";
 import { AiFillEye } from 'react-icons/ai'
+import { FiMail, FiPhone } from "react-icons/fi";
 import NumberDetailsModal from './NumberDetailsModal';
-import { fetchNumbers } from "../../../services/numberService";
+import { fetchNumbers, fetchNumberCode } from "../../../services/numberService";
+import { getEmails, getEmailCode } from "../../../services/emailService";
 import { useParams, useNavigate } from "react-router-dom";
 import SectionHeader from "../../common/SectionHeader";
 import { SkeletonTableRow } from "../../common/Skeletons";
@@ -12,10 +14,13 @@ const ManageNumbers = ({ orderId }) => {
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedNumber, setSelectedNumber] = useState(null);
+  const [buyDropdownOpen, setBuyDropdownOpen] = useState(false);
 
   // Separate state for active/inactive numbers and pagination
   const [activeNumbers, setActiveNumbers] = useState([]);
   const [inactiveNumbers, setInactiveNumbers] = useState([]);
+  const [activeEmails, setActiveEmails] = useState([]);
+  const [inactiveEmails, setInactiveEmails] = useState([]);
   const [activeNext, setActiveNext] = useState(null);
   const [inactiveNext, setInactiveNext] = useState(null);
   const [activeLoading, setActiveLoading] = useState(false);
@@ -35,33 +40,124 @@ const ManageNumbers = ({ orderId }) => {
   // Dummy verification code for demo
   const verificationCode = "1234";
 
-  // Fetch numbers for active tab (only once)
+  // Fetch numbers and emails for active tab (only once)
   useEffect(() => {
-    if (activeNumbers.length === 0) {
+    if (activeNumbers.length === 0 && activeEmails.length === 0) {
       setActiveLoading(true);
-      fetchNumbers({ status: "active", start: 0 })
+      
+      // Fetch active numbers
+      const fetchActiveNumbers = fetchNumbers({ status: "active", start: 0 })
         .then(({ numbers, next }) => {
-          setActiveNumbers(numbers);
+          // Mark each number with type='number' if not already set
+          const numbersWithType = numbers.map(num => ({
+            ...num,
+            type: num.type || 'number'
+          }));
+          setActiveNumbers(numbersWithType);
           setActiveNext(next);
+          return numbersWithType;
         })
-        .finally(() => setActiveLoading(false));
+        .catch(err => {
+          console.error("Error fetching active numbers:", err);
+          return [];
+        });
+      
+      // Fetch active emails
+      const fetchActiveEmails = getEmails()
+        .then(response => {
+          if (response.status === "success" && Array.isArray(response.data)) {
+            // Filter for active emails and format them to match number structure
+            const activeEmailsData = response.data
+              .filter(email => email.status === "active")
+              .map(email => ({
+                ID: email.id || email.ID,
+                userID: email.userID,
+                accountID: email.accountID,
+                serviceCode: email.serviceCode,
+                serviceName: email.service,
+                number: email.email,
+                amount: email.amount,
+                type: 'email',
+                expiration: email.expiration || 0,
+                status: 1,
+                create_timestamp: email.create_timestamp,
+                date: email.date
+              }));
+            setActiveEmails(activeEmailsData);
+            return activeEmailsData;
+          }
+          return [];
+        })
+        .catch(err => {
+          console.error("Error fetching active emails:", err);
+          return [];
+        });
+      
+      // When both fetches complete, update loading state
+      Promise.all([fetchActiveNumbers, fetchActiveEmails])
+        .then(() => setActiveLoading(false));
     }
-    // eslint-disable-next-line
+  // eslint-disable-next-line
   }, []);
 
-  // Fetch numbers for inactive tab (only once)
+  // Fetch inactive numbers and emails (only once)
   useEffect(() => {
-    if (inactiveNumbers.length === 0) {
+    if (inactiveNumbers.length === 0 && inactiveEmails.length === 0) {
       setInactiveLoading(true);
-      fetchNumbers({ status: "inactive", start: 0 })
+      
+      // Fetch inactive numbers
+      const fetchInactiveNumbers = fetchNumbers({ status: "inactive", start: 0 })
         .then(({ numbers, next }) => {
-          setInactiveNumbers(numbers);
+          // Mark each number with type='number' if not already set
+          const numbersWithType = numbers.map(num => ({
+            ...num,
+            type: num.type || 'number'
+          }));
+          setInactiveNumbers(numbersWithType);
           setInactiveNext(next);
+          return numbersWithType;
         })
-        .finally(() => setInactiveLoading(false));
+        .catch(err => {
+          console.error("Error fetching inactive numbers:", err);
+          return [];
+        });
+      
+      // Fetch inactive emails
+      const fetchInactiveEmails = getEmails()
+        .then(response => {
+          if (response.status === "success" && Array.isArray(response.data)) {
+            // Filter for inactive emails and format them to match number structure
+            const inactiveEmailsData = response.data
+              .filter(email => email.status !== "active")
+              .map(email => ({
+                ID: email.id || email.ID,
+                userID: email.userID,
+                accountID: email.accountID,
+                serviceCode: email.serviceCode,
+                serviceName: email.service,
+                number: email.email,
+                amount: email.amount,
+                type: 'email',
+                expiration: 0,
+                status: 0,
+                create_timestamp: email.create_timestamp,
+                date: email.date
+              }));
+            setInactiveEmails(inactiveEmailsData);
+            return inactiveEmailsData;
+          }
+          return [];
+        })
+        .catch(err => {
+          console.error("Error fetching inactive emails:", err);
+          return [];
+        });
+      
+      // When both fetches complete, update loading state
+      Promise.all([fetchInactiveNumbers, fetchInactiveEmails])
+        .then(() => setInactiveLoading(false));
     }
-    // eslint-disable-next-line
-  }, []);
+  }, [inactiveNumbers.length, inactiveEmails.length]);
 
   // --- Auto-open modal if orderId param is present ---
   useEffect(() => {
@@ -160,51 +256,95 @@ const ManageNumbers = ({ orderId }) => {
     }
   }, [inactiveNumbers, inactiveNext, inactiveLoading, inactiveLoadingMore]);
 
-  // Filtering (apply search to both active and inactive numbers)
-  const filteredActiveNumbers = activeNumbers.filter((n) => {
+  // Filtering (apply search to both active and inactive numbers and emails)
+  const filteredActiveNumbers = [...activeNumbers, ...activeEmails].filter((n) => {
     const numStr = n.number?.toString() || "";
     const serviceStr = n.serviceName?.toLowerCase() || "";
+    const typeStr = n.type?.toLowerCase() || "";
     const searchStr = search.toLowerCase();
     return (
       n.status === 1 &&
       (searchStr === "" ||
         numStr.includes(searchStr) ||
-        serviceStr.includes(searchStr))
+        serviceStr.includes(searchStr) ||
+        typeStr.includes(searchStr))
     );
   });
-  const filteredInactiveNumbers = inactiveNumbers.filter((n) => {
+  const filteredInactiveNumbers = [...inactiveNumbers, ...inactiveEmails].filter((n) => {
     const numStr = n.number?.toString() || "";
     const serviceStr = n.serviceName?.toLowerCase() || "";
+    const typeStr = n.type?.toLowerCase() || "";
     const searchStr = search.toLowerCase();
     return (
       n.status !== 1 &&
       (searchStr === "" ||
         numStr.includes(searchStr) ||
-        serviceStr.includes(searchStr))
+        serviceStr.includes(searchStr) ||
+        typeStr.includes(searchStr))
     );
   });
 
   // Handler for "View" button
-  const handleView = (numberObj) => {
-    setSelectedNumber(numberObj);
+  const handleView = async (item) => {
+    setSelectedNumber(item);
     setModalOpen(true);
     // If orderId is in URL, remove it for clean navigation after manual open
     if (orderIdParam) {
       navigate("/dashboard/manage-numbers", { replace: true });
     }
+    
+    // Fetch verification code based on item type
+    try {
+      if (item.type === 'email') {
+        // Fetch email code
+        const res = await getEmailCode(item.ID);
+        if (res.status === "success" && Array.isArray(res.data) && res.data.length > 0) {
+          // Just get the first message for now
+          setVerificationCode(res.data[0].code || res.data[0].content || "");
+        } else {
+          setVerificationCode("");
+        }
+      } else {
+        // Fetch number code (default)
+        const res = await fetchNumberCode(item.ID);
+        if (res.code === 200 && Array.isArray(res.data) && res.data.length > 0) {
+          // Just get the first message for now
+          setVerificationCode(res.data[0].message || "");
+        } else {
+          setVerificationCode("");
+        }
+      }
+    } catch (err) {
+      console.error(`Error fetching code for ${item.type || 'number'}:`, err);
+      setVerificationCode("");
+    }
   };
 
-  // Handler for when a number is closed
+  // Handler for when a number or email is closed
   const handleNumberClosed = (orderId) => {
-    setActiveNumbers((prev) => prev.filter((n) => n.ID !== orderId));
-    setInactiveNumbers((prev) => [
-      ...prev,
-      ...(activeNumbers.filter((n) => n.ID === orderId).map((n) => ({
-        ...n,
-        status: 0,
-        date: new Date().toISOString().slice(0, 19).replace("T", " "),
-      })))],
-    );
+    // Handle email type
+    if (selectedNumber?.type === 'email') {
+      setActiveEmails((prev) => prev.filter((e) => e.ID !== orderId));
+      setInactiveEmails((prev) => [
+        ...prev,
+        ...(activeEmails.filter((e) => e.ID === orderId).map((e) => ({
+          ...e,
+          status: 0,
+          date: new Date().toISOString().slice(0, 19).replace("T", " "),
+        })))
+      ]);
+    } else {
+      // Handle number type (default)
+      setActiveNumbers((prev) => prev.filter((n) => n.ID !== orderId));
+      setInactiveNumbers((prev) => [
+        ...prev,
+        ...(activeNumbers.filter((n) => n.ID === orderId).map((n) => ({
+          ...n,
+          status: 0,
+          date: new Date().toISOString().slice(0, 19).replace("T", " "),
+        })))
+      ]);
+    }
     setModalOpen(false);
     // After closing, remove orderId from URL if present
     if (orderIdParam) {
@@ -240,44 +380,104 @@ const ManageNumbers = ({ orderId }) => {
     return expiration > 0 && expiration < 3600;
   }
 
+  // Custom Buy Dropdown Component
+  const BuyDropdown = () => {
+    const dropdownRef = useRef(null);
+
+    useEffect(() => {
+      const handleClickOutside = (event) => {
+        if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+          setBuyDropdownOpen(false);
+        }
+      };
+
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }, []);
+
+    return (
+      <div className="relative" ref={dropdownRef}>
+        <button
+          className="bg-quinary hover:bg-[#ff8c1a] text-white font-semibold rounded-lg px-3 py-2 sm:px-4 sm:py-2 text-sm flex items-center gap-2 transition-colors min-h-[40px] sm:min-h-[44px] touch-manipulation"
+          onClick={() => setBuyDropdownOpen(!buyDropdownOpen)}
+        >
+          <span className="hidden xs:inline text-xs sm:text-sm">Buy</span>
+          <span className="xs:hidden text-lg">+Rent</span>
+          <FaChevronDown className={`transition-transform text-xs sm:text-sm ${buyDropdownOpen ? 'rotate-180' : ''}`} />
+        </button>
+        {buyDropdownOpen && (
+          <div className="absolute right-0 mt-2 w-44 sm:w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-50 overflow-hidden">
+            <div className="py-1">
+              <button
+                className="w-full text-left px-3 py-3 sm:px-4 sm:py-3 text-xs sm:text-sm text-gray-700 hover:bg-gray-50 active:bg-gray-100 flex items-center gap-2 transition-colors touch-manipulation"
+                onClick={() => {
+                  navigate('/dashboard/buy-numbers');
+                  setBuyDropdownOpen(false);
+                }}
+              >
+                <FiPhone className="h-3 w-3 sm:h-4 sm:w-4 text-green-500 flex-shrink-0" />
+                <span className="truncate">Buy Numbers</span>
+              </button>
+              <button
+                className="w-full text-left px-3 py-3 sm:px-4 sm:py-3 text-xs sm:text-sm text-gray-700 hover:bg-gray-50 active:bg-gray-100 flex items-center gap-2 transition-colors touch-manipulation"
+                onClick={() => {
+                  navigate('/dashboard/buy-emails');
+                  setBuyDropdownOpen(false);
+                }}
+              >
+                <FiMail className="h-3 w-3 sm:h-4 sm:w-4 text-blue-500 flex-shrink-0" />
+                <span className="truncate">Buy Emails</span>
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
-    <div className="">
+    <div className="px-2 sm:px-6 lg:px-6 ml-6">
       {/* Unified Responsive Table */}
       <div className="mt-4 sm:mt-6">
-        <SectionHeader
-          title="Manage Numbers"
-          buttonText="+ Buy Number"
-          onButtonClick={() => navigate('/dashboard/buy-numbers')}
-        />
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 ms-3">
+          <div className="flex justify-between">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-text-primary">Manage Rentals</h1>
+            <BuyDropdown />
+          </div>
+        </div>
+        
+        <div className="ms-3">
 
+       
         {/* Tabs and Search */}
-        <div className="flex flex-col md:flex-row md:justify-between gap-4 border-b border-[#ECECEC] mb-6 md:mb-10 px-2 md:px-0">
-          <div className="flex gap-8">
+        <div className="flex flex-col lg:flex-row lg:justify-between gap-4 border-b border-[#ECECEC] mb-6 lg:mb-10">
+          <div className="flex gap-6 sm:gap-8">
             {["Active", "Inactive"].map((tab) => (
               <button
                 key={tab}
-                className={`pb-2 md:pb-0 text-base md:text-lg font-medium transition-colors ${
+                className={`pb-3 text-base sm:text-lg font-medium transition-colors min-h-[44px] ${
                   activeTab === tab
-                    ? "border-b-2 md:border-b-3 border-primary text-primary"
-                    : "text-text-grey"
+                    ? "border-b-2 lg:border-b-3 border-primary text-primary"
+                    : "text-text-grey hover:text-text-primary"
                 }`}
                 onClick={() => setActiveTab(tab)}
               >
                 {tab}
               </button>
             ))}
-        </div>
-          <div className="flex bg-background rounded-lg border-none px-3 py-2 mb-2 md:mb-0 items-center max-w-xs">
-            
-          <FaSearch className="text-text-grey mr-2" />
-          <input
-            type="text"
-            placeholder="Search numbers or service type"
-            className="outline-none bg-transparent text-sm text-text-secondary w-full"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
+          </div>
+          <div className="flex bg-background rounded-lg border border-gray-200 px-3 py-2 items-center w-full sm:max-w-xs lg:max-w-sm">
+            <FaSearch className="text-text-grey mr-2 flex-shrink-0" />
+            <input
+              type="text"
+              placeholder="Search numbers, emails or services"
+              className="outline-none bg-transparent text-sm text-text-secondary w-full min-w-0"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
         </div>
         
         {/* Refund Information */}
@@ -286,10 +486,10 @@ const ManageNumbers = ({ orderId }) => {
             <strong>Refund Information:</strong> If your refund is taking too long to process, please reload the page to refresh your refund status.
           </p>
         </div>
-        
+         </div>
         {/* Responsive Table */}
         <div
-          className="bg-background rounded-2xl shadow p-2 md:p-4 overflow-x-auto thin-scrollbar"
+          className="bg-background rounded-2xl shadow-lg p-3 sm:p-4 lg:p-6 overflow-x-auto thin-scrollbar ms-3"
           style={{ maxHeight: "70vh", minHeight: 200, overflowY: "hidden" }}
         >
           {/* Active Table */}
@@ -300,69 +500,90 @@ const ManageNumbers = ({ orderId }) => {
           >
             <table className="w-full thin-scrollbar">
               <thead className="sticky top-0 z-10 bg-background">
-                <tr className="text-left text-xs md:text-sm">
-                <th className="py-2 px-2">Number</th>
-                <th className="py-2 px-2">Expiration</th>
-                <th className="py-2 px-2">Actions</th>
-              </tr>
-            </thead>
+                <tr className="text-left text-xs sm:text-sm">
+                  <th className="py-3 px-2 sm:px-3 font-semibold text-gray-700">Type</th>
+                  <th className="py-3 px-2 sm:px-3 font-semibold text-gray-700">Number/Email</th>
+                  <th className="py-3 px-2 sm:px-3 font-semibold text-gray-700">Expiration</th>
+                  <th className="py-3 px-2 sm:px-3 font-semibold text-gray-700">Actions</th>
+                </tr>
+              </thead>
             <tbody>
                 {activeLoading ? (
                   <>
                     {Array.from({ length: 3 }).map((_, i) => (
-                      <SkeletonTableRow key={i} cols={3} />
+                      <SkeletonTableRow key={i} cols={4} />
                     ))}
                   </>
                 ) : filteredActiveNumbers.length === 0 ? (
                   <tr>
-                    <td colSpan={3} className="text-center text-grey py-8">
+                    <td colSpan={4} className="text-center text-grey py-8">
                       <div className="flex flex-col items-center gap-4">
-                        <span>No numbers found.</span>
-                        <div className="flex  gap-2 w-full justify-center items-center">
+                        <span>No active rentals found.</span>
+                        <div className="flex gap-2 w-full justify-center items-center">
                           <button
                             className="bg-quinary hover:bg-[#ff8c1a] text-white font-semibold rounded-full px-4 py-1.5 text-sm flex items-center gap-2 transition-colors"
-                            onClick={() => navigate('/dashboard/buy-numbers')}
+                            onClick={() => setBuyDropdownOpen(true)}
                           >
-                            + Buy Number
+                            + Start Renting
                           </button>
                           <button
                             className="bg-quaternary-light text-quinary font-semibold rounded-full px-4 py-1.5 text-sm flex items-center gap-2 border border-quaternary transition-colors hover:bg-quaternary-light"
                             style={{ background: "none" }}
                             onClick={() => setActiveTab("Inactive")}
                           >
-                            View Inactive Numbers
+                            View Inactive Rentals
                           </button>
                         </div>
                       </div>
                     </td>
                   </tr>
                 ) : (
-                  filteredActiveNumbers.map((n) => (
+                  filteredActiveNumbers.map((item) => (
                     <tr
-                      key={n.ID}
+                      key={item.ID}
                       className="border-b last:border-b-0 border-text-grey text-sm md:text-base"
                     >
-                      <td className="py-3 px-2 font-medium text-text-primary">
-                        {n.number}
-                        <div className="text-xs text-text-grey mt-1 truncate max-w-[180px]">
-                          {n.serviceName && n.serviceName.length > 20
-                            ? n.serviceName.slice(0, 20) + "..."
-                            : n.serviceName}
+                      <td className="py-3 px-2 sm:px-3 font-medium text-text-primary">
+                        <div className="flex items-center gap-2">
+                          {item.type === 'email' ? (
+                            <>
+                              <FiMail className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500 flex-shrink-0" />
+                              <span className="text-xs sm:text-sm text-blue-600 font-medium hidden sm:inline">Email</span>
+                            </>
+                          ) : (
+                            <>
+                              <FiPhone className="h-4 w-4 sm:h-5 sm:w-5 text-green-500 flex-shrink-0" />
+                              <span className="text-xs sm:text-sm text-green-600 font-medium hidden sm:inline">Number</span>
+                            </>
+                          )}
                         </div>
                       </td>
-                      <td className="py-3 px-2 font-semibold">
-                        <span className={isLessThanOneHour(n.expiration) ? "text-danger" : "text-success"}>
-                          {formatExpiration(n.expiration)}
-                      </span>
-                  </td>
-                  <td className="py-3 px-2">
+                      <td className="py-3 px-2 sm:px-3 font-medium text-text-primary">
+                        <div className="min-w-0">
+                          <div className="font-mono text-sm sm:text-base truncate">{item.number}</div>
+                          <div className="text-xs text-text-grey mt-1 truncate max-w-[120px] sm:max-w-[180px]">
+                            {item.serviceName && item.serviceName.length > 15
+                              ? item.serviceName.slice(0, 15) + "..."
+                              : item.serviceName}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-3 px-2 sm:px-3 font-semibold">
+                        <span className={`text-sm sm:text-base ${
+                          isLessThanOneHour(item.expiration) ? "text-danger" : "text-success"
+                        }`}>
+                          {formatExpiration(item.expiration)}
+                        </span>
+                      </td>
+                      <td className="py-3 px-2 sm:px-3">
                         <button
-                          className="bg-quaternary-light text-quinary font-semibold rounded-full px-2 py-1 flex items-center gap-1 text-sm"
-                          onClick={() => handleView(n)}
+                          className="bg-quaternary-light text-quinary font-semibold rounded-full px-3 py-2 flex items-center gap-1 text-xs sm:text-sm hover:bg-quaternary transition-colors min-h-[36px] min-w-[36px]"
+                          onClick={() => handleView(item)}
                         >
-                          View <span className="text-xs"><AiFillEye className="text-quinary" /></span>
-                    </button>
-                  </td>
+                          <span className="hidden sm:inline">View</span>
+                          <AiFillEye className="h-4 w-4 sm:hidden" />
+                        </button>
+                      </td>
                 </tr>
                   ))
               )}
@@ -383,61 +604,90 @@ const ManageNumbers = ({ orderId }) => {
             ref={inactiveListRef}
             style={{ display: activeTab === "Inactive" ? "block" : "none", maxHeight: "70vh", overflowY: "auto" }}
           >
-          <table className="w-full">
+          <table className="w-full thin-scrollbar">
               <thead className="sticky top-0 z-10 bg-background">
-                <tr className="text-left text-xs md:text-sm">
-                <th className="py-2 px-2">Number</th>
-                  <th className="py-2 px-2">Date</th>
-                <th className="py-2 px-2">Actions</th>
-              </tr>
-            </thead>
+                <tr className="text-left text-xs sm:text-sm">
+                  <th className="py-3 px-2 sm:px-3 font-semibold text-gray-700">Type</th>
+                  <th className="py-3 px-2 sm:px-3 font-semibold text-gray-700">Number/Email</th>
+                  <th className="py-3 px-2 sm:px-3 font-semibold text-gray-700">Date</th>
+                  <th className="py-3 px-2 sm:px-3 font-semibold text-gray-700">Actions</th>
+                </tr>
+              </thead>
             <tbody>
                 {inactiveLoading ? (
                   <>
                     {Array.from({ length: 3 }).map((_, i) => (
-                      <SkeletonTableRow key={i} cols={3} />
+                      <SkeletonTableRow key={i} cols={4} />
                     ))}
                   </>
                 ) : filteredInactiveNumbers.length === 0 ? (
                   <tr>
-                    <td colSpan={3} className="text-center text-grey py-8">
+                    <td colSpan={4} className="text-center text-grey py-8">
                       <div className="flex flex-col items-center gap-4">
-                        <span>No inactive numbers found.</span>
-                        <div className="text-xs text-text-secondary max-w-xs mx-auto">
-                          You have no expired or used numbers yet.<br />
-                          Numbers will appear here after they expire or are used.<br />
-                          <span className="font-semibold">Tip:</span> Buy a number and use it for verification. Once expired, it will show here for your records.
+                        <span>No inactive rentals found.</span>
+                        <div className="flex gap-2 w-full justify-center items-center">
+                          <button
+                            className="bg-quinary hover:bg-[#ff8c1a] text-white font-semibold rounded-full px-4 py-1.5 text-sm flex items-center gap-2 transition-colors"
+                            onClick={() => setBuyDropdownOpen(true)}
+                          >
+                            + Start Renting
+                          </button>
+                          <button
+                            className="bg-quaternary-light text-quinary font-semibold rounded-full px-4 py-1.5 text-sm flex items-center gap-2 border border-quaternary transition-colors hover:bg-quaternary-light"
+                            style={{ background: "none" }}
+                            onClick={() => setActiveTab("Active")}
+                          >
+                            View Active Rentals
+                          </button>
                         </div>
                       </div>
                     </td>
                   </tr>
                 ) : (
-                  filteredInactiveNumbers.map((n) => (
+                  filteredInactiveNumbers.map((item) => (
                     <tr
-                      key={n.ID}
+                      key={item.ID}
                       className="border-b last:border-b-0 border-text-grey text-sm md:text-base"
                     >
-                      <td className="py-3 px-2 font-medium text-text-primary">
-                        {n.number}
-                        <div className="text-xs text-text-grey mt-1 truncate max-w-[180px]">
-                          {n.serviceName && n.serviceName.length > 20
-                            ? n.serviceName.slice(0, 20) + "..."
-                            : n.serviceName}
+                      <td className="py-3 px-2 sm:px-3 font-medium text-text-primary">
+                        <div className="flex items-center gap-2">
+                          {item.type === 'email' ? (
+                            <>
+                              <FiMail className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500 flex-shrink-0" />
+                              <span className="text-xs sm:text-sm text-blue-600 font-medium hidden sm:inline">Email</span>
+                            </>
+                          ) : (
+                            <>
+                              <FiPhone className="h-4 w-4 sm:h-5 sm:w-5 text-green-500 flex-shrink-0" />
+                              <span className="text-xs sm:text-sm text-green-600 font-medium hidden sm:inline">Number</span>
+                            </>
+                          )}
                         </div>
                       </td>
-                      <td className="font-semibold">
-                        <span className="font-semibold rounded-full text-xs">
-                          {n.date}
+                      <td className="py-3 px-2 sm:px-3 font-medium text-text-primary">
+                        <div className="min-w-0">
+                          <div className="font-mono text-sm sm:text-base truncate">{item.number}</div>
+                          <div className="text-xs text-text-grey mt-1 truncate max-w-[120px] sm:max-w-[180px]">
+                            {item.serviceName && item.serviceName.length > 15
+                              ? item.serviceName.slice(0, 15) + "..."
+                              : item.serviceName}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-3 px-2 sm:px-3 font-semibold">
+                        <span className="text-xs sm:text-sm text-gray-600">
+                          {item.date}
                         </span>
-                  </td>
-                  <td className="py-3 px-2">
+                      </td>
+                      <td className="py-3 px-2 sm:px-3">
                         <button
-                          className="bg-quaternary-light text-quinary font-semibold rounded-full px-2 py-1 flex items-center gap-1 text-sm"
-                          onClick={() => handleView(n)}
+                          className="bg-quaternary-light text-quinary font-semibold rounded-full px-3 py-2 flex items-center gap-1 text-xs sm:text-sm hover:bg-quaternary transition-colors min-h-[36px] min-w-[36px]"
+                          onClick={() => handleView(item)}
                         >
-                        View <span className="text-xs"><AiFillEye className="text-quinary" /></span>
-                      </button>
-                  </td>
+                          <span className="hidden sm:inline">View</span>
+                          <AiFillEye className="h-4 w-4 sm:hidden" />
+                        </button>
+                      </td>
                 </tr>
                   ))
               )}
@@ -483,6 +733,7 @@ const ManageNumbers = ({ orderId }) => {
         date={(selectedNumber?.create_timestamp != null || "") ? selectedNumber.create_timestamp : selectedNumber?.date}
         expire_date={selectedNumber?.expire_date}
         onNumberClosed={handleNumberClosed}
+        type={selectedNumber?.type || 'number'}
       />
     </div>
   );
