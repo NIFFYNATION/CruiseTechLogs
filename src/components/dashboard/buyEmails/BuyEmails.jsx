@@ -155,11 +155,11 @@ const BuyEmails = () => {
           onClick={() => setEmailTypeModalOpen(true)}
         >
           <div className="flex items-center gap-2">
-            <img
+            {/* <img
               src="/icons/mail.svg"
               alt="Email Type"
               className="w-6 h-6 mr-2"
-            />
+            /> */}
             <div className="items-center">
               <h3 className="font-medium">
                 {selectedEmailType?.name || selectedEmailType?.id || "Select an email type"}
@@ -168,95 +168,135 @@ const BuyEmails = () => {
           </div>
           <img src="/icons/arrow-down.svg" alt="arrow" className="w-5 h-5" />
         </button>
-
-        {/* Search input */}
-        <div className="relative flex-1">
-          <input
-            type="text"
-            placeholder="Search services"
-            className="w-full h-full bg-white border border-border-grey rounded-sm px-4 py-1 md:py-3 pl-10 text-sm md:text-base"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-text-grey" />
-        </div>
       </div>
 
-      {/* Services Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {servicesLoading ? (
-          // Loading skeletons
-          [...Array(8)].map((_, index) => (
-            <SkeletonNumberCard key={index} />
-          ))
-        ) : filteredServices.length > 0 ? (
-          // Service cards
-          filteredServices.map((service) => {
-            const serviceId = service.id || service.ID;
-            const isSaved = savedServiceIds.includes(serviceId);
-            return (
-              <div
-                key={serviceId}
-                className="bg-white rounded-md shadow-sm overflow-hidden border border-border-grey hover:border-primary transition-all"
-              >
-                <div className="p-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-semibold text-lg">{service.name}</h3>
+      {/* Main Card */}
+      {selectedEmailType ? (
+        <div className="bg-background rounded-lg p-4 md:p-8">
+          {/* Search and View Rented Emails */}
+          {(services.length > 0 || search) && (
+            <div className="relative w-full mb-2">
+              <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-text-grey" size={20} />
+              <input
+                type="text"
+                placeholder="Search Service"
+                className="w-full font-semibold border border-border-grey rounded-sm pl-10 pr-4 py-2.5 focus:outline-none"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+          )}
+
+          {/* Services Count */}
+          {!servicesLoading && services.length > 0 && (
+            <div className="mb-4">
+              <p className="text-sm text-text-grey">
+                {search ? (
+                  filteredServices.length === services.length ? (
+                    `Showing all ${services.length} service${services.length !== 1 ? 's' : ''}`
+                  ) : (
+                    `Showing ${filteredServices.length} of ${services.length} service${services.length !== 1 ? 's' : ''}`
+                  )
+                ) : (
+                  `${services.length} service${services.length !== 1 ? 's' : ''} available`
+                )}
+              </p>
+            </div>
+          )}
+
+          {/* Services Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {servicesLoading ? (
+              Array.from({ length: 3 }).map((_, i) => <SkeletonNumberCard key={i} />)
+            ) : filteredServices.length === 0 ? (
+              <div className="col-span-3 flex flex-col items-center justify-center py-12 text-gray-400">
+                <FiBox className="w-16 h-16 mb-4 text-quinary" />
+                <div className="text-md font-semibold text-text-secondary mb-2">No services found.</div>
+                {search ? (
+                  <div className="text-sm text-text-grey text-center">
+                    No services match <span className="font-semibold text-quinary">"{search}"</span>.<br />
+                    Try a different search term or clear your search.
+                  </div>
+                ) : (
+                  <div className="text-sm text-text-grey text-center">
+                    Try adjusting your filters or check back later for new services.
+                  </div>
+                )}
+              </div>
+            ) : (
+              filteredServices.map((service, idx) => {
+                // JS logic for icon domain
+                const name = service.name?.split(/[ /]+/)[0] || "";
+                const nameLower = name.trim().toLowerCase();
+                let domain = `${nameLower}.com`;
+                if (
+                  nameLower === "telegram" ||
+                  nameLower === "signal"
+                ) {
+                  domain = `${nameLower}.org`;
+                }
+                const iconUrl = `https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://${domain}&size=90`;
+
+                const serviceId = service.id || service.ID;
+                const isSaved = savedServiceIds.includes(serviceId);
+
+                return (
+                  <div
+                    key={idx}
+                    onClick={() => handleBuyClick(service)}
+                    className="flex items-center rounded-xl shadow-sm px-4 py-4 mb-0 border-b-1 border-[#FFDE59] relative bg-gradient-to-tl from-rose-50/50 to-white-50 hover:shadow-md transition-all cursor-pointer"
+                  >
+                    <img src={iconUrl} alt={service.name} className="w-6 mr-4" onError={(e) => {
+                      e.target.src = "/icons/mail.svg";
+                    }} />
+                    <div className="flex-1">
+                      <div className="font-semibold">{service.name}</div>
+                      {service.count && (
+                        <div className="text-xs text-text-grey mb-1">
+                          {service.count.toLocaleString()} account{service.count !== 1 ? 's' : ''} available
+                        </div>
+                      )}
+                      <h3 className="text-primary font-semibold">
+                        {typeof service.cost === "number"
+                          ? service.cost.toLocaleString("en-NG", { style: "currency", currency: "NGN" })
+                          : `₦${service.cost ? String(service.cost).replace(/^₦/, '').replace(/^N/, '').trim() : "0.00"}`}
+                      </h3>
+                    </div>
                     <button
-                      onClick={() => toggleBookmark(serviceId)}
-                      className="text-text-grey hover:text-primary"
+                      className="ml-2"
+                      onClick={e => {
+                        e.stopPropagation(); // Prevent triggering buy
+                        toggleBookmark(serviceId);
+                      }}
+                      aria-label={isSaved ? "Unsave service" : "Save service"}
                     >
                       {isSaved ? (
-                        <FaBookmark className="text-primary" />
+                        <FaBookmark className="w-5 h-5 text-[#FF6B00] fill-[#FF6B00]" />
                       ) : (
-                        <FiBookmark />
+                        <FiBookmark className="w-5 h-5 text-[#FF6B00]" />
                       )}
                     </button>
                   </div>
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center">
-                      <img
-                        src={`https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://${service.name.toLowerCase().replace(/\s+/g, '')}.com&size=90`}
-                        alt={service.name}
-                        className="w-6 h-6 mr-2"
-                        onError={(e) => {
-                          e.target.src = "/icons/mail.svg";
-                        }}
-                      />
-                      <span className="text-sm text-text-secondary">
-                        {selectedEmailType?.name || selectedEmailType?.id || "Email"}
-                      </span>
-                    </div>
-                    <span className="text-sm font-medium bg-secondary/10 text-secondary px-2 py-1 rounded">
-                      {service.count || 0} available
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="font-bold text-lg">₦{service.cost?.toFixed(2) || "0.00"}</span>
-                    <button
-                      onClick={() => handleBuyClick(service)}
-                      className="bg-primary text-white px-4 py-2 rounded-sm hover:bg-primary-dark transition-colors"
-                    >
-                      Buy
-                    </button>
-                  </div>
-                </div>
-              </div>
-            );
-          })
-        ) : (
-          // No services found
-          <div className="col-span-full text-center py-8">
-            <FiBox className="mx-auto text-4xl text-text-grey mb-2" />
-            <h3 className="font-medium text-lg mb-1">No services found</h3>
-            <p className="text-text-secondary">
-              {selectedEmailType
-                ? "No services available for this email type. Try selecting a different type."
-                : "Please select an email type to view available services."}
-            </p>
+                );
+              })
+            )}
           </div>
-        )}
-      </div>
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center py-16">
+          <img src="/icons/mail.svg" alt="Choose Email Type" className="w-16 h-16 mb-4" />
+          <h4 className="text-lg font-semibold text-text-secondary mb-2">Select an email type to see available email services</h4>
+          <p className="text-sm text-text-grey mb-4 text-center">
+            Please select an <span className="font-semibold text-quinary">email type</span> to view and purchase email services.
+          </p>
+          <button
+            className="bg-quinary hover:bg-quaternary text-white font-medium px-4 py-2 rounded-full text-sm transition"
+            onClick={() => setEmailTypeModalOpen(true)}
+          >
+            Choose Email Type
+          </button>
+        </div>
+      )}
 
       {/* Email Type Selection Modal */}
       {emailTypeModalOpen && (

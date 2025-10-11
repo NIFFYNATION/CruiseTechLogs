@@ -13,8 +13,8 @@ export const hasEmailRentalAccess = (userEmail) => {
   // Get allowed emails from environment variable
   const allowedEmails = import.meta.env.VITE_API_ALLOW_EMAILS || '';
   
-  // If no allowed emails are specified, no one has access
-  if (!allowedEmails.trim()) return false;
+  // If no allowed emails are specified, allow access to all users
+  if (!allowedEmails.trim()) return true;
   
   // Split the comma-separated list and trim each email
   const emailList = allowedEmails.split(',').map(email => email.trim().toLowerCase());

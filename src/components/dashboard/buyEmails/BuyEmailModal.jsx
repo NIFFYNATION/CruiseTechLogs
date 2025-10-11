@@ -40,7 +40,7 @@ const BuyEmailModal = ({ isOpen, onClose, service, emailType, onBuy }) => {
       </button>
       <button
         onClick={handleBuy}
-        className={`flex-1 bg-primary text-white py-2 rounded-md transition-colors ${loading ? "opacity-70" : "hover:bg-primary-dark"}`}
+        className={`flex-1 bg-quaternary text-white py-2 rounded-md transition-colors ${loading ? "opacity-70" : "hover:bg-primary-dark"}`}
         disabled={loading}
       >
         {loading ? (

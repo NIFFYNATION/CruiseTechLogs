@@ -36,7 +36,7 @@ const ReferralPage = () => {
     if (referralCode) {
       // Generate referral link
       const baseUrl = window.location.origin;
-      setReferralLink(`${baseUrl}/register?ref=${referralCode}`);
+      setReferralLink(`${baseUrl}/signup/${referralCode}`);
       
       // Fetch referral data (placeholder)
       fetchReferralData();
