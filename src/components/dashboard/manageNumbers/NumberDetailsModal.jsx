@@ -338,7 +338,7 @@ const NumberDetailsModal = ({
                   : "bg-red-100 text-red-700"
               }`}
             >
-              {(isStillActive && messages.length === 0) ? (
+              {(isStillActive && messages.length === 0 && type === 'email') ? (
                 <>
                   Active
                   <span className="text-green-700 font-medium ml-2">
@@ -355,7 +355,7 @@ const NumberDetailsModal = ({
               </span>
             )}
             {/* Add Close Number/Email button if active */}
-            {(isStillActive && messages.length === 0) && (
+            {(isStillActive && messages.length === 0 && type === 'email') && (
               <button
                 className="ml-4 bg-danger text-white rounded-full px-4 py-1 text-xs font-semibold hover:bg-danger/80 transition"
                 onClick={() => setConfirmOpen(true)}
