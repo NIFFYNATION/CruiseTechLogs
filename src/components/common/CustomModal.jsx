@@ -288,7 +288,7 @@ const CustomModal = ({
                                 {item.countryCode && (
                                     <img src={`https://purecatamphetamine.github.io/country-flag-icons/3x2/${item.countryCode}.svg`} alt={item.name} className="w-6 h-6 rounded" />
                                 )}
-                                <span className="font-medium">{item.name + item.value || item.label}</span>
+                                <span className="font-medium">{(item.name ?? item.value)  || item.label}</span>
                             </button>
                         )
                     )}

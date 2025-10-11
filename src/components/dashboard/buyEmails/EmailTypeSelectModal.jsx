@@ -76,7 +76,7 @@ const EmailTypeSelectModal = ({ isOpen, onClose, onSelect }) => {
     }
     
     return emailTypes.map((type) => ({
-      name: "",
+      name: type.name,
       value: type.id,
       icon: (
         <img 
