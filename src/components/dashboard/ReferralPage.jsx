@@ -469,7 +469,7 @@ const ReferralPage = () => {
                 </div>
                 <div>
                   <h3 className="font-medium text-text-primary text-sm md:text-base">Earnings Rate</h3>
-                  <p className="text-text-grey text-xs md:text-sm">Earn {EARNINGS_PERCENT}% on all subsequent deposits made by your referred users.</p>
+                  <p className="text-text-grey text-xs md:text-sm">Earn {EARNINGS_PERCENT}% on all subsequent deposits made by your referred users till they reach Level 1(i.e you stop earning from each referred users once the accumulated deposit is N500,000) </p>
                 </div>
               </div>
               
