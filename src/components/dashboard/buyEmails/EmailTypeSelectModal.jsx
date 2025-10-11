@@ -76,12 +76,12 @@ const EmailTypeSelectModal = ({ isOpen, onClose, onSelect }) => {
     }
     
     return emailTypes.map((type) => ({
-      name: type.name || type.id, // Show name if available, otherwise show ID
+      name: "",
       value: type.id,
       icon: (
         <img 
           src={`https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://${type.id}&size=90`}
-          alt={type.name || type.id}
+          alt={type.id || type.id}
           className="w-5 h-5"
           onError={(e) => {
             e.target.src = "/icons/mail.svg";

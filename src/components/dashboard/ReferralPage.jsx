@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FaCopy, FaShare, FaQrcode, FaUsers, FaChartLine } from 'react-icons/fa';
 import { QRCodeSVG } from 'qrcode.react';
 import { useUser } from '../../contexts/UserContext';
-import { fetchReferralStats, fetchReferrals } from '../../services/referralService';
+import { fetchReferralStats, fetchReferrals, fetchReferralSettings, transferReferralBalance } from '../../services/referralService';
 
 const ReferralPage = () => {
   const { user, loading } = useUser();
@@ -13,8 +13,19 @@ const ReferralPage = () => {
   const [referralBalance, setReferralBalance] = useState(0);
   const [isTransferring, setIsTransferring] = useState(false);
   
-  // Minimum transfer amount (configurable)
-  const MIN_TRANSFER_AMOUNT = 5000;
+  // Referral settings from API
+  const [referralSettings, setReferralSettings] = useState({
+    min_deposit: 20000,
+    earnings_percent: 0.5,
+    min_withdraw_to_balance: 5000
+  });
+  const [isLoadingSettings, setIsLoadingSettings] = useState(true);
+  const [settingsError, setSettingsError] = useState(null);
+  
+  // Use settings from API or fallback to defaults
+  const MIN_TRANSFER_AMOUNT = referralSettings.min_withdraw_to_balance;
+  const EARNINGS_PERCENT = referralSettings.earnings_percent;
+  const MIN_DEPOSIT_REQUIREMENT = referralSettings.min_deposit;
 
   const [stats, setStats] = useState({
     totalReferrals: 0,
@@ -38,10 +49,32 @@ const ReferralPage = () => {
       const baseUrl = window.location.origin;
       setReferralLink(`${baseUrl}/signup/${referralCode}`);
       
-      // Fetch referral data (placeholder)
+      // Fetch referral data and settings
       fetchReferralData();
+      fetchSettings();
     }
      }, [referralCode]);
+
+  const fetchSettings = async () => {
+    try {
+      setIsLoadingSettings(true);
+      setSettingsError(null);
+      const response = await fetchReferralSettings();
+      if (response.code === 200 && response.data) {
+        setReferralSettings({
+          min_deposit: parseFloat(response.data.min_deposit || 20000),
+          earnings_percent: parseFloat(response.data.earnings_percent || 0.5),
+          min_withdraw_to_balance: parseFloat(response.data.min_withdraw_to_balance || 5000)
+        });
+      }
+    } catch (error) {
+       console.error('Error fetching referral settings:', error);
+       setSettingsError('Failed to load referral settings. Using default values.');
+       // Keep default values on error
+     } finally {
+       setIsLoadingSettings(false);
+     }
+   };
 
   const fetchReferralData = async () => {
     try {
@@ -179,7 +212,14 @@ const ReferralPage = () => {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-2xl font-semibold text-text-primary mb-2">Referral Program</h1>
-          <p className="text-text-grey">Earn 0.5% on every deposit made by your referrals</p>
+          {isLoadingSettings ? (
+            <p className="text-text-grey">Loading referral settings...</p>
+          ) : (
+            <p className="text-text-grey">Earn {EARNINGS_PERCENT}% on every deposit made by your referrals</p>
+          )}
+          {settingsError && (
+            <p className="text-warning text-sm mt-1">{settingsError}</p>
+          )}
         </div>
 
         {/* Stats Overview */}
@@ -240,9 +280,9 @@ const ReferralPage = () => {
                     <span className="text-xs text-primary font-medium">Active</span>
                   </div>
                   <div className="flex items-center space-x-1">
-                    <div className="h-1 w-8 bg-success rounded-full"></div>
-                    <span className="text-xs text-success font-medium">+0.5%</span>
-                  </div>
+                      <div className="h-1 w-8 bg-success rounded-full"></div>
+                      <span className="text-xs text-success font-medium">+{EARNINGS_PERCENT}%</span>
+                    </div>
                 </div>
               </div>
             </div>
@@ -418,9 +458,9 @@ const ReferralPage = () => {
                   <span className="text-primary text-xs md:text-sm font-bold">1</span>
                 </div>
                 <div>
-                  <h3 className="font-medium text-text-primary text-sm md:text-base">Minimum Deposit Requirement</h3>
-                  <p className="text-text-grey text-xs md:text-sm">Referred users must make a minimum deposit of N20,000 to activate the referral bonus.</p>
-                </div>
+                    <h3 className="font-medium text-text-primary text-sm md:text-base">Minimum Deposit Requirement</h3>
+                    <p className="text-text-grey text-xs md:text-sm">Your referrals must deposit at least ₦{MIN_DEPOSIT_REQUIREMENT.toLocaleString()} for you to earn commission</p>
+                  </div>
               </div>
               
               <div className="flex items-start space-x-2 md:space-x-3">
@@ -429,7 +469,7 @@ const ReferralPage = () => {
                 </div>
                 <div>
                   <h3 className="font-medium text-text-primary text-sm md:text-base">Earnings Rate</h3>
-                  <p className="text-text-grey text-xs md:text-sm">Earn 0.5% on all subsequent deposits made by your referred users.</p>
+                  <p className="text-text-grey text-xs md:text-sm">Earn {EARNINGS_PERCENT}% on all subsequent deposits made by your referred users.</p>
                 </div>
               </div>
               
