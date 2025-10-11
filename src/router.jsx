@@ -55,6 +55,10 @@ export const router = createBrowserRouter([
         element: <Signup />
       },
       {
+        path: '/signup/:ref',
+        element: <Signup />
+      },
+      {
         path: '/registration',
         element: <Registration />
       },
@@ -89,6 +93,7 @@ export const router = createBrowserRouter([
           { path: 'help-center', element: <HelpCenter /> },
           { path: 'stages', element: <StagesPage /> },
           { path: 'referral', element: <ReferralPage /> },
+          { path: 'referrals', element: <ReferralPage /> },
         ],
       },
       { path: '/forgot-password', element: <ForgotPassword /> },

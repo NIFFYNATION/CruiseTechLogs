@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { MdEmail, MdPerson } from 'react-icons/md';
 import { RiLockPasswordLine } from 'react-icons/ri';
 import InputField from '../../components/common/InputField';
@@ -12,6 +12,7 @@ import { useUser } from '../../contexts/UserContext';
 
 const Signup = () => {
   const { setUser } = useUser();
+  const { ref } = useParams();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -32,6 +33,32 @@ const Signup = () => {
       navigate('/dashboard', { replace: true });
     }
   }, [navigate]);
+
+  // Handle referral code from URL parameter and localStorage
+  useEffect(() => {
+    let referralCode = '';
+    
+    // Check if ref is passed via URL parameter
+    if (ref) {
+      referralCode = ref;
+      // Store in localStorage for future use
+      localStorage.setItem('referralCode', ref);
+    } else {
+      // Check localStorage for existing referral code
+      const storedRef = localStorage.getItem('referralCode');
+      if (storedRef) {
+        referralCode = storedRef;
+      }
+    }
+    
+    // Update form data with referral code if found
+    if (referralCode) {
+      setFormData(prev => ({
+        ...prev,
+        referralCode: referralCode
+      }));
+    }
+   }, [ref]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
