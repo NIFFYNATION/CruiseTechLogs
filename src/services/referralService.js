@@ -24,3 +24,25 @@ export const fetchReferrals = async (start = 0, limit = 50) => {
     throw error;
   }
 };
+
+// Fetch referral settings
+export const fetchReferralSettings = async () => {
+  try {
+    const response = await axiosInstance.get(API_URLS.REFERRAL_SETTINGS);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching referral settings:', error);
+    throw error;
+  }
+};
+
+// Transfer referral balance to main balance
+export const transferReferralBalance = async () => {
+  try {
+    const response = await axiosInstance.post(API_URLS.REFERRAL_TRANSFER);
+    return response.data;
+  } catch (error) {
+    console.error('Error transferring referral balance:', error);
+    throw error;
+  }
+};

@@ -43,6 +43,7 @@ export const API_URLS = {
   REFERRAL_STATS: `${API_BASE_URL}/referral/stats`,
   REFERRAL_GET: `${API_BASE_URL}/referral/get`,
   REFERRAL_TRANSFER: `${API_BASE_URL}/referral/transfer`,
+  REFERRAL_SETTINGS: `${API_BASE_URL}/content/referral/settings`,
   
   // WhatsApp verification endpoint
   WHATSAPP_CHECK: `${API_BASE_URL}/check/whatsapp`,
