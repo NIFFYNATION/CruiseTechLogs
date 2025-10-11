@@ -495,7 +495,7 @@ const ReferralPage = () => {
               
               <div className="flex items-start space-x-2 md:space-x-3">
                  <div className="w-5 h-5 md:w-6 md:h-6 bg-error/10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                   <span className="text-error text-xs md:text-sm font-bold">6</span>
+                   <span className="text-error text-xs md:text-sm font-bold">5</span>
                  </div>
                  <div>
                    <h3 className="font-medium text-text-primary text-sm md:text-base">Usage Restriction</h3>
