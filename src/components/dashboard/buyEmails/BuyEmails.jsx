@@ -104,30 +104,30 @@ const BuyEmails = () => {
   };
 
   // If user doesn't have access, show access denied message
-  if (!hasAccess) {
-    return (
-      <div className="p-2 md:p-6 min-h-screen">
-        <div className="mb-6">
-          <h2 className="text-xl md:text-2xl font-semibold mb-2">Email Rental</h2>
-          <p className="text-text-secondary font-semibold text-sm md:text-base">
-            This feature is currently in development and only available to selected users.
-          </p>
-        </div>
-        <div className="bg-white p-6 rounded-md shadow-sm text-center">
-          <img 
-            src="/icons/lock.svg" 
-            alt="Access Denied" 
-            className="w-16 h-16 mx-auto mb-4"
-          />
-          <h3 className="text-lg font-semibold mb-2">Access Restricted</h3>
-          <p className="text-text-secondary mb-4">
-            You don't currently have access to the Email Rental feature. 
-            This feature is in development and only available to selected users.
-          </p>
-        </div>
-      </div>
-    );
-  }
+  // if (!hasAccess) {
+  //   return (
+  //     <div className="p-2 md:p-6 min-h-screen">
+  //       <div className="mb-6">
+  //         <h2 className="text-xl md:text-2xl font-semibold mb-2">Email Rental</h2>
+  //         <p className="text-text-secondary font-semibold text-sm md:text-base">
+  //           This feature is currently in development and only available to selected users.
+  //         </p>
+  //       </div>
+  //       <div className="bg-white p-6 rounded-md shadow-sm text-center">
+  //         <img 
+  //           src="/icons/lock.svg" 
+  //           alt="Access Denied" 
+  //           className="w-16 h-16 mx-auto mb-4"
+  //         />
+  //         <h3 className="text-lg font-semibold mb-2">Access Restricted</h3>
+  //         <p className="text-text-secondary mb-4">
+  //           You don't currently have access to the Email Rental feature. 
+  //           This feature is in development and only available to selected users.
+  //         </p>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="p-2 md:p-6 min-h-screen">
