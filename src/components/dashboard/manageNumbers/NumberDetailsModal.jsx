@@ -105,6 +105,11 @@ const NumberDetailsModal = ({
   // Determine if number is still active based on countdown
   // status === 1 or status === "active", and secondsLeft > 0 means not expired
   const isStillActive = ((status === "active" || status === 1) && secondsLeft > 0);
+  
+  // Determine actual active status based on type and message conditions
+  const isActuallyActive = type === 'email' 
+    ? (isStillActive && messages.length === 0) // For email: active only if no messages received
+    : isStillActive; // For numbers: use original logic
 
   // Fetch code/messages from API
   const fetchCode = useCallback(
@@ -333,12 +338,12 @@ const NumberDetailsModal = ({
           <div className="flex items-center gap-2 mt-2">
             <span
               className={`inline-block px-4 py-1 rounded-full text-xs font-semibold ${
-                isStillActive
+                isActuallyActive
                   ? "bg-green-100 text-green-700"
                   : "bg-red-100 text-red-700"
               }`}
             >
-              {(isStillActive && messages.length === 0 && type === 'email') ? (
+              {isActuallyActive ? (
                 <>
                   Active
                   <span className="text-green-700 font-medium ml-2">
@@ -355,7 +360,7 @@ const NumberDetailsModal = ({
               </span>
             )}
             {/* Add Close Number/Email button if active */}
-            {(isStillActive && messages.length === 0 && type === 'email') && (
+            {isActuallyActive && (
               <button
                 className="ml-4 bg-danger text-white rounded-full px-4 py-1 text-xs font-semibold hover:bg-danger/80 transition"
                 onClick={() => setConfirmOpen(true)}
