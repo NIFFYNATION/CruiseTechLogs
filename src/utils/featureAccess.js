@@ -8,6 +8,7 @@
  * @returns {boolean} - Whether the user has access to the feature
  */
 export const hasEmailRentalAccess = (userEmail) => {
+  return true;
   if (!userEmail) return false;
   
   // Get allowed emails from environment variable
