@@ -32,7 +32,7 @@ const DashboardLayout = () => {
 
     // Control live chat widget visibility
     useEffect(() => {
-      const chatway = document.querySelector('.launcher-default-open-icon');
+      const chatway = document.querySelector('.chatway--trigger-icon-container');
       if (chatway) {
         chatway.style.setProperty('display', showChatPanel ? 'block' : 'none', 'important');
       }
@@ -40,7 +40,7 @@ const DashboardLayout = () => {
 
     // Optionally, always hide on mount
     useEffect(() => {
-      const chatway = document.querySelector('.launcher-default-open-icon');
+      const chatway = document.querySelector('.chatway--trigger-icon-container');
       if (chatway) chatway.style.display = 'none';
     }, []);
   
@@ -58,7 +58,7 @@ const DashboardLayout = () => {
           </main>
         </div>
         {/* Style for chatway widget trigger */}
-        <style>{`.launcher-default-open-icon { bottom: 120px !important;  display: none !important; zoom: 0.7; } .live-chat-container { margin-bottom: 170px;} .live-chat-toggle{ margin-bottom: 60px;}`}</style>
+        <style>{`.chatway--trigger-icon-container { bottom: 120px !important;  display: none !important; zoom: 0.7; } .live-chat-container { margin-bottom: 170px;} .live-chat-toggle{ margin-bottom: 60px;}`}</style>
         {/* Animation styles for chat panel */}
         <style>{`
           @keyframes fade-in-up {
