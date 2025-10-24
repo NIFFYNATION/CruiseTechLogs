@@ -69,11 +69,11 @@ const CustomModal = ({
   }, [internalOpen]);
 
 
-    // Hide/show .launcher-default-open-icon when modal is open/closed
+    // Hide/show .chatway--trigger-icon-container when modal is open/closed
     useEffect(() => {
       if (typeof window === 'undefined') return;
       const containers = [
-        ...document.querySelectorAll('.launcher-default-open-icon'),
+        ...document.querySelectorAll('.chatway--trigger-icon-container'),
         ...document.querySelectorAll('.live-chat-container'),
       ];
       if (internalOpen) {
