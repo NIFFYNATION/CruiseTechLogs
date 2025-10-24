@@ -41,9 +41,9 @@ export const logoutUser = async () => {
   localStorage.removeItem('authToken');
   localStorage.removeItem('userData');
   // Remove all cookies
-  document.cookie.split(';').forEach((c) => {
-    document.cookie = c.replace(/^ +/, '').replace(/=.*/, '=;expires=' + new Date(0).toUTCString() + ';path=/');
-  });
+  // document.cookie.split(';').forEach((c) => {
+  //   document.cookie = c.replace(/^ +/, '').replace(/=.*/, '=;expires=' + new Date(0).toUTCString() + ';path=/');
+  // });
   // Only redirect if not already on / or /login
   const path = window.location.pathname;
   if (path !== '/' && path !== '/login') {
