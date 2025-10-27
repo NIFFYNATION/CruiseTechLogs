@@ -76,6 +76,24 @@ const BuyNumbers = () => {
     // eslint-disable-next-line
   }, [selectedNumberType, selectedCountry]);
 
+  // Add manual refresh function to fetch latest services and pricing from API
+  const refreshServices = () => {
+    if (!selectedNumberType) return;
+    if (typeNeedsCountry(selectedNumberType) && (!selectedCountry || !selectedCountry.id)) return;
+    setServicesLoading(true);
+    fetchServices({
+      type: selectedNumberType.type || selectedNumberType.value || "",
+      network: selectedNumberType.network,
+      countryID: typeNeedsCountry(selectedNumberType) ? selectedCountry?.id : undefined,
+    })
+      .then((data) => {
+        const servicesArray = Array.isArray(data) ? data : [];
+        setServices(servicesArray);
+      })
+      .catch(() => setServices([]))
+      .finally(() => setServicesLoading(false));
+  };
+
   // Helper: toggle bookmark
   const toggleBookmark = (serviceId) => {
     setSavedServiceIds(prev => {
@@ -224,6 +242,16 @@ const BuyNumbers = () => {
       {/* Main Card */}
       {selectedNumberType ? (
         <div className="bg-background rounded-lg  p-4 md:p-8">
+          {/* Refresh services button */}
+          <div className="flex justify-end mb-2">
+            <button
+              className="text-quinary text-sm font-semibold hover:underline disabled:opacity-50"
+              onClick={refreshServices}
+              disabled={servicesLoading || !selectedNumberType || (typeNeedsCountry(selectedNumberType) && !selectedCountry?.id)}
+            >
+              {servicesLoading ? 'Updating services...' : 'Refresh services'}
+            </button>
+          </div>
           {/* Search and View Rented Numbers */}
           {(services.length > 0 || search) && (
             <div className="relative w-full mb-2">
@@ -303,6 +331,14 @@ const BuyNumbers = () => {
                     Try adjusting your filters or check back later for new services.
                   </div>
                 )}
+                {/* Refresh button visible even when empty */}
+                <button
+                  className="mt-3 text-quinary text-sm font-semibold hover:underline disabled:opacity-50"
+                  onClick={refreshServices}
+                  disabled={servicesLoading || !selectedNumberType || (typeNeedsCountry(selectedNumberType) && !selectedCountry?.id)}
+                >
+                  {servicesLoading ? 'Updating services...' : 'Refresh services'}
+                </button>
               </div>
             ) : (
               filteredServices.map((service, idx) => {
