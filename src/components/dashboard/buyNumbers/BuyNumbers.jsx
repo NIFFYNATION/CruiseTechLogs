@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FiSearch, FiBookmark, FiBox } from "react-icons/fi";
+import { FiSearch, FiBookmark, FiBox, FiRefreshCw } from "react-icons/fi";
 import { FaBookmark } from "react-icons/fa";
 import CountrySelectModal from "../buyNumbers/CountrySelectModal";
 import CountryFlag from "react-country-flag";
@@ -85,6 +85,7 @@ const BuyNumbers = () => {
       type: selectedNumberType.type || selectedNumberType.value || "",
       network: selectedNumberType.network,
       countryID: typeNeedsCountry(selectedNumberType) ? selectedCountry?.id : undefined,
+      forceRefresh: true,
     })
       .then((data) => {
         const servicesArray = Array.isArray(data) ? data : [];
@@ -245,11 +246,21 @@ const BuyNumbers = () => {
           {/* Refresh services button */}
           <div className="flex justify-end mb-2">
             <button
-              className="text-quinary text-sm font-semibold hover:underline disabled:opacity-50"
+              className="inline-flex items-center gap-2 text-quinary text-sm font-semibold hover:underline disabled:opacity-50"
               onClick={refreshServices}
               disabled={servicesLoading || !selectedNumberType || (typeNeedsCountry(selectedNumberType) && !selectedCountry?.id)}
             >
-              {servicesLoading ? 'Updating services...' : 'Refresh services'}
+              {servicesLoading ? (
+                <>
+                  <FiRefreshCw className="animate-spin" />
+                  Updating services...
+                </>
+              ) : (
+                <>
+                  <FiRefreshCw />
+                  Refresh services
+                </>
+              )}
             </button>
           </div>
           {/* Search and View Rented Numbers */}
@@ -333,11 +344,21 @@ const BuyNumbers = () => {
                 )}
                 {/* Refresh button visible even when empty */}
                 <button
-                  className="mt-3 text-quinary text-sm font-semibold hover:underline disabled:opacity-50"
+                  className="mt-3 inline-flex items-center gap-2 text-quinary text-sm font-semibold hover:underline disabled:opacity-50"
                   onClick={refreshServices}
                   disabled={servicesLoading || !selectedNumberType || (typeNeedsCountry(selectedNumberType) && !selectedCountry?.id)}
                 >
-                  {servicesLoading ? 'Updating services...' : 'Refresh services'}
+                  {servicesLoading ? (
+                    <>
+                      <FiRefreshCw className="animate-spin" />
+                      Updating services...
+                    </>
+                  ) : (
+                    <>
+                      <FiRefreshCw />
+                      Refresh services
+                    </>
+                  )}
                 </button>
               </div>
             ) : (

@@ -83,42 +83,48 @@ export const fetchCountries = async (typeObj) => {
   return fetchCountries._pending[cacheKey];
 };
 
-export const fetchServices = async ({ type, network, countryID = "" }) => {
+export const fetchServices = async ({ type, network, countryID = "", forceRefresh = false }) => {
   if (!type || !network) return [];
   // Build cache key
   const cacheKey = `services_${type}_${network}${countryID ? `_${countryID}` : ""}`;
-  // Check localStorage for cached data and expiry
-  try {
-    const cachedRaw = localStorage.getItem(cacheKey);
-    if (cachedRaw && cachedRaw != "" && cachedRaw != null) {
-      const cached = JSON.parse(cachedRaw);
-      if (cached.data && cached.expiry && Date.now() < cached.expiry) {
-        return cached.data;
+  // Check localStorage for cached data and expiry (skip if forceRefresh)
+  if (!forceRefresh) {
+    try {
+      const cachedRaw = localStorage.getItem(cacheKey);
+      if (cachedRaw && cachedRaw !== "" && cachedRaw != null) {
+        const cached = JSON.parse(cachedRaw);
+        if (
+          cached && Array.isArray(cached.data) && cached.data.length > 0 &&
+          cached.expiry && Date.now() < cached.expiry
+        ) {
+          return cached.data;
+        }
       }
-    }
-  } catch {}
+    } catch {}
+  }
 
   // Build params
   let url = `${API_URLS.NUMBERSERVICES}?type=${type}&network=${network}`;
   if (countryID) url += `&countryID=${countryID}`;
+  if (forceRefresh) url += `&refresh=true`;
 
   try {
     const response = await axiosInstance.get(
       url,
-      { timeout: 100000 } 
+      { timeout: 100000 }
     );
     if (response.status !== 200) {
       const message = response.data?.message || 'Failed to fetch services';
       throw new Error(message);
     }
     if (response.data?.data?.services && Array.isArray(response.data.data.services)) {
-      // Save to localStorage for 30 minutes
-      const expiry = Date.now() + 30 * 60 * 1000;
-      localStorage.setItem(cacheKey, JSON.stringify({
-        data: response.data.data.services,
-        expiry
-      }));
-      return response.data.data.services;
+      const services = response.data.data.services;
+      // Only cache non-empty services
+      if (services.length > 0) {
+        const expiry = Date.now() + 30 * 60 * 1000;
+        localStorage.setItem(cacheKey, JSON.stringify({ data: services, expiry }));
+      }
+      return services;
     }
     return [];
   } catch (error) {
