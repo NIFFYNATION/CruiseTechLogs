@@ -1,11 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import { useUser } from "../../../contexts/UserContext";
 import { money_format } from "../../../utils/formatUtils"; // <-- use utility
 import { useNavigate } from "react-router-dom";
 import { SkeletonBalanceCard } from "../../common/Skeletons";
+import { triggerRentalCronjob } from "../../../services/rentalService";
 
 const BalanceCard = ({ isSimple = false }) => {
   const { user, loading } = useUser();
+  const [refreshing, setRefreshing] = useState(false);
   const navigate = useNavigate();
   if (loading || !user) {
     return (
@@ -23,8 +25,32 @@ const BalanceCard = ({ isSimple = false }) => {
     >
       <div className={`flex flex-col justify-between items-start md:items-center h-full ${isSimple ? "p-4" : "p-8"}`}>
         <div className="text-center">
-          <p className={`text-white/90 text-md mb-0  mt-0 md:mt-4 ${isSimple ? "md:mb-2" : "md:mb-6"}`}>Your Total Balance</p>
-          <h2 className={`text-white font-bold text-[42px] `}>
+          {/* Title and refresh action inline */}
+          <div className="flex items-center justify-center gap-2 mt-2">
+            <p className="text-white/80 text-sm m-0">Your Total Balance</p>
+            <button
+              type="button"
+              className="flex items-center gap-1 px-3 py-1 bg-white/90 rounded-full text-[#1A1A1A] text-xs font-medium hover:bg-white transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              onClick={async () => {
+                if (refreshing) return;
+                const uid = user?.userID || user?.ID;
+                if (!uid) return;
+                setRefreshing(true);
+                const ok = await triggerRentalCronjob(uid);
+                if (ok) {
+                  window.location.reload();
+                } else {
+                  setRefreshing(false);
+                }
+              }}
+              disabled={refreshing}
+              title="Refresh balance"
+            >
+              <img src="/icons/reload.svg" alt="Refresh" className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
+              {refreshing ? "Refreshing" : "Refresh"}
+            </button>
+          </div>
+          <h2 className="text-white font-bold text-3xl md:text-4xl mt-1">
             {money_format(user.balance)}
           </h2>
         </div>

@@ -498,6 +498,7 @@ const BuyNumbers = () => {
           date={pendingNumber.date}
           expire_date={pendingNumber.expire_date}
           onNumberClosed={handlePendingNumberModalClose}
+          reactive={pendingNumber?.reactive}
         />
       )}
       {toast.show && (

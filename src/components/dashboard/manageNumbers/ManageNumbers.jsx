@@ -734,6 +734,7 @@ const ManageNumbers = ({ orderId }) => {
         expire_date={selectedNumber?.expire_date}
         onNumberClosed={handleNumberClosed}
         type={selectedNumber?.type || 'number'}
+        reactive={selectedNumber?.reactive}
       />
     </div>
   );
