@@ -30,7 +30,7 @@ const BalanceCard = ({ isSimple = false }) => {
             <p className="text-white/80 text-sm m-0">Your Total Balance</p>
             <button
               type="button"
-              className="flex items-center gap-1 px-3 py-1 bg-white/90 rounded-full text-[#1A1A1A] text-xs font-medium hover:bg-white transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              className="flex items-center gap-1 px-3 py-1 bg-white/90 rounded-full text-xs font-medium hover:bg-white transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
               onClick={async () => {
                 if (refreshing) return;
                 const uid = user?.userID || user?.ID;

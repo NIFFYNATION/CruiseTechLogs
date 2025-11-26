@@ -66,14 +66,40 @@ const cookiesManager = {
 
   // --- Clear all ---
   clearAll: () => {
+    // Preserve dashboard tour indicator across logout
+    let dashboardTourShown = null;
+    try {
+      dashboardTourShown = localStorage.getItem('dashboard_tour_shown_v1');
+    } catch {}
+
     cookiesManager.clearToken();
     cookiesManager.clearUser();
     cookiesManager.clearNumberTypes();
-    localStorage.clear();
-    // Optionally clear all cookies (dangerous if you have other cookies)
-    // document.cookie.split(";").forEach((c) => {
-    //   document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-    // });
+    // Clear local and session storage
+    try { localStorage.clear(); } catch {}
+    try { sessionStorage.clear(); } catch {}
+    // Best-effort removal of all cookies set by the app
+    try {
+      const cookies = document.cookie.split(';');
+      const hostname = window.location.hostname;
+      cookies.forEach((cookie) => {
+        const eqPos = cookie.indexOf('=');
+        const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+        // Attempt delete for current path/domain
+        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;`;
+        // Attempt delete with explicit domain
+        if (hostname) {
+          document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=.${hostname};`;
+        }
+      });
+    } catch {}
+
+    // Restore dashboard tour indicator after full clear
+    try {
+      if (dashboardTourShown !== null && dashboardTourShown !== undefined) {
+        localStorage.setItem('dashboard_tour_shown_v1', dashboardTourShown);
+      }
+    } catch {}
   }
 };
 

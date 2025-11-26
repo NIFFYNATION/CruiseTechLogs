@@ -83,6 +83,7 @@ const NumberDetailsModal = ({
   onNumberClosed, // callback when number is closed
   orderId, // <-- add this prop!
   serviceName, // service name for WhatsApp verification
+  serviceCode, // optional code for service (e.g., 'wa' for WhatsApp)
   onReload,
   onCopyNumber,
   onCopyCode,
@@ -117,6 +118,8 @@ const NumberDetailsModal = ({
     : isStillActive;
   const isActiveForUI = isActuallyActive || reactivated;
   const canReactivate = ((reactive === true || reactive === 1));
+  const isWhatsAppService = (serviceName?.toLowerCase() === 'whatsapp' || serviceCode?.toLowerCase() === 'wa');
+  const showReactivateInstruction = (!isActiveForUI && canReactivate);
   // console.log(reactive);
   //   && !reactivateLoading
   //   && (!reactivateDisabledUntil || Date.now() >= reactivateDisabledUntil);
@@ -233,7 +236,8 @@ const NumberDetailsModal = ({
     setReactivateLoading(true);
     try {
       const res = await reactivateNumber(orderId);
-      if (res && (res.code === 200 || res.status === 200)) {
+      const isSuccess = res && (res.code === 200 || res.status === 200 || res.status === 'success');
+      if (isSuccess) {
         setToast({ type: "success", message: res.message || "Number reactivated successfully." });
         setReactivated(true);
         // Disable button for 3 minutes
@@ -243,7 +247,10 @@ const NumberDetailsModal = ({
         setIsBackground(false);
         await fetchCode(false);
       } else {
-        throw new Error(res?.message || "Invalid response while reactivating number");
+        setToast({
+          type: "error",
+          message: res?.message || "We are having issue activating your number please try again.",
+        });
       }
     } catch (err) {
       setToast({ type: "error", message: err.message || "Failed to reactivate number." });
@@ -361,6 +368,22 @@ const NumberDetailsModal = ({
         <p className="px-6 pt-4 pb-2 text-[14px] text-text-secondary">
         Note: The {type === 'email' ? 'email' : 'number'} is valid for the duration of the countdown. Please verify it as soon as possible. If the code is delayed, try reloading the {type === 'email' ? 'email' : 'number'}.
            </p>
+        {/* WhatsApp usage instruction */}
+        {isWhatsAppService && (
+          <div className="px-6">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 mb-2 text-xs text-blue-800">
+              <strong>WhatsApp Tip:</strong> Confirm this number is not already registered on WhatsApp before attempting to use it.
+            </div>
+          </div>
+        )}
+        {/* Reactivate instruction when button is available */}
+        {showReactivateInstruction && (
+          <div className="px-6">
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-2 mb-2 text-xs text-yellow-800">
+              <strong>Action Required:</strong> Click "Reactivate" before requesting or sending verification codes.
+            </div>
+          </div>
+        )}
         {/* Number/Email Section */}
         <div className="px-6 py-4 mx-6 my-4 border-border-grey border-t border-b">
           <div className="flex items-center gap-2 mb-2">
