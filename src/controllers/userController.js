@@ -1,5 +1,6 @@
 import { refreshUserToken, fetchUserProfile } from '../services/userService';
 import { logoutUserApi } from '../services/authService';
+import cookiesManager from '../utils/cookiesManager';
 
 // Default user fallback
 export const defaultUser = {
@@ -38,12 +39,20 @@ export const logoutUser = async () => {
     // Optionally log error, but proceed to clear local data anyway
     console.error('Logout API error:', e.message);
   }
-  localStorage.removeItem('authToken');
-  localStorage.removeItem('userData');
-  // Remove all cookies
-  // document.cookie.split(';').forEach((c) => {
-  //   document.cookie = c.replace(/^ +/, '').replace(/=.*/, '=;expires=' + new Date(0).toUTCString() + ';path=/');
-  // });
+  // Aggressively clear all client-side storage to avoid conflicts
+  try {
+    cookiesManager.clearAll();
+    // Also clear any session-scoped data
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.clear();
+    }
+    // Ensure legacy keys are removed if present
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('userData');
+  } catch (e) {
+    // Swallow errors from storage clearing to not block logout
+    console.warn('Storage clearing warning:', e?.message || e);
+  }
   // Only redirect if not already on / or /login
   const path = window.location.pathname;
   if (path !== '/' && path !== '/login') {

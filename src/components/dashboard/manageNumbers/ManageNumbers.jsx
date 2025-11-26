@@ -8,6 +8,8 @@ import { getEmails, getEmailCode } from "../../../services/emailService";
 import { useParams, useNavigate } from "react-router-dom";
 import SectionHeader from "../../common/SectionHeader";
 import { SkeletonTableRow } from "../../common/Skeletons";
+import { useUser } from "../../../contexts/UserContext";
+import { triggerRentalCronjob } from "../../../services/rentalService";
 
 const ManageNumbers = ({ orderId }) => {
   const [activeTab, setActiveTab] = useState("Active");
@@ -15,6 +17,8 @@ const ManageNumbers = ({ orderId }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedNumber, setSelectedNumber] = useState(null);
   const [buyDropdownOpen, setBuyDropdownOpen] = useState(false);
+  const [refundRefreshing, setRefundRefreshing] = useState(false);
+  const { user } = useUser();
 
   // Separate state for active/inactive numbers and pagination
   const [activeNumbers, setActiveNumbers] = useState([]);
@@ -482,9 +486,32 @@ const ManageNumbers = ({ orderId }) => {
         
         {/* Refund Information */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 text-sm text-blue-800">
-          <p className="mb-1">
-            <strong>Refund Information:</strong> If your refund is taking too long to process, please reload the page to refresh your refund status.
-          </p>
+          <div className="items-center justify-between gap-3">
+            <p className="mb-0">
+              <strong>Refund Information:</strong> If your refund seems delayed, use the refresh button to update your refund status.
+            </p>
+            <button
+              type="button"
+              className="flex mt-3 items-center gap-1 px-3 py-1 bg-quinary text-white rounded-full text-xs font-medium hover:bg-quinary-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              onClick={async () => {
+                if (refundRefreshing) return;
+                const uid = user?.userID || user?.ID;
+                if (!uid) return;
+                setRefundRefreshing(true);
+                const ok = await triggerRentalCronjob(uid);
+                if (ok) {
+                  window.location.reload();
+                } else {
+                  setRefundRefreshing(false);
+                }
+              }}
+              disabled={refundRefreshing}
+              title="Refresh balance and refund status"
+            >
+              <img src="/icons/reload.svg" alt="Refresh" className={`h-4 w-4 ${refundRefreshing ? "animate-spin" : ""}`} />
+              {refundRefreshing ? "Refreshing" : "Refresh Balance"}
+            </button>
+          </div>
         </div>
          </div>
         {/* Responsive Table */}
@@ -730,6 +757,7 @@ const ManageNumbers = ({ orderId }) => {
         onCopyCode={handleCopyCode}
         orderId={selectedNumber?.ID}
         serviceName={selectedNumber?.serviceName}
+        serviceCode={selectedNumber?.serviceCode}
         date={(selectedNumber?.create_timestamp != null || "") ? selectedNumber.create_timestamp : selectedNumber?.date}
         expire_date={selectedNumber?.expire_date}
         onNumberClosed={handleNumberClosed}
