@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import CustomModal from "../../common/CustomModal";
 import { fetchNumberCode, closeNumber, checkWhatsAppNumber } from "../../../services/numberService";
+import { reactivateNumber } from "../../../services/rentalService";
 import { FiMail, FiPhone } from "react-icons/fi";
 
 // Feature flag to enable/disable WhatsApp verification
@@ -87,6 +88,7 @@ const NumberDetailsModal = ({
   onCopyCode,
   verificationCode: initialVerificationCode,
   type = 'number', // type of contact: 'number' or 'email'
+  reactive = false, // whether reactivation is allowed (true or 1)
 }) => {
   const [messages, setMessages] = useState([]);
   const [codeLoading, setCodeLoading] = useState(false);
@@ -101,16 +103,25 @@ const NumberDetailsModal = ({
   const [whatsappLoading, setWhatsappLoading] = useState(false);
   const intervalRef = useRef();
   const countdownRef = useRef();
+  const [reactivateLoading, setReactivateLoading] = useState(false);
+  const [reactivateDisabledUntil, setReactivateDisabledUntil] = useState(null);
+  const [reactivated, setReactivated] = useState(false);
 
   // Determine if number is still active based on countdown
   // status === 1 or status === "active", and secondsLeft > 0 means not expired
   const isStillActive = ((status === "active" || status === 1) && secondsLeft > 0);
   
   // Determine actual active status based on type and message conditions
-  const isActuallyActive = type === 'email' 
-    ? (isStillActive && messages.length === 0) // For email: active only if no messages received
-    : isStillActive; // For numbers: use original logic
+  const isActuallyActive = type === 'email'
+    ? (isStillActive && messages.length === 0)
+    : isStillActive;
+  const isActiveForUI = isActuallyActive || reactivated;
+  const canReactivate = ((reactive === true || reactive === 1));
+  // console.log(reactive);
+  //   && !reactivateLoading
+  //   && (!reactivateDisabledUntil || Date.now() >= reactivateDisabledUntil);
 
+  // const canReactivate = true;
   // Fetch code/messages from API
   const fetchCode = useCallback(
     async (isBg = false) => {
@@ -214,6 +225,31 @@ const NumberDetailsModal = ({
     if (onReload) onReload();
     await fetchCode(false);
     setReloadDisabled(false);
+  };
+
+  // Reactivate handler
+  const handleReactivate = async () => {
+    if (!orderId) return;
+    setReactivateLoading(true);
+    try {
+      const res = await reactivateNumber(orderId);
+      if (res && (res.code === 200 || res.status === 200)) {
+        setToast({ type: "success", message: res.message || "Number reactivated successfully." });
+        setReactivated(true);
+        // Disable button for 3 minutes
+        setReactivateDisabledUntil(Date.now() + 3 * 60 * 1000);
+        // Optionally refresh number details
+        if (onReload) onReload();
+        setIsBackground(false);
+        await fetchCode(false);
+      } else {
+        throw new Error(res?.message || "Invalid response while reactivating number");
+      }
+    } catch (err) {
+      setToast({ type: "error", message: err.message || "Failed to reactivate number." });
+    } finally {
+      setReactivateLoading(false);
+    }
   };
 
   // Copy number handler
@@ -338,12 +374,12 @@ const NumberDetailsModal = ({
           <div className="flex items-center gap-2 mt-2">
             <span
               className={`inline-block px-4 py-1 rounded-full text-xs font-semibold ${
-                isActuallyActive
+                isActiveForUI
                   ? "bg-green-100 text-green-700"
                   : "bg-red-100 text-red-700"
               }`}
             >
-              {isActuallyActive ? (
+              {isActiveForUI ? (
                 <>
                   Active
                   <span className="text-green-700 font-medium ml-2">
@@ -360,13 +396,33 @@ const NumberDetailsModal = ({
               </span>
             )}
             {/* Add Close Number/Email button if active */}
-            {isActuallyActive && (
+            {isActiveForUI && (
               <button
                 className="ml-4 bg-danger text-white rounded-full px-4 py-1 text-xs font-semibold hover:bg-danger/80 transition"
                 onClick={() => setConfirmOpen(true)}
                 disabled={closeLoading}
               >
                 {closeLoading ? "Closing..." : `Close ${type === 'email' ? 'Email' : 'Number'}`}
+              </button>
+            )}
+            {/* Reactivate button when eligible */}
+            {!isActiveForUI && canReactivate && (
+              <button
+                className="ml-4 bg-quinary text-white rounded-full px-4 py-1 text-xs font-semibold hover:bg-quinary/80 transition disabled:opacity-50"
+                onClick={handleReactivate}
+                disabled={!canReactivate}
+                title={`Reactivate ${type === 'email' ? 'Email' : 'Number'}`}
+              >
+                {reactivateLoading ? 'Reactivating...' : `Reactivate ${type === 'email' ? 'Email' : 'Number'}`}
+              </button>
+            )}
+            {/* Disabled reactivate button (cooldown) */}
+            {!isActiveForUI && (reactive === true || reactive === 1) && !canReactivate && (
+              <button
+                className="ml-4 bg-quinary text-white rounded-full px-4 py-1 text-xs font-semibold opacity-70 cursor-not-allowed"
+                disabled
+              >
+                Reactivate available in 3 mins
               </button>
             )}
           </div>

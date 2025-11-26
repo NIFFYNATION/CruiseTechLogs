@@ -10,6 +10,8 @@ export const API_URLS = {
   BOOKNUMBER: `${API_BASE_URL}/rentals/new`,
   GET_NUMBERS: `${API_BASE_URL}/rentals/get`,
   GET_NUMBER_CODE: `${API_BASE_URL}/rentals/getcode`,
+  // Reactivate rental endpoint (GET rentals/active/:orderID)
+  RENTALS_ACTIVATE: `${API_BASE_URL}/rentals/active`,
   
   // Email rental endpoints
   EMAIL_TYPES: `${API_BASE_URL}/rentals/email/types`,
