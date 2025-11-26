@@ -24,13 +24,13 @@ const BalanceCard = ({ isSimple = false }) => {
       }}
     >
       <div className={`flex flex-col justify-between items-start md:items-center h-full ${isSimple ? "p-4" : "p-8"}`}>
-        <div className="text-center">
+        <div className="text-left md:text-center">
           {/* Title and refresh action inline */}
-          <div className="flex items-center justify-center gap-2 mt-2">
+          <div className="flex items-center justify-start md:justify-center gap-2 mt-2">
             <p className="text-white/80 text-sm m-0">Your Total Balance</p>
             <button
               type="button"
-              className="flex items-center gap-1 px-3 py-1 bg-white/90 rounded-full text-xs font-medium hover:bg-white transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              className="inline-flex items-center justify-center p-0 bg-transparent hover:bg-transparent disabled:opacity-60 disabled:cursor-not-allowed"
               onClick={async () => {
                 if (refreshing) return;
                 const uid = user?.userID || user?.ID;
@@ -46,11 +46,15 @@ const BalanceCard = ({ isSimple = false }) => {
               disabled={refreshing}
               title="Refresh balance"
             >
-              <img src="/icons/reload.svg" alt="Refresh" className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
-              {refreshing ? "Refreshing" : "Refresh"}
+              <img
+                src="/icons/reload.svg"
+                alt="Refresh"
+                className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
+                style={{ filter: 'brightness(0) invert(1)' }}
+              />
             </button>
           </div>
-          <h2 className="text-white font-bold text-3xl md:text-4xl mt-1">
+          <h2 className="text-white font-bold text-4xl md:text-5xl mt-1">
             {money_format(user.balance)}
           </h2>
         </div>
