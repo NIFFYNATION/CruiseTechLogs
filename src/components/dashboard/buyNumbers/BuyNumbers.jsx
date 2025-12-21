@@ -4,6 +4,7 @@ import { FaBookmark } from "react-icons/fa";
 import CountrySelectModal from "../buyNumbers/CountrySelectModal";
 import CountryFlag from "react-country-flag";
 import NumberTypeSelectModal from "./NumberTypeSelectModal";
+import TimeSelectModal from "./TimeSelectModal";
 import BuyNumberModal from "./BuyNumberModal";
 import { fetchServices } from '../../../services/numberService';
 import { useNavigate } from "react-router-dom";
@@ -38,6 +39,18 @@ const BuyNumbers = () => {
     }
   });
   const [toast, setToast] = useState({ show: false, message: '', type: 'info' });
+  const [selectedTime, setSelectedTime] = useState(null);
+  const [timeModalOpen, setTimeModalOpen] = useState(false);
+
+  // Time options for long_term network 4
+  const timeOptions = [
+    { label: "1 Day", value: 24 },
+    { label: "7 Days", value: 168 },
+    { label: "30 Days", value: 720 },
+    { label: "90 Days", value: 2160 },
+    { label: "180 Days", value: 4320 },
+    { label: "360 Days (1 Year)", value: 8640 },
+  ];
 
   // Helper: does this type require country selection?
   const typeNeedsCountry = (type) =>
@@ -45,9 +58,11 @@ const BuyNumbers = () => {
     (
       type.value === "short_term_3" ||
       type.value === "short_term_5" ||
-      type.value === "short_term_6"
+      type.value === "short_term_6" ||
+      (type.type === "long_term" && type.network == 4)
     );
-
+const typeNeedsTime = (type) => 
+  type && type.type === "long_term" && type.network == 4;
   // Fetch services when number type or country changes
   useEffect(() => {
     // Don't fetch until a type is selected
@@ -58,6 +73,11 @@ const BuyNumbers = () => {
       if (!selectedCountry || !selectedCountry.id) return;
     }
 
+    // If type requires time, wait for time to be selected
+    if (typeNeedsTime(selectedNumberType)) {
+      if (!selectedTime) return;
+    }
+
     // Fetch services
     setServicesLoading(true);
     fetchServices({
@@ -66,6 +86,7 @@ const BuyNumbers = () => {
       countryID: typeNeedsCountry(selectedNumberType)
         ? selectedCountry?.id
         : undefined,
+      time: typeNeedsTime(selectedNumberType) ? selectedTime?.value : undefined,
     })
       .then((data) => {
         const servicesArray = Array.isArray(data) ? data : [];
@@ -74,17 +95,20 @@ const BuyNumbers = () => {
       .catch(() => setServices([]))
       .finally(() => setServicesLoading(false));
     // eslint-disable-next-line
-  }, [selectedNumberType, selectedCountry]);
+  }, [selectedNumberType, selectedCountry, selectedTime]);
 
   // Add manual refresh function to fetch latest services and pricing from API
   const refreshServices = () => {
     if (!selectedNumberType) return;
     if (typeNeedsCountry(selectedNumberType) && (!selectedCountry || !selectedCountry.id)) return;
+    if (typeNeedsTime(selectedNumberType) && !selectedTime) return;
+
     setServicesLoading(true);
     fetchServices({
       type: selectedNumberType.type || selectedNumberType.value || "",
       network: selectedNumberType.network,
       countryID: typeNeedsCountry(selectedNumberType) ? selectedCountry?.id : undefined,
+      time: typeNeedsTime(selectedNumberType) ? selectedTime?.value : undefined,
       forceRefresh: true,
     })
       .then((data) => {
@@ -156,10 +180,16 @@ const BuyNumbers = () => {
     setPendingNumber(null);
   };
 
-  // Open country modal immediately after selecting a number type if condition is met
+  // Open country modal or time modal immediately after selecting a number type if condition is met
   useEffect(() => {
-    if (selectedNumberType && typeNeedsCountry(selectedNumberType)) {
-      setCountryModalOpen(true);
+    if (selectedNumberType) {
+      if (typeNeedsCountry(selectedNumberType)) {
+        setCountryModalOpen(true);
+      }
+      if (typeNeedsTime(selectedNumberType)) {
+        setSelectedTime(null);
+        setTimeModalOpen(true);
+      }
     }
     // eslint-disable-next-line
   }, [selectedNumberType]);
@@ -201,9 +231,7 @@ const BuyNumbers = () => {
         </button>
 
          {/* Only render country filter for specific number type values */}
-        {(selectedNumberType?.value === "short_term_3" ||
-          selectedNumberType?.value === "short_term_5" ||
-          selectedNumberType?.value === "short_term_6") && (
+        {typeNeedsCountry(selectedNumberType) && (
           <button
             className="flex-1 flex items-center justify-between bg-white border border-border-grey rounded-sm px-4 py-1 md:py-3 text-left text-sm md:text-base"
             onClick={() => setCountryModalOpen(true)}
@@ -222,6 +250,29 @@ const BuyNumbers = () => {
                   {selectedCountry.name} {selectedCountry.code && `(${selectedCountry.code})`}
                 </h3>
                 <p className="text-xs text-text-grey">(up to 200 countries)</p>
+              </div>
+            </div>
+            <img src="/icons/arrow-down.svg" alt="arrow" className="w-5 h-5" />
+          </button>
+        )}
+        
+        {/* Only render time filter for specific number type values */}
+        {typeNeedsTime(selectedNumberType) && (
+          <button
+            className="flex-1 flex items-center justify-between bg-white border border-border-grey rounded-sm px-4 py-1 md:py-3 text-left text-sm md:text-base"
+            onClick={() => setTimeModalOpen(true)}
+          >
+            <div className="flex items-center gap-2">
+               <img
+                src="/icons/hourglass-low.svg"
+                alt="Time"
+                className="w-6 h-6 mr-2"
+              />
+              <div className="items-center">
+                <h3 className="font-medium">
+                  {selectedTime ? selectedTime.label : "Select Duration"}
+                </h3>
+                <p className="text-xs text-text-grey">(Required)</p>
               </div>
             </div>
             <img src="/icons/arrow-down.svg" alt="arrow" className="w-5 h-5" />
@@ -346,7 +397,7 @@ const BuyNumbers = () => {
                 <button
                   className="mt-3 inline-flex items-center gap-2 text-quinary text-sm font-semibold hover:underline disabled:opacity-50"
                   onClick={refreshServices}
-                  disabled={servicesLoading || !selectedNumberType || (typeNeedsCountry(selectedNumberType) && !selectedCountry?.id)}
+                  disabled={servicesLoading || !selectedNumberType || (typeNeedsCountry(selectedNumberType) && !selectedCountry?.id) || (typeNeedsTime(selectedNumberType) && !selectedTime)}
                 >
                   {servicesLoading ? (
                     <>
@@ -481,6 +532,16 @@ const BuyNumbers = () => {
         country={selectedCountry}
         selectedPriceKey={selectedService ? null : null} // Price selection is handled in modal
         onBuy={handleBuyNumber}
+      />
+
+      <TimeSelectModal
+        open={timeModalOpen}
+        onClose={() => setTimeModalOpen(false)}
+        onSelect={(time) => {
+          setSelectedTime(time);
+          setTimeModalOpen(false);
+        }}
+        timeOptions={timeOptions}
       />
       {/* Redirect to manage-numbers before showing modal */}
       {pendingNumber && shouldShowModal && (
