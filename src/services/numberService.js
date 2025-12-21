@@ -83,10 +83,10 @@ export const fetchCountries = async (typeObj) => {
   return fetchCountries._pending[cacheKey];
 };
 
-export const fetchServices = async ({ type, network, countryID = "", forceRefresh = false }) => {
+export const fetchServices = async ({ type, network, countryID = "", time, forceRefresh = false }) => {
   if (!type || !network) return [];
   // Build cache key
-  const cacheKey = `services_${type}_${network}${countryID ? `_${countryID}` : ""}`;
+  const cacheKey = `services_${type}_${network}${countryID ? `_${countryID}` : ""}${time ? `_${time}` : ""}`;
   // Check localStorage for cached data and expiry (skip if forceRefresh)
   if (!forceRefresh) {
     try {
@@ -106,6 +106,7 @@ export const fetchServices = async ({ type, network, countryID = "", forceRefres
   // Build params
   let url = `${API_URLS.NUMBERSERVICES}?type=${type}&network=${network}`;
   if (countryID) url += `&countryID=${countryID}`;
+  if (time) url += `&time=${time}`;
   if (forceRefresh) url += `&refresh=true`;
 
   try {
