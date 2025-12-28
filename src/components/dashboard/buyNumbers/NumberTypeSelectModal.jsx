@@ -1,20 +1,10 @@
 import React, { useEffect, useState } from "react";
 import CustomModal from "../../common/CustomModal";
 import { fetchNumberTypes } from "../../../services/numberService";
-import { useUser } from "../../../contexts/UserContext";
-import { hasDebugAccess } from "../../../utils/featureAccess";
 
 const NumberTypeSelectModal = ({ open, onClose, onSelect }) => {
   const [numberTypes, setNumberTypes] = useState([]);
   const [loading, setLoading] = useState(false);
-  const { user } = useUser();
-
-  const filteredNumberTypes = numberTypes.filter(type => {
-    if (type.type === 'long_term' && type.network == 4) {
-      return hasDebugAccess(user?.email);
-    }
-    return true;
-  });
 
   useEffect(() => {
     if (!open) return;
@@ -47,7 +37,7 @@ const NumberTypeSelectModal = ({ open, onClose, onSelect }) => {
       title="Choose Number Category"
       description={"Select which category you want to buy number from"}
       closeable={true}
-      list={filteredNumberTypes}
+      list={numberTypes}
       showFooter={true}
       loading={loading}
       renderItem={(type, idx) => (
@@ -66,13 +56,13 @@ const NumberTypeSelectModal = ({ open, onClose, onSelect }) => {
           >
             <span className="font-medium">{type.label }</span>
           </button>
-          {idx !== filteredNumberTypes.length - 1 && (
+          {idx !== numberTypes.length - 1 && (
             <hr className="border-t border-[#E5E7EB]" />
           )}
         </React.Fragment>
       )}
     >
-      {!loading && filteredNumberTypes.length === 0 && (
+      {!loading && numberTypes.length === 0 && (
         <div className="flex justify-center items-center py-8 text-gray-400 bg-background">
           No number types found.
         </div>

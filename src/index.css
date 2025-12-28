@@ -1,15 +1,11 @@
 @import "tailwindcss";
-
-
-body {
-  background: #F4F4F4;
-}
-
+@plugin "@tailwindcss/forms";
+@plugin "@tailwindcss/container-queries";
 
 @theme {
-
-  
+  /* Font Families */
   --font-display: "poppins", "sans-serif";
+  --font-body: "Inter", "sans-serif";
 
   /* Light mode colors (default) */
   --color-bgLayout: #F4F4F4;
@@ -25,6 +21,7 @@ body {
   --color-danger: #ef4444;
   --color-success: #22c55e;
   --color-warning: #f59e0b;
+  
   /* Text colors */
   --color-text-primary: #2D2D2D;
   --color-text-secondary: #000000;
@@ -38,15 +35,85 @@ body {
   --color-accent: #8e4b8b;
   --color-border-grey: #C3C3C3;
 
-  /* Dark mode colors - Updated for better visibility */
-  --color-dark-primary: #4DACBF;      /* Vibrant teal that pops on dark backgrounds */
-  --color-dark-secondary: #2A3B47;    /* Deep blue-gray for secondary elements */
-  --color-dark-text-primary: #FFFFFF; /* Pure white for primary text */
-  --color-dark-text-secondary: #94A3B8; /* Lighter gray for secondary text */
-  --color-dark-background: #0F172A;   /* Deep blue-black background */
-  --color-dark-background-alt: #0A52661A; /* Slightly lighter for contrast */
-  --color-dark-accent: #F59E0B;       /* Brighter orange accent */
-  --color-dark-accent-light: #FBBF24;  /* Even brighter orange for hover states */
+  /* Dark mode colors */
+  --color-dark-primary: #4DACBF;
+  --color-dark-secondary: #2A3B47;
+  --color-dark-text-primary: #FFFFFF;
+  --color-dark-text-secondary: #94A3B8;
+  --color-dark-background: #0F172A;
+  --color-dark-background-alt: #0A52661A;
+  --color-dark-accent: #F59E0B;
+  --color-dark-accent-light: #FBBF24;
+
+  /* Shop Specific Variables (Global access for utilities) */
+  /* These map to the class names used in shop.html (e.g. text-text-main, bg-background-subtle) */
+  --color-shop-primary: #ff6a00;
+  --color-primary-dark: #e55f00; /* For bg-primary-dark */
+  --color-background-light: #fcfbfa; /* For bg-background-light */
+  --color-background-subtle: #f7f5f2; /* For bg-background-subtle */
+  --color-text-main: #0f1115; /* For text-text-main */
+  --color-text-muted: #6b7280; /* For text-text-muted */
+
+  /* Custom Shadows */
+  --shadow-glow: 0 0 25px rgba(255, 106, 0, 0.12);
+  --shadow-card: 0 10px 40px -10px rgba(0, 0, 0, 0.05);
+  --shadow-float: 0 20px 40px -10px rgba(0, 0, 0, 0.08);
+
+  /* Animations */
+  --animate-spin-slow: spin-slow 120s linear infinite;
+}
+
+/* Base Styles */
+body {
+  background: #F4F4F4;
+}
+
+/* Material Symbols classes */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.material-symbols-filled {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Shop Theme Overrides */
+.theme-shop {
+  /* Override global theme variables for Shop scope */
+  --color-primary: #ff6a00;
+  --color-primary-light: #fff0e5;
+  
+  /* Ensure these match the shop design strictly within this scope */
+  --color-text-main: #0f1115;
+  --color-text-muted: #6b7280;
+  --font-display: "Inter", "sans-serif";
+  
+  /* Shop-specific icon weight */
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+  }
 }
 
 /* Dark mode overrides */
@@ -61,28 +128,40 @@ body {
   --color-accent-light: var(--color-dark-accent-light);
 }
 
-/* Hide scrollbar for Chrome, Safari and Opera */
+/* Keyframes */
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Custom utilities that depend on complex selectors */
+.step-connector::after {
+  content: '';
+  position: absolute;
+  top: 2.5rem;
+  left: 50%;
+  width: 100%;
+  height: 1px;
+  background-image: linear-gradient(to right, #ff6a00 30%, #e5e7eb 30%);
+  background-size: 12px 100%;
+  z-index: 0;
+  display: none;
+  opacity: 0.3;
+}
+@media (min-width: 768px) {
+  .step-connector::after {
+      display: block;
+  }
+  .step-connector:last-child::after {
+      display: none;
+  }
+}
+
+/* Hide scrollbar */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
-/* Hide scrollbar for IE, Edge and Firefox */
 .scrollbar-hide {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;     /* Firefox */
-}
-
-/* Custom animations */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fadeIn {
-  animation: fadeIn 0.5s ease-out;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
