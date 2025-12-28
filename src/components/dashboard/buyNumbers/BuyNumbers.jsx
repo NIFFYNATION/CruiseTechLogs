@@ -52,7 +52,7 @@ const BuyNumbers = () => {
     { label: "360 Days (1 Year)", value: 8640 },
   ];
 
-  // Helper: does this type require country selection?
+  // Helper: does this type require country selection?  
   const typeNeedsCountry = (type) =>
     type &&
     (
@@ -199,9 +199,15 @@ const typeNeedsTime = (type) =>
       {/* Header */}
       <div className="mb-6">
         <h2 className="text-xl md:text-2xl font-semibold mb-2">Buy Number</h2>
-        <p className="text-text-secondary font-semibold text-sm md:text-base">
-          You will receive an instant refund if you do not receive OTP.
-        </p>
+        {typeNeedsTime(selectedNumberType) ? (
+          <p className="text-yellow-600 font-bold text-sm md:text-base bg-yellow-50 border border-red-200 rounded p-2 inline-block">
+            ⚠️ NOTICE: This Long Term Number is NON-REFUNDABLE once purchased.
+          </p>
+        ) : (
+          <p className="text-text-secondary font-semibold text-sm md:text-base">
+            You will receive an instant refund if you do not receive OTP.
+          </p>
+        )}
       </div>
 
       {/* Filters */}
