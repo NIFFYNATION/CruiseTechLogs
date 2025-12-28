@@ -27,6 +27,11 @@ import ProtectedRoute from './routes/ProtectedRoute';
 import StagesPage from './components/dashboard/stages/StagesPage';
 import ReferralPage from './components/dashboard/ReferralPage';
 import NotFoundPage from './Pages/NotFoundPage';
+import ShopLayout from './shop/layout/ShopLayout';
+import ShopDashboard from './shop/pages/ShopDashboard';
+import ShopProducts from './shop/pages/ShopProducts';
+import ShopLandingPage from './shop/pages/ShopLandingPage';
+import { Navigate } from 'react-router-dom';
 
 // Wrapper to pass orderId param to ManageNumbers
 const ManageNumbersWithOrderId = (props) => {
@@ -95,6 +100,26 @@ export const router = createBrowserRouter([
           { path: 'referral', element: <ReferralPage /> },
           { path: 'referrals', element: <ReferralPage /> },
         ],
+      },
+      {
+        path: '/shop',
+        children: [
+          {
+            index: true,
+            element: <ShopLandingPage />
+          },
+          {
+            element: (
+              <ProtectedRoute>
+                <ShopLayout />
+              </ProtectedRoute>
+            ),
+            children: [
+              { path: 'dashboard', element: <ShopDashboard /> },
+              { path: 'products', element: <ShopProducts /> },
+            ]
+          }
+        ]
       },
       { path: '/forgot-password', element: <ForgotPassword /> },
       { path: '/reset-password', element: <ResetPassword /> },
