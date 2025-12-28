@@ -101,26 +101,26 @@ export const router = createBrowserRouter([
           { path: 'referrals', element: <ReferralPage /> },
         ],
       },
-      {
-        path: '/shop',
-        children: [
-          {
-            index: true,
-            element: <ShopLandingPage />
-          },
-          {
-            element: (
-              <ProtectedRoute>
-                <ShopLayout />
-              </ProtectedRoute>
-            ),
-            children: [
-              { path: 'dashboard', element: <ShopDashboard /> },
-              { path: 'products', element: <ShopProducts /> },
-            ]
-          }
-        ]
-      },
+      // {
+      //   path: '/shop',
+      //   children: [
+      //     {
+      //       index: true,
+      //       element: <ShopLandingPage />
+      //     },
+      //     {
+      //       element: (
+      //         <ProtectedRoute>
+      //           <ShopLayout />
+      //         </ProtectedRoute>
+      //       ),
+      //       children: [
+      //         { path: 'dashboard', element: <ShopDashboard /> },
+      //         { path: 'products', element: <ShopProducts /> },
+      //       ]
+      //     }
+      //   ]
+      // },
       { path: '/forgot-password', element: <ForgotPassword /> },
       { path: '/reset-password', element: <ResetPassword /> },
       { path: '*', element: <NotFoundPage /> },
