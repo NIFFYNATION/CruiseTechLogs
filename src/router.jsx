@@ -27,11 +27,11 @@ import ProtectedRoute from './routes/ProtectedRoute';
 import StagesPage from './components/dashboard/stages/StagesPage';
 import ReferralPage from './components/dashboard/ReferralPage';
 import NotFoundPage from './Pages/NotFoundPage';
-import ShopLayout from './shop/layout/ShopLayout';
-import ShopDashboard from './shop/pages/ShopDashboard';
-import ShopProducts from './shop/pages/ShopProducts';
-import ShopLandingPage from './shop/pages/ShopLandingPage';
-import { Navigate } from 'react-router-dom';
+// import ShopLayout from './shop/layout/ShopLayout';
+// import ShopDashboard from './shop/pages/ShopDashboard';
+// import ShopProducts from './shop/pages/ShopProducts';
+// import ShopLandingPage from './shop/pages/ShopLandingPage';
+// import { Navigate } from 'react-router-dom';
 
 // Wrapper to pass orderId param to ManageNumbers
 const ManageNumbersWithOrderId = (props) => {
