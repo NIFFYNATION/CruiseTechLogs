@@ -23,98 +23,102 @@ const ShopNavbar = () => {
     setIsMobileMenuOpen(false);
   }, [location.pathname]);
 
-  const SidebarContent = () => (
-    <div className="flex flex-col h-full bg-white/80 backdrop-blur-2xl border-r border-white/20 shadow-2xl lg:shadow-none lg:bg-transparent lg:backdrop-blur-none lg:border-none">
-      {/* Logo Area */}
-      <div className={`p-6 ${isCollapsed ? 'lg:p-4 justify-center' : 'lg:p-8'} flex items-center gap-3 transition-all duration-300`}>
-        <div className="flex items-center justify-center size-10 flex-shrink-0 rounded-xl bg-gradient-to-br from-[#ff6a00] to-[#ff4081] text-white shadow-lg shadow-orange-500/20">
-          <span className="material-symbols-outlined text-[24px] text-orange-500 font-bold">redeem</span>
-        </div>
-        {!isCollapsed && (
-          <span className="text-xl font-black tracking-tight text-[#0f1115] whitespace-nowrap overflow-hidden transition-all duration-300">
-            Cruise Gifts
-          </span>
-        )}
-      </div>
+  const SidebarContent = ({ forceExpanded = false }) => {
+    const effectiveCollapsed = forceExpanded ? false : isCollapsed;
 
-      {/* Main Navigation */}
-      <div className={`flex-1 overflow-y-auto ${isCollapsed ? 'px-2' : 'px-4 lg:px-6'} py-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:none]`}>
-        <div className="space-y-1 mb-8">
-          {!isCollapsed && <p className="px-4 text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 transition-opacity">Menu</p>}
-          <NavLink to="/shop" icon="home" text="Home" active={location.pathname === '/shop'} isCollapsed={isCollapsed} />
-          <NavLink to="/shop/products" icon="inventory_2" text="All Products" active={location.pathname === '/shop/products' && !location.search.includes('category')} isCollapsed={isCollapsed} />
-          <NavLink to="#" icon="mail" text="Contact" isCollapsed={isCollapsed} />
+    return (
+      <div className="flex flex-col h-full bg-white/80 backdrop-blur-2xl border-r border-white/20 shadow-2xl lg:shadow-none lg:bg-transparent lg:backdrop-blur-none lg:border-none">
+        {/* Logo Area */}
+        <div className={`p-6 ${effectiveCollapsed ? 'lg:p-4 justify-center' : 'lg:p-8'} flex items-center gap-3 transition-all duration-300`}>
+          <div className="flex items-center justify-center size-10 flex-shrink-0 rounded-xl bg-gradient-to-br from-[#ff6a00] to-[#ff4081] text-white shadow-lg shadow-orange-500/20">
+            <span className="material-symbols-outlined text-[24px] text-orange-500 font-bold">redeem</span>
+          </div>
+          {!effectiveCollapsed && (
+            <span className="text-xl font-black tracking-tight text-[#0f1115] whitespace-nowrap overflow-hidden transition-all duration-300">
+              Cruise Gifts
+            </span>
+          )}
         </div>
 
-        {/* Categories */}
-        <div className="space-y-1 mb-8">
-          {!isCollapsed && <p className="px-4 text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 transition-opacity">Categories</p>}
-          {categories.slice(0, 8).map(cat => (
-            <NavLink
-              key={cat.id}
-              to={`/shop/products?category=${cat.id}`}
-              icon="category"
-              text={cat.name}
-              active={location.search.includes(`category=${cat.id}`)}
-              isCategory
-              image={cat.image}
-              isCollapsed={isCollapsed}
-            />
-          ))}
-          <Link
-            to="/shop/categories"
-            className={`flex items-center gap-3 ${isCollapsed ? 'justify-center px-2 py-3' : 'px-4 py-3'} rounded-xl text-sm font-medium transition-all duration-200 text-gray-500 hover:text-[#ff6a00] hover:bg-orange-50 group`}
-            title="View All"
-          >
-            <div className="size-6 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 group-hover:text-[#ff6a00] transition-colors">
-              <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
-            </div>
-            {!isCollapsed && <span>View All</span>}
-          </Link>
-        </div>
-      </div>
+        {/* Main Navigation */}
+        <div className={`flex-1 overflow-y-auto ${effectiveCollapsed ? 'px-2' : 'px-4 lg:px-6'} py-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:none]`}>
+          <div className="space-y-1 mb-8">
+            {!effectiveCollapsed && <p className="px-4 text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 transition-opacity">Menu</p>}
+            <NavLink to="/shop" icon="home" text="Home" active={location.pathname === '/shop'} isCollapsed={effectiveCollapsed} />
+            <NavLink to="/shop/products" icon="inventory_2" text="All Products" active={location.pathname === '/shop/products' && !location.search.includes('category')} isCollapsed={effectiveCollapsed} />
+            <NavLink to="#" icon="mail" text="Contact" isCollapsed={effectiveCollapsed} />
+          </div>
 
-      {/* User & Cart Footer */}
-      <div className={`p-4 ${isCollapsed ? 'lg:p-2' : 'lg:p-6'} border-t border-gray-100/50 bg-white/50 backdrop-blur-sm lg:bg-transparent`}>
-        <div className={`flex items-center ${isCollapsed ? 'flex-col justify-center gap-4' : 'justify-between gap-2'}`}>
-          <Link
-            to="/shop/cart"
-            className="relative flex items-center justify-center size-12 rounded-full bg-white border border-gray-100 shadow-sm hover:shadow-md hover:scale-105 hover:border-[#ff6a00] transition-all group"
-            title="Cart"
-          >
-            <span className="material-symbols-outlined text-gray-600 group-hover:text-[#ff6a00] transition-colors">shopping_bag</span>
-            <span className="absolute top-0 right-0 size-3 rounded-full bg-[#ff6a00] ring-2 ring-white animate-pulse"></span>
-          </Link>
-
-          <Link
-            to={loggedIn ? "/shop/dashboard" : "/login"}
-            className={`flex items-center gap-3 ${isCollapsed ? 'justify-center p-2 rounded-xl bg-white border border-gray-100' : 'flex-1 p-2 pr-4 rounded-full bg-white border border-gray-100'} shadow-sm hover:shadow-md hover:border-[#ff6a00] transition-all group overflow-hidden`}
-            title={loggedIn ? 'My Account' : 'Sign In'}
-          >
-            <div className={`size-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 group-hover:bg-[#ff6a00] group-hover:text-white transition-colors flex-shrink-0`}>
-              <span className="material-symbols-outlined text-[18px]">{loggedIn ? 'person' : 'login'}</span>
-            </div>
-            {!isCollapsed && (
-              <div className="flex flex-col truncate">
-                <span className="text-xs font-bold text-gray-900 truncate group-hover:text-[#ff6a00]">{loggedIn ? (user?.name || 'My Account') : 'Sign In'}</span>
-                <span className="text-[10px] text-gray-500 truncate">{loggedIn ? 'View details' : 'Join now'}</span>
+          {/* Categories */}
+          <div className="space-y-1 mb-8">
+            {!effectiveCollapsed && <p className="px-4 text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 transition-opacity">Categories</p>}
+            {categories.slice(0, 8).map(cat => (
+              <NavLink
+                key={cat.id}
+                to={`/shop/products?category=${cat.id}`}
+                icon="category"
+                text={cat.name}
+                active={location.search.includes(`category=${cat.id}`)}
+                isCategory
+                image={cat.image}
+                isCollapsed={effectiveCollapsed}
+              />
+            ))}
+            <Link
+              to="/shop/categories"
+              className={`flex items-center gap-3 ${effectiveCollapsed ? 'justify-center px-2 py-3' : 'px-4 py-3'} rounded-xl text-sm font-medium transition-all duration-200 text-gray-500 hover:text-[#ff6a00] hover:bg-orange-50 group`}
+              title="View All"
+            >
+              <div className="size-6 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 group-hover:text-[#ff6a00] transition-colors">
+                <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
               </div>
-            )}
-          </Link>
+              {!effectiveCollapsed && <span>View All</span>}
+            </Link>
+          </div>
         </div>
-      </div>
 
-      {/* Desktop Toggle Button */}
-      <button
-        onClick={toggleSidebar}
-        className="hidden lg:flex absolute -right-3 top-24 bg-white border border-gray-100 shadow-md rounded-full p-1 text-gray-400 hover:text-[#ff6a00] hover:scale-110 transition-all z-50"
-      >
-        <span className="material-symbols-outlined text-[18px]">
-          {isCollapsed ? 'chevron_right' : 'chevron_left'}
-        </span>
-      </button>
-    </div>
-  );
+        {/* User & Cart Footer */}
+        <div className={`p-4 ${effectiveCollapsed ? 'lg:p-2' : 'lg:p-6'} border-t border-gray-100/50 bg-white/50 backdrop-blur-sm lg:bg-transparent`}>
+          <div className={`flex items-center ${effectiveCollapsed ? 'flex-col justify-center gap-4' : 'justify-between gap-2'}`}>
+            <Link
+              to="/shop/cart"
+              className="relative flex items-center justify-center size-12 rounded-full bg-white border border-gray-100 shadow-sm hover:shadow-md hover:scale-105 hover:border-[#ff6a00] transition-all group"
+              title="Cart"
+            >
+              <span className="material-symbols-outlined text-gray-600 group-hover:text-[#ff6a00] transition-colors">shopping_bag</span>
+              <span className="absolute top-0 right-0 size-3 rounded-full bg-[#ff6a00] ring-2 ring-white animate-pulse"></span>
+            </Link>
+
+            <Link
+              to={loggedIn ? "/shop/dashboard" : "/login"}
+              className={`flex items-center gap-3 ${effectiveCollapsed ? 'justify-center p-2 rounded-xl bg-white border border-gray-100' : 'flex-1 p-2 pr-4 rounded-full bg-white border border-gray-100'} shadow-sm hover:shadow-md hover:border-[#ff6a00] transition-all group overflow-hidden`}
+              title={loggedIn ? 'My Account' : 'Sign In'}
+            >
+              <div className={`size-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 group-hover:bg-[#ff6a00] group-hover:text-white transition-colors flex-shrink-0`}>
+                <span className="material-symbols-outlined text-[18px]">{loggedIn ? 'person' : 'login'}</span>
+              </div>
+              {!effectiveCollapsed && (
+                <div className="flex flex-col truncate">
+                  <span className="text-xs font-bold text-gray-900 truncate group-hover:text-[#ff6a00]">{loggedIn ? (user?.name || 'My Account') : 'Sign In'}</span>
+                  <span className="text-[10px] text-gray-500 truncate">{loggedIn ? 'View details' : 'Join now'}</span>
+                </div>
+              )}
+            </Link>
+          </div>
+        </div>
+
+        {/* Desktop Toggle Button */}
+        <button
+          onClick={toggleSidebar}
+          className="hidden lg:flex absolute -right-3 top-24 bg-white border border-gray-100 shadow-md rounded-full p-1 text-gray-400 hover:text-[#ff6a00] hover:scale-110 transition-all z-50"
+        >
+          <span className="material-symbols-outlined text-[18px]">
+            {effectiveCollapsed ? 'chevron_right' : 'chevron_left'}
+          </span>
+        </button>
+      </div>
+    );
+  };
 
   return (
     <>
@@ -137,7 +141,7 @@ const ShopNavbar = () => {
         className={`hidden lg:block fixed top-0 left-0 bottom-0 bg-white/60 backdrop-blur-2xl border-r border-white/20 z-40 transition-all duration-300 ease-in-out ${isCollapsed ? 'w-24' : 'w-72'
           }`}
       >
-        <SidebarContent />
+        <SidebarContent forceExpanded={false} />
       </aside>
 
       {/* Mobile Sidebar (Drawer) */}
@@ -150,9 +154,7 @@ const ShopNavbar = () => {
         {/* Drawer */}
         <div className={`absolute top-0 left-0 bottom-0 w-[80%] max-w-sm bg-[#f8f5f2] shadow-2xl transition-transform duration-300 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           {/* Force expanded state for mobile drawer content */}
-          <MobileSidebarContentWrapper>
-            <SidebarContent />
-          </MobileSidebarContentWrapper>
+          <SidebarContent forceExpanded={true} />
           {/* Close Button */}
           <button onClick={() => setIsMobileMenuOpen(false)} className="absolute top-4 right-4 p-2 rounded-full bg-white/50 hover:bg-white text-gray-500 hover:text-red-500 transition-all">
             <span className="material-symbols-outlined">close</span>

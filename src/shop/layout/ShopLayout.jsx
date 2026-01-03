@@ -12,7 +12,7 @@ const ShopLayoutContent = () => {
       <ShopSidebar />
       <main className="flex-1 w-full min-w-0 transition-all duration-300">
         <DashboardHeader />
-        <div className="p-6 sm:p-10 lg:p-12 max-w-full mx-auto">
+        <div className="pt-24 p-4 sm:p-6 lg:p-8 max-w-full mx-auto">
           <Outlet />
         </div>
       </main>
