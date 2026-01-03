@@ -33,8 +33,7 @@
     "react-router": "^7.5.3",
     "react-router-dom": "^7.5.3",
     "react-select": "^5.10.1",
-    "styled-components": "^6.1.18",
-    "tailwindcss": "^4.1.4"
+    "styled-components": "^6.1.18"
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",
@@ -47,6 +46,8 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
+    "react-devtools": "^7.0.1",
+    "tailwindcss": "^4.1.18",
     "vite": "^6.3.1",
     "vite-plugin-static-copy": "^3.1.1"
   }

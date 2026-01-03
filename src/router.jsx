@@ -27,11 +27,19 @@ import ProtectedRoute from './routes/ProtectedRoute';
 import StagesPage from './components/dashboard/stages/StagesPage';
 import ReferralPage from './components/dashboard/ReferralPage';
 import NotFoundPage from './Pages/NotFoundPage';
-// import ShopLayout from './shop/layout/ShopLayout';
-// import ShopDashboard from './shop/pages/ShopDashboard';
-// import ShopProducts from './shop/pages/ShopProducts';
-// import ShopLandingPage from './shop/pages/ShopLandingPage';
-// import { Navigate } from 'react-router-dom';
+import ShopRootLayout from './shop/layout/ShopRootLayout';
+import ShopLayout from './shop/layout/ShopLayout';
+import ShopPublicLayout from './shop/layout/ShopPublicLayout';
+import ShopDashboard from './shop/pages/ShopDashboard';
+import ShopProducts from './shop/pages/ShopProducts';
+import ShopProductDetails from './shop/pages/ShopProductDetails';
+import ShopLandingPage from './shop/pages/ShopLandingPage';
+import ShopCart from './shop/pages/ShopCart';
+import ShopOrders from './shop/pages/ShopOrders';
+import ShopOrderDetails from './shop/pages/ShopOrderDetails';
+import ShopAddresses from './shop/pages/ShopAddresses';
+import ShopPaymentValidation from './shop/pages/ShopPaymentValidation';
+import { Navigate } from 'react-router-dom';
 
 // Wrapper to pass orderId param to ManageNumbers
 const ManageNumbersWithOrderId = (props) => {
@@ -101,26 +109,40 @@ export const router = createBrowserRouter([
           { path: 'referrals', element: <ReferralPage /> },
         ],
       },
-      // {
-      //   path: '/shop',
-      //   children: [
-      //     {
-      //       index: true,
-      //       element: <ShopLandingPage />
-      //     },
-      //     {
-      //       element: (
-      //         <ProtectedRoute>
-      //           <ShopLayout />
-      //         </ProtectedRoute>
-      //       ),
-      //       children: [
-      //         { path: 'dashboard', element: <ShopDashboard /> },
-      //         { path: 'products', element: <ShopProducts /> },
-      //       ]
-      //     }
-      //   ]
-      // },
+      {
+        path: '/shop',
+        element: <ShopRootLayout />,
+        children: [
+          {
+            element: <ShopPublicLayout />,
+            children: [
+              {
+                index: true,
+                element: <ShopLandingPage />
+              },
+              { path: 'cart', element: <ShopCart /> },
+              { path: 'products', element: <ShopProducts /> },
+              { path: 'products/:id', element: <ShopProductDetails /> },
+              { path: 'validate/:orderID', element: <ShopPaymentValidation /> },
+              { path: 'vaildate/:orderID', element: <ShopPaymentValidation /> },
+            ]
+          },
+          {
+            element: (
+              <ProtectedRoute>
+                <ShopLayout />
+              </ProtectedRoute>
+            ),
+            children: [
+              { path: 'dashboard', element: <ShopDashboard /> },
+              { path: 'orders', element: <ShopOrders /> },
+              { path: 'orders/:id', element: <ShopOrderDetails /> },
+              { path: 'addresses', element: <ShopAddresses /> },
+
+            ]
+          }
+        ]
+      },
       { path: '/forgot-password', element: <ForgotPassword /> },
       { path: '/reset-password', element: <ResetPassword /> },
       { path: '*', element: <NotFoundPage /> },

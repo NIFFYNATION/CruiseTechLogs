@@ -15,6 +15,7 @@ export default function LandingPage() {
 
   return (
     <div className="w-full min-h-screen flex flex-col">
+      <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
       <header className="w-full bg-background relative ">
         <div className='container-fluid mx-auto'>
 

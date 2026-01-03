@@ -1,6 +1,5 @@
 import axiosInstance from '../utils/axiosInstance'; // Use centralized Axios instance
 import { API_URLS, API_BASE_URL } from '../utils/apiUrls';
-import cookiesManager from '../utils/cookiesManager'; // <-- Add this import
 
 export const refreshUserToken = async (userID) => {
   try {
@@ -12,7 +11,9 @@ export const refreshUserToken = async (userID) => {
       try {
         const userData = JSON.parse(userDataRaw);
         refreshToken = userData.token?.refresh_token;
-      } catch {}
+      } catch {
+        // ignore
+      }
     }
     if (!refreshToken) throw new Error('No refresh token found');
     const response = await axiosInstance.get(
@@ -73,7 +74,9 @@ export const fetchUserCryptoWallet = async () => {
       if (cache.data && cache.expiry && Date.now() < cache.expiry) {
         return cache.data;
       }
-    } catch {}
+    } catch {
+      // ignore
+    }
   }
   try {
     const response = await axiosInstance.get(`${API_URLS.API_BASE_URL || API_BASE_URL}/user/wallet`);
@@ -83,7 +86,8 @@ export const fetchUserCryptoWallet = async () => {
       return response.data.data;
     }
     return null;
-  } catch {
+  } catch (error) {
+    console.error(error);
     return null;
   }
 };
@@ -101,7 +105,9 @@ export const fetchUserAccounts = async () => {
       if (Array.isArray(cache.data) && cache.expiry && Date.now() < cache.expiry) {
         return cache.data;
       }
-    } catch {}
+    } catch {
+      // ignore
+    }
   }
   try {
     const response = await axiosInstance.get(`${API_URLS.API_BASE_URL || API_BASE_URL}/user/accounts`);
@@ -111,7 +117,8 @@ export const fetchUserAccounts = async () => {
       return response.data.data;
     }
     return [];
-  } catch {
+  } catch (error) {
+    console.error(error);
     return [];
   }
 };

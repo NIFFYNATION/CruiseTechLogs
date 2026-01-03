@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom'; // Add useNavigate for redirection
+import { Link, useNavigate, useLocation } from 'react-router-dom'; // Add useNavigate for redirection
 import { FcGoogle } from 'react-icons/fc';
 import { FaFacebook } from 'react-icons/fa';
 import { MdEmail } from 'react-icons/md';
@@ -25,12 +25,15 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false); // State for loading animation
   const navigate = useNavigate(); // Initialize navigation
   const { setUser } = useUser();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || '/dashboard';
+  const fromSearch = location.state?.from?.search || '';
 
   useEffect(() => {
     if (isUserLoggedIn()) {
-      navigate('/dashboard', { replace: true });
+      navigate(from + fromSearch, { replace: true });
     }
-  }, [navigate]);
+  }, [navigate, from, fromSearch]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -75,8 +78,8 @@ const Login = () => {
         triggerRentalCronjob(response.data.userID || response.data.id);
       }
 
-      // Redirect to dashboard
-      navigate('/dashboard');
+      // Redirect to dashboard or previous page
+      navigate(from + fromSearch, { replace: true });
     } catch (err) {
       console.error('Login failed:', err);
       setError(err.message); // Display error message

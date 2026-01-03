@@ -35,7 +35,8 @@ const Tabs = () => {
     };
   }, []);
 
-  if (isHidden) return null;
+  // Hide on shop pages or if explicitly hidden
+  if (isHidden || location.pathname.startsWith('/shop')) return null;
 
   return (
     <>
@@ -46,14 +47,14 @@ const Tabs = () => {
       <style>{`
       .cutout-top-circle {
         -webkit-mask: radial-gradient(
-          circle 30px at 50% 0px,
+          circle 30px at calc(50% + 30px) 0px,
           transparent 0px,
           transparent 29px,
            rgba(0, 0, 0, 0.2) 30px,
           black 31px
         );
         mask: radial-gradient(
-          circle 30px at 50% 0px,
+          circle 30px at calc(50% + 6px) 0px,
           transparent 0px,
           transparent 35px,
            rgba(0, 0, 0, 0.2) 30px,
@@ -68,8 +69,8 @@ const Tabs = () => {
       {/* Popup Menu */}
       {menuOpen && <MobileTabMenu onClose={() => setMenuOpen(false)} />}
   
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[95vw] max-w-md dashboard-tabmenu">
-      <div className="absolute bottom-9 left-1/2 -translate-x-1/2 z-10">
+      <div className="fixed bottom-4 left-0 right-0 mx-auto z-50 w-[97vw] max-w-md dashboard-tabmenu">
+      <div className="absolute bottom-9 left-[calc(50%+35px)] -translate-x-1/2 z-10">
             <motion.button
               className="p-0 "
               onClick={() => setMenuOpen((open) => !open)}

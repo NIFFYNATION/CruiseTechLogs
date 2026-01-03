@@ -53,9 +53,11 @@ export const logoutUser = async () => {
     // Swallow errors from storage clearing to not block logout
     console.warn('Storage clearing warning:', e?.message || e);
   }
-  // Only redirect if not already on / or /login
+  // Only redirect if not already on / or /login or public shop pages
   const path = window.location.pathname;
-  if (path !== '/' && path !== '/login') {
+  const isPublicShopPage = path.startsWith('/shop') && !path.includes('/dashboard');
+
+  if (path !== '/' && path !== '/login' && !isPublicShopPage) {
     window.location.href = '/login';
   }
 };
@@ -71,7 +73,7 @@ export const refreshToken = async () => {
     userData.token = refreshedToken; // Update token in userData
     localStorage.setItem('userData', JSON.stringify(userData)); // Save updated userData
     localStorage.setItem('authToken', refreshedToken.token); // Update authToken for axios
-  } catch (error) {
+  } catch {
     // console.error('Error refreshing token:', error.message);
   }
 };
