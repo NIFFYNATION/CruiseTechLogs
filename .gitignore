@@ -27,4 +27,5 @@ dist-ssr
 *.htaccess
 
 drafts/
-src/shop
+API_DOCUMENTATION.md
+*.md

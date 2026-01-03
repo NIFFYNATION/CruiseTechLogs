@@ -2,6 +2,15 @@
 @plugin "@tailwindcss/forms";
 @plugin "@tailwindcss/container-queries";
 
+@utility scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+
 @theme {
   /* Font Families */
   --font-display: "poppins", "sans-serif";
@@ -49,8 +58,11 @@
   /* These map to the class names used in shop.html (e.g. text-text-main, bg-background-subtle) */
   --color-shop-primary: #ff6a00;
   --color-primary-dark: #e55f00; /* For bg-primary-dark */
-  --color-background-light: #fcfbfa; /* For bg-background-light */
+  --color-background-light: #f8f7f5; /* For bg-background-light */
   --color-background-subtle: #f7f5f2; /* For bg-background-subtle */
+  --color-background-dark: #23170f;
+  --color-surface-light: #ffffff;
+  --color-surface-dark: #2d241f;
   --color-text-main: #0f1115; /* For text-text-main */
   --color-text-muted: #6b7280; /* For text-text-muted */
 
@@ -61,11 +73,27 @@
 
   /* Animations */
   --animate-spin-slow: spin-slow 120s linear infinite;
+  --keyframes-spin-slow: spin-slow;
 }
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@layer base {
+}
+
+/* Removed duplicate early .theme-shop block */
 
 /* Base Styles */
 body {
   background: #F4F4F4;
+  font-family: var(--font-body);
 }
 
 /* Material Symbols classes */
@@ -102,8 +130,8 @@ body {
 /* Shop Theme Overrides */
 .theme-shop {
   /* Override global theme variables for Shop scope */
-  --color-primary: #ff6a00;
-  --color-primary-light: #fff0e5;
+  --color-primary: #ff6a00 !important;
+  --color-primary-light: #fff0e5 !important;
   
   /* Ensure these match the shop design strictly within this scope */
   --color-text-main: #0f1115;
@@ -129,10 +157,7 @@ body {
 }
 
 /* Keyframes */
-@keyframes spin-slow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
+/* spin-slow is already defined in @theme and global keyframes */
 
 /* Custom utilities that depend on complex selectors */
 .step-connector::after {

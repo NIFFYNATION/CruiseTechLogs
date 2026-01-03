@@ -51,7 +51,9 @@ export const fetchEmailServices = async (type) => {
         return cached.data;
       }
     }
-  } catch {}
+  } catch {
+    // ignore
+  }
 
   // Prevent duplicate requests for the same type
   if (!fetchEmailServices._pending) fetchEmailServices._pending = {};
@@ -77,7 +79,9 @@ export const fetchEmailServices = async (type) => {
             expiry: Date.now() + 5 * 60 * 1000, // 5 minutes
           })
         );
-      } catch {}
+      } catch {
+        // ignore
+      }
       
       return services;
     } catch (error) {

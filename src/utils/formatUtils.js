@@ -49,7 +49,7 @@ export function htmlPreviewText(html, maxLength = 80) {
 export function linkifyHtml(html, colorClass = 'text-primary') {
   if (!html) return '';
   // Regex for URLs (http, https, www)
-  const urlRegex = /((https?:\/\/|www\.)[\w\-._~:\/?#\[\]@!$&'()*+,;=%]+)(?![^<]*>|[^\[]*\])/gi;
+  const urlRegex = /((https?:\/\/|www\.)[\w\-._~:/?#[\]@!$&'()*+,;=%]+)(?![^<]*>|[^[]*])/gi;
   // Replace URLs with anchor tags
   return html.replace(urlRegex, (url) => {
     let href = url;
@@ -77,7 +77,7 @@ export function formatDate(dateString) {
     const formattedDate = date.toLocaleDateString('en-US', options);
     const formattedTime = date.toLocaleTimeString('en-US', timeOptions);
     return { date: formattedDate, time: formattedTime };
-  } catch (error) {
+  } catch {
     return { date: dateString, time: '' };
   }
 }

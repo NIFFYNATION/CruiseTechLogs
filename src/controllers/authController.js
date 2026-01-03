@@ -1,5 +1,4 @@
 import { registerUser, loginUser, forgetPassword, resetPassword } from '../services/authService';
-import { fetchUserDetails } from './userController';
 
 export const signupController = async (formData) => {
   const { name, email, password, confirmPassword, phoneNumber, referralCode } = formData;

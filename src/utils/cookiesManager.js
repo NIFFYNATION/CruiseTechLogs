@@ -70,14 +70,16 @@ const cookiesManager = {
     let dashboardTourShown = null;
     try {
       dashboardTourShown = localStorage.getItem('dashboard_tour_shown_v1');
-    } catch {}
+    } catch {
+      // ignore
+    }
 
     cookiesManager.clearToken();
     cookiesManager.clearUser();
     cookiesManager.clearNumberTypes();
     // Clear local and session storage
-    try { localStorage.clear(); } catch {}
-    try { sessionStorage.clear(); } catch {}
+    try { localStorage.clear(); } catch { /* ignore */ }
+    try { sessionStorage.clear(); } catch { /* ignore */ }
     // Best-effort removal of all cookies set by the app
     try {
       const cookies = document.cookie.split(';');
@@ -92,14 +94,18 @@ const cookiesManager = {
           document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=.${hostname};`;
         }
       });
-    } catch {}
+    } catch {
+      // ignore
+    }
 
     // Restore dashboard tour indicator after full clear
     try {
       if (dashboardTourShown !== null && dashboardTourShown !== undefined) {
         localStorage.setItem('dashboard_tour_shown_v1', dashboardTourShown);
       }
-    } catch {}
+    } catch {
+      // ignore
+    }
   }
 };
 

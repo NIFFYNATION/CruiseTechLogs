@@ -7,8 +7,9 @@
  * @param {string} userEmail - The user's email address
  * @returns {boolean} - Whether the user has access to the feature
  */
-export const hasEmailRentalAccess = (userEmail) => {
+export const hasEmailRentalAccess = () => {
   return true;
+  /*
   if (!userEmail) return false;
   
   // Get allowed emails from environment variable
@@ -22,6 +23,7 @@ export const hasEmailRentalAccess = (userEmail) => {
   
   // Check if the user's email is in the allowed list
   return emailList.includes(userEmail.toLowerCase());
+  */
 };
 
 export const hasDebugAccess = (userEmail) => {

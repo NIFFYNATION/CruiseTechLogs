@@ -148,7 +148,7 @@ const MobileTabMenu = ({ onClose }) => {
       variants={overlayVariants}
     />
     <motion.div
-        className="fixed left-1/2 bottom-30 z-50 -translate-x-1/2 flex flex-col items-center w-[90vw] max-w-lg"
+        className="fixed left-0 right-0 mx-auto bottom-32 z-50 flex flex-col items-center w-[90vw] max-w-lg"
       initial="hidden"
       animate="visible"
         exit="exit"
@@ -212,7 +212,7 @@ const MobileTabMenu = ({ onClose }) => {
         </div>
       </div>
       {/* Arrow */}
-        <div className="w-0 h-0 border-l-[15px] border-l-transparent border-r-[15px] border-r-transparent border-t-[15px] border-t-white/70 dark:border-t-gray-800/70" />
+        <div className="w-0 h-0 border-l-[15px] border-l-transparent border-r-[15px] border-r-transparent border-t-[15px] border-t-white/70 dark:border-t-gray-800/70 translate-x-[6px]" />
     </motion.div>
   </AnimatePresence>
 );

@@ -50,7 +50,9 @@ export const fetchCountries = async (typeObj) => {
   let cached = null;
   try {
     cached = JSON.parse(localStorage.getItem(cacheKey));
-  } catch {}
+  } catch {
+    // ignore
+  }
   if (cached && Array.isArray(cached) && cached.length > 0) {
     return cached;
   }
@@ -73,7 +75,7 @@ export const fetchCountries = async (typeObj) => {
         return response.data.data.countries;
       }
       return [];
-    } catch (error) {
+    } catch {
       return [];
     } finally {
       fetchCountries._pending[cacheKey] = null;
@@ -100,7 +102,9 @@ export const fetchServices = async ({ type, network, countryID = "", time, force
           return cached.data;
         }
       }
-    } catch {}
+    } catch {
+      // ignore
+    }
   }
 
   // Build params
@@ -128,7 +132,7 @@ export const fetchServices = async ({ type, network, countryID = "", time, force
       return services;
     }
     return [];
-  } catch (error) {
+  } catch {
     return [];
   }
 };
@@ -174,7 +178,7 @@ export const fetchNumbers = async ({ status = "active", start = 0 } = {}) => {
       numbers: Array.isArray(data.numbers) ? data.numbers : [],
       next: typeof data.next === "number" ? data.next : null,
     };
-  } catch (error) {
+  } catch {
     return { numbers: [], next: null };
   }
 };
