@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion';
-import ShopNavbar from '../components/ShopNavbar';
-import ShopFooter from '../components/ShopFooter';
 import ProductCard from '../components/ProductCard';
 import ReviewOrderModal from '../components/ReviewOrderModal';
 import { shopApi } from '../services/api';
@@ -272,8 +270,6 @@ const ShopProductDetails = () => {
             </div>
 
             <div className="relative z-10 flex flex-col min-h-screen">
-                <ShopNavbar />
-
                 <div className="flex-grow lg:pt-8 pt-5 pb-20 sm:pb-16">
                     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
@@ -286,7 +282,7 @@ const ShopProductDetails = () => {
                             <span className="text-[#0f1115] truncate max-w-[200px]">{product.title}</span>
                         </nav>
 
-                        <div className="bg-white/70 backdrop-blur-2xl rounded-[2rem] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] border border-white/50 p-5 md:p-8 ring-1 ring-white/50">
+                        <div className="bg-white/50 backdrop-blur-2xl rounded-[2rem] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] border border-white/50 p-5 md:p-8 ring-1 ring-white/50">
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
 
                                 {/* Left: Creative Image Gallery */}
@@ -552,7 +548,7 @@ const ShopProductDetails = () => {
                                         </Link>
                                     </div>
 
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
+                                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 sm:gap-x-6 gap-y-8 sm:gap-y-10">
                                         {relatedProducts.map((product) => (
                                             <ProductCard
                                                 key={product.id}
@@ -574,7 +570,6 @@ const ShopProductDetails = () => {
                             )}
                         </div>
                     </div>
-                    <ShopFooter />
 
                     <ReviewOrderModal
                         open={orderModal.open}

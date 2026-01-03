@@ -15,7 +15,7 @@ const ShopPublicLayout = () => {
 
             {/* Main Content Wrapper - Dynamic Padding */}
             <div
-                className={`flex-grow transition-all duration-300 ease-in-out ${isCollapsed ? 'lg:pl-24' : 'lg:pl-72'
+                className={`flex-grow pt-16 lg:pt-0 transition-all duration-300 ease-in-out ${isCollapsed ? 'lg:pl-24' : 'lg:pl-72'
                     }`}
             >
                 <Outlet />

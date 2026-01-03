@@ -2,8 +2,6 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion';
-import ShopNavbar from '../components/ShopNavbar';
-import ShopFooter from '../components/ShopFooter';
 import ProductCard from '../components/ProductCard';
 import ReviewOrderModal from '../components/ReviewOrderModal';
 import { shopApi } from '../services/api';
@@ -236,10 +234,6 @@ const ShopProducts = () => {
 
   return (
     <div className="min-h-screen w-full flex flex-col font-['Inter',sans-serif] text-[#0f1115] antialiased selection:bg-[#ff6a00] selection:text-white overflow-x-hidden bg-[#f7f5f2]">
-      <ShopNavbar />
-
-      <ShopNavbar />
-
       <div className="flex-grow pt-5 lg:pt-5 pb-20">
         <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
 
@@ -443,7 +437,6 @@ const ShopProducts = () => {
         getCustomFields={orderModal.getCustomFields}
         handleProceedFromShipping={orderModal.handleProceedFromShipping}
       />
-      <ShopFooter />
     </div>
   );
 };

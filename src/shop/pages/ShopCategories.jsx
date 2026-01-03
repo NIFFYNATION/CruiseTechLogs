@@ -2,8 +2,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import ShopNavbar from '../components/ShopNavbar';
-import ShopFooter from '../components/ShopFooter';
 import { useShopData } from '../hooks/useShopData';
 import { shopApi } from '../services/api';
 
@@ -34,8 +32,6 @@ const ShopCategories = () => {
 
     return (
         <div className="min-h-screen w-full flex flex-col font-['Inter',sans-serif] text-[#0f1115] antialiased selection:bg-[#ff6a00] selection:text-white overflow-x-hidden bg-[#f7f5f2]">
-            <ShopNavbar />
-
             <div className="flex-grow pt-20 lg:pt-5 pb-20">
                 <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
 
@@ -66,13 +62,13 @@ const ShopCategories = () => {
                             variants={containerVariants}
                             initial="hidden"
                             animate="visible"
-                            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                            className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
                         >
                             {displayCategories.map((category) => (
                                 <motion.div key={category.id} variants={itemVariants}>
                                     <Link
                                         to={`/shop/products?category=${category.id}`}
-                                        className="group block relative overflow-hidden rounded-3xl bg-white shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 h-[300px]"
+                                        className="group block relative overflow-hidden rounded-2xl sm:rounded-3xl bg-white shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 h-[200px] sm:h-[300px]"
                                     >
                                         <div className="absolute inset-0 bg-gray-200">
                                             {category.image ? (
@@ -83,17 +79,17 @@ const ShopCategories = () => {
                                                 />
                                             ) : (
                                                 <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-300">
-                                                    <span className="material-symbols-outlined text-6xl">category</span>
+                                                    <span className="material-symbols-outlined text-4xl sm:text-6xl">category</span>
                                                 </div>
                                             )}
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-100 transition-opacity" />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/100 via-black/60 to-transparent opacity-100 transition-opacity" />
                                         </div>
 
-                                        <div className="absolute bottom-0 left-0 right-0 p-8 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-                                            <h3 className="text-2xl font-bold text-white mb-2 [text-shadow:_0_1px_4px_rgba(0,0,0,0.8)]">{category.name}</h3>
-                                            <div className="flex items-center gap-2 text-white/90 group-hover:text-[#ff6a00] transition-colors font-medium">
+                                        <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-8 transform translate-y-1 sm:translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                                            <h3 className="text-xl sm:text-2xl font-black text-white mb-1 sm:mb-2 [text-shadow:_0_2px_10px_rgba(0,0,0,1)]">{category.name}</h3>
+                                            <div className="flex items-center gap-2 text-white/95 group-hover:text-[#ff6a00] transition-colors text-xs sm:text-sm font-bold [text-shadow:_0_1px_4px_rgba(0,0,0,0.8)]">
                                                 <span>View Products</span>
-                                                <span className="material-symbols-outlined text-sm transition-transform group-hover:translate-x-1">arrow_forward</span>
+                                                <span className="material-symbols-outlined text-[14px] sm:text-sm transition-transform group-hover:translate-x-1">arrow_forward</span>
                                             </div>
                                         </div>
                                     </Link>
@@ -104,8 +100,6 @@ const ShopCategories = () => {
 
                 </div>
             </div>
-
-            <ShopFooter />
         </div>
     );
 };

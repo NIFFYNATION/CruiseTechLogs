@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import ShopNavbar from '../components/ShopNavbar';
-import ShopFooter from '../components/ShopFooter';
 import { shopApi } from '../services/api';
 import { formatPrice } from '../shop.config';
 import { isUserLoggedIn } from '../../controllers/userController';
@@ -15,7 +13,7 @@ const ShopCart = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [processing, setProcessing] = useState(false);
-    
+
     // Modal state for success/error/confirmation
     const [modalConfig, setModalConfig] = useState({
         isOpen: false,
@@ -86,7 +84,7 @@ const ShopCart = () => {
             if (res.status === 'success') {
                 const orderData = res.data;
                 const paymentUrl = orderData.payment_url || orderData.payment_data?.pay_url;
-                
+
                 setModalConfig({
                     isOpen: true,
                     title: 'Order Placed Successfully!',
@@ -95,7 +93,7 @@ const ShopCart = () => {
                     customContent: (
                         <div className="text-center">
                             <p className="text-gray-600 mb-6">Order placed successfully. Please proceed to payment.</p>
-                            
+
                             <div className="bg-gray-50 rounded-xl p-4 mb-6 text-left space-y-2 border border-gray-100">
                                 <div className="flex justify-between items-center">
                                     <span className="text-gray-500 text-sm font-medium">Order ID:</span>
@@ -107,7 +105,7 @@ const ShopCart = () => {
                                 </div>
                             </div>
 
-                            <a 
+                            <a
                                 href={paymentUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
@@ -120,7 +118,7 @@ const ShopCart = () => {
                                 Pay Now
                                 <FiArrowRight />
                             </a>
-                            
+
                             <button
                                 onClick={() => {
                                     setModalConfig(prev => ({ ...prev, isOpen: false }));
@@ -163,8 +161,7 @@ const ShopCart = () => {
 
     if (!isUserLoggedIn()) {
         return (
-            <div className="min-h-screen bg-white font-['Inter',sans-serif]">
-                <ShopNavbar />
+            <div className="bg-white font-['Inter',sans-serif]">
                 <div className="max-w-7xl mx-auto px-4 py-24 text-center">
                     <div className="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
                         <FiLock className="text-4xl text-gray-400" />
@@ -175,15 +172,12 @@ const ShopCart = () => {
                         Login Now
                     </Link>
                 </div>
-                <ShopFooter />
             </div>
         );
     }
 
     return (
         <div className="min-h-screen bg-[#f8f9fa] font-['Inter',sans-serif]">
-            <ShopNavbar />
-            
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <div className="mb-10">
                     <h1 className="text-4xl font-black text-[#0f1115] tracking-tight mb-2">Shopping Cart</h1>
@@ -201,7 +195,7 @@ const ShopCart = () => {
                         <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-black"></div>
                     </div>
                 ) : cartItems.length === 0 ? (
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         className="bg-white rounded-3xl p-16 text-center border border-gray-100 shadow-sm"
@@ -223,7 +217,7 @@ const ShopCart = () => {
                                 <ul className="divide-y divide-gray-50">
                                     <AnimatePresence>
                                         {cartItems.map((item, index) => (
-                                            <motion.li 
+                                            <motion.li
                                                 key={index}
                                                 initial={{ opacity: 0 }}
                                                 animate={{ opacity: 1 }}
@@ -232,9 +226,9 @@ const ShopCart = () => {
                                             >
                                                 <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl bg-gray-100 flex-shrink-0 overflow-hidden border border-gray-200 relative">
                                                     {item.image || item.cover_image || item.product?.cover_image ? (
-                                                        <img 
-                                                            src={shopApi.getImageUrl(item.image || item.cover_image || item.product?.cover_image)} 
-                                                            alt={item.name || item.product?.title} 
+                                                        <img
+                                                            src={shopApi.getImageUrl(item.image || item.cover_image || item.product?.cover_image)}
+                                                            alt={item.name || item.product?.title}
                                                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                                         />
                                                     ) : (
@@ -243,7 +237,7 @@ const ShopCart = () => {
                                                         </div>
                                                     )}
                                                 </div>
-                                                
+
                                                 <div className="flex-1 mt-4 sm:mt-0 flex flex-col justify-between">
                                                     <div>
                                                         <div className="flex justify-between items-start gap-4">
@@ -274,8 +268,8 @@ const ShopCart = () => {
                                                                 <FiPlus size={14} />
                                                             </button>
                                                         </div>
-                                                        
-                                                        <button 
+
+                                                        <button
                                                             onClick={() => handleRemoveItem(item)}
                                                             disabled={processing}
                                                             className="text-sm font-bold text-red-500 hover:text-red-600 flex items-center gap-2 hover:bg-red-50 px-4 py-2 rounded-xl transition-colors disabled:opacity-50"
@@ -296,7 +290,7 @@ const ShopCart = () => {
                         <div className="lg:col-span-4 mt-8 lg:mt-0">
                             <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8 sticky top-24">
                                 <h2 className="text-xl font-black text-[#0f1115] mb-6">Order Summary</h2>
-                                
+
                                 <div className="space-y-4 mb-8">
                                     <div className="flex justify-between text-gray-500 font-medium">
                                         <span>Subtotal</span>
@@ -312,7 +306,7 @@ const ShopCart = () => {
                                     </div>
                                 </div>
 
-                                <button 
+                                <button
                                     onClick={handleCheckout}
                                     disabled={processing}
                                     className="w-full bg-[#ff6a00] text-white font-bold py-4 rounded-xl hover:bg-[#e55f00] transition-all hover:shadow-lg hover:shadow-orange-500/30 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-lg"
@@ -326,7 +320,7 @@ const ShopCart = () => {
                                         </>
                                     )}
                                 </button>
-                                
+
                                 <div className="mt-6 flex items-center justify-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-wide">
                                     <FiLock />
                                     Secure Checkout
@@ -347,12 +341,11 @@ const ShopCart = () => {
                 className="max-w-md"
             >
                 <div className="text-center p-8">
-                    <div className={`w-16 h-16 rounded-full mx-auto flex items-center justify-center mb-6 ${
-                        modalConfig.type === 'success' ? 'bg-green-50 text-green-500' : 
-                        modalConfig.type === 'error' ? 'bg-red-50 text-red-500' : 
-                        modalConfig.type === 'warning' ? 'bg-yellow-50 text-yellow-500' :
-                        'bg-blue-50 text-blue-500'
-                    }`}>
+                    <div className={`w-16 h-16 rounded-full mx-auto flex items-center justify-center mb-6 ${modalConfig.type === 'success' ? 'bg-green-50 text-green-500' :
+                        modalConfig.type === 'error' ? 'bg-red-50 text-red-500' :
+                            modalConfig.type === 'warning' ? 'bg-yellow-50 text-yellow-500' :
+                                'bg-blue-50 text-blue-500'
+                        }`}>
                         {modalConfig.type === 'success' && <FiCheckCircle className="text-3xl" />}
                         {modalConfig.type === 'error' && <FiAlertCircle className="text-3xl" />}
                         {modalConfig.type === 'warning' && <FiAlertCircle className="text-3xl" />}
@@ -361,7 +354,7 @@ const ShopCart = () => {
                     {modalConfig.customContent ? modalConfig.customContent : (
                         <>
                             <p className="text-gray-600 mb-8 font-medium">{modalConfig.message}</p>
-                            
+
                             <div className="flex gap-3">
                                 {modalConfig.showCancel && (
                                     <button
