@@ -62,7 +62,7 @@ const ShopNavbar = () => {
             />
           ))}
           <Link
-            to="/shop/products"
+            to="/shop/categories"
             className={`flex items-center gap-3 ${isCollapsed ? 'justify-center px-2 py-3' : 'px-4 py-3'} rounded-xl text-sm font-medium transition-all duration-200 text-gray-500 hover:text-[#ff6a00] hover:bg-orange-50 group`}
             title="View All"
           >

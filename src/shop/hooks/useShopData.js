@@ -3,7 +3,10 @@ import shopApi from '../services/api';
 
 export const useShopData = () => {
     const [rawProducts, setRawProducts] = useState([]);
-    const [categories, setCategories] = useState([]);
+    const [categories, setCategories] = useState(() => {
+        const cached = localStorage.getItem('shop_categories');
+        return cached ? JSON.parse(cached) : [];
+    });
     const [tags, setTags] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -21,6 +24,16 @@ export const useShopData = () => {
     }, []);
 
     const fetchCategories = useCallback(async () => {
+        // Try to load from cache first for immediate display
+        const cached = localStorage.getItem('shop_categories');
+        if (cached) {
+            try {
+                setCategories(JSON.parse(cached));
+            } catch (e) {
+                console.error("Error parsing cached categories", e);
+            }
+        }
+
         try {
             const response = await shopApi.getCategories();
             if (response.status === 'success') {
@@ -34,10 +47,12 @@ export const useShopData = () => {
                     }))
                 ];
                 setCategories(formattedCategories);
+                localStorage.setItem('shop_categories', JSON.stringify(formattedCategories));
             }
         } catch (err) {
             console.error('Error fetching categories:', err);
-            setCategories([{ id: 'all', name: 'All Categories' }]);
+            // If we have no categories (neither cached nor fetched), set fallback
+            setCategories(prev => prev.length > 0 ? prev : [{ id: 'all', name: 'All Categories' }]);
         }
     }, []);
 

@@ -39,6 +39,7 @@ import ShopOrders from './shop/pages/ShopOrders';
 import ShopOrderDetails from './shop/pages/ShopOrderDetails';
 import ShopAddresses from './shop/pages/ShopAddresses';
 import ShopPaymentValidation from './shop/pages/ShopPaymentValidation';
+import ShopCategories from './shop/pages/ShopCategories';
 import { Navigate } from 'react-router-dom';
 
 // Wrapper to pass orderId param to ManageNumbers
@@ -120,6 +121,7 @@ export const router = createBrowserRouter([
                 index: true,
                 element: <ShopLandingPage />
               },
+              { path: 'categories', element: <ShopCategories /> },
               { path: 'cart', element: <ShopCart /> },
               { path: 'products', element: <ShopProducts /> },
               { path: 'products/:id', element: <ShopProductDetails /> },
