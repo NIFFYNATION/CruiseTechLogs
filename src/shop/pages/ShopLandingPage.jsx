@@ -340,7 +340,7 @@ const ShopLandingPage = () => {
                 <span className="text-[#ff6a00] font-bold uppercase tracking-widest text-xs mb-2 block">Collections</span>
                 <h2 className="text-3xl font-bold text-[#0f1115] sm:text-4xl tracking-tight">Shop by Category</h2>
               </div>
-              <Link className="group text-[#0f1115] font-semibold hover:text-[#ff6a00] inline-flex items-center gap-2 text-sm transition-colors" to="#">
+              <Link className="group text-[#0f1115] font-semibold hover:text-[#ff6a00] inline-flex items-center gap-2 text-sm transition-colors" to="/shop/categories">
                 View All Categories <span className="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">arrow_forward</span>
               </Link>
             </motion.div>
