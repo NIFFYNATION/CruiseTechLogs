@@ -4,7 +4,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 const RibbonAnimation = () => {
     const ribbons = Array.from({ length: 15 });
     return (
-        <div className="absolute inset-0 pointer-events-none overflow-hidden z-[60]">
+        <motion.div
+            className="absolute inset-0 pointer-events-none overflow-hidden z-[60]"
+            initial={{ opacity: 1 }}
+            animate={{ opacity: 0 }}
+            transition={{ duration: 0.5, delay: 3 }}
+        >
             {ribbons.map((_, i) => (
                 <motion.div
                     key={i}
@@ -22,8 +27,7 @@ const RibbonAnimation = () => {
                     }}
                     transition={{
                         duration: 3 + Math.random() * 2,
-                        repeat: Infinity,
-                        delay: Math.random() * 5,
+                        delay: Math.random() * 2,
                         ease: "linear"
                     }}
                     className="absolute top-0 left-1/2 w-3 h-3"
@@ -33,7 +37,7 @@ const RibbonAnimation = () => {
                     }}
                 />
             ))}
-        </div>
+        </motion.div>
     );
 };
 
@@ -52,6 +56,17 @@ const AnimatingGradientBorder = () => {
                 duration: 30,
                 repeat: Infinity,
                 ease: "linear"
+            }}
+        />
+    );
+};
+
+const StaticGradientBorder = () => {
+    return (
+        <div
+            className="absolute top-0 left-0 right-0 h-[6px] z-[70] rounded-t-[1rem]"
+            style={{
+                background: 'linear-gradient(to right, #ff6a00, #4caf50, #2196f3)'
             }}
         />
     );
@@ -78,7 +93,7 @@ const WelcomeModal = ({ isOpen, onClose, userName }) => {
                         exit={{ opacity: 0, scale: 0.9, y: 20 }}
                         className="relative w-full max-w-lg bg-white/70 rounded-[1rem] shadow-2xl overflow-hidden border border-white/20 max-h-[90vh] overflow-y-auto scrollbar-hide"
                     >
-                        <AnimatingGradientBorder />
+                        <StaticGradientBorder />
                         <RibbonAnimation />
 
                         {/* Header / Banner */}
