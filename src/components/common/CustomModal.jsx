@@ -44,7 +44,9 @@ const CustomModal = ({
   closeable = true,
   loading = false,
   emptyMessage = "No items found.",
-  emptyIcon = <FiBox className="w-12 h-12 mb-4 text-gray-300" />,
+  emptyIcon = <FiBox className="w-12 h-12 mb-4 text-gray-300"
+  />,
+  backdropbackground = 'bg-white/30',
   ...rest
 }) => {
   const mobile = isMobile();
@@ -59,32 +61,32 @@ const CustomModal = ({
       setInternalOpen(openProp);
     }
   }, [openProp]);
-  
+
   useEffect(() => {
-    if (internalOpen) { 
-  }
-  if (!internalOpen) {
+    if (internalOpen) {
+    }
+    if (!internalOpen) {
       setHasSearched(false); // Reset when modal closes
     }
   }, [internalOpen]);
 
 
-    // Hide/show .chatway--trigger-icon-container when modal is open/closed
-    useEffect(() => {
-      if (typeof window === 'undefined') return;
-      const containers = [
-        ...document.querySelectorAll('.chatway--trigger-icon-container'),
-        ...document.querySelectorAll('.live-chat-container'),
-      ];
-      if (internalOpen) {
-        containers.forEach(el => { el.style.display = 'none'; });
-      } else {
-        containers.forEach(el => { el.style.display = 'block'; });
-      }
-      return () => {
-        containers.forEach(el => { el.style.display = 'block'; });
-      };
-    }, [internalOpen]);
+  // Hide/show .chatway--trigger-icon-container when modal is open/closed
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const containers = [
+      ...document.querySelectorAll('.chatway--trigger-icon-container'),
+      ...document.querySelectorAll('.live-chat-container'),
+    ];
+    if (internalOpen) {
+      containers.forEach(el => { el.style.display = 'none'; });
+    } else {
+      containers.forEach(el => { el.style.display = 'block'; });
+    }
+    return () => {
+      containers.forEach(el => { el.style.display = 'block'; });
+    };
+  }, [internalOpen]);
 
   // Lock body scroll when modal is open
   // useEffect(() => {
@@ -106,7 +108,7 @@ const CustomModal = ({
       onClose();
     }
   };
-  
+
   const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget) {
       handleClose();
@@ -144,7 +146,7 @@ const CustomModal = ({
   return (
     <AnimatePresence>
       <motion.div
-        className={`fixed inset-0 z-50 flex justify-center ${mobile ? (isInputFocused ? 'items-start pt-4' : 'items-end') : 'items-center'} backdrop-blur-md`}
+        className={`fixed inset-0 z-50 flex justify-center ${mobile ? (isInputFocused ? 'items-start pt-4' : 'items-end') : 'items-center'} backdrop-blur-xl ${backdropbackground}`}
         initial="hidden"
         animate="visible"
         exit="hidden"
@@ -152,11 +154,12 @@ const CustomModal = ({
         onClick={handleOverlayClick}
         style={{ zIndex: 2147483646 }}
       >
+
         <motion.div
           className={`
-            ${mobile 
-              ? `w-full flex flex-col bg-white/80 dark:bg-gray-900/10 backdrop-blur-xl rounded-t-2xl shadow-2xl ${shouldFixHeight ? 'h-[90vh]' : 'max-h-[90vh]'} transition-height duration-300 ease-in-out`
-              : "flex flex-col bg-bgLayout/60 rounded-xl w-full max-w-3xl mx-2 shadow-lg max-h-[90vh]"
+            ${mobile
+              ? `w-full flex flex-col bg-white dark:bg-gray-900/10 backdrop-blur-xl rounded-t-2xl shadow-2xl ${shouldFixHeight ? 'h-[90vh]' : 'max-h-[90vh]'} transition-height duration-300 ease-in-out`
+              : "flex flex-col bg-bgLayout/80 rounded-xl w-full max-w-3xl mx-2 shadow-lg max-h-[90vh]"
             }
             p-0 relative ${className}`
           }
@@ -243,7 +246,7 @@ const CustomModal = ({
               </div>
             </div>
           )}
-          
+
           <div className="flex-1 overflow-y-auto thin-scrollbar">
             {loading ? (
               <div className="flex flex-col items-center justify-center py-16">
@@ -256,47 +259,46 @@ const CustomModal = ({
             ) : Array.isArray(filteredList) && filteredList.length > 0 ? (
               <div className="px-6 -mt-0 pb-2">
                 <div
-                    className={`grid md:grid-cols-2 gap-y-0 gap-x-4 mb-5 ${
-                        filteredList.length <= 2 ? "md:grid-cols-1" : ""
+                  className={`grid md:grid-cols-2 gap-y-0 gap-x-4 mb-5 ${filteredList.length <= 2 ? "md:grid-cols-1" : ""
                     }`}
                 >
-                    {filteredList.map((item, idx) =>
-                        renderItem ? (
-                            renderItem(item, idx)
-                        ) : (
-                            <button
-                                key={item.value || idx}
-                                className="flex items-center gap-3 py-3 px-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition w-full text-left"
-                                onMouseDown={() => {
-                                    if (
-                                        (item.name && item.name.trim() !== "") &&
-                                        (item.value && String(item.value).trim() !== "")
-                                    ) {
-                                        if (item.onClick) item.onClick(item);
-                                        if (rest.onSelect) rest.onSelect(item);
-                                        if (searchInputRef.current) searchInputRef.current.blur();
-                                        handleClose();
-                                    }
-                                }}
-                            >
-                                {item.icon && (
-                                    <span className="w-6 h-6 flex items-center justify-center">{item.icon}</span>
-                                )}
-                                {item.flag && (
-                                    <img src={item.flag} alt={item.name} className="w-6 h-6 rounded" />
-                                )}
-                                {item.countryCode && (
-                                    <img src={`https://purecatamphetamine.github.io/country-flag-icons/3x2/${item.countryCode}.svg`} alt={item.name} className="w-6 h-6 rounded" />
-                                )}
-                                <span className="font-medium">{(item.name ?? item.value)  || item.label}</span>
-                            </button>
-                        )
-                    )}
+                  {filteredList.map((item, idx) =>
+                    renderItem ? (
+                      renderItem(item, idx)
+                    ) : (
+                      <button
+                        key={item.value || idx}
+                        className="flex items-center gap-3 py-3 px-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition w-full text-left"
+                        onMouseDown={() => {
+                          if (
+                            (item.name && item.name.trim() !== "") &&
+                            (item.value && String(item.value).trim() !== "")
+                          ) {
+                            if (item.onClick) item.onClick(item);
+                            if (rest.onSelect) rest.onSelect(item);
+                            if (searchInputRef.current) searchInputRef.current.blur();
+                            handleClose();
+                          }
+                        }}
+                      >
+                        {item.icon && (
+                          <span className="w-6 h-6 flex items-center justify-center">{item.icon}</span>
+                        )}
+                        {item.flag && (
+                          <img src={item.flag} alt={item.name} className="w-6 h-6 rounded" />
+                        )}
+                        {item.countryCode && (
+                          <img src={`https://purecatamphetamine.github.io/country-flag-icons/3x2/${item.countryCode}.svg`} alt={item.name} className="w-6 h-6 rounded" />
+                        )}
+                        <span className="font-medium">{(item.name ?? item.value) || item.label}</span>
+                      </button>
+                    )
+                  )}
                 </div>
               </div>
             ) : (
               (children == null || React.Children.count(children) > 0 ? (
-               <> {children}</>
+                <> {children}</>
               ) : (
                 <div className="flex flex-col items-center justify-center py-16">
                   {React.cloneElement(emptyIcon, { className: "w-12 h-12 mb-4 text-quaternary" })}
@@ -307,7 +309,7 @@ const CustomModal = ({
               ))
             )}
           </div>
-          
+
           {showFooter && (
             footerContent ? (
               footerContent

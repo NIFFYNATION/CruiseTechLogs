@@ -92,12 +92,20 @@ const OrderItemCard = ({ item }) => {
                         )}
                     </div>
 
-                    {/* Toggle Indicator */}
-                    <div className="flex items-center gap-1 text-xs font-bold text-blue-600 mt-2">
-                        {isExpanded ? (
-                            <>Hide Details <FiChevronUp /></>
-                        ) : (
-                            <>View Details <FiChevronDown /></>
+                    {/* Toggle Indicator & Delivery Range */}
+                    <div className="flex items-center justify-between gap-2 mt-2">
+                        <div className="flex items-center gap-1 text-xs font-bold text-blue-600">
+                            {isExpanded ? (
+                                <>Hide Details <FiChevronUp /></>
+                            ) : (
+                                <>View Details <FiChevronDown /></>
+                            )}
+                        </div>
+                        {item.delivery_range && (
+                            <div className="flex items-center gap-1 text-[10px] font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded border border-orange-100 uppercase tracking-tight">
+                                <FiClock size={10} />
+                                {item.delivery_range}
+                            </div>
                         )}
                     </div>
                 </div>
@@ -353,6 +361,7 @@ const ShopOrderDetails = () => {
                             quantity: Number(item.quantity || item.no_of_orders) || 1,
                             status: item.status || 'pending',
                             updated_at: item.updated_at,
+                            delivery_range: item.delivery_range,
                             custom_data: customData,
                             tracking_code: item.tracking_code || item.tracking_number || item.tracking_id || item.tracking,
                             courier: item.courier || item.shipping_courier || item.shipping_company,
@@ -463,7 +472,7 @@ const ShopOrderDetails = () => {
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="max-w-6xl mx-auto sm:px-8 font-['Inter',sans-serif] text-[#0f1115] pb-20"
+            className="max-w-6xl mx-auto sm:px-8 font-['Inter',sans-serif] text-[#0f1115] pb-20 lg:pt-20"
         >
             {/* Header */}
             <div className="mb-8">

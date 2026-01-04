@@ -1,12 +1,15 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-// eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
 import ProductCard from '../components/ProductCard';
 import CategoryCard from '../components/CategoryCard';
 import ReviewOrderModal from '../components/ReviewOrderModal';
+import WelcomeModal from '../components/landing/WelcomeModal';
 import { useShopData } from '../hooks/useShopData';
 import { useOrderModal } from '../hooks/useOrderModal';
+import { isUserLoggedIn, getUserData } from '../../controllers/userController';
+import { shopApi } from '../services/api';
+import { formatPrice, cleanDescription } from '../shop.config';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
@@ -47,11 +50,141 @@ const slideInRight = {
   }
 };
 
+const FeaturedSection = ({ section, orderModal }) => {
+  const { fetchSectionDetail, tags } = useShopData();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      console.log('🔍 Loading section:', section.ID, section.title);
+      try {
+        const data = await fetchSectionDetail(section.ID);
+        console.log('📦 Section data received:', JSON.stringify(data, null, 2));
+
+        if (!data) {
+          console.error('❌ Section data is null or undefined');
+          setLoading(false);
+          return;
+        }
+
+        // Check if products exist in the data
+        const productsArray = data.products || [];
+        console.log('✅ Products array:', productsArray.length, 'products');
+
+        if (productsArray.length === 0) {
+          console.warn('⚠️ No products in section data');
+          setLoading(false);
+          return;
+        }
+
+        // Map products same as useShopData logic
+        const formatted = productsArray.map(p => {
+          let pTagIds = Array.isArray(p.tags) ? p.tags : (typeof p.tags === 'string' && p.tags ? (p.tags.includes('[') ? JSON.parse(p.tags) : p.tags.split(',')) : []);
+          const pMappedTags = pTagIds.map(tid => {
+            const t = tags.find(tag => String(tag.ID) === String(tid));
+            return (t && t.name) ? { id: String(t.ID), name: t.name } : null;
+          }).filter(Boolean);
+
+          return {
+            id: p.ID,
+            title: p.title,
+            description: cleanDescription(p.description),
+            price: Number(p.amount),
+            oldPrice: null,
+            category: p.category_id,
+            image: shopApi.getImageUrl(p.cover_image),
+            delivery_range: p.delivery_range,
+            tags: pMappedTags,
+            badge: pMappedTags.some(t => t.name === 'Featured') ? 'Featured' : pMappedTags.some(t => t.name === 'New') ? 'New' : pMappedTags.some(t => t.name === 'Sale') ? 'Sale' : null
+          };
+        });
+        console.log('🎨 Formatted products:', formatted.length, formatted);
+        setProducts(formatted);
+      } catch (error) {
+        console.error('💥 Error loading section:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, [section.ID, fetchSectionDetail, tags]);
+
+  if (!loading && products.length === 0) return null;
+
+  return (
+    <section className="py-24 bg-white border-t border-gray-100 relative z-10">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          viewport={{ once: true, amount: 0.2 }}
+          variants={fadeInUp}
+          className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6"
+        >
+          <div className="max-w-2xl">
+            <span className="text-[#ff6a00] font-bold uppercase tracking-widest text-xs mb-2 block">Featured</span>
+            <h2 className="text-3xl font-bold text-[#0f1115] sm:text-4xl tracking-tight">{section.title}</h2>
+            {section.short_description && <p className="text-gray-500 mt-2">{section.short_description}</p>}
+          </div>
+          <Link className="group text-[#0f1115] font-semibold hover:text-[#ff6a00] inline-flex items-center gap-2 text-sm transition-colors" to={`/shop/products?section=${section.ID}`}>
+            View All <span className="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">arrow_forward</span>
+          </Link>
+        </motion.div>
+
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          viewport={{ once: true, amount: 0.2 }}
+          variants={staggerContainer}
+          className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8"
+        >
+          {loading ? (
+            [1, 2, 3, 4].map(i => (
+              <div key={i} className="aspect-[4/5] bg-gray-50 rounded-3xl animate-pulse" />
+            ))
+          ) : (
+            products.map(product => (
+              <ProductCard
+                key={product.id}
+                {...product}
+                variants={fadeInUp}
+                onAddToCart={() => orderModal.openModal(product)}
+              />
+            ))
+          )}
+        </motion.div>
+      </div>
+    </section>
+  );
+};
+
 const ShopLandingPage = () => {
-  const { products, categories, loading, fetchProducts } = useShopData();
+  const { products, categories, sections, loading, fetchProducts } = useShopData();
   const orderModal = useOrderModal();
   const navigate = useNavigate();
   const [heroSearch, setHeroSearch] = React.useState('');
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [userName, setUserName] = useState('');
+
+  useEffect(() => {
+    const hasSeenWelcome = sessionStorage.getItem('hasSeenShopWelcome');
+    if (!hasSeenWelcome) {
+      if (isUserLoggedIn()) {
+        const user = getUserData();
+        setUserName(user?.first_name || user?.name || '');
+      }
+      const timer = setTimeout(() => {
+        setShowWelcome(true);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  const handleCloseWelcome = () => {
+    setShowWelcome(false);
+    sessionStorage.setItem('hasSeenShopWelcome', 'true');
+  };
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -63,74 +196,6 @@ const ShopLandingPage = () => {
   React.useEffect(() => {
     fetchProducts({ limit: 50, sort: 'newest' }); // Fetch enough products to find recent categories/tags
   }, [fetchProducts]);
-
-  // Logic to find recent categories and tags with at least 2 products
-  const { mixedSections } = React.useMemo(() => {
-    if (!products.length) return { mixedSections: [] };
-
-    // Group by Category
-    const catMap = {};
-    products.forEach(p => {
-      if (!catMap[p.category]) catMap[p.category] = [];
-      catMap[p.category].push(p);
-    });
-
-    const categoriesFound = [];
-    // Find top 2 categories with >= 2 products (in order of appearance in 'newest' products)
-    const seenCats = new Set();
-    for (const p of products) {
-      if (seenCats.has(p.category)) continue;
-      if (catMap[p.category] && catMap[p.category].length >= 2) {
-        const catDef = categories.find(c => c.id === p.category);
-        if (catDef) {
-          categoriesFound.push({ ...catDef, items: catMap[p.category].slice(0, 4) });
-          seenCats.add(p.category);
-        }
-      }
-      if (categoriesFound.length >= 2) break;
-    }
-
-    // Group by Tag
-    const tagMap = {};
-    products.forEach(p => {
-      if (p.tags) {
-        p.tags.forEach(t => {
-          // t is now an object {id, name}
-          if (!tagMap[t.id]) tagMap[t.id] = { name: t.name, items: [] };
-          tagMap[t.id].items.push(p);
-        });
-      }
-    });
-
-    const tagsFound = [];
-    const seenTags = new Set();
-    for (const p of products) {
-      if (!p.tags) continue;
-      for (const t of p.tags) {
-        if (seenTags.has(t.id)) continue;
-        if (tagMap[t.id] && tagMap[t.id].items.length >= 2) {
-          tagsFound.push({ id: t.id, name: t.name, items: tagMap[t.id].items.slice(0, 4) });
-          seenTags.add(t.id);
-        }
-        if (tagsFound.length >= 2) break;
-      }
-      if (tagsFound.length >= 2) break;
-    }
-
-    // Interleave sections: [Cat1, Tag1, Cat2, Tag2, ...]
-    const mixed = [];
-    const maxLen = Math.max(categoriesFound.length, tagsFound.length);
-    for (let i = 0; i < maxLen; i++) {
-      if (categoriesFound[i]) {
-        mixed.push({ type: 'category', data: categoriesFound[i] });
-      }
-      if (tagsFound[i]) {
-        mixed.push({ type: 'tag', data: tagsFound[i] });
-      }
-    }
-
-    return { mixedSections: mixed };
-  }, [products, categories]);
 
   return (
     <div className="min-h-screen w-full flex flex-col font-['Inter',sans-serif] text-[#0f1115] antialiased selection:bg-[#ff6a00] selection:text-white overflow-x-hidden bg-white">
@@ -154,20 +219,27 @@ const ShopLandingPage = () => {
             variants={staggerContainer}
             className="flex flex-col items-center"
           >
-            <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/80 backdrop-blur-sm border border-orange-200/50 shadow-sm mb-6">
-              <span className="flex h-2 w-2 rounded-full bg-orange-500 animate-pulse"></span>
-              <span className="text-xs font-bold text-orange-700 tracking-wide uppercase">#1 Message & Gift Delivery</span>
-            </motion.div>
+            <div className="flex flex-wrap justify-center gap-2 mb-6">
+              <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/80 backdrop-blur-sm border border-orange-200/50 shadow-sm">
+                <span className="flex h-2 w-2 rounded-full bg-orange-500 animate-pulse"></span>
+                <span className="text-xs font-bold text-orange-700 tracking-wide uppercase">#1 Message & Gift Delivery</span>
+              </motion.div>
+              <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-50/80 backdrop-blur-sm border border-green-200/50 shadow-sm">
+                <span className="material-symbols-outlined text-[16px] text-green-600">local_shipping</span>
+                <span className="text-xs font-bold text-green-700 tracking-wide uppercase">Free Shipping on All Products</span>
+              </motion.div>
+            </div>
 
             <motion.h1 variants={fadeInUp} className="text-4xl font-black tracking-tighter text-[#1a1a1a] sm:text-6xl lg:text-7xl mb-6 leading-[1.05] lg:leading-[0.95]">
-              Sending Love, <br className="hidden sm:block" />
+              Send
               <span className="text-[#ff6a00]">
-                Made Beautiful.
+                Gifts
               </span>
+              Worldwide.
             </motion.h1>
 
             <motion.p variants={fadeInUp} className="text-lg lg:text-xl text-gray-600 font-medium mb-10 lg:mb-12 max-w-xlg mx-auto leading-relaxed">
-              The easiest way to send curated gifts anywhere in the world
+              The easiest way to send gifts to your family and friends anywhere in the world.
             </motion.p>
 
             <motion.div variants={fadeInUp} className="w-full max-w-2xl relative z-20">
@@ -208,7 +280,7 @@ const ShopLandingPage = () => {
                   transition={{
                     repeat: Infinity,
                     ease: "linear",
-                    duration: 30
+                    duration: 80
                   }}
                 >
                   {[...categories, ...categories].map((cat, idx) => (
@@ -250,6 +322,122 @@ const ShopLandingPage = () => {
 
 
 
+
+      {/* Featured Section 1 (if exists) */}
+      {sections.length > 0 && (
+        <FeaturedSection
+          section={sections[0]}
+          orderModal={orderModal}
+        />
+      )}
+
+      {/* Categories Section */}
+      <section className="py-24 bg-white relative z-10">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            variants={fadeInUp}
+            className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6 border-b border-gray-100 pb-8"
+          >
+            <div className="max-w-2xl">
+              <span className="text-[#ff6a00] font-bold uppercase tracking-widest text-xs mb-2 block">Collections</span>
+              <h2 className="text-3xl font-bold text-[#0f1115] sm:text-4xl tracking-tight">Shop by Category</h2>
+            </div>
+            <Link className="group text-[#0f1115] font-semibold hover:text-[#ff6a00] inline-flex items-center gap-2 text-sm transition-colors" to="/shop/categories">
+              View All Categories <span className="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">arrow_forward</span>
+            </Link>
+          </motion.div>
+
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            variants={staggerContainer}
+            className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-8 -mx-4 px-4 md:mx-0 md:px-0 md:pb-0 md:grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 md:gap-6 scrollbar-hide"
+          >
+            {categories.length > 1 ? (
+              categories.slice(1, 6).map((category) => (
+                <CategoryCard
+                  key={category.id}
+                  image={category.image || 'https://via.placeholder.com/300'}
+                  title={category.name}
+                  subtitle="Explore Collection"
+                  link={`/shop/products?category=${category.id}`}
+                  variants={scaleIn}
+                  className="flex-shrink-0 w-[70vw] sm:w-[40vw] md:w-auto snap-center"
+                />
+              ))
+            ) : (
+              // Fallback/Loading state for categories
+              [1, 2, 3, 4, 5].map((item) => (
+                <div key={item} className="flex-shrink-0 w-[70vw] sm:w-[40vw] md:w-auto aspect-[4/5] bg-gray-100 rounded-[2rem] animate-pulse snap-center"></div>
+              ))
+            )}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Category-Based Product Sections */}
+      {categories.slice(1, 4).map((category) => {
+        const categoryProducts = products.filter(p => p.category === category.id).slice(0, 4);
+
+        if (categoryProducts.length === 0) return null;
+
+        return (
+          <section key={category.id} className="py-24 bg-white border-t border-gray-100 relative z-10">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+              <motion.div
+                initial="hidden"
+                animate="visible"
+                viewport={{ once: true, amount: 0.2 }}
+                variants={fadeInUp}
+                className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6"
+              >
+                <div className="max-w-2xl">
+                  <span className="text-[#ff6a00] font-bold uppercase tracking-widest text-xs mb-2 block">Category</span>
+                  <h2 className="text-3xl font-bold text-[#0f1115] sm:text-4xl tracking-tight">{category.name}</h2>
+                </div>
+                <Link
+                  className="group text-[#0f1115] font-semibold hover:text-[#ff6a00] inline-flex items-center gap-2 text-sm transition-colors"
+                  to={`/shop/products?category=${category.id}`}
+                >
+                  View All <span className="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                </Link>
+              </motion.div>
+
+              <motion.div
+                initial="hidden"
+                animate="visible"
+                viewport={{ once: true, amount: 0.2 }}
+                variants={staggerContainer}
+                className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8"
+              >
+                {categoryProducts.map(product => (
+                  <ProductCard
+                    key={product.id}
+                    {...product}
+                    variants={fadeInUp}
+                    onAddToCart={() => orderModal.openModal(product)}
+                  />
+                ))}
+              </motion.div>
+            </div>
+          </section>
+        );
+      })}
+
+      {/* Remaining Dynamic Featured Sections */}
+      {sections.slice(1).map((section) => (
+        <FeaturedSection
+          key={section.ID}
+          section={section}
+          orderModal={orderModal}
+        />
+      ))}
+
+
       {/* Popular Gifts Section */}
       <section className="py-5 lg:py-24 bg-[#f7f5f2]">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -261,8 +449,8 @@ const ShopLandingPage = () => {
             className="flex flex-col lg:flex-row lg:items-end justify-between mb-6 lg:mb-12 gap-4 lg:gap-8"
           >
             <div className="max-w-2xl">
-              <span className="text-[#ff6a00] font-bold uppercase tracking-widest text-xs mb-2 block">Trending Now</span>
-              <h2 className="text-3xl font-bold text-[#0f1115] sm:text-4xl tracking-tight mb-2">Popular Gifts</h2>
+              <span className="text-[#ff6a00] font-bold uppercase tracking-widest text-xs mb-2 block">New</span>
+              <h2 className="text-3xl font-bold text-[#0f1115] sm:text-4xl tracking-tight mb-2">Recently Added</h2>
             </div>
           </motion.div>
 
@@ -317,104 +505,6 @@ const ShopLandingPage = () => {
           </motion.div>
         </div>
       </section>
-
-      {/* Categories Section */}
-      <section className="py-24 bg-white relative z-10">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            viewport={{ once: true, amount: 0.2 }}
-            variants={fadeInUp}
-            className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6 border-b border-gray-100 pb-8"
-          >
-            <div className="max-w-2xl">
-              <span className="text-[#ff6a00] font-bold uppercase tracking-widest text-xs mb-2 block">Collections</span>
-              <h2 className="text-3xl font-bold text-[#0f1115] sm:text-4xl tracking-tight">Shop by Category</h2>
-            </div>
-            <Link className="group text-[#0f1115] font-semibold hover:text-[#ff6a00] inline-flex items-center gap-2 text-sm transition-colors" to="/shop/categories">
-              View All Categories <span className="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">arrow_forward</span>
-            </Link>
-          </motion.div>
-
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            viewport={{ once: true, amount: 0.2 }}
-            variants={staggerContainer}
-            className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-8 -mx-4 px-4 md:mx-0 md:px-0 md:pb-0 md:grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 md:gap-6 scrollbar-hide"
-          >
-            {categories.length > 1 ? (
-              categories.slice(1, 6).map((category) => (
-                <CategoryCard
-                  key={category.id}
-                  image={category.image || 'https://via.placeholder.com/300'}
-                  title={category.name}
-                  subtitle="Explore Collection"
-                  link={`/shop/products?category=${category.id}`}
-                  variants={scaleIn}
-                  className="flex-shrink-0 w-[70vw] sm:w-[40vw] md:w-auto snap-center"
-                />
-              ))
-            ) : (
-              // Fallback/Loading state for categories
-              [1, 2, 3, 4, 5].map((item) => (
-                <div key={item} className="flex-shrink-0 w-[70vw] sm:w-[40vw] md:w-auto aspect-[4/5] bg-gray-100 rounded-[2rem] animate-pulse snap-center"></div>
-              ))
-            )}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Dynamic Recent Category Sections */}
-      {/* Mixed Dynamic Sections */}
-      {mixedSections.map((section, idx) => {
-        const isCategory = section.type === 'category';
-        const item = section.data;
-        const title = isCategory ? item.name : `#${item.name}`;
-        const subtitle = isCategory ? "Recent Collection" : "Trending Tag";
-        const linkTo = isCategory ? `/shop/products?category=${item.id}` : `/shop/products?tags[]=${item.id}`;
-        const bgColor = idx % 2 === 0 ? 'bg-white' : 'bg-[#fcfbfa]';
-
-        return (
-          <section key={`${section.type}-${item.id || item.name}`} className={`py-24 ${bgColor} border-t border-gray-100 relative z-10`}>
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-              <motion.div
-                initial="hidden"
-                animate="visible"
-                viewport={{ once: true, amount: 0.2 }}
-                variants={fadeInUp}
-                className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6"
-              >
-                <div className="max-w-2xl">
-                  <span className={`${isCategory ? 'text-[#ff6a00]' : 'text-blue-600'} font-bold uppercase tracking-widest text-xs mb-2 block`}>{subtitle}</span>
-                  <h2 className="text-3xl font-bold text-[#0f1115] sm:text-4xl tracking-tight">{title}</h2>
-                </div>
-                <Link className="group text-[#0f1115] font-semibold hover:text-[#ff6a00] inline-flex items-center gap-2 text-sm transition-colors" to={linkTo}>
-                  View All Items <span className="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">arrow_forward</span>
-                </Link>
-              </motion.div>
-
-              <motion.div
-                initial="hidden"
-                animate="visible"
-                viewport={{ once: true, amount: 0.2 }}
-                variants={staggerContainer}
-                className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8"
-              >
-                {item.items.map(product => (
-                  <ProductCard
-                    key={product.id}
-                    {...product}
-                    variants={fadeInUp}
-                    onAddToCart={() => orderModal.openModal(product)}
-                  />
-                ))}
-              </motion.div>
-            </div>
-          </section>
-        );
-      })}
 
       {/* How It Works Section */}
       <section className="py-24 bg-white relative overflow-hidden">
@@ -575,13 +665,18 @@ const ShopLandingPage = () => {
         handleAddAddress={orderModal.handleAddAddress}
         handleProceedToShipping={orderModal.handleProceedToShipping}
         handleAddToCartAction={orderModal.handleAddToCartAction}
+        handleBack={orderModal.handleBack}
         customFieldValues={orderModal.customFieldValues}
         setCustomFieldValues={orderModal.setCustomFieldValues}
         getCustomFields={orderModal.getCustomFields}
         handleProceedFromShipping={orderModal.handleProceedFromShipping}
       />
 
-      {/* Chat button removed */}
+      <WelcomeModal
+        isOpen={showWelcome}
+        onClose={handleCloseWelcome}
+        userName={userName}
+      />
     </div>
   );
 };

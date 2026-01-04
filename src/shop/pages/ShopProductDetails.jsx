@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion';
 import ProductCard from '../components/ProductCard';
 import ReviewOrderModal from '../components/ReviewOrderModal';
 import { shopApi } from '../services/api';
+import cacheService from '../services/cacheService';
 import { formatPrice } from '../shop.config';
 import { useOrderModal } from '../hooks/useOrderModal';
 
@@ -12,8 +13,8 @@ const ShopProductDetails = () => {
     const { id } = useParams();
     const location = useLocation();
     const navigate = useNavigate();
-    const [product, setProduct] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [product, setProduct] = useState(() => cacheService.get(`product_detail_${id}`));
+    const [loading, setLoading] = useState(!cacheService.get(`product_detail_${id}`));
     const [error, setError] = useState(null);
     const [quantity, setQuantity] = useState(1);
     const [activeTab, setActiveTab] = useState('description');
@@ -21,9 +22,10 @@ const ShopProductDetails = () => {
     // Gallery State
     const [activeImageIndex, setActiveImageIndex] = useState(0);
     const [direction, setDirection] = useState(0);
-    const [relatedProducts, setRelatedProducts] = useState([]);
+    const [relatedProducts, setRelatedProducts] = useState(() => cacheService.get(`related_products_${id}`) || []);
 
     const orderModal = useOrderModal();
+    const isInitialMount = useRef(true);
 
     // Check for buy intent from URL
     useEffect(() => {
@@ -36,10 +38,23 @@ const ShopProductDetails = () => {
 
     useEffect(() => {
         const fetchProduct = async () => {
-            setLoading(true);
+            const cacheKey = `product_detail_${id}`;
+            const cached = cacheService.get(cacheKey);
+
+            if (cached && isInitialMount.current) {
+                setProduct(cached);
+                setLoading(false);
+                isInitialMount.current = false;
+            }
+
+            // Only fetch if stale or no cache
+            const stale = !cached || cacheService.isStale(cacheKey);
+            if (!stale) return;
+
+            if (!cached) setLoading(true);
             setError(null);
             try {
-                // Fetch product and tags in parallel to map tag IDs to names
+                // Fetch product and tags in parallel
                 const [productResponse, tagsResponse] = await Promise.all([
                     shopApi.getProductDetail(id),
                     shopApi.getTags()
@@ -53,7 +68,6 @@ const ShopProductDetails = () => {
                 if (productResponse.status === 'success' && productResponse.data) {
                     let productData = null;
 
-                    // Handle different response structures
                     if (productResponse.data.products && Array.isArray(productResponse.data.products) && productResponse.data.products.length > 0) {
                         productData = productResponse.data.products[0];
                     } else if (productResponse.data.ID) {
@@ -61,52 +75,7 @@ const ShopProductDetails = () => {
                     }
 
                     if (productData) {
-                        // Fetch related products
-                        try {
-                            const relatedResponse = await shopApi.getProducts({
-                                category: productData.category_id,
-                                limit: 4
-                            });
-                            if (relatedResponse.status === 'success' && relatedResponse.data && Array.isArray(relatedResponse.data.products)) {
-                                // Filter out current product and limit to 4
-                                const related = relatedResponse.data.products
-                                    .filter(p => p.ID !== productData.ID)
-                                    .slice(0, 4)
-                                    .map(p => {
-                                        // Map tags for related products
-                                        let pTagIds = [];
-                                        if (Array.isArray(p.tags)) {
-                                            pTagIds = p.tags;
-                                        } else if (typeof p.tags === 'string' && p.tags) {
-                                            try {
-                                                pTagIds = p.tags.includes('[') ? JSON.parse(p.tags) : p.tags.split(',');
-                                            } catch {
-                                                pTagIds = [p.tags];
-                                            }
-                                        }
-
-                                        const pMappedTags = pTagIds.map(tid => {
-                                            const t = availableTags.find(tag => tag.ID === tid);
-                                            return t ? t.name : tid;
-                                        });
-
-                                        return {
-                                            id: p.ID,
-                                            title: p.title,
-                                            description: p.description ? p.description.replace(/<[^>]*>/g, '') : '',
-                                            price: Number(p.amount) || 0,
-                                            oldPrice: null,
-                                            image: shopApi.getImageUrl(p.cover_image),
-                                            badge: pMappedTags.includes('Featured') ? 'Featured' : pMappedTags.includes('New') ? 'New' : pMappedTags.includes('Sale') ? 'Sale' : null,
-                                        };
-                                    });
-                                setRelatedProducts(related);
-                            }
-                        } catch (err) {
-                            console.error("Error fetching related products", err);
-                        }
-
-                        // Parse tags if needed
+                        // Parse tags
                         let tagIds = [];
                         if (Array.isArray(productData.tags)) {
                             tagIds = productData.tags;
@@ -118,7 +87,6 @@ const ShopProductDetails = () => {
                             }
                         }
 
-                        // Map tag IDs to names
                         const mappedTags = tagIds.map(tid => {
                             const t = availableTags.find(tag => tag.ID === tid);
                             return t ? t.name : tid;
@@ -135,7 +103,6 @@ const ShopProductDetails = () => {
                                 images = [productData.images];
                             }
                         } else if (productData.product_image) {
-                            // Fallback if images array is empty but product_image exists
                             try {
                                 images = typeof productData.product_image === 'string' ? JSON.parse(productData.product_image) : productData.product_image;
                             } catch {
@@ -143,38 +110,73 @@ const ShopProductDetails = () => {
                             }
                         }
 
-                        // Ensure cover image is first if not in images
                         const coverImage = productData.cover_image;
                         if (coverImage && !images.includes(coverImage)) {
                             images.unshift(coverImage);
                         }
 
                         // Format product for component
-                        console.log('Product Data for formatting:', productData);
                         const formattedProduct = {
                             id: productData.ID,
                             title: productData.title,
-                            description: productData.description ? productData.description.replace(/<[^>]*>/g, '') : '', // Strip HTML tags
+                            description: cleanDescription(productData.description),
                             price: Number(productData.amount) || 0,
-                            oldPrice: null, // API doesn't seem to provide old price
+                            oldPrice: null,
                             category: productData.category_name || 'Uncategorized',
                             tags: mappedTags,
                             image: shopApi.getImageUrl(productData.cover_image),
                             images: images.map(img => shopApi.getImageUrl(img)),
                             badge: mappedTags.includes('Featured') ? 'Featured' : mappedTags.includes('New') ? 'New' : mappedTags.includes('Sale') ? 'Sale' : null,
                             custom_fields: productData.custom_fields,
-                            features: productData.custom_fields ? [] : [], // Placeholder for now as custom_fields structure is unknown
-                            specs: {} // Placeholder
+                            delivery_range: productData.delivery_range,
+                            features: productData.features || [],
+                            specs: {}
                         };
 
                         setProduct(formattedProduct);
+                        cacheService.save(cacheKey, formattedProduct);
+
+                        // Background: Fetch related products
+                        try {
+                            const relatedResponse = await shopApi.getProducts({
+                                category: productData.category_id,
+                                limit: 4
+                            });
+                            if (relatedResponse.status === 'success' && relatedResponse.data) {
+                                const relatedData = Array.isArray(relatedResponse.data) ? (relatedResponse.data.products || relatedResponse.data) : (relatedResponse.data.products || []);
+                                const related = (Array.isArray(relatedData) ? relatedData : [])
+                                    .filter(p => p.ID !== productData.ID)
+                                    .slice(0, 4)
+                                    .map(p => {
+                                        let pTagIds = Array.isArray(p.tags) ? p.tags : (typeof p.tags === 'string' && p.tags ? (p.tags.includes('[') ? JSON.parse(p.tags) : p.tags.split(',')) : []);
+                                        const pMappedTags = pTagIds.map(tid => {
+                                            const t = availableTags.find(tag => String(tag.ID) === String(tid));
+                                            return t ? t.name : tid;
+                                        });
+
+                                        return {
+                                            id: p.ID,
+                                            title: p.title,
+                                            description: p.description ? p.description.replace(/<[^>]*>/g, '') : '',
+                                            price: Number(p.amount) || 0,
+                                            oldPrice: null,
+                                            image: shopApi.getImageUrl(p.cover_image),
+                                            badge: pMappedTags.includes('Featured') ? 'Featured' : pMappedTags.includes('New') ? 'New' : pMappedTags.includes('Sale') ? 'Sale' : null,
+                                        };
+                                    });
+                                setRelatedProducts(related);
+                                cacheService.save(`related_products_${id}`, related);
+                            }
+                        } catch (err) {
+                            console.error("Error fetching related products", err);
+                        }
                     }
                 } else {
-                    setError('Product not found');
+                    if (!cached) setError('Product not found');
                 }
             } catch (err) {
                 console.error('Error fetching product:', err);
-                setError('Failed to load product details');
+                if (!cached) setError('Failed to load product details');
             } finally {
                 setLoading(false);
             }
@@ -270,7 +272,7 @@ const ShopProductDetails = () => {
             </div>
 
             <div className="relative z-10 flex flex-col min-h-screen">
-                <div className="flex-grow lg:pt-8 pt-5 pb-20 sm:pb-16">
+                <div className="flex-grow lg:pt-20 pt-5 pb-20 sm:pb-16">
                     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
                         {/* Breadcrumbs */}
@@ -389,6 +391,16 @@ const ShopProductDetails = () => {
 
                                     <div className="flex items-center gap-3 mb-6">
                                         <span className="text-3xl font-bold text-[#0f1115]">{formatPrice(product.price)}</span>
+                                        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-green-50 text-green-600 rounded-full border border-green-100 shadow-sm ml-2">
+                                            <span className="material-symbols-outlined text-[16px]">local_shipping</span>
+                                            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest whitespace-nowrap">Free Shipping</span>
+                                        </div>
+                                        {product.delivery_range && (
+                                            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-full border border-blue-100 shadow-sm ml-1">
+                                                <span className="material-symbols-outlined text-[16px]">schedule</span>
+                                                <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest whitespace-nowrap">{product.delivery_range}</span>
+                                            </div>
+                                        )}
                                         {product.oldPrice && (
                                             <span className="text-xl text-gray-400 line-through decoration-2">{formatPrice(product.oldPrice)}</span>
                                         )}
@@ -445,16 +457,7 @@ const ShopProductDetails = () => {
                                         </div>
                                     </div>
 
-                                    <div className="mt-8 flex items-center gap-6 text-sm text-gray-500">
-                                        <div className="flex items-center gap-2">
-                                            <span className="material-symbols-outlined text-[20px]">local_shipping</span>
-                                            Free Shipping
-                                        </div>
-                                        {/* <div className="flex items-center gap-2">
-                                <span className="material-symbols-outlined text-[20px]">verified_user</span>
-                                2 Year Warranty
-                             </div> */}
-                                    </div>
+
 
                                 </div>
                             </div>
@@ -590,6 +593,7 @@ const ShopProductDetails = () => {
                         handleAddAddress={orderModal.handleAddAddress}
                         handleProceedToShipping={orderModal.handleProceedToShipping}
                         handleAddToCartAction={orderModal.handleAddToCartAction}
+                        handleBack={orderModal.handleBack}
                         customFieldValues={orderModal.customFieldValues}
                         setCustomFieldValues={orderModal.setCustomFieldValues}
                         getCustomFields={orderModal.getCustomFields}

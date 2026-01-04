@@ -39,13 +39,9 @@ export const logoutUser = async () => {
     // Optionally log error, but proceed to clear local data anyway
     console.error('Logout API error:', e.message);
   }
-  // Aggressively clear all client-side storage to avoid conflicts
+  // Aggressively clear key storage to avoid conflicts, but preserve session-scope navigation state
   try {
     cookiesManager.clearAll();
-    // Also clear any session-scoped data
-    if (typeof sessionStorage !== 'undefined') {
-      sessionStorage.clear();
-    }
     // Ensure legacy keys are removed if present
     localStorage.removeItem('authToken');
     localStorage.removeItem('userData');
@@ -58,7 +54,8 @@ export const logoutUser = async () => {
   const isPublicShopPage = path.startsWith('/shop') && !path.includes('/dashboard');
 
   if (path !== '/' && path !== '/login' && !isPublicShopPage) {
-    window.location.href = '/login';
+    const redirectPath = encodeURIComponent(window.location.pathname + window.location.search);
+    window.location.href = `/login?redirect=${redirectPath}`;
   }
 };
 

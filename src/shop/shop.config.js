@@ -26,3 +26,16 @@ export const formatPrice = (price) => {
         maximumFractionDigits: 0,
     }).format(price).replace('NGN', '₦');
 };
+
+export const cleanDescription = (text) => {
+    if (!text) return '';
+    return text
+        .replace(/<[^>]*>/g, '') // Remove HTML tags
+        .replace(/&nbsp;/g, ' ') // Replace &nbsp; with space
+        .replace(/&amp;/g, '&')  // Replace &amp; with &
+        .replace(/&quot;/g, '"') // Replace &quot; with "
+        .replace(/&apos;/g, "'") // Replace &apos; with '
+        .replace(/&lt;/g, '<')   // Replace &lt; with <
+        .replace(/&gt;/g, '>')   // Replace &gt; with >
+        .trim();
+};

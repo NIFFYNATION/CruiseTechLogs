@@ -26,7 +26,8 @@ const ReviewOrderModal = ({
     customFieldValues,
     setCustomFieldValues,
     getCustomFields,
-    handleProceedFromShipping
+    handleProceedFromShipping,
+    handleBack
 }) => {
 
     // Helper to render individual form fields
@@ -162,7 +163,7 @@ const ReviewOrderModal = ({
             open={open}
             onClose={onClose}
             title={buyStep === 'overview' ? 'Order Overview' : buyStep === 'shipping' ? 'Shipping Details' : buyStep === 'custom_fields' ? 'Customize Product' : 'Order Confirmed'}
-            className="w-full max-w-lg"
+            className="w-full max-w-lg bg-white"
         >
             {buyStep === 'overview' && product && (
                 <div className="p-4">
@@ -173,7 +174,7 @@ const ReviewOrderModal = ({
                         <div className="flex-1">
                             <h3 className="font-bold text-gray-900 line-clamp-2">{product.title}</h3>
                             <div className="flex items-center gap-3 mt-2">
-                                <span className="text-sm text-gray-500">Quantity:</span>
+                                <span className="text-sm text-black">Quantity:</span>
                                 <div className="flex items-center gap-2 bg-gray-50 rounded-lg p-1">
                                     <button
                                         onClick={() => setQuantity && setQuantity(Math.max(1, quantity - 1))}
@@ -196,17 +197,34 @@ const ReviewOrderModal = ({
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-between py-4 border-t border-gray-100 mb-6">
-                        <span className="font-semibold text-gray-600">Total Amount</span>
-                        <span className="font-black text-2xl text-[#0f1115]">{formatPrice(product.price * quantity)}</span>
+                    <div className="space-y-3 py-4 border-t border-gray-100 mb-6">
+                        <div className="flex items-center justify-between text-sm">
+                            <span className="text-gray-500 font-medium">Shipping</span>
+                            <span className="text-green-600 font-bold uppercase tracking-tight flex items-center gap-1">
+                                <span className="material-symbols-outlined text-sm">local_shipping</span>
+                                Free
+                            </span>
+                        </div>
+                        <div className="flex items-center justify-between pt-1">
+                            <span className="font-semibold text-gray-600">Total Amount</span>
+                            <span className="font-black text-2xl text-[#0f1115]">{formatPrice(product.price * quantity)}</span>
+                        </div>
                     </div>
 
-                    <button
-                        onClick={handleProceedToShipping}
-                        className="w-full bg-[#0f1115] text-white h-12 rounded-xl font-bold hover:bg-[#ff6a00] transition-colors"
-                    >
-                        Select Shipping Address
-                    </button>
+                    <div className="flex gap-3 mt-6">
+                        <button
+                            onClick={onClose}
+                            className="flex-1 px-6 py-3 font-bold text-gray-500 hover:text-gray-900 transition-colors"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={handleProceedToShipping}
+                            className="flex-[2] bg-[#0f1115] text-white h-12 rounded-xl font-bold hover:bg-[#ff6a00] transition-colors"
+                        >
+                            Shipping Address
+                        </button>
+                    </div>
                 </div>
             )}
 
@@ -224,15 +242,15 @@ const ReviewOrderModal = ({
                                                 key={addr.ID}
                                                 onClick={() => setSelectedAddressId(addr.ID)}
                                                 className={`p-3 rounded-xl border-2 cursor-pointer transition-all ${selectedAddressId === addr.ID
-                                                        ? 'border-[#0f1115] bg-gray-50'
-                                                        : 'border-gray-100 hover:border-gray-200'
+                                                    ? 'border-[#0f1115] bg-gray-50'
+                                                    : 'border-gray-100 hover:border-gray-200'
                                                     }`}
                                             >
                                                 <div className="flex justify-between items-start">
                                                     <div>
-                                                        <p className="font-bold text-gray-900">{addr.full_name}</p>
-                                                        <p className="text-sm text-gray-600">{addr.address_line1}, {addr.city}</p>
-                                                        <p className="text-xs text-gray-500">{addr.country}, {addr.postal_code}</p>
+                                                        <p className="font-bold text-black-900">{addr.full_name}</p>
+                                                        <p className="text-sm text-black-600">{addr.address_line1}, {addr.city}</p>
+                                                        <p className="text-xs text-black-500">{addr.country}, {addr.postal_code}</p>
                                                     </div>
                                                     {selectedAddressId === addr.ID && (
                                                         <span className="material-symbols-outlined text-[#0f1115]">check_circle</span>
@@ -254,20 +272,35 @@ const ReviewOrderModal = ({
                                 Add New Address
                             </button>
 
-                            <button
-                                onClick={handleProceedFromShipping || handleAddToCartAction}
-                                disabled={!selectedAddressId || orderProcessing}
-                                className="w-full bg-[#0f1115] text-white h-12 rounded-xl font-bold hover:bg-[#ff6a00] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                            >
-                                {orderProcessing ? (
-                                    <span className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>
-                                ) : (
-                                    <>
-                                        {getCustomFields && getCustomFields().length > 0 ? 'Continue' : 'Add to Cart'}
-                                        <span className="material-symbols-outlined">{getCustomFields && getCustomFields().length > 0 ? 'arrow_forward' : 'shopping_cart'}</span>
-                                    </>
-                                )}
-                            </button>
+                            <div className="mb-4">
+                                <div className="flex items-center justify-center gap-2 py-2 bg-green-50 rounded-xl border border-green-100">
+                                    <span className="material-symbols-outlined text-green-500 text-sm">local_shipping</span>
+                                    <span className="text-[10px] font-bold text-green-700 uppercase tracking-widest">Free Shipping on this order</span>
+                                </div>
+                            </div>
+
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={handleBack}
+                                    className="flex-1 px-6 py-3 font-bold text-gray-500 hover:text-gray-900 transition-colors"
+                                >
+                                    Back
+                                </button>
+                                <button
+                                    onClick={handleProceedFromShipping || handleAddToCartAction}
+                                    disabled={!selectedAddressId || orderProcessing}
+                                    className="flex-[2] bg-[#0f1115] text-white h-12 rounded-xl font-bold hover:bg-[#ff6a00] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                >
+                                    {orderProcessing ? (
+                                        <span className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>
+                                    ) : (
+                                        <>
+                                            {getCustomFields && getCustomFields().length > 0 ? 'Continue' : 'Add to Cart'}
+                                            <span className="material-symbols-outlined">{getCustomFields && getCustomFields().length > 0 ? 'arrow_forward' : 'shopping_cart'}</span>
+                                        </>
+                                    )}
+                                </button>
+                            </div>
                         </>
                     ) : (
                         <form onSubmit={handleAddAddress} className="space-y-3">
@@ -362,20 +395,36 @@ const ReviewOrderModal = ({
                             </div>
                         ))}
 
-                        <button
-                            type="submit"
-                            disabled={!isCustomFieldsValid() || orderProcessing}
-                            className="w-full bg-[#0f1115] text-white h-12 rounded-xl font-bold hover:bg-[#ff6a00] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-4"
-                        >
-                            {orderProcessing ? (
-                                <span className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>
-                            ) : (
-                                <>
-                                    Add to Cart
-                                    <span className="material-symbols-outlined">shopping_cart</span>
-                                </>
-                            )}
-                        </button>
+                        <div className="mb-4 mt-2">
+                            <div className="flex items-center justify-center gap-2 py-2 bg-green-50 rounded-xl border border-green-100">
+                                <span className="material-symbols-outlined text-green-500 text-sm">local_shipping</span>
+                                <span className="text-[10px] font-bold text-green-700 uppercase tracking-widest">Free Shipping on this order</span>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-3 mt-4">
+                            <button
+                                type="button"
+                                onClick={handleBack}
+                                className="flex-1 px-6 py-3 font-bold text-gray-500 hover:text-gray-900 transition-colors"
+                            >
+                                Back
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={!isCustomFieldsValid() || orderProcessing}
+                                className="flex-[2] bg-[#0f1115] text-white h-12 rounded-xl font-bold hover:bg-[#ff6a00] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            >
+                                {orderProcessing ? (
+                                    <span className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>
+                                ) : (
+                                    <>
+                                        Add to Cart
+                                        <span className="material-symbols-outlined">shopping_cart</span>
+                                    </>
+                                )}
+                            </button>
+                        </div>
                     </form>
                 </div>
             )}
@@ -388,6 +437,13 @@ const ReviewOrderModal = ({
                     <h3 className="text-2xl font-black text-[#0f1115] mb-2">Added to Cart!</h3>
                     <p className="text-gray-500 mb-8">Item has been added to your cart successfully.</p>
                     <div className="flex flex-col gap-3">
+                        <Link
+                            to="/shop/cart"
+                            className="w-full py-3 bg-[#ff6a00] text-white rounded-xl font-bold hover:bg-[#e65f00] transition-colors flex items-center justify-center gap-2 shadow-lg shadow-orange-500/20"
+                        >
+                            Checkout Now
+                            <span className="material-symbols-outlined">payments</span>
+                        </Link>
                         <Link
                             to="/shop/cart"
                             className="w-full py-3 bg-[#0f1115] text-white rounded-xl font-bold hover:bg-[#ff6a00] transition-colors"

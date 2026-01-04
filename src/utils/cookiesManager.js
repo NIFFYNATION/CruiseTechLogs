@@ -66,10 +66,14 @@ const cookiesManager = {
 
   // --- Clear all ---
   clearAll: () => {
-    // Preserve dashboard tour indicator across logout
+    // Preserve dashboard tour indicator and redirect paths across logout
     let dashboardTourShown = null;
+    let redirectPath = null;
     try {
       dashboardTourShown = localStorage.getItem('dashboard_tour_shown_v1');
+      // Capture redirect from URL or existing storage
+      const urlParams = new URLSearchParams(window.location.search);
+      redirectPath = urlParams.get('redirect') || localStorage.getItem('post_login_redirect');
     } catch {
       // ignore
     }
@@ -98,10 +102,13 @@ const cookiesManager = {
       // ignore
     }
 
-    // Restore dashboard tour indicator after full clear
+    // Restore preserved values after full clear
     try {
       if (dashboardTourShown !== null && dashboardTourShown !== undefined) {
         localStorage.setItem('dashboard_tour_shown_v1', dashboardTourShown);
+      }
+      if (redirectPath) {
+        localStorage.setItem('post_login_redirect', redirectPath);
       }
     } catch {
       // ignore

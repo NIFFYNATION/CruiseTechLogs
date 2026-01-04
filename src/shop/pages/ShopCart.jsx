@@ -119,7 +119,7 @@ const ShopCart = () => {
                                 <FiArrowRight />
                             </a>
 
-                            <button
+                            {/* <button
                                 onClick={() => {
                                     setModalConfig(prev => ({ ...prev, isOpen: false }));
                                     fetchCart();
@@ -128,7 +128,7 @@ const ShopCart = () => {
                                 className="w-full mt-3 py-3 text-gray-500 font-bold hover:text-black transition-colors"
                             >
                                 I'll pay later
-                            </button>
+                            </button> */}
                         </div>
                     ),
                     action: null
@@ -178,7 +178,7 @@ const ShopCart = () => {
 
     return (
         <div className="min-h-screen bg-[#f8f9fa] font-['Inter',sans-serif]">
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:pt-20">
                 <div className="mb-10">
                     <h1 className="text-4xl font-black text-[#0f1115] tracking-tight mb-2">Shopping Cart</h1>
                     <p className="text-[#6b7280] font-medium">{cartItems.length} items in your cart</p>

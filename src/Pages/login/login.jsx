@@ -26,11 +26,23 @@ const Login = () => {
   const navigate = useNavigate(); // Initialize navigation
   const { setUser } = useUser();
   const location = useLocation();
-  const from = location.state?.from?.pathname || '/dashboard';
-  const fromSearch = location.state?.from?.search || '';
+
+  // Use location state if available, otherwise fallback to 'redirect' query parameter or storage
+  const queryParams = new URLSearchParams(location.search);
+  const redirectParam = queryParams.get('redirect');
+  const storedRedirect = localStorage.getItem('post_login_redirect');
+
+  const fromState = location.state?.from;
+  const from = (typeof fromState === 'string' ? fromState : fromState?.pathname) || redirectParam || storedRedirect || '/dashboard';
+
+  // Only add search params if 'from' came from an object without search already inside
+  // (redirectParam and storedRedirect usually already contain the search part)
+  const fromSearch = (fromState?.search && !from.includes('?')) ? fromState.search : '';
 
   useEffect(() => {
     if (isUserLoggedIn()) {
+      // Clear the stored redirect once we use it
+      localStorage.removeItem('post_login_redirect');
       navigate(from + fromSearch, { replace: true });
     }
   }, [navigate, from, fromSearch]);
@@ -91,23 +103,23 @@ const Login = () => {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Left Section */}
-      
+
       <div className="w-full lg:w-1/2 flex flex-col items-center justify-center bg-gradient-to-r from-red-500/2 to-orange-500/5 py-8 px-4 sm:px-6 lg:px-8 h-screen md:h-auto">
         <div className="flex justify-center mb-6">
-        <Link to="/">
-     <img
-        src="/images/CruiseTech-2.svg"
-        alt="CruiseTech Logo"
-        className="h-12"
-        style={{ maxWidth: 160 }}
-      />
-     </Link>
-          </div>
+          <Link to="/">
+            <img
+              src="/images/CruiseTech-2.svg"
+              alt="CruiseTech Logo"
+              className="h-12"
+              style={{ maxWidth: 160 }}
+            />
+          </Link>
+        </div>
         <FormSection
           title="Log in to your Account"
           subtitle="Welcome back!"
         >
-          
+
           {/* Login Form */}
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
             <InputField
@@ -115,7 +127,7 @@ const Login = () => {
               name="email"
               type="email"
               placeholder="Email Address"
-            className='focus:ring-quinary focus:border-quinary'
+              className='focus:ring-quinary focus:border-quinary'
 
               value={formData.email}
               onChange={handleChange}
@@ -127,7 +139,7 @@ const Login = () => {
               name="password"
               type="password"
               placeholder="Password"
-            className='focus:ring-quinary focus:border-quinary'
+              className='focus:ring-quinary focus:border-quinary'
 
               value={formData.password}
               onChange={handleChange}
@@ -162,9 +174,8 @@ const Login = () => {
             <Button
               type="submit"
               variant="quinary"
-              className={`w-full py-2 rounded-md transition-colors ${
-                isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#FF6B00] hover:bg-primary- text-white'
-              }`}
+              className={`w-full py-2 rounded-md transition-colors ${isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#FF6B00] hover:bg-primary- text-white'
+                }`}
               disabled={isLoading} // Disable button while loading
             >
               {isLoading ? (
@@ -175,7 +186,7 @@ const Login = () => {
                 'Log In'
               )}
             </Button>
-            
+
           </form>
 
           {/* Sign up link */}

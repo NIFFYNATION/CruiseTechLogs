@@ -36,7 +36,7 @@ const Tabs = () => {
   }, []);
 
   // Hide on shop pages or if explicitly hidden
-  if (isHidden || location.pathname.startsWith('/shop')) return null;
+  if (isHidden || !location.pathname.startsWith('/dashboard')) return null;
 
   return (
     <>

@@ -46,6 +46,7 @@ const ShopNavbar = () => {
             {!effectiveCollapsed && <p className="px-4 text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 transition-opacity">Menu</p>}
             <NavLink to="/shop" icon="home" text="Home" active={location.pathname === '/shop'} isCollapsed={effectiveCollapsed} />
             <NavLink to="/shop/products" icon="inventory_2" text="All Products" active={location.pathname === '/shop/products' && !location.search.includes('category')} isCollapsed={effectiveCollapsed} />
+            <NavLink to="/dashboard" icon="dashboard" text="Switch to CruiseLog Dashboard" isCollapsed={effectiveCollapsed} />
             <NavLink to="#" icon="mail" text="Contact" isCollapsed={effectiveCollapsed} />
           </div>
 
@@ -91,6 +92,7 @@ const ShopNavbar = () => {
 
             <Link
               to={loggedIn ? "/shop/dashboard" : "/login"}
+              state={!loggedIn ? { from: location } : undefined}
               className={`flex items-center gap-3 ${effectiveCollapsed ? 'justify-center p-2 rounded-xl bg-white border border-gray-100' : 'flex-1 p-2 pr-4 rounded-full bg-white border border-gray-100'} shadow-sm hover:shadow-md hover:border-[#ff6a00] transition-all group overflow-hidden`}
               title={loggedIn ? 'My Account' : 'Sign In'}
             >

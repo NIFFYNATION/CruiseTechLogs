@@ -13,13 +13,13 @@ const ShopPublicLayout = () => {
         <div className="min-h-screen w-full flex flex-col font-['Inter',sans-serif] text-[#0f1115] antialiased selection:bg-[#ff6a00] selection:text-white overflow-x-hidden bg-white">
             <ShopNavbar />
 
-            {/* Main Content Wrapper - Dynamic Padding */}
             <div
                 className={`flex-grow pt-16 lg:pt-0 transition-all duration-300 ease-in-out ${isCollapsed ? 'lg:pl-24' : 'lg:pl-72'
                     }`}
             >
                 <Outlet />
             </div>
+            <ShopFooter />
         </div>
     );
 };
