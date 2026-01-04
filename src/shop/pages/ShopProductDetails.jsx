@@ -6,7 +6,7 @@ import ProductCard from '../components/ProductCard';
 import ReviewOrderModal from '../components/ReviewOrderModal';
 import { shopApi } from '../services/api';
 import cacheService from '../services/cacheService';
-import { formatPrice } from '../shop.config';
+import { formatPrice, cleanDescription } from '../shop.config';
 import { useOrderModal } from '../hooks/useOrderModal';
 
 const ShopProductDetails = () => {
