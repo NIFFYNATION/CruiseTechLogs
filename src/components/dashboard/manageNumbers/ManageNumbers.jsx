@@ -48,7 +48,7 @@ const ManageNumbers = ({ orderId }) => {
   useEffect(() => {
     if (activeNumbers.length === 0 && activeEmails.length === 0) {
       setActiveLoading(true);
-      
+
       // Fetch active numbers
       const fetchActiveNumbers = fetchNumbers({ status: "active", start: 0 })
         .then(({ numbers, next }) => {
@@ -65,7 +65,7 @@ const ManageNumbers = ({ orderId }) => {
           console.error("Error fetching active numbers:", err);
           return [];
         });
-      
+
       // Fetch active emails
       const fetchActiveEmails = getEmails()
         .then(response => {
@@ -96,19 +96,19 @@ const ManageNumbers = ({ orderId }) => {
           console.error("Error fetching active emails:", err);
           return [];
         });
-      
+
       // When both fetches complete, update loading state
       Promise.all([fetchActiveNumbers, fetchActiveEmails])
         .then(() => setActiveLoading(false));
     }
-  // eslint-disable-next-line
+    // eslint-disable-next-line
   }, []);
 
   // Fetch inactive numbers and emails (only once)
   useEffect(() => {
     if (inactiveNumbers.length === 0 && inactiveEmails.length === 0) {
       setInactiveLoading(true);
-      
+
       // Fetch inactive numbers
       const fetchInactiveNumbers = fetchNumbers({ status: "inactive", start: 0 })
         .then(({ numbers, next }) => {
@@ -125,7 +125,7 @@ const ManageNumbers = ({ orderId }) => {
           console.error("Error fetching inactive numbers:", err);
           return [];
         });
-      
+
       // Fetch inactive emails
       const fetchInactiveEmails = getEmails()
         .then(response => {
@@ -156,7 +156,7 @@ const ManageNumbers = ({ orderId }) => {
           console.error("Error fetching inactive emails:", err);
           return [];
         });
-      
+
       // When both fetches complete, update loading state
       Promise.all([fetchInactiveNumbers, fetchInactiveEmails])
         .then(() => setInactiveLoading(false));
@@ -296,7 +296,7 @@ const ManageNumbers = ({ orderId }) => {
     if (orderIdParam) {
       navigate("/dashboard/manage-numbers", { replace: true });
     }
-    
+
     // Fetch verification code based on item type
     try {
       if (item.type === 'email') {
@@ -451,69 +451,68 @@ const ManageNumbers = ({ orderId }) => {
             <BuyDropdown />
           </div>
         </div>
-        
+
         <div className="ms-3">
 
-       
-        {/* Tabs and Search */}
-        <div className="flex flex-col lg:flex-row lg:justify-between gap-4 border-b border-[#ECECEC] mb-6 lg:mb-10">
-          <div className="flex gap-6 sm:gap-8">
-            {["Active", "Inactive"].map((tab) => (
+
+          {/* Tabs and Search */}
+          <div className="flex flex-col lg:flex-row lg:justify-between gap-4 border-b border-[#ECECEC] mb-6 lg:mb-10">
+            <div className="flex gap-6 sm:gap-8">
+              {["Active", "Inactive"].map((tab) => (
+                <button
+                  key={tab}
+                  className={`pb-3 text-base sm:text-lg font-medium transition-colors min-h-[44px] ${activeTab === tab
+                      ? "border-b-2 lg:border-b-3 border-primary text-primary"
+                      : "text-text-grey hover:text-text-primary"
+                    }`}
+                  onClick={() => setActiveTab(tab)}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+            <div className="flex bg-background rounded-lg border border-gray-200 px-3 py-2 items-center w-full sm:max-w-xs lg:max-w-sm">
+              <FaSearch className="text-text-grey mr-2 flex-shrink-0" />
+              <input
+                type="text"
+                placeholder="Search numbers, emails or services"
+                className="outline-none bg-transparent text-sm text-text-secondary w-full min-w-0"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+          </div>
+
+          {/* Refund Information */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 text-sm text-blue-800">
+            <div className="items-center justify-between gap-3">
+              <p className="mb-0">
+                <strong>Refund Information:</strong> If your refund seems delayed, use the refresh button to update your refund status.
+              </p>
               <button
-                key={tab}
-                className={`pb-3 text-base sm:text-lg font-medium transition-colors min-h-[44px] ${
-                  activeTab === tab
-                    ? "border-b-2 lg:border-b-3 border-primary text-primary"
-                    : "text-text-grey hover:text-text-primary"
-                }`}
-                onClick={() => setActiveTab(tab)}
+                type="button"
+                className="flex mt-3 items-center gap-1 px-3 py-1 bg-quinary text-white rounded-full text-xs font-medium hover:bg-quinary-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                onClick={async () => {
+                  if (refundRefreshing) return;
+                  const uid = user?.userID || user?.ID;
+                  if (!uid) return;
+                  setRefundRefreshing(true);
+                  const ok = await triggerRentalCronjob(uid);
+                  if (ok) {
+                    window.location.reload();
+                  } else {
+                    setRefundRefreshing(false);
+                  }
+                }}
+                disabled={refundRefreshing}
+                title="Refresh balance and refund status"
               >
-                {tab}
+                <img src="/icons/reload.svg" alt="Refresh" className={`h-4 w-4 ${refundRefreshing ? "animate-spin" : ""}`} />
+                {refundRefreshing ? "Refreshing" : "Refresh Balance"}
               </button>
-            ))}
-          </div>
-          <div className="flex bg-background rounded-lg border border-gray-200 px-3 py-2 items-center w-full sm:max-w-xs lg:max-w-sm">
-            <FaSearch className="text-text-grey mr-2 flex-shrink-0" />
-            <input
-              type="text"
-              placeholder="Search numbers, emails or services"
-              className="outline-none bg-transparent text-sm text-text-secondary w-full min-w-0"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+            </div>
           </div>
         </div>
-        
-        {/* Refund Information */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 text-sm text-blue-800">
-          <div className="items-center justify-between gap-3">
-            <p className="mb-0">
-              <strong>Refund Information:</strong> If your refund seems delayed, use the refresh button to update your refund status.
-            </p>
-            <button
-              type="button"
-              className="flex mt-3 items-center gap-1 px-3 py-1 bg-quinary text-white rounded-full text-xs font-medium hover:bg-quinary-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-              onClick={async () => {
-                if (refundRefreshing) return;
-                const uid = user?.userID || user?.ID;
-                if (!uid) return;
-                setRefundRefreshing(true);
-                const ok = await triggerRentalCronjob(uid);
-                if (ok) {
-                  window.location.reload();
-                } else {
-                  setRefundRefreshing(false);
-                }
-              }}
-              disabled={refundRefreshing}
-              title="Refresh balance and refund status"
-            >
-              <img src="/icons/reload.svg" alt="Refresh" className={`h-4 w-4 ${refundRefreshing ? "animate-spin" : ""}`} />
-              {refundRefreshing ? "Refreshing" : "Refresh Balance"}
-            </button>
-          </div>
-        </div>
-         </div>
         {/* Responsive Table */}
         <div
           className="bg-background rounded-2xl shadow-lg p-3 sm:p-4 lg:p-6 overflow-x-auto thin-scrollbar ms-3"
@@ -534,7 +533,7 @@ const ManageNumbers = ({ orderId }) => {
                   <th className="py-3 px-2 sm:px-3 font-semibold text-gray-700">Actions</th>
                 </tr>
               </thead>
-            <tbody>
+              <tbody>
                 {activeLoading ? (
                   <>
                     {Array.from({ length: 3 }).map((_, i) => (
@@ -596,9 +595,8 @@ const ManageNumbers = ({ orderId }) => {
                         </div>
                       </td>
                       <td className="py-3 px-2 sm:px-3 font-semibold">
-                        <span className={`text-sm sm:text-base ${
-                          isLessThanOneHour(item.expiration) ? "text-danger" : "text-success"
-                        }`}>
+                        <span className={`text-sm sm:text-base ${isLessThanOneHour(item.expiration) ? "text-danger" : "text-success"
+                          }`}>
                           {formatExpiration(item.expiration)}
                         </span>
                       </td>
@@ -611,11 +609,11 @@ const ManageNumbers = ({ orderId }) => {
                           <AiFillEye className="h-4 w-4 sm:hidden" />
                         </button>
                       </td>
-                </tr>
+                    </tr>
                   ))
-              )}
-            </tbody>
-          </table>
+                )}
+              </tbody>
+            </table>
             {activeLoadingMore && (
               <div className="flex justify-center items-center py-4">
                 <svg className="animate-spin h-6 w-6 text-quinary" viewBox="0 0 24 24">
@@ -623,7 +621,7 @@ const ManageNumbers = ({ orderId }) => {
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                 </svg>
                 <span className="ml-2 text-quinary font-semibold">Loading more...</span>
-        </div>
+              </div>
             )}
           </div>
           {/* Inactive Table */}
@@ -631,7 +629,7 @@ const ManageNumbers = ({ orderId }) => {
             ref={inactiveListRef}
             style={{ display: activeTab === "Inactive" ? "block" : "none", maxHeight: "70vh", overflowY: "auto" }}
           >
-          <table className="w-full thin-scrollbar">
+            <table className="w-full thin-scrollbar">
               <thead className="sticky top-0 z-10 bg-background">
                 <tr className="text-left text-xs sm:text-sm">
                   <th className="py-3 px-2 sm:px-3 font-semibold text-gray-700">Type</th>
@@ -640,7 +638,7 @@ const ManageNumbers = ({ orderId }) => {
                   <th className="py-3 px-2 sm:px-3 font-semibold text-gray-700">Actions</th>
                 </tr>
               </thead>
-            <tbody>
+              <tbody>
                 {inactiveLoading ? (
                   <>
                     {Array.from({ length: 3 }).map((_, i) => (
@@ -715,11 +713,11 @@ const ManageNumbers = ({ orderId }) => {
                           <AiFillEye className="h-4 w-4 sm:hidden" />
                         </button>
                       </td>
-                </tr>
+                    </tr>
                   ))
-              )}
-            </tbody>
-          </table>
+                )}
+              </tbody>
+            </table>
             {inactiveLoadingMore && (
               <div className="flex justify-center items-center py-4">
                 <svg className="animate-spin h-6 w-6 text-quinary" viewBox="0 0 24 24">

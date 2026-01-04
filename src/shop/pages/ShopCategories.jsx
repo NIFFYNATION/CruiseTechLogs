@@ -32,7 +32,7 @@ const ShopCategories = () => {
 
     return (
         <div className="min-h-screen w-full flex flex-col font-['Inter',sans-serif] text-[#0f1115] antialiased selection:bg-[#ff6a00] selection:text-white overflow-x-hidden bg-[#f7f5f2]">
-            <div className="flex-grow pt-20 lg:pt-5 pb-20">
+            <div className="flex-grow pt-20 lg:pt-24 pb-20">
                 <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
 
                     {/* Header */}

@@ -5,6 +5,7 @@
 @utility scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
+
   &::-webkit-scrollbar {
     display: none;
   }
@@ -15,6 +16,12 @@
   /* Font Families */
   --font-display: "poppins", "sans-serif";
   --font-body: "Inter", "sans-serif";
+  --font-size-xxs: 10px;
+  --font-size-tiny: 11px;
+  --font-size-xs-plus: 13px;
+  --font-size-md: 15px;
+  --font-size-title-sm: 40px;
+  --font-size-title-lg: 42px;
 
   /* Light mode colors (default) */
   --color-bgLayout: #F4F4F4;
@@ -30,16 +37,16 @@
   --color-danger: #ef4444;
   --color-success: #22c55e;
   --color-warning: #f59e0b;
-  
+
   /* Text colors */
   --color-text-primary: #2D2D2D;
   --color-text-secondary: #000000;
   --color-text-grey: #878787;
-  
+
   /* Background colors */
   --color-background: #ffffff;
   --color-background-alt: #f8f3f8;
-  
+
   /* Accent colors */
   --color-accent: #8e4b8b;
   --color-border-grey: #C3C3C3;
@@ -57,14 +64,19 @@
   /* Shop Specific Variables (Global access for utilities) */
   /* These map to the class names used in shop.html (e.g. text-text-main, bg-background-subtle) */
   --color-shop-primary: #ff6a00;
-  --color-primary-dark: #e55f00; /* For bg-primary-dark */
-  --color-background-light: #f8f7f5; /* For bg-background-light */
-  --color-background-subtle: #f7f5f2; /* For bg-background-subtle */
+  --color-primary-dark: #e55f00;
+  /* For bg-primary-dark */
+  --color-background-light: #f8f7f5;
+  /* For bg-background-light */
+  --color-background-subtle: #f7f5f2;
+  /* For bg-background-subtle */
   --color-background-dark: #23170f;
   --color-surface-light: #ffffff;
   --color-surface-dark: #2d241f;
-  --color-text-main: #0f1115; /* For text-text-main */
-  --color-text-muted: #6b7280; /* For text-text-muted */
+  --color-text-main: #0f1115;
+  /* For text-text-main */
+  --color-text-muted: #6b7280;
+  /* For text-text-muted */
 
   /* Custom Shadows */
   --shadow-glow: 0 0 25px rgba(255, 106, 0, 0.12);
@@ -80,13 +92,13 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
 }
 
-@layer base {
-}
+@layer base {}
 
 /* Removed duplicate early .theme-shop block */
 
@@ -132,12 +144,12 @@ body {
   /* Override global theme variables for Shop scope */
   --color-primary: #ff6a00 !important;
   --color-primary-light: #fff0e5 !important;
-  
+
   /* Ensure these match the shop design strictly within this scope */
   --color-text-main: #0f1115;
   --color-text-muted: #6b7280;
   --font-display: "Inter", "sans-serif";
-  
+
   /* Shop-specific icon weight */
   .material-symbols-outlined {
     font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
@@ -173,12 +185,14 @@ body {
   display: none;
   opacity: 0.3;
 }
+
 @media (min-width: 768px) {
   .step-connector::after {
-      display: block;
+    display: block;
   }
+
   .step-connector:last-child::after {
-      display: none;
+    display: none;
   }
 }
 
@@ -186,6 +200,7 @@ body {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;

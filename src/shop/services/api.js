@@ -43,12 +43,12 @@ export const shopApi = {
      */
     getProducts: async (params = {}) => {
         const queryParams = new URLSearchParams();
-        
+
         if (params.start) queryParams.append('start', params.start);
         if (params.limit) queryParams.append('limit', params.limit);
         if (params.category && params.category !== 'all') queryParams.append('category', params.category);
         if (params.search) queryParams.append('search', params.search);
-        
+
         if (params.tags && params.tags.length > 0) {
             params.tags.forEach(tag => queryParams.append('tags[]', tag));
         }
@@ -79,6 +79,26 @@ export const shopApi = {
      */
     getCategories: async () => {
         const response = await api.get('/products/categories');
+        return response;
+    },
+
+    /**
+     * Fetch featured sections
+     */
+    getSections: async (params = {}) => {
+        const queryParams = new URLSearchParams();
+        if (params.start) queryParams.append('start', params.start);
+        if (params.limit) queryParams.append('limit', params.limit);
+        const response = await api.get(`/products/sections?${queryParams.toString()}`);
+        return response;
+    },
+
+    /**
+     * Fetch featured section details
+     * @param {string} id - Section ID
+     */
+    getSectionDetail: async (id) => {
+        const response = await api.get(`/products/sections/detail?id=${id}`);
         return response;
     },
 
@@ -145,7 +165,7 @@ export const shopApi = {
         const queryParams = new URLSearchParams();
         if (params.start) queryParams.append('start', params.start);
         if (params.limit) queryParams.append('limit', params.limit);
-        
+
         const response = await api.get(`/products/orders?${queryParams.toString()}`);
         return response;
     },

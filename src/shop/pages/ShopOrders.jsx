@@ -128,8 +128,8 @@ const OrderCard = ({ order, onClick }) => {
         >
             {/* Status Stripe */}
             <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${['delivered', 'completed'].includes(order.status?.toLowerCase()) ? 'bg-green-500' :
-                    ['cancelled', 'failed'].includes(order.status?.toLowerCase()) ? 'bg-red-500' :
-                        'bg-blue-500'
+                ['cancelled', 'failed'].includes(order.status?.toLowerCase()) ? 'bg-red-500' :
+                    'bg-blue-500'
                 }`} />
 
             <div className="p-5 pl-7">
@@ -282,7 +282,7 @@ const ShopOrders = () => {
     }, [searchTerm, statusFilter, sortOrder, orders]);
 
     return (
-        <div className="font-['Inter',sans-serif] text-[#0f1115] max-w-6xl mx-auto pb-20 px-4">
+        <div className="font-['Inter',sans-serif] text-[#0f1115] max-w-6xl mx-auto pb-20 px-4 lg:pt-10">
             {/* Page Header */}
             <div className="py-8 md:py-12">
                 <motion.div
@@ -337,8 +337,8 @@ const ShopOrders = () => {
                                 key={status}
                                 onClick={() => setStatusFilter(status)}
                                 className={`px-4 py-2 rounded-lg text-sm font-bold capitalize transition-all whitespace-nowrap ${statusFilter === status
-                                        ? 'bg-white text-black shadow-sm'
-                                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50'
+                                    ? 'bg-white text-black shadow-sm'
+                                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50'
                                     }`}
                             >
                                 {status}

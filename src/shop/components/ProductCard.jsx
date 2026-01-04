@@ -2,7 +2,7 @@ import React from 'react';
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { formatPrice } from '../shop.config';
+import { formatPrice, cleanDescription } from '../shop.config';
 
 const ProductCard = ({
   id,
@@ -45,7 +45,11 @@ const ProductCard = ({
           <Link to={`/shop/products/${id}`}>
             <h3 className="font-bold text-sm sm:text-base text-[#0f1115] group-hover:text-[#ff6a00] transition-colors cursor-pointer line-clamp-2 sm:line-clamp-1">{title}</h3>
           </Link>
-          <p className="text-[10px] sm:text-xs text-[#6b7280] mt-0.5 sm:mt-1 line-clamp-1">{description}</p>
+          <p className="text-[10px] sm:text-xs text-[#6b7280] mt-0.5 sm:mt-1 line-clamp-1">{cleanDescription(description)}</p>
+          <div className="flex items-center gap-1 mt-2 text-green-600">
+            <span className="material-symbols-outlined text-[12px] sm:text-[14px]">local_shipping</span>
+            <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider">Free Shipping</span>
+          </div>
         </div>
         <div className="mt-auto pt-2 sm:pt-3 border-t border-gray-50 flex items-center justify-between gap-2 sm:gap-3">
           <div className="flex flex-col sm:flex-row sm:items-center gap-0.5 sm:gap-2">

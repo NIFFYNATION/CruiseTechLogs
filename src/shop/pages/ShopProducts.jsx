@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion';
@@ -19,11 +19,14 @@ const SORT_OPTIONS = [
 const ShopProducts = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedSection, setSelectedSection] = useState(null);
   const [selectedTags, setSelectedTags] = useState([]);
   const [priceRange, setPriceRange] = useState({ min: 0, max: 1000000 });
   const [debouncedPriceRange, setDebouncedPriceRange] = useState(priceRange);
   const [sortBy, setSortBy] = useState('featured');
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
+  const [sectionProducts, setSectionProducts] = useState([]);
+  const [loadingSection, setLoadingSection] = useState(false);
 
   // Use custom hook for order modal
   const orderModal = useOrderModal();
@@ -35,6 +38,7 @@ const ShopProducts = () => {
     tags: apiTags,
     loading,
     error,
+    isInitialSyncDone,
     fetchProducts
   } = useShopData();
 
@@ -52,15 +56,61 @@ const ShopProducts = () => {
     const params = new URLSearchParams(location.search);
     const categoryParam = params.get('category');
     const searchParam = params.get('search');
+    const sectionParam = params.get('section');
     const tagsParam = params.getAll('tags[]'); // Collects multiple tags[] params
 
     if (categoryParam) setSelectedCategory(categoryParam);
     if (searchParam) setSearchQuery(searchParam);
+    if (sectionParam) setSelectedSection(sectionParam);
     if (tagsParam.length > 0) setSelectedTags(tagsParam);
   }, [location.search]);
 
-  // Debounced fetch when filters change
+  // Track initial fetch to avoid flash
+  const isFirstFetch = useRef(true);
+
+  // Fetch section products if section is selected
   useEffect(() => {
+    if (!selectedSection) {
+      setSectionProducts([]);
+      return;
+    }
+
+    const fetchSectionProducts = async () => {
+      setLoadingSection(true);
+      try {
+        const response = await shopApi.getSectionDetail(selectedSection);
+        if (response.status === 'success' && response.data && response.data.products) {
+          // Format products similar to useShopData
+          const formatted = response.data.products.map(p => ({
+            id: p.ID,
+            title: p.title,
+            description: p.description,
+            price: Number(p.amount),
+            category: p.category_id,
+            image: shopApi.getImageUrl(p.cover_image),
+            delivery_range: p.delivery_range,
+            tags: [],
+            badge: null
+          }));
+          setSectionProducts(formatted);
+        }
+      } catch (error) {
+        console.error('Error fetching section products:', error);
+      } finally {
+        setLoadingSection(false);
+      }
+    };
+
+    fetchSectionProducts();
+  }, [selectedSection]);
+
+  // Debounced fetch when filters change (only if not viewing a section)
+  useEffect(() => {
+    if (selectedSection) return; // Don't fetch regular products if viewing a section
+
+    // Skip debounce on first mount or if data is already being fetched
+    const delay = isFirstFetch.current ? 0 : 500;
+
     const timer = setTimeout(() => {
       fetchProducts({
         search: searchQuery,
@@ -68,7 +118,8 @@ const ShopProducts = () => {
         tags: selectedTags,
         limit: 50
       });
-    }, 500);
+      isFirstFetch.current = false;
+    }, delay);
 
     return () => clearTimeout(timer);
   }, [searchQuery, selectedCategory, selectedTags, fetchProducts]);
@@ -84,7 +135,8 @@ const ShopProducts = () => {
 
   // Client-side filtering for Price and Sorting (since API handles Search, Category, Tags)
   const filteredProducts = useMemo(() => {
-    let result = [...apiProducts];
+    // If viewing a section, use section products instead of regular products
+    let result = selectedSection ? [...sectionProducts] : [...apiProducts];
 
     // Price filter
     result = result.filter(product =>
@@ -100,25 +152,16 @@ const ShopProducts = () => {
         result.sort((a, b) => b.price - a.price);
         break;
       case 'newest':
-        // Assuming higher ID is newer for now, or use date if available
-        result.sort((a, b) => b.id - a.id);
+        // Assuming products come pre-sorted by newest from API
         break;
       case 'featured':
       default:
-        // Prioritize products with "Featured" badge or "Best Seller" tag
-        result.sort((a, b) => {
-          const hasBestSeller = (p) => p.tags && p.tags.some(t => t.name === 'Best Seller');
-          const aFeatured = a.badge === 'Featured' || hasBestSeller(a);
-          const bFeatured = b.badge === 'Featured' || hasBestSeller(b);
-          if (aFeatured && !bFeatured) return -1;
-          if (!aFeatured && bFeatured) return 1;
-          return 0;
-        });
+        // Featured or default sorting
         break;
     }
 
     return result;
-  }, [apiProducts, debouncedPriceRange, sortBy]);
+  }, [apiProducts, sectionProducts, selectedSection, debouncedPriceRange, sortBy]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -332,8 +375,9 @@ const ShopProducts = () => {
 
               {/* Grid */}
               <AnimatePresence mode="wait">
-                {loading ? (
+                {loading && apiProducts.length === 0 ? (
                   <motion.div
+                    key="initial_loading"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
@@ -346,6 +390,7 @@ const ShopProducts = () => {
                   </motion.div>
                 ) : error ? (
                   <motion.div
+                    key="error"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
@@ -377,6 +422,19 @@ const ShopProducts = () => {
                         onAddToCart={() => orderModal.openModal(product)}
                       />
                     ))}
+                  </motion.div>
+                ) : !isInitialSyncDone ? (
+                  <motion.div
+                    key="syncing"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="flex items-center justify-center min-h-[400px]"
+                  >
+                    <div className="flex flex-col items-center gap-4">
+                      <div className="size-12 border-4 border-[#ff6a00] border-t-transparent rounded-full animate-spin"></div>
+                      <p className="text-gray-500 font-medium">Syncing results...</p>
+                    </div>
                   </motion.div>
                 ) : (
                   <motion.div
@@ -432,6 +490,7 @@ const ShopProducts = () => {
         handleAddAddress={orderModal.handleAddAddress}
         handleProceedToShipping={orderModal.handleProceedToShipping}
         handleAddToCartAction={orderModal.handleAddToCartAction}
+        handleBack={orderModal.handleBack}
         customFieldValues={orderModal.customFieldValues}
         setCustomFieldValues={orderModal.setCustomFieldValues}
         getCustomFields={orderModal.getCustomFields}

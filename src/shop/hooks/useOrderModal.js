@@ -53,7 +53,6 @@ export const useOrderModal = () => {
     };
 
     const fetchAddresses = async () => {
-        // ... existing fetchAddresses logic ...
         setAddressLoading(true);
         try {
             const res = await shopApi.getAddresses();
@@ -75,12 +74,50 @@ export const useOrderModal = () => {
             navigate('/login', { state: { from: location } });
             return;
         }
+
+        // Show passed product immediately
         setProduct(productToBuy);
         setQuantity(initialQuantity);
         setOpen(true);
         setBuyStep('overview');
         setCustomFieldValues({}); // Reset custom fields
         fetchAddresses();
+
+        // Background Refresh: Ensure price and details are current
+        const refreshProduct = async () => {
+            try {
+                const [productResponse, tagsResponse] = await Promise.all([
+                    shopApi.getProductDetail(productToBuy.id),
+                    shopApi.getTags()
+                ]);
+
+                if (productResponse.status === 'success' && productResponse.data) {
+                    const productData = productResponse.data.products?.[0] || productResponse.data;
+                    const availableTags = tagsResponse.status === 'success' ? tagsResponse.data : [];
+
+                    let tagIds = Array.isArray(productData.tags) ? productData.tags : (typeof productData.tags === 'string' && productData.tags ? (productData.tags.includes('[') ? JSON.parse(productData.tags) : productData.tags.split(',')) : []);
+                    const mappedTags = tagIds.map(tid => {
+                        const t = availableTags.find(tag => String(tag.ID) === String(tid));
+                        return t ? { id: String(t.ID), name: t.name } : { id: String(tid), name: tid };
+                    });
+
+                    const freshProduct = {
+                        ...productToBuy,
+                        title: productData.title,
+                        description: productData.description ? productData.description.replace(/<[^>]*>/g, '') : '',
+                        price: Number(productData.amount),
+                        tags: mappedTags,
+                        custom_fields: productData.custom_fields,
+                    };
+
+                    setProduct(freshProduct);
+                }
+            } catch (err) {
+                console.error("Background product refresh failed", err);
+            }
+        };
+
+        refreshProduct();
     };
 
     const closeModal = () => {
@@ -170,6 +207,14 @@ export const useOrderModal = () => {
         }
     };
 
+    const handleBack = () => {
+        if (buyStep === 'shipping') {
+            setBuyStep('overview');
+        } else if (buyStep === 'custom_fields') {
+            setBuyStep('shipping');
+        }
+    };
+
     return {
         open,
         product,
@@ -193,6 +238,7 @@ export const useOrderModal = () => {
         handleAddAddress,
         handleProceedToShipping,
         handleProceedFromShipping,
-        handleAddToCartAction
+        handleAddToCartAction,
+        handleBack
     };
 };

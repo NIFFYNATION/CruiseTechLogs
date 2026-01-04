@@ -312,7 +312,7 @@ const ShopDashboard = () => {
     return (
         <div className="max-w-7xl mx-auto flex flex-col gap-8 pb-12 px-4">
             {/* Header Section */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 pt-8">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 pt-12 lg:pt-20">
                 <motion.div
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -336,7 +336,7 @@ const ShopDashboard = () => {
                 <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="flex gap-3"
+                    className="flex flex-wrap gap-3"
                 >
                     <button
                         onClick={() => navigate('/shop/cart')}
@@ -439,39 +439,49 @@ const ShopDashboard = () => {
                     <ActivityChart orders={orders} />
 
                     {/* Quick Actions */}
-                    <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl p-6 text-white shadow-xl relative overflow-hidden">
-                        <div className="absolute top-0 right-0 p-6 opacity-10">
-                            <FiMapPin className="text-8xl text-white" />
+                    <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm relative overflow-hidden min-h-[370px]">
+                        <div className="absolute top-0 right-0 p-6 opacity-8">
+                            <FiMapPin className="text-8xl text-black" />
                         </div>
-                        <h3 className="font-bold text-xl mb-1 relative z-10">Quick Actions</h3>
-                        <p className="text-gray-400 text-sm mb-6 relative z-10">Manage your account settings</p>
+                        <h3 className="font-bold text-xl text-gray-900 mb-1 relative z-10">Quick Actions</h3>
+                        <p className="text-gray-500 text-sm mb-6 relative z-10">Manage your account settings</p>
 
-                        <div className="space-y-3 relative z-10">
+                        <div className="space-y-4 relative z-10">
+                            <button
+                                onClick={() => navigate('/dashboard')}
+                                className="w-full flex items-center justify-between p-5 bg-blue-50 hover:bg-blue-100 rounded-xl border border-blue-100 transition-all group"
+                            >
+                                <span className="flex items-center gap-4 font-bold text-sm text-blue-700 uppercase tracking-tight">
+                                    <FiActivity className="text-blue-500 text-lg" />
+                                    Back to Main Logs
+                                </span>
+                                <FiArrowRight className="text-blue-400 group-hover:text-blue-700 transition-colors" />
+                            </button>
                             <button
                                 onClick={() => navigate('/shop/addresses')}
-                                className="w-full flex items-center justify-between p-4 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-xl border border-white/10 transition-all group"
+                                className="w-full flex items-center justify-between p-5 bg-gray-50 hover:bg-gray-100 rounded-xl border border-gray-100 transition-all group"
                             >
-                                <span className="flex items-center gap-3 font-bold text-sm">
-                                    <FiMapPin className="text-blue-400" />
+                                <span className="flex items-center gap-4 font-bold text-sm text-gray-700 uppercase tracking-tight">
+                                    <FiMapPin className="text-blue-500 text-lg" />
                                     Manage Addresses
                                 </span>
-                                <FiArrowRight className="text-gray-400 group-hover:text-white transition-colors" />
+                                <FiArrowRight className="text-gray-400 group-hover:text-black transition-colors" />
                             </button>
                             <button
                                 onClick={() => navigate('/profile')}
-                                className="w-full flex items-center justify-between p-4 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-xl border border-white/10 transition-all group"
+                                className="w-full flex items-center justify-between p-5 bg-gray-50 hover:bg-gray-100 rounded-xl border border-gray-100 transition-all group"
                             >
-                                <span className="flex items-center gap-3 font-bold text-sm">
-                                    <FiUser className="text-purple-400" />
+                                <span className="flex items-center gap-4 font-bold text-sm text-gray-700 uppercase tracking-tight">
+                                    <FiUser className="text-purple-500 text-lg" />
                                     Profile Settings
                                 </span>
-                                <FiArrowRight className="text-gray-400 group-hover:text-white transition-colors" />
+                                <FiArrowRight className="text-gray-400 group-hover:text-black transition-colors" />
                             </button>
                         </div>
                     </div>
 
                     {/* Trending / Recommendation */}
-                    {products.length > 0 && (
+                    {/* {products.length > 0 && (
                         <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
                             <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
                                 <FiTrendingUp className="text-orange-500" />
@@ -484,15 +494,18 @@ const ShopDashboard = () => {
                                         alt={products[0].title}
                                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                     />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60"></div>
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-100"></div>
                                     <div className="absolute bottom-3 left-3 right-3 text-white">
-                                        <p className="font-bold text-sm truncate">{products[0].title}</p>
-                                        <p className="text-xs opacity-90">{formatPrice(products[0].price)}</p>
+                                        <p className="font-black text-sm truncate [text-shadow:_0_2px_10px_rgba(0,0,0,1)]">{products[0].title}</p>
+                                        <p className="text-xs font-bold opacity-95 [text-shadow:_0_1px_4px_rgba(0,0,0,0.8)]">
+                                            {formatPrice(products[0].price)}
+                                            <span className="ml-2 text-[10px] text-green-400 font-black">Free Shipping</span>
+                                        </p>
                                     </div>
                                 </div>
                             </Link>
                         </div>
-                    )}
+                    )} */}
                 </motion.div>
             </div>
         </div>

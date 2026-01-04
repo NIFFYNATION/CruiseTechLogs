@@ -145,6 +145,7 @@ const ShopSidebar = () => {
     { imageSrc: "/icons/orders.svg", text: "My Orders", to: "/shop/orders" },
     { imageSrc: "/icons/user.svg", text: "Addresses", to: "/shop/addresses" },
     { imageSrc: "/icons/cart.svg", text: "Browse Shop", to: "/shop/products" },
+    { imageSrc: "/icons/tabHome.svg", text: "Switch to CruiseTech Log", to: "/dashboard" },
   ];
 
   if (loading) {

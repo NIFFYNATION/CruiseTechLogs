@@ -61,8 +61,8 @@ const BuyNumbers = () => {
       type.value === "short_term_6" ||
       (type.type === "long_term" && type.network == 4)
     );
-const typeNeedsTime = (type) => 
-  type && type.type === "long_term" && type.network == 4;
+  const typeNeedsTime = (type) =>
+    type && type.type === "long_term" && type.network == 4;
   // Fetch services when number type or country changes
   useEffect(() => {
     // Don't fetch until a type is selected
@@ -195,7 +195,7 @@ const typeNeedsTime = (type) =>
   }, [selectedNumberType]);
 
   return (
-    <div className="p-2 md:p-6 min-h-screen">
+    <div className="p-2 md:p-6 min-h-screen mt-5">
       {/* Header */}
       <div className="mb-6">
         <h2 className="text-xl md:text-2xl font-semibold mb-2">Buy Number</h2>
@@ -236,7 +236,7 @@ const typeNeedsTime = (type) =>
           <img src="/icons/arrow-down.svg" alt="arrow" className="w-5 h-5" />
         </button>
 
-         {/* Only render country filter for specific number type values */}
+        {/* Only render country filter for specific number type values */}
         {typeNeedsCountry(selectedNumberType) && (
           <button
             className="flex-1 flex items-center justify-between bg-white border border-border-grey rounded-sm px-4 py-1 md:py-3 text-left text-sm md:text-base"
@@ -261,7 +261,7 @@ const typeNeedsTime = (type) =>
             <img src="/icons/arrow-down.svg" alt="arrow" className="w-5 h-5" />
           </button>
         )}
-        
+
         {/* Only render time filter for specific number type values */}
         {typeNeedsTime(selectedNumberType) && (
           <button
@@ -269,7 +269,7 @@ const typeNeedsTime = (type) =>
             onClick={() => setTimeModalOpen(true)}
           >
             <div className="flex items-center gap-2">
-               <img
+              <img
                 src="/icons/hourglass-low.svg"
                 alt="Time"
                 className="w-6 h-6 mr-2"
@@ -294,7 +294,7 @@ const typeNeedsTime = (type) =>
            </div>
           <img src="/icons/arrow-down.svg" alt="arrow" className="w-5 h-5" />
         </button> */}
-       
+
       </div>
 
       {/* Main Card */}
@@ -335,7 +335,7 @@ const typeNeedsTime = (type) =>
           )}
 
           {/* Title */}
-       {/* <div className="flex flex-col md:flex-row justify-between items-start md:items-center ">
+          {/* <div className="flex flex-col md:flex-row justify-between items-start md:items-center ">
        <h3 className="text-lg font-semibold my-8">Short Term Number 1 (USA)</h3>
         <button className="bg-quinary hover:bg-quaternary text-background rounded-full px-6 py-2.5 font-semibold transition-colors">
             View Rented Numbers
@@ -451,12 +451,12 @@ const typeNeedsTime = (type) =>
                   <div
                     key={idx}
                     onClick={() => handleBuyClick(service)}
-                    className="flex items-center rounded-xl shadow-sm px-4 py-4 mb-0 border-b-1 border-[#FFDE59] relative bg-gradient-to-tl from-rose-50/50 to-white-50 hover:shadow-md transition-all cursor-pointer"
+                    className="flex items-center rounded-xl shadow-md px-4 py-4 mb-0 border-b-1 border-[#FFDE59] relative bg-gradient-to-tl from-rose-50/50 to-white-50 hover:shadow-md transition-all cursor-pointer"
                   >
                     <img src={iconUrl} alt={service.name} className="w-6 mr-4" />
                     <div className="flex-1">
                       <div className="font-semibold">{service.name}</div>
-                      
+
                       {hasMultipleCosts ? (
                         <div className="mt-1">
                           <h3 className="text-primary font-semibold text-sm">

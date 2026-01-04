@@ -3,28 +3,45 @@ import BalanceCard from './cards/BalanceCard'; // <-- Make sure this import exis
 import { useNavigate } from "react-router-dom";
 import WhatsAppBanner from '../WhatsAppBanner';
 import { useUser } from '../../contexts/UserContext';
+import ShopAnnouncementModal from './ShopAnnouncementModal';
+import { hasDebugAccess } from '../../utils/featureAccess';
 
 const WelcomeSection = () => {
   const navigate = useNavigate();
   const { user } = useUser();
   const [referralCode, setReferralCode] = useState('');
+  const [showShopModal, setShowShopModal] = useState(false);
 
   useEffect(() => {
     // Get referral code from UserContext
     if (user && user.referral_code) {
       setReferralCode(user.referral_code);
     }
+
+    // Show shop announcement modal once per session, ONLY for debug access users
+    const hasSeenAnnouncement = sessionStorage.getItem('hasSeenShopAnnouncement');
+    if (!hasSeenAnnouncement && user?.email && hasDebugAccess(user.email)) {
+      const timer = setTimeout(() => {
+        setShowShopModal(true);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
   }, [user]);
+
+  const handleCloseModal = () => {
+    setShowShopModal(false);
+    sessionStorage.setItem('hasSeenShopAnnouncement', 'true');
+  };
   return (
     <div className="mb-6 mt-6">
       {/* Welcome Text */}
       <h1 className="text-2xl font-semibold text-text-primary mb-4">Welcome back!</h1>
       {/* Refund Information */}
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-6 text-sm text-yellow-800">
-          <p className="mb-1">
-           We do not support fraud and are not responsible for bought product misuse.
-          </p>
-        </div>
+      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-6 text-sm text-yellow-800">
+        <p className="mb-1">
+          We do not support fraud and are not responsible for bought product misuse.
+        </p>
+      </div>
 
       {/* Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
@@ -51,7 +68,7 @@ const WelcomeSection = () => {
                       </p>
                     </div>
                   )}
-                  <button 
+                  <button
                     onClick={() => navigate("/dashboard/referrals")}
                     className="px-6 py-3 bg-p text-white text-sm rounded-full font-medium bg-primary hover:bg-quinary transition-colors">
                     Start Referring
@@ -59,7 +76,7 @@ const WelcomeSection = () => {
                 </div>
                 <div className="w-24 h-24 flex items-center justify-center ml-4">
                   <svg className="w-16 h-16 text-p" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A1.5 1.5 0 0 0 18.54 7H16c-.8 0-1.54.37-2.01 1l-2.7 3.6L12 10l2.5-2.5L16 10l.94-1.88L18.5 10l1.5 4.5V22h4zM12.5 11.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5S11 9.17 11 10s.67 1.5 1.5 1.5zM5.5 6c1.11 0 2-.89 2-2s-.89-2-2-2-2 .89-2 2 .89 2 2 2zm7.5 2c1.11 0 2-.89 2-2s-.89-2-2-2-2 .89-2 2 .89 2 2 2z"/>
+                    <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A1.5 1.5 0 0 0 18.54 7H16c-.8 0-1.54.37-2.01 1l-2.7 3.6L12 10l2.5-2.5L16 10l.94-1.88L18.5 10l1.5 4.5V22h4zM12.5 11.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5S11 9.17 11 10s.67 1.5 1.5 1.5zM5.5 6c1.11 0 2-.89 2-2s-.89-2-2-2-2 .89-2 2 .89 2 2 2zm7.5 2c1.11 0 2-.89 2-2s-.89-2-2-2-2 .89-2 2 .89 2 2 2z" />
                   </svg>
                 </div>
               </div>
@@ -72,7 +89,7 @@ const WelcomeSection = () => {
         </div>
         {/* Right Column Cards - Flex on tablet, stack on mobile and desktop */}
         <div className="flex flex-col md:flex-row lg:flex-col gap-4 md:gap-4 lg:gap-4 mt-4 sm:mt-0 md:mt-0 lg:mt-0 h-full">
-          {/* Order Card */}  
+          {/* Order Card */}
           {/* <div className="bg-background hidden md:block mt-8 sm:mt-0 rounded-[15px] border-b-primary border-b-2 p-4 shadow-[0_4px_20px_rgba(0,0,0,0.05)] flex-1">
             <div className="flex justify-between items-start">
               <div className="w-full">
@@ -92,38 +109,38 @@ const WelcomeSection = () => {
             <div className="flex items-end justify-between mt-auto">
               <div className="flex-1">
                 <div className="flex flex-row">
-<div>
-                 <h3 className="text-text-primary text-lg font-semibold mb-2">Rent Phone/Email</h3>
-                <p className="text-text-secondary text-[11px] mb-4">
-                  Rent phone numbers for OTP verification<br />
-                  and temporary email addresses for secure needs.
-                </p>
-               </div>
-                 <img 
-                src="/number-illustration.png" 
-                alt="Rent Services" 
-                className="w-28 h-28 object-contain ml-4"
-              />
+                  <div>
+                    <h3 className="text-text-primary text-lg font-semibold mb-2">Rent Phone/Email</h3>
+                    <p className="text-text-secondary text-[11px] mb-4">
+                      Rent phone numbers for OTP verification<br />
+                      and temporary email addresses for secure needs.
+                    </p>
+                  </div>
+                  <img
+                    src="/number-illustration.png"
+                    alt="Rent Services"
+                    className="w-28 h-28 object-contain ml-4"
+                  />
                 </div>
-               
+
                 <div className="flex flex-row gap-2 mb-4">
-                  <button 
-                   onClick={() => navigate("/dashboard/buy-numbers")}
-                  className="px-5 py-4 bg-[#015C67] text-white text-sm rounded-full font-medium hover:bg-[#014a54] transition-colors">
+                  <button
+                    onClick={() => navigate("/dashboard/buy-numbers")}
+                    className="px-5 py-4 bg-[#015C67] text-white text-sm rounded-full font-medium hover:bg-[#014a54] transition-colors">
                     Rent Number
                   </button>
-                  <button 
-                   onClick={() => navigate("/dashboard/buy-emails")}
-                  className="px-5 py-4 bg-quinary text-white text-sm rounded-full font-medium hover:bg-blue-700 transition-colors">
-                    Rent Email 
+                  <button
+                    onClick={() => navigate("/dashboard/buy-emails")}
+                    className="px-5 py-4 bg-quinary text-white text-sm rounded-full font-medium hover:bg-blue-700 transition-colors">
+                    Rent Email
                   </button>
                 </div>
               </div>
-             
+
             </div>
           </div>
-{/* buy account section */}
-<div className="block px-6 rounded-[15px] border-b-quinary border-b-2 pl-6 pt-6 pb-4 shadow-[0_4px_20px_rgba(0,0,0,0.05)] flex-1 buy-account-tour h-full"
+          {/* buy account section */}
+          <div className="block px-6 rounded-[15px] border-b-quinary border-b-2 pl-6 pt-6 pb-4 shadow-[0_4px_20px_rgba(0,0,0,0.05)] flex-1 buy-account-tour h-full"
             style={{
               background: `linear-gradient(rgba(255, 106, 0, 0.03), rgba(255, 107, 0, 0.1)), url('/background-buyaccounts.svg') no-repeat center center`,
               backgroundSize: '700px 500px'
@@ -132,21 +149,21 @@ const WelcomeSection = () => {
               <div className="">
                 <h3 className="text-text-primary text-lg font-semibold mb-2">Buy Social Media Accounts</h3>
                 <p className="text-text-secondary text-xs">
-                Get long-lasting social media accounts from nearly every major platform—secure and ready for use.
+                  Get long-lasting social media accounts from nearly every major platform—secure and ready for use.
                 </p>
-                
+
               </div>
               <div className='flex justify-between items-center p-0'>
-              <button 
-               onClick={() => navigate("/dashboard/accounts")}
-              className="px-5 py-2.5 bg-quinary hover:bg-quaternary text-white text-sm rounded-full font-medium">
+                <button
+                  onClick={() => navigate("/dashboard/accounts")}
+                  className="px-5 py-2.5 bg-quinary hover:bg-quaternary text-white text-sm rounded-full font-medium">
                   Buy Account
                 </button>
-              <img 
-                src="/icons/holding-smartphone.svg" 
-                alt="Buy Accounts Now" 
-                className="w-28 h-28 object-contain"
-              />
+                <img
+                  src="/icons/holding-smartphone.svg"
+                  alt="Buy Accounts Now"
+                  className="w-28 h-28 object-contain"
+                />
               </div>
             </div>
           </div>
@@ -158,7 +175,7 @@ const WelcomeSection = () => {
             <div className="flex items-end justify-between mt-auto">
               <div className="">
                 <h3 className="text-text-primary text-lg font-semibold mb-2">Referral Program</h3>
-                 <p className="text-text-secondary text-[11px] mb-1">
+                <p className="text-text-secondary text-[11px] mb-1">
                   Invite friends and earn rewards<br />
                   for every successful referral.
                 </p>
@@ -170,22 +187,27 @@ const WelcomeSection = () => {
                     </p>
                   </div>
                 )}
-               
-                <button 
-                 onClick={() => navigate("/dashboard/referrals")}
-                className="mb-4 px-5 py-2.5 bg-quaternary text-white text-sm rounded-full font-medium hover:bg-quinary transition-colors">
+
+                <button
+                  onClick={() => navigate("/dashboard/referrals")}
+                  className="mb-4 px-5 py-2.5 bg-quaternary text-white text-sm rounded-full font-medium hover:bg-quinary transition-colors">
                   Start Referring
                 </button>
               </div>
               <div className="w-28 h-28 flex items-center justify-center">
                 <svg className="w-16 h-16 text-quaternary" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A1.5 1.5 0 0 0 18.54 7H16c-.8 0-1.54.37-2.01 1l-2.7 3.6L12 10l2.5-2.5L16 10l.94-1.88L18.5 10l1.5 4.5V22h4zM12.5 11.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5S11 9.17 11 10s.67 1.5 1.5 1.5zM5.5 6c1.11 0 2-.89 2-2s-.89-2-2-2-2 .89-2 2 .89 2 2 2zm7.5 2c1.11 0 2-.89 2-2s-.89-2-2-2-2 .89-2 2 .89 2 2 2z"/>
+                  <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A1.5 1.5 0 0 0 18.54 7H16c-.8 0-1.54.37-2.01 1l-2.7 3.6L12 10l2.5-2.5L16 10l.94-1.88L18.5 10l1.5 4.5V22h4zM12.5 11.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5S11 9.17 11 10s.67 1.5 1.5 1.5zM5.5 6c1.11 0 2-.89 2-2s-.89-2-2-2-2 .89-2 2 .89 2 2 2zm7.5 2c1.11 0 2-.89 2-2s-.89-2-2-2-2 .89-2 2 .89 2 2 2z" />
                 </svg>
               </div>
             </div>
           </div>
         </div>
       </div>
+      <ShopAnnouncementModal
+        isOpen={showShopModal}
+        onClose={handleCloseModal}
+        userName={user?.first_name || user?.name}
+      />
     </div>
   );
 };
