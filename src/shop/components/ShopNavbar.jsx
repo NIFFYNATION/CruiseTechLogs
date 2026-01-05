@@ -71,7 +71,7 @@ const ShopNavbar = () => {
             <NavLink to="/shop" icon="home" text="Home" active={location.pathname === '/shop'} isCollapsed={effectiveCollapsed} />
             <NavLink to="/shop/products" icon="inventory_2" text="All Products" active={location.pathname === '/shop/products' && !location.search.includes('category')} isCollapsed={effectiveCollapsed} />
             <NavLink to="/dashboard" icon="dashboard" text="Switch to CruiseLog Dashboard" isCollapsed={effectiveCollapsed} />
-            <NavLink to="#" icon="mail" text="Contact" isCollapsed={effectiveCollapsed} />
+            {/* <NavLink to="#" icon="mail" text="Contact" isCollapsed={effectiveCollapsed} /> */}
           </div>
 
           {/* Categories */}
