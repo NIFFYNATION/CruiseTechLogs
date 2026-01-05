@@ -224,7 +224,7 @@ const ShopProducts = () => {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           ref={searchInputRef}
-          autoFocus
+          
           className="w-full pl-11 pr-4 py-3 rounded-xl bg-white/80 backdrop-blur-sm border border-gray-200 focus:border-[#ff6a00] focus:ring-1 focus:ring-[#ff6a00] outline-none transition-all text-sm font-medium shadow-sm"
         />
         <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-[20px] pointer-events-none z-10">search</span>
