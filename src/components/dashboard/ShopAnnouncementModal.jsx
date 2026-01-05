@@ -146,7 +146,7 @@ const ShopAnnouncementModal = ({ isOpen, onClose, userName }) => {
 
 
                         {/* Body */}
-                        <div className="p-6 space-y-5">
+                        <div className="p-6 space-y-4 pt-3">
                             <div className="space-y-4">
                                 <div className="flex gap-4">
                                     <div className="size-9 rounded-full bg-orange-50 flex-shrink-0 flex items-center justify-center text-orange-600">
@@ -171,6 +171,22 @@ const ShopAnnouncementModal = ({ isOpen, onClose, userName }) => {
                                         <p className="text-gray-500 text-xs leading-relaxed">
                                             Products must be paid for at checkout using available payment options. <span className="font-bold text-red-600">CruiseTechLogs balance cannot be used for shop purchases at this time.</span>
                                         </p>
+                                    </div>
+                                </div>
+
+                                <div className="flex gap-4">
+                                    <div className="size-9 rounded-full bg-purple-50 flex-shrink-0 flex items-center justify-center text-purple-600">
+                                        <span className="material-symbols-outlined text-[20px]">local_offer</span>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-bold text-[#0f1115] mb-0.5 text-xs uppercase tracking-wider">Launch Offer Just For You! 🎉</h4>
+                                        <p className="text-gray-500 text-xs leading-relaxed mb-2">
+                                            Use <span className="font-mono font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded border border-purple-200">LUNCH_CODE</span> at checkout to enjoy <span className="font-bold text-green-600">up to 5% OFF</span> on your order!
+                                        </p>
+                                        <div className="flex items-center gap-1.5 text-[10px] text-gray-400">
+                                            <span className="material-symbols-outlined text-[14px]">schedule</span>
+                                            <span>Valid for 2 weeks after launch</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -220,7 +236,7 @@ const ShopAnnouncementModal = ({ isOpen, onClose, userName }) => {
                                 </button>
                                 <button
                                     onClick={onClose}
-                                    className="w-full text-gray-500 py-3 rounded-xl  text-sm hover:bg-gray-100 transition-all duration-300"
+                                    className="w-full text-gray-500  rounded-xl  text-sm hover:bg-gray-100 transition-all duration-300"
                                 >
                                     Maybe Later
                                 </button>

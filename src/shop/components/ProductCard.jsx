@@ -43,7 +43,7 @@ const ProductCard = ({
       <div className="px-1 sm:px-2 pb-1 sm:pb-2 flex-1 flex flex-col">
         <div className="mb-2">
           <Link to={`/shop/products/${id}`}>
-            <h3 className="font-bold text-sm sm:text-base text-[#0f1115] group-hover:text-[#ff6a00] transition-colors cursor-pointer line-clamp-2 sm:line-clamp-1">{title}</h3>
+            <h3 className="font-bold text-sm sm:text-base text-[#0f1115] group-hover:text-[#ff6a00] transition-colors cursor-pointer line-clamp-2 sm:line-clamp-1">{cleanDescription(title)}</h3>
           </Link>
           <p className="text-[10px] sm:text-xs text-[#6b7280] mt-0.5 sm:mt-1 line-clamp-1">{cleanDescription(description)}</p>
           <div className="flex items-center gap-1 mt-2 text-green-600">

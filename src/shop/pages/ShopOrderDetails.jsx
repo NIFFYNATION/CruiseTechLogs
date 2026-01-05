@@ -609,7 +609,15 @@ const ShopOrderDetails = () => {
                         <div className="space-y-4 text-sm font-medium">
                             <div className="flex justify-between text-gray-500">
                                 <span>Subtotal</span>
-                                <span className="text-gray-900">{formatPrice(order.amount)}</span>
+                                <span className="text-gray-900">
+                                    {formatPrice(
+                                        (order.items || []).reduce((acc, it) => {
+                                            const price = Number(it.price) || 0;
+                                            const qty = Number(it.quantity) || 1;
+                                            return acc + price * qty;
+                                        }, 0)
+                                    )}
+                                </span>
                             </div>
                             <div className="flex justify-between text-gray-500">
                                 <span>Shipping</span>
@@ -623,6 +631,12 @@ const ShopOrderDetails = () => {
                                 <span>Tax</span>
                                 <span className="text-gray-900">$0.00</span>
                             </div>
+                            {Number(order?.discount_amount) > 0 && (
+                                <div className="flex justify-between text-gray-500">
+                                    <span>Discount{order.discount_code ? ` (${order.discount_code})` : ''}</span>
+                                    <span className="text-green-700">-{formatPrice(Number(order.discount_amount))}</span>
+                                </div>
+                            )}
 
                             {/* Detailed Payment Info */}
                             {order.payment_details && (
@@ -663,7 +677,9 @@ const ShopOrderDetails = () => {
 
                             <div className="border-t border-dashed border-gray-200 pt-4 mt-4 flex justify-between items-end">
                                 <span className="text-gray-900 font-bold">Total Paid</span>
-                                <span className="text-2xl font-black text-black">{formatPrice(order.amount)}</span>
+                                <span className="text-2xl font-black text-black">
+                                    {formatPrice(Number(order.payment_details?.amount ?? order.amount))}
+                                </span>
                             </div>
                         </div>
                     </div>

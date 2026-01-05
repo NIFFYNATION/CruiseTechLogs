@@ -31,6 +31,8 @@ export const API_URLS = {
   CONTENT_HELP: `${API_BASE_URL}/content/help`,
   STAGES: `${API_BASE_URL}/content/stages`,
   CONTENT_LIVECHAT: `${API_BASE_URL}/content/livechat`,
+  CONTENT_TERMS: `${API_BASE_URL}/content/terms`,
+  CONTENT_POLICY: `${API_BASE_URL}/content/policy`,
   USER_GENERATE_API: `${API_BASE_URL}/user/gen/api`,
   FORGET_PASSWORD: `${API_BASE_URL}/auth/forgetpassword`,
   RESET_PASSWORD: `${API_BASE_URL}/auth/resetpassword`,

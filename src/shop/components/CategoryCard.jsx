@@ -2,6 +2,13 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
+import { cleanDescription } from '../shop.config';
+
+const sanitize = (text) => {
+  if (typeof cleanDescription === 'function') return cleanDescription(text);
+  if (!text) return '';
+  return String(text).replace(/<[^>]*>/g, '').trim();
+};
 
 const CategoryCard = ({
   image,
@@ -32,10 +39,8 @@ const CategoryCard = ({
             <span className="inline-block px-3 py-1 mb-3 text-[10px] font-bold tracking-widest text-white uppercase bg-white/20 backdrop-blur-md rounded-full border border-white/10 shadow-sm">
               Collection
             </span>
-            <h3 className="text-2xl font-bold text-white leading-tight mb-1 [text-shadow:_0_1px_4px_rgba(0,0,0,0.8)]">{title}</h3>
-            <p className="text-sm text-gray-200 line-clamp-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100 h-0 group-hover:h-auto drop-shadow-sm">
-              {subtitle}
-            </p>
+            <h3 className="text-2xl font-bold text-white leading-tight mb-1 [text-shadow:_0_1px_4px_rgba(0,0,0,0.8)]">{sanitize(title)}</h3>
+            <p className="text-sm text-gray-200 line-clamp-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100 h-0 group-hover:h-auto drop-shadow-sm">{sanitize(subtitle)}</p>
           </div>
 
           {/* Action Button */}

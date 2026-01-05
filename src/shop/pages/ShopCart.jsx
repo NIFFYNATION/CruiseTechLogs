@@ -6,6 +6,43 @@ import { isUserLoggedIn } from '../../controllers/userController';
 import CustomModal from '../../components/common/CustomModal';
 import { FiTrash2, FiShoppingBag, FiLock, FiArrowRight, FiCheckCircle, FiAlertCircle, FiMinus, FiPlus, FiImage } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
+import dayjs from 'dayjs';
+import cacheService from '../services/cacheService';
+
+export const validateAndComputeDiscount = (discount, cartTotal, now = new Date()) => {
+    const type = (discount.discount_type || discount.type || '').toLowerCase();
+    const value = Number(discount.discount_value ?? discount.value ?? 0);
+    const minPrice = discount.min_price != null ? Number(discount.min_price) : null;
+    const maxPrice = discount.max_price != null ? Number(discount.max_price) : null;
+    const start = discount.start_date ? dayjs(discount.start_date) : null;
+    const end = discount.end_date ? dayjs(discount.end_date) : null;
+    const current = dayjs(now);
+    if (start && current.isBefore(start)) {
+        return { valid: false, error: 'Discount not started yet' };
+    }
+    if (end && current.isAfter(end)) {
+        return { valid: false, error: 'Discount expired' };
+    }
+    if (minPrice != null && cartTotal < minPrice) {
+        return { valid: false, error: 'Cart total below minimum for this discount' };
+    }
+    if (maxPrice != null && cartTotal > maxPrice) {
+        return { valid: false, error: 'Cart total above maximum for this discount' };
+    }
+    let amount = 0;
+    if (type === 'percentage' || type === 'percent') {
+        amount = Math.round((cartTotal * value) / 100);
+    } else if (type === 'fixed' || type === 'amount') {
+        amount = Math.round(value);
+    } else {
+        return { valid: false, error: 'Unsupported discount type' };
+    }
+    if (!Number.isFinite(amount) || amount <= 0) {
+        return { valid: false, error: 'Invalid discount value' };
+    }
+    amount = Math.min(amount, cartTotal);
+    return { valid: true, amount, newTotal: Math.max(0, cartTotal - amount) };
+};
 
 const ShopCart = () => {
     const navigate = useNavigate();
@@ -13,6 +50,10 @@ const ShopCart = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [processing, setProcessing] = useState(false);
+    const [discountCode, setDiscountCode] = useState('');
+    const [discountLoading, setDiscountLoading] = useState(false);
+    const [discountError, setDiscountError] = useState(null);
+    const [activeDiscount, setActiveDiscount] = useState(null);
 
     // Modal state for success/error/confirmation
     const [modalConfig, setModalConfig] = useState({
@@ -51,6 +92,11 @@ const ShopCart = () => {
 
     useEffect(() => {
         fetchCart();
+        const cached = cacheService.get('active_discount');
+        if (cached && cached.code) {
+            setActiveDiscount(cached);
+            setDiscountCode(cached.code);
+        }
     }, []);
 
     const handleRemoveItem = async (item) => {
@@ -80,7 +126,11 @@ const ShopCart = () => {
     const handleCheckout = async () => {
         try {
             setProcessing(true);
-            const res = await shopApi.placeOrder({ gateway: 'korapay' });
+            const payload = { gateway: 'korapay' };
+            if (discountCode && discountCode.trim().length > 0) {
+                payload.code = discountCode.trim();
+            }
+            const res = await shopApi.placeOrder(payload);
             if (res.status === 'success') {
                 const orderData = res.data;
                 const paymentUrl = orderData.payment_url || orderData.payment_data?.pay_url;
@@ -113,6 +163,7 @@ const ShopCart = () => {
                                 onClick={() => {
                                     setModalConfig(prev => ({ ...prev, isOpen: false }));
                                     fetchCart();
+                                    cacheService.clear('active_discount');
                                 }}
                             >
                                 Pay Now
@@ -157,7 +208,55 @@ const ShopCart = () => {
     }, 0);
 
     const shippingTotal = 0;
-    const total = subtotal + shippingTotal;
+    const baseTotal = subtotal + shippingTotal;
+    const discountAmount = activeDiscount?.amount || 0;
+    const total = Math.max(0, baseTotal - discountAmount);
+
+    const applyDiscount = async () => {
+        const code = (discountCode || '').trim();
+        if (!code) return;
+        try {
+            setDiscountLoading(true);
+            setDiscountError(null);
+            const res = await shopApi.getDiscount(code);
+            if (res.status !== 'success' || !res.data) {
+                throw new Error(res.message || 'Invalid response');
+            }
+            const discount = res.data;
+            const result = validateAndComputeDiscount(discount, baseTotal);
+            if (!result.valid) {
+                setDiscountError(result.error);
+                setActiveDiscount(null);
+                cacheService.clear('active_discount');
+                return;
+            }
+            const applied = {
+                code,
+                amount: result.amount,
+                newTotal: result.newTotal,
+                discount_type: discount.discount_type,
+                discount_value: discount.discount_value,
+                min_price: discount.min_price,
+                max_price: discount.max_price,
+                start_date: discount.start_date,
+                end_date: discount.end_date
+            };
+            setActiveDiscount(applied);
+            cacheService.save('active_discount', applied);
+        } catch (err) {
+            setDiscountError(err.response?.data?.message || err.message || 'Failed to apply discount');
+            setActiveDiscount(null);
+            cacheService.clear('active_discount');
+        } finally {
+            setDiscountLoading(false);
+        }
+    };
+    const removeDiscount = () => {
+        setActiveDiscount(null);
+        setDiscountCode('');
+        setDiscountError(null);
+        cacheService.clear('active_discount');
+    };
 
     if (!isUserLoggedIn()) {
         return (
@@ -300,10 +399,72 @@ const ShopCart = () => {
                                         <span>Shipping</span>
                                         <span className="text-green-600">{shippingTotal === 0 ? 'Free' : formatPrice(shippingTotal)}</span>
                                     </div>
+                                    {activeDiscount && (
+                                        <div className="flex justify-between text-gray-500 font-medium">
+                                            <span>Discount ({activeDiscount.code})</span>
+                                            <span className="text-green-700">-{formatPrice(discountAmount)}</span>
+                                        </div>
+                                    )}
                                     <div className="pt-6 border-t border-dashed border-gray-200 flex justify-between items-end">
                                         <span className="text-lg font-bold text-[#0f1115]">Total</span>
                                         <span className="text-3xl font-black text-black">{formatPrice(total)}</span>
                                     </div>
+                                </div>
+                                
+                                <div className="mb-6">
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">Discount Code (optional)</label>
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="text"
+                                            placeholder="Enter code"
+                                            value={discountCode}
+                                            onChange={(e) => setDiscountCode(e.target.value)}
+                                            className="flex-1 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#ff6a00]"
+                                        />
+                                        <button
+                                            type="button"
+                                            className="px-4 py-3 rounded-xl bg-gray-100 text-gray-700 font-bold hover:bg-gray-200 transition-colors disabled:opacity-50"
+                                            onClick={applyDiscount}
+                                            disabled={discountLoading || !discountCode.trim()}
+                                            aria-live="polite"
+                                        >
+                                            {discountLoading ? (
+                                                <div className="animate-spin rounded-full h-5 w-5 border-2 border-gray-700 border-t-transparent" aria-label="Applying discount"></div>
+                                            ) : (
+                                                'Apply'
+                                            )}
+                                        </button>
+                                    </div>
+                                    {discountError && (
+                                        <div className="mt-3 p-3 rounded-lg bg-red-50 text-red-700 text-sm font-bold border border-red-100">
+                                            {discountError}
+                                        </div>
+                                    )}
+                                    {activeDiscount && (
+                                        <div className="mt-4 p-4 rounded-xl bg-green-50 text-green-800 border border-green-100">
+                                            <div className="flex items-center gap-2 font-black">
+                                                <FiCheckCircle />
+                                                Discount applied: {activeDiscount.code}
+                                            </div>
+                                            <div className="mt-2 text-sm font-bold text-green-700">
+                                                -{formatPrice(activeDiscount.amount)} ({String(activeDiscount.discount_type).toLowerCase() === 'percentage' ? `${activeDiscount.discount_value}%` : formatPrice(activeDiscount.discount_value)})
+                                            </div>
+                                            <div className="mt-2 text-xs text-green-700">
+                                                {activeDiscount.min_price ? `Min: ${formatPrice(activeDiscount.min_price)} ` : ''}
+                                                {activeDiscount.max_price ? `Max: ${formatPrice(activeDiscount.max_price)} ` : ''}
+                                            </div>
+                                            <div className="mt-3">
+                                                <button
+                                                    type="button"
+                                                    onClick={removeDiscount}
+                                                    className="px-3 py-2 rounded-lg bg-white text-green-800 font-bold border border-green-300 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-600"
+                                                    aria-label="Remove applied discount"
+                                                >
+                                                    Remove discount
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
 
                                 <button

@@ -38,3 +38,29 @@ export const fetchLiveChatWidget = async () => {
     return null;
   }
 };
+
+export const fetchTermsContent = async () => {
+  try {
+    const res = await axiosInstance.get(API_URLS.CONTENT_TERMS);
+    if (res.data && res.data.status === 'success' && res.data.data?.content) {
+      return res.data.data.content;
+    }
+    return null;
+  } catch (error) {
+    console.error('Failed to fetch terms content:', error);
+    return null;
+  }
+};
+
+export const fetchPolicyContent = async () => {
+  try {
+    const res = await axiosInstance.get(API_URLS.CONTENT_POLICY);
+    if (res.data && res.data.status === 'success' && res.data.data?.content) {
+      return res.data.data.content;
+    }
+    return null;
+  } catch (error) {
+    console.error('Failed to fetch policy content:', error);
+    return null;
+  }
+};

@@ -1,6 +1,39 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FaInstagram, FaFacebookF, FaTwitter } from 'react-icons/fa';
+import { useShopData } from '../hooks/useShopData';
+
+const CategoryLinks = () => {
+  const { categories, loading } = useShopData();
+  const display = categories.filter(c => c.id !== 'all').slice(0, 6);
+  if (loading && display.length === 0) {
+    return (
+      <ul className="space-y-3">
+        <li><Link className="text-sm text-[#6b7280]" to="/shop/categories">Loading...</Link></li>
+      </ul>
+    );
+  }
+  if (display.length === 0) {
+    return (
+      <ul className="space-y-3">
+        <li><Link className="text-sm text-[#6b7280] hover:text-[#ff6a00] transition-colors" to="/shop/categories">Browse Categories</Link></li>
+      </ul>
+    );
+  }
+  return (
+    <ul className="space-y-3">
+      {display.map(cat => (
+        <li key={cat.id}>
+          <Link
+            className="text-sm text-[#6b7280] hover:text-[#ff6a00] transition-colors"
+            to={`/shop/products?category=${cat.id}`}
+          >
+            {cat.name}
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
+};
 
 const ShopFooter = () => {
   return (
@@ -21,43 +54,29 @@ const ShopFooter = () => {
             <div>
               <h4 className="font-bold text-[#0f1115] mb-6 text-base">Quick Links</h4>
               <ul className="space-y-3">
-                <li><Link className="text-sm text-[#6b7280] hover:text-[#ff6a00] transition-colors" to="#">Shop All</Link></li>
-                <li><Link className="text-sm text-[#6b7280] hover:text-[#ff6a00] transition-colors" to="#">Bestsellers</Link></li>
-                <li><Link className="text-sm text-[#6b7280] hover:text-[#ff6a00] transition-colors" to="#">New Arrivals</Link></li>
-                <li><Link className="text-sm text-[#6b7280] hover:text-[#ff6a00] transition-colors" to="#">Gift Cards</Link></li>
+                <li><Link className="text-sm text-[#6b7280] hover:text-[#ff6a00] transition-colors" to="/shop/products">Shop All</Link></li>
+                <li><Link className="text-sm text-[#6b7280] hover:text-[#ff6a00] transition-colors" to="/shop/categories">Categories</Link></li>
+                <li><Link className="text-sm text-[#6b7280] hover:text-[#ff6a00] transition-colors" to="/shop/cart">Cart</Link></li>
+                <li><Link className="text-sm text-[#6b7280] hover:text-[#ff6a00] transition-colors" to="/shop/orders">Orders</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="font-bold text-[#0f1115] mb-6 text-base">Support</h4>
               <ul className="space-y-3">
-                <li><Link className="text-sm text-[#6b7280] hover:text-[#ff6a00] transition-colors" to="#">Help Center</Link></li>
-                <li><Link className="text-sm text-[#6b7280] hover:text-[#ff6a00] transition-colors" to="#">Track Order</Link></li>
-                <li><Link className="text-sm text-[#6b7280] hover:text-[#ff6a00] transition-colors" to="#">Returns & Refunds</Link></li>
-                <li><Link className="text-sm text-[#6b7280] hover:text-[#ff6a00] transition-colors" to="#">Contact Us</Link></li>
+                <li><Link className="text-sm text-[#6b7280] hover:text-[#ff6a00] transition-colors" to="/dashboard/help-center">Help Center</Link></li>
+                <li><Link className="text-sm text-[#6b7280] hover:text-[#ff6a00] transition-colors" to="/shop/orders">Track Order</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-bold text-[#0f1115] mb-6 text-base">Stay Connected</h4>
-              <p className="text-sm text-[#6b7280] mb-4">Subscribe to our newsletter for updates and exclusive offers.</p>
-              <div className="flex gap-3 mb-6">
-                <Link className="size-9 rounded-full bg-white flex items-center justify-center text-[#6b7280] hover:bg-[#ff6a00] hover:text-white transition-colors shadow-sm border border-gray-200 hover:border-[#ff6a00]" to="#" aria-label="Instagram">
-                  <FaInstagram className="text-sm" />
-                </Link>
-                <Link className="size-9 rounded-full bg-white flex items-center justify-center text-[#6b7280] hover:bg-[#ff6a00] hover:text-white transition-colors shadow-sm border border-gray-200 hover:border-[#ff6a00]" to="#" aria-label="Facebook">
-                  <FaFacebookF className="text-sm" />
-                </Link>
-                <Link className="size-9 rounded-full bg-white flex items-center justify-center text-[#6b7280] hover:bg-[#ff6a00] hover:text-white transition-colors shadow-sm border border-gray-200 hover:border-[#ff6a00]" to="#" aria-label="Twitter">
-                  <FaTwitter className="text-sm" />
-                </Link>
-              </div>
+              <h4 className="font-bold text-[#0f1115] mb-6 text-base">Categories</h4>
+              <CategoryLinks />
             </div>
           </div>
           <div className="pt-8 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-xs text-[#6b7280]">© 2024 Cruise Gifts. All rights reserved.</p>
             <div className="flex gap-6">
-              <Link className="text-xs text-[#6b7280] hover:text-[#ff6a00] transition-colors" to="#">Privacy Policy</Link>
-              <Link className="text-xs text-[#6b7280] hover:text-[#ff6a00] transition-colors" to="#">Terms of Service</Link>
-              <Link className="text-xs text-[#6b7280] hover:text-[#ff6a00] transition-colors" to="#">Cookie Policy</Link>
+              <Link className="text-xs text-[#6b7280] hover:text-[#ff6a00] transition-colors" to="/privacy-policy">Privacy Policy</Link>
+              <Link className="text-xs text-[#6b7280] hover:text-[#ff6a00] transition-colors" to="/terms">Terms and Conditions</Link>
             </div>
           </div>
         </div>

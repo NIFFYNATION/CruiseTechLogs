@@ -644,24 +644,7 @@ export default function LandingPage() {
             /></Link>
             </div>
 
-            {/* Social Media Links */}
-            <div className="w-full md:w-1/3  flex justify-center gap-6">
-              <a href="#" className="text-quinary transition-colors">
-                <FaFacebookF size={20} />
-              </a>
-              <a href="#" className="text-quinary transition-colors">
-                <FaTwitter size={20} />
-              </a>
-              <a href="#" className="text-quinary transition-colors">
-                <FaTiktok size={20} />
-              </a>
-              <a href="#" className="text-quinary transition-colors">
-                <FaInstagram size={20} />
-              </a>
-              <a href="#" className="text-quinary transition-colors">
-                <FaTelegram size={20} />
-              </a>
-            </div>
+           
 
             {/* Email Contact */}
             <div className="w-full md:w-1/3 flex justify-center md:justify-end items-center gap-2">
@@ -680,7 +663,7 @@ export default function LandingPage() {
             <span className="hidden md:inline">|</span>
             <a href="/terms" className="transition-colors">Terms and conditions</a>
             <span className="hidden md:inline">|</span>
-            <a href="/api-docs" className="transition-colors">API documentation</a>
+            <a href="/shop/categories" className="transition-colors">Browse Categories</a>
           </div>
         </div>
       </footer>

@@ -58,6 +58,15 @@ export const shopApi = {
     },
 
     /**
+     * Get discount details by code
+     * @param {string} code
+     */
+    getDiscount: async (code) => {
+        const response = await api.get(`/products/discount/get?code=${encodeURIComponent(code)}`);
+        return response;
+    },
+
+    /**
      * Fetch details of a single product
      * @param {string} id - Product ID
      */

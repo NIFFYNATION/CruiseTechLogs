@@ -576,7 +576,7 @@ const ShopLandingPage = () => {
       </section>
 
       {/* Why Choose Us Section */}
-      <section className="py-24 bg-slate-900 relative overflow-hidden">
+      {/* <section className="py-24 bg-slate-900 relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:24px_24px] opacity-20"></div>
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#ff6a00]/10 rounded-full blur-[100px] pointer-events-none"></div>
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
@@ -644,7 +644,7 @@ const ShopLandingPage = () => {
             </motion.div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       <ReviewOrderModal
         open={orderModal.open}

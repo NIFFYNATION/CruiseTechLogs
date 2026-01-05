@@ -17,7 +17,6 @@ const ShopProductDetails = () => {
     const [loading, setLoading] = useState(!cacheService.get(`product_detail_${id}`));
     const [error, setError] = useState(null);
     const [quantity, setQuantity] = useState(1);
-    const [activeTab, setActiveTab] = useState('description');
 
     // Gallery State
     const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -118,7 +117,7 @@ const ShopProductDetails = () => {
                         // Format product for component
                         const formattedProduct = {
                             id: productData.ID,
-                            title: productData.title,
+                            title: cleanDescription(productData.title),
                             description: cleanDescription(productData.description),
                             price: Number(productData.amount) || 0,
                             oldPrice: null,
@@ -221,8 +220,95 @@ const ShopProductDetails = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-[#f7f5f2]">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#ff6a00]"></div>
+            <div className="min-h-screen w-full flex flex-col font-['Inter',sans-serif] text-[#0f1115] antialiased selection:bg-[#ff6a00] selection:text-white overflow-x-hidden relative bg-[#f7f5f2]">
+                <div className="relative z-10 flex flex-col min-h-screen">
+                    <div className="flex-grow lg:pt-20 pt-5 pb-20 sm:pb-16">
+                        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                            <div className="flex items-center gap-2 mb-6 animate-pulse">
+                                <div className="h-3 w-16 bg-gray-200 rounded"></div>
+                                <div className="h-3 w-8 bg-gray-200 rounded"></div>
+                                <div className="h-3 w-24 bg-gray-200 rounded"></div>
+                                <div className="h-3 w-8 bg-gray-200 rounded"></div>
+                                <div className="h-3 w-40 bg-gray-200 rounded"></div>
+                            </div>
+                            <div className="bg-white/70 backdrop-blur-xl rounded-[2rem] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] border border-white/50 p-5 md:p-8 ring-1 ring-white/50">
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
+                                    <div className="flex flex-col-reverse lg:flex-row gap-4 h-[400px] lg:h-[500px]">
+                                        <div className="flex lg:flex-col gap-4 overflow-x-auto lg:overflow-y-auto lg:w-24 py-2 px-1 animate-pulse">
+                                            {Array.from({ length: 5 }).map((_, i) => (
+                                                <div key={i} className="flex-shrink-0 w-20 h-20 lg:w-full lg:h-24 rounded-2xl bg-gray-200"></div>
+                                            ))}
+                                        </div>
+                                        <div className="flex-1 relative w-full rounded-2xl sm:rounded-[2rem] overflow-hidden bg-white shadow-2xl border border-white animate-pulse">
+                                            <div className="absolute inset-0 w-full h-full bg-gray-200"></div>
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-col animate-pulse">
+                                        <div className="h-4 w-24 bg-gray-200 rounded mb-3"></div>
+                                        <div className="h-10 w-3/4 bg-gray-200 rounded mb-4"></div>
+                                        <hr className="mb-4" />
+                                        <div className="flex items-center gap-3 mb-6">
+                                            <div className="h-8 w-40 bg-gray-200 rounded"></div>
+                                            <div className="h-6 w-28 bg-gray-100 rounded"></div>
+                                            <div className="h-6 w-32 bg-gray-100 rounded"></div>
+                                        </div>
+                                        <div className="space-y-2 mb-8">
+                                            <div className="h-4 w-full bg-gray-200 rounded"></div>
+                                            <div className="h-4 w-11/12 bg-gray-200 rounded"></div>
+                                            <div className="h-4 w-10/12 bg-gray-200 rounded"></div>
+                                        </div>
+                                        <div className="border-t border-b border-gray-100 py-6 mb-8 space-y-6">
+                                            <div className="flex items-center gap-4">
+                                                <div className="h-4 w-20 bg-gray-200 rounded"></div>
+                                                <div className="flex items-center gap-2">
+                                                    <div className="h-10 w-10 bg-gray-100 rounded-full"></div>
+                                                    <div className="h-10 w-12 bg-gray-100 rounded"></div>
+                                                    <div className="h-10 w-10 bg-gray-100 rounded-full"></div>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                                                <div className="h-4 w-24 bg-gray-200 rounded"></div>
+                                                <div className="h-6 w-32 bg-gray-200 rounded"></div>
+                                            </div>
+                                            <div className="flex items-center gap-3 sm:gap-4 w-full">
+                                                <div className="h-12 sm:h-14 flex-1 bg-gray-200 rounded-full"></div>
+                                                <div className="h-12 w-12 sm:h-14 sm:w-14 bg-gray-100 rounded-full"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="mt-20 animate-pulse">
+                                    <div className="flex items-center gap-8 border-b border-gray-100 mb-8">
+                                        {['', '', ''].map((_, i) => (
+                                            <div key={i} className="h-4 w-24 bg-gray-200 rounded"></div>
+                                        ))}
+                                    </div>
+                                    <div className="space-y-2">
+                                        <div className="h-4 w-full bg-gray-200 rounded"></div>
+                                        <div className="h-4 w-11/12 bg-gray-200 rounded"></div>
+                                        <div className="h-4 w-10/12 bg-gray-200 rounded"></div>
+                                    </div>
+                                </div>
+                                <div className="mt-16 lg:mt-24 border-t border-gray-100 pt-16">
+                                    <div className="flex items-center justify-between mb-8 sm:mb-12 animate-pulse">
+                                        <div className="h-8 w-56 bg-gray-200 rounded"></div>
+                                        <div className="hidden sm:block h-6 w-24 bg-gray-100 rounded"></div>
+                                    </div>
+                                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 sm:gap-x-6 gap-y-8 sm:gap-y-10 animate-pulse">
+                                        {Array.from({ length: 4 }).map((_, i) => (
+                                            <div key={i} className="bg-white rounded-2xl border border-gray-100 p-4">
+                                                <div className="h-24 w-full bg-gray-200 rounded mb-3"></div>
+                                                <div className="h-4 w-3/4 bg-gray-200 rounded mb-2"></div>
+                                                <div className="h-4 w-1/2 bg-gray-100 rounded mb-4"></div>
+                                                <div className="h-6 w-24 bg-gray-200 rounded"></div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         );
     }
@@ -389,26 +475,28 @@ const ShopProductDetails = () => {
                                     </div>
                                     <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-[#0f1115] tracking-tight mb-4 leading-[0.95]">{product.title}</h1>
 
-                                    <div className="flex items-center gap-3 mb-6">
+                                    <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
                                         <span className="text-3xl font-bold text-[#0f1115]">{formatPrice(product.price)}</span>
-                                        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-green-50 text-green-600 rounded-full border border-green-100 shadow-sm ml-2">
-                                            <span className="material-symbols-outlined text-[16px]">local_shipping</span>
-                                            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest whitespace-nowrap">Free Shipping</span>
-                                        </div>
-                                        {product.delivery_range && (
-                                            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-full border border-blue-100 shadow-sm ml-1">
-                                                <span className="material-symbols-outlined text-[16px]">schedule</span>
-                                                <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest whitespace-nowrap">{product.delivery_range}</span>
+                                        <div className="flex items-center gap-2 sm:ml-2 flex-wrap">
+                                            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-green-50 text-green-600 rounded-full border border-green-100 shadow-sm">
+                                                <span className="material-symbols-outlined text-[16px]">local_shipping</span>
+                                                <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest whitespace-nowrap">Free Shipping</span>
                                             </div>
-                                        )}
-                                        {product.oldPrice && (
-                                            <span className="text-xl text-gray-400 line-through decoration-2">{formatPrice(product.oldPrice)}</span>
-                                        )}
-                                        {product.oldPrice && (
-                                            <span className="bg-[#ff6a00]/10 text-[#ff6a00] text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
-                                                Save {formatPrice(product.oldPrice - product.price)}
-                                            </span>
-                                        )}
+                                            {product.delivery_range && (
+                                                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-full border border-blue-100 shadow-sm">
+                                                    <span className="material-symbols-outlined text-[16px]">schedule</span>
+                                                    <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest whitespace-nowrap">{product.delivery_range}</span>
+                                                </div>
+                                            )}
+                                            {product.oldPrice && (
+                                                <span className="text-xl text-gray-400 line-through decoration-2">{formatPrice(product.oldPrice)}</span>
+                                            )}
+                                            {product.oldPrice && (
+                                                <span className="bg-[#ff6a00]/10 text-[#ff6a00] text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
+                                                    Save {formatPrice(product.oldPrice - product.price)}
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
 
                                     <p className="text-gray-600 text-base leading-relaxed mb-8 font-light">
@@ -462,80 +550,26 @@ const ShopProductDetails = () => {
                                 </div>
                             </div>
 
-                            {/* Tabs Section */}
+                            {/* Description Section (Tabs removed) */}
                             <div className="mt-20">
-                                <div className="flex items-center gap-8 border-b border-gray-100 mb-8 overflow-x-auto">
-                                    {['description', 'specifications', 'reviews'].map((tab) => (
-                                        <button
-                                            key={tab}
-                                            onClick={() => setActiveTab(tab)}
-                                            className={`pb-4 text-sm font-bold uppercase tracking-wider transition-colors relative whitespace-nowrap ${activeTab === tab
-                                                ? 'text-[#ff6a00]'
-                                                : 'text-gray-400 hover:text-[#0f1115]'
-                                                }`}
-                                        >
-                                            {tab}
-                                            {activeTab === tab && (
-                                                <motion.div
-                                                    layoutId="activeTab"
-                                                    className="absolute bottom-0 left-0 w-full h-0.5 bg-[#ff6a00]"
-                                                />
-                                            )}
-                                        </button>
-                                    ))}
-                                </div>
-
-                                <div className="min-h-[200px]">
-                                    {activeTab === 'description' && (
-                                        <motion.div
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            className="prose prose-gray max-w-none"
-                                        >
-                                            <p className="text-gray-600 leading-relaxed mb-4">
-                                                {product.description}
-                                            </p>
-                                            <h3 className="text-lg font-bold text-[#0f1115] mb-4">Key Features</h3>
-                                            <ul className="grid sm:grid-cols-2 gap-4">
-                                                {product.features?.map((feature, idx) => (
-                                                    <li key={idx} className="flex items-start gap-3">
-                                                        <span className="material-symbols-outlined text-[#ff6a00] text-[20px]">check_circle</span>
-                                                        <span className="text-gray-600">{feature}</span>
-                                                    </li>
-                                                )) || <p>No specific features listed.</p>}
-                                            </ul>
-                                        </motion.div>
-                                    )}
-
-                                    {activeTab === 'specifications' && (
-                                        <motion.div
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                        >
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-4 max-w-2xl">
-                                                {product.specs ? Object.entries(product.specs).map(([key, value]) => (
-                                                    <div key={key} className="flex justify-between border-b border-gray-50 pb-2">
-                                                        <span className="text-gray-500 font-medium">{key}</span>
-                                                        <span className="text-[#0f1115] font-bold">{value}</span>
-                                                    </div>
-                                                )) : (
-                                                    <p>No specifications available.</p>
-                                                )}
-                                            </div>
-                                        </motion.div>
-                                    )}
-
-                                    {activeTab === 'reviews' && (
-                                        <motion.div
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            className="text-center py-10"
-                                        >
-                                            <span className="material-symbols-outlined text-4xl text-gray-200 mb-2">reviews</span>
-                                            <p className="text-gray-500">No reviews yet. Be the first to review this product!</p>
-                                        </motion.div>
-                                    )}
-                                </div>
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    className="prose prose-gray max-w-none"
+                                >
+                                    <p className="text-gray-600 leading-relaxed mb-4">
+                                        {product.description}
+                                    </p>
+                                    <h3 className="text-lg font-bold text-[#0f1115] mb-4">Key Features</h3>
+                                    <ul className="grid sm:grid-cols-2 gap-4">
+                                        {product.features?.map((feature, idx) => (
+                                            <li key={idx} className="flex items-start gap-3">
+                                                <span className="material-symbols-outlined text-[#ff6a00] text-[20px]">check_circle</span>
+                                                <span className="text-gray-600">{feature}</span>
+                                            </li>
+                                        )) || <p>No specific features listed.</p>}
+                                    </ul>
+                                </motion.div>
                             </div>
 
                             {/* Related Products Section */}

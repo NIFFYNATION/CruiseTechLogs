@@ -4,6 +4,7 @@ import { isUserLoggedIn } from '../../controllers/userController';
 import { useUser } from '../../contexts/UserContext';
 import { useSidebar } from '../../contexts/SidebarContext'; // Import sidebar context
 import { useShopData } from '../hooks/useShopData';
+import { shopApi } from '../services/api';
 
 const ShopNavbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -12,6 +13,7 @@ const ShopNavbar = () => {
   const location = useLocation();
   const { categories } = useShopData();
   const { isCollapsed, toggleSidebar } = useSidebar(); // Use context
+  const [cartCount, setCartCount] = useState(0);
 
   useEffect(() => {
     // Check both controller logic and context state
@@ -21,6 +23,28 @@ const ShopNavbar = () => {
   // Close mobile menu on route change
   useEffect(() => {
     setIsMobileMenuOpen(false);
+  }, [location.pathname]);
+
+  // Fetch cart count
+  useEffect(() => {
+    const fetchCartCount = async () => {
+      try {
+        if (!isUserLoggedIn()) {
+          setCartCount(0);
+          return;
+        }
+        const res = await shopApi.getCart();
+        if (res.status === 'success') {
+          const items = res.data?.items || (Array.isArray(res.data) ? res.data : []);
+          setCartCount(items.length || 0);
+        } else {
+          setCartCount(0);
+        }
+      } catch {
+        setCartCount(0);
+      }
+    };
+    fetchCartCount();
   }, [location.pathname]);
 
   const SidebarContent = ({ forceExpanded = false }) => {
@@ -87,7 +111,7 @@ const ShopNavbar = () => {
               title="Cart"
             >
               <span className="material-symbols-outlined text-gray-600 group-hover:text-[#ff6a00] transition-colors">shopping_bag</span>
-              <span className="absolute top-0 right-0 size-3 rounded-full bg-[#ff6a00] ring-2 ring-white animate-pulse"></span>
+              {cartCount > 0 && <span className="absolute top-0 right-0 size-3 rounded-full bg-[#ff6a00] ring-2 ring-white animate-pulse"></span>}
             </Link>
 
             <Link
@@ -134,7 +158,7 @@ const ShopNavbar = () => {
         </div>
         <Link to="/shop/cart" className="relative p-2 rounded-full hover:bg-gray-50 transition-colors">
           <span className="material-symbols-outlined text-[#0f1115]">shopping_bag</span>
-          <span className="absolute top-1.5 right-1.5 size-2 rounded-full bg-[#ff6a00] ring-2 ring-white"></span>
+          {cartCount > 0 && <span className="absolute top-1.5 right-1.5 size-2 rounded-full bg-[#ff6a00] ring-2 ring-white"></span>}
         </Link>
       </div>
 
