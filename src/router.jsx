@@ -41,6 +41,8 @@ import ShopAddresses from './shop/pages/ShopAddresses';
 import ShopPaymentValidation from './shop/pages/ShopPaymentValidation';
 import ShopCategories from './shop/pages/ShopCategories';
 import { Navigate } from 'react-router-dom';
+import PrivacyPolicy from './Pages/PrivacyPolicy';
+import Terms from './Pages/Terms';
 
 // Wrapper to pass orderId param to ManageNumbers
 const ManageNumbersWithOrderId = (props) => {
@@ -76,6 +78,8 @@ export const router = createBrowserRouter([
         path: '/registration',
         element: <Registration />
       },
+      { path: '/privacy-policy', element: <PrivacyPolicy /> },
+      { path: '/terms', element: <Terms /> },
       {
         path: '/dashboard',
         element: (

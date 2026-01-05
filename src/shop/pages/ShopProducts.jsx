@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion';
 import ProductCard from '../components/ProductCard';
@@ -17,7 +17,9 @@ const SORT_OPTIONS = [
 ];
 
 const ShopProducts = () => {
+  const location = useLocation();
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedSection, setSelectedSection] = useState(null);
   const [selectedTags, setSelectedTags] = useState([]);
@@ -27,6 +29,9 @@ const ShopProducts = () => {
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const [sectionProducts, setSectionProducts] = useState([]);
   const [loadingSection, setLoadingSection] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
+  const fetchTimeoutRef = useRef(null);
+  const searchInputRef = useRef(null);
 
   // Use custom hook for order modal
   const orderModal = useOrderModal();
@@ -50,6 +55,13 @@ const ShopProducts = () => {
 
     return () => clearTimeout(timer);
   }, [priceRange]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 700);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   // Parse URL parameters on mount
   useEffect(() => {
@@ -112,17 +124,37 @@ const ShopProducts = () => {
     const delay = isFirstFetch.current ? 0 : 500;
 
     const timer = setTimeout(() => {
+      setIsFetching(true);
+      if (fetchTimeoutRef.current) clearTimeout(fetchTimeoutRef.current);
       fetchProducts({
-        search: searchQuery,
+        search: debouncedSearchQuery,
         category: selectedCategory,
         tags: selectedTags,
         limit: 50
       });
       isFirstFetch.current = false;
+      fetchTimeoutRef.current = setTimeout(() => {
+        setIsFetching(false);
+      }, 1500);
     }, delay);
 
     return () => clearTimeout(timer);
-  }, [searchQuery, selectedCategory, selectedTags, fetchProducts]);
+  }, [debouncedSearchQuery, selectedCategory, selectedTags, fetchProducts, selectedSection]);
+
+  useEffect(() => {
+    if (!isFetching) return;
+    if (!loading) {
+      setIsFetching(false);
+      if (fetchTimeoutRef.current) {
+        clearTimeout(fetchTimeoutRef.current);
+        fetchTimeoutRef.current = null;
+      }
+    }
+  }, [loading, isFetching]);
+
+  useEffect(() => {
+    if (searchInputRef.current) searchInputRef.current.focus();
+  }, [debouncedSearchQuery]);
 
   const toggleTag = (tagId) => {
     const idStr = String(tagId);
@@ -191,7 +223,9 @@ const ShopProducts = () => {
           placeholder="Search products..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-11 pr-4 py-3 rounded-xl bg-white border border-gray-200 focus:border-[#ff6a00] focus:ring-1 focus:ring-[#ff6a00] outline-none transition-all text-sm font-medium shadow-sm"
+          ref={searchInputRef}
+          autoFocus
+          className="w-full pl-11 pr-4 py-3 rounded-xl bg-white/80 backdrop-blur-sm border border-gray-200 focus:border-[#ff6a00] focus:ring-1 focus:ring-[#ff6a00] outline-none transition-all text-sm font-medium shadow-sm"
         />
         <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-[20px] pointer-events-none z-10">search</span>
       </div>
@@ -298,7 +332,9 @@ const ShopProducts = () => {
             {/* Desktop Sidebar Filters */}
             <aside className="hidden lg:block w-72 flex-shrink-0 relative">
               <div className="sticky top-28 max-h-[calc(100vh-8rem)] overflow-y-auto pr-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-gray-300">
-                <FilterContent />
+                <div className="rounded-2xl bg-white/70 backdrop-blur-sm border border-gray-100 p-4">
+                  <FilterContent />
+                </div>
               </div>
             </aside>
 
@@ -318,7 +354,7 @@ const ShopProducts = () => {
                     animate={{ x: 0 }}
                     exit={{ x: '100%' }}
                     transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                    className="fixed inset-y-0 right-0 w-full sm:w-[400px] bg-white z-50 shadow-2xl flex flex-col lg:hidden"
+                    className="fixed inset-y-0 right-0 w-[90vw] max-w-[800px] bg-white/85 z-50 shadow-2xl flex flex-col lg:hidden"
                   >
                     <div className="flex items-center justify-between p-6 pb-4 flex-none border-b border-gray-50">
                       <h2 className="text-2xl font-black text-[#0f1115]">Filters</h2>
@@ -334,7 +370,7 @@ const ShopProducts = () => {
                       <FilterContent mobile />
                     </div>
 
-                    <div className="flex-none p-4 bg-white border-t border-gray-100">
+                    <div className="flex-none p-4 border-t border-gray-100">
                       <button
                         onClick={() => setIsMobileFiltersOpen(false)}
                         className="w-full bg-[#0f1115] text-white py-4 rounded-xl font-bold hover:bg-[#ff6a00] transition-colors"
@@ -372,6 +408,20 @@ const ShopProducts = () => {
                   </div>
                 </div>
               </div>
+
+              <AnimatePresence>
+                {(isFetching && !selectedSection) || (selectedSection && loadingSection) ? (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="mb-6 flex items-center gap-3 text-sm font-medium text-gray-600"
+                  >
+                    <div className="size-5 border-2 border-[#ff6a00] border-t-transparent rounded-full animate-spin"></div>
+                    Fetching updated results...
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
 
               {/* Grid */}
               <AnimatePresence mode="wait">
