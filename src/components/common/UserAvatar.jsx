@@ -49,6 +49,8 @@ const UserAvatar = ({
           style={{
             minWidth: 70,
             bottom: -18,
+            left: '70%',
+            transform: 'translateX(-20%)',
           }}
         >
           <img

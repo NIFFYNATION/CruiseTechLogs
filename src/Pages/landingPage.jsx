@@ -6,12 +6,19 @@ import { MdEmail } from 'react-icons/md'
 import Marquee from 'react-fast-marquee'
 import { Button } from '../components/common/Button'
 import { isUserLoggedIn, getUserData } from '../controllers/userController'
+import { useShopData } from '../shop/hooks/useShopData'
+import { formatPrice } from '../shop/shop.config'
 
 export default function LandingPage() {
   const navigate = useNavigate()
   const loggedIn = isUserLoggedIn()
   const user = loggedIn ? getUserData() : null
   const [dropdownOpen, setDropdownOpen] = React.useState(false)
+  const { products, categories, fetchProducts } = useShopData()
+  React.useEffect(() => {
+    fetchProducts({ limit: 6 })
+  }, [fetchProducts])
+  const displayCategories = categories.filter(c => c.id !== 'all').slice(0, 10)
 
   return (
     <div className="w-full min-h-screen flex flex-col">
@@ -111,28 +118,36 @@ export default function LandingPage() {
               </a>
 
               {/* Main Heading */}
-              <h1 className="text-text-secondary text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-center lg:text-left">
-                Explore Exclusive Accounts within our{' '}
-                <span className="text-[#D9700A] block sm:inline">Marketplace.</span>
+              <h1 className="text-text-secondary text-xl sm:text-1xl md:text-3xl lg:text-4xl font-bold leading-tight text-center lg:text-left">
+                Marketplace for <span className="text-[#D9700A] block sm:inline"> Exclusive </span> Accounts, Number Rentals, and Premium Gifts{' '}
+                
               </h1>
 
               {/* Description Text */}
               <p className="text-text-primary text-base sm:text-lg md:text-xl text-center lg:text-left">
-                Discover, Authenticate, and Elevate Your Online Presence with
-                Cruise Tech Marketplace. Your Gateway to Genuine Social
-                Media Accounts.
+                Discover authentic social media accounts and curated gift products shipped worldwide.
+                Elevate your digital presence and surprise loved ones with premium items.
               </p>
 
               {/* Get Started Button */}
-              <div className="flex justify-center lg:justify-start">
+              <div className="flex justify-center lg:justify-start gap-3">
                 <Button
                   variant="quinary"
                   size="lg"
                   to="/signup"
                   fullWidth
-                  className="sm:w-auto"
+                  className="sm:w-auto mb-4"
                 >
-                  Get Started Now!
+                  Start Now!
+                </Button>
+                <Button
+                  variant="primary"
+                  size="lg"
+                  to="/shop"
+                  fullWidth
+                  className="sm:w-auto text-white mb-4"
+                >
+                  Visit Shop
                 </Button>
               </div>
             </div>
@@ -332,6 +347,66 @@ export default function LandingPage() {
                 </div>
               </Marquee>
             </div>
+          </div>
+        </section>
+
+        <section className="container mx-auto px-4 sm:px-6 lg:px-16 py-16">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 mb-8">
+            <div>
+              <h2 className="text-2xl font-bold text-text-secondary">Cruise Gifts Shop</h2>
+              <p className="text-text-primary max-w-2xl">
+                Discover premium gifts and curated products delivered worldwide. Enjoy free shipping on all products.
+              </p>
+            </div>
+            <div>
+              <Button variant="quinary" onClick={() => navigate('/shop')}>Visit Shop</Button>
+            </div>
+          </div>
+          {displayCategories.length > 0 && (
+            <div className="mb-10">
+              <Marquee gradient={true} gradientColor={[243, 244, 246]} speed={40}>
+                <div className="flex gap-3 w-max">
+                  {displayCategories.map((cat) => (
+                    <button
+                      key={cat.id}
+                      onClick={() => navigate(`/shop/products?category=${cat.id}`)}
+                      className="group relative flex-shrink-0 px-1 py-1 bg-white rounded-full border border-gray-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 mx-2"
+                    >
+                      <div className="relative flex items-center gap-2 pl-1 pr-4 py-1">
+                        <div
+                          className="size-6 rounded-full bg-gray-100 bg-cover bg-center ring-2 ring-white"
+                          style={{ backgroundImage: `url('${cat.image || ''}')` }}
+                        ></div>
+                        <span className="text-[11px] font-bold text-gray-700 group-hover:text-[#ff6a00] whitespace-nowrap">{cat.name}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </Marquee>
+            </div>
+          )}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+            {products.slice(0, 6).map((p) => (
+              <div key={p.id} className="bg-background rounded-xl border border-gray-200 p-4 hover:shadow-md transition-shadow">
+                <div className="aspect-square rounded-lg overflow-hidden bg-gray-50 mb-3">
+                  {p.image ? (
+                    <img src={p.image} alt={p.title} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-300">No Image</div>
+                  )}
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold text-text-secondary truncate">{p.title}</span>
+                  <span className="text-sm font-bold text-quinary">{formatPrice(p.price)}</span>
+                </div>
+                <button
+                  onClick={() => navigate(`/shop/products/${p.id}`)}
+                  className="mt-3 w-full px-4 py-2 bg-quinary text-white text-sm rounded-full font-medium hover:bg-quaternary transition-colors"
+                >
+                  View
+                </button>
+              </div>
+            ))}
           </div>
         </section>
 

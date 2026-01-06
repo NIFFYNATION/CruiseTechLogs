@@ -186,18 +186,15 @@ const ShopDashboard = () => {
             try {
                 setLoading(true);
 
-                const [ordersRes, productsRes, cartRes] = await Promise.allSettled([
-                    shopApi.getOrders({ limit: 50 }),
+                const [ordersRes, productsRes, cartRes, statsRes] = await Promise.allSettled([
+                    shopApi.getOrders({ limit: 50 }), // Keep limit 50 for ActivityChart
                     shopApi.getProducts({ limit: 4 }),
-                    shopApi.getCart()
+                    shopApi.getCart(),
+                    shopApi.getOrderStats()
                 ]);
 
                 // Process Orders
                 let ordersList = [];
-                let activeCount = 0;
-                let spent = 0;
-                let totalCount = 0;
-
                 if (ordersRes.status === 'fulfilled' && ordersRes.value?.status === 'success') {
                     const data = ordersRes.value.data;
                     if (Array.isArray(data)) {
@@ -221,19 +218,24 @@ const ShopDashboard = () => {
                             })
                         }));
                     }
+                }
 
-                    ordersList.forEach(order => {
-                        const isPaid = (order.payment_details?.status === 'success') ||
-                            ['processing', 'shipped', 'delivered', 'completed'].includes(order.status?.toLowerCase());
+                // Process Stats
+                let statsData = {
+                    totalSpent: 0,
+                    activeOrders: 0,
+                    totalOrders: 0,
+                    completedOrders: 0
+                };
 
-                        if (isPaid && order.status !== 'cancelled' && order.status !== 'failed') {
-                            spent += Number(order.amount) || 0;
-                        }
-                        if (['pending', 'processing', 'shipped'].includes(order.status?.toLowerCase())) {
-                            activeCount++;
-                        }
-                    });
-                    totalCount = ordersList.length;
+                if (statsRes.status === 'fulfilled' && statsRes.value?.status === 'success') {
+                    const s = statsRes.value.data;
+                    statsData = {
+                        totalSpent: Number(s.total_spent) || 0,
+                        activeOrders: Number(s.active_orders) || 0,
+                        totalOrders: Number(s.no_of_orders) || 0,
+                        completedOrders: Number(s.completed_order) || 0
+                    };
                 }
 
                 // Process Products
@@ -257,9 +259,7 @@ const ShopDashboard = () => {
 
                 setOrders(ordersList);
                 setStats({
-                    totalSpent: spent,
-                    activeOrders: activeCount,
-                    totalOrders: totalCount,
+                    ...statsData,
                     cartCount: cartItemsCount
                 });
 

@@ -43,7 +43,16 @@ const MenuItem = ({ imageSrc, text, to }) => {
           mask: `url(${imageSrc}) center center / contain no-repeat`
         }}
       />
-      {!isCollapsed && <span>{text}</span>}
+      {!isCollapsed && (
+        <span className="flex items-center gap-2">
+          <span>{text}</span>
+          {to === "/shop" && (
+            <span className="bg-quaternary text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">
+              NEW
+            </span>
+          )}
+        </span>
+      )}
     </Link>
   );
 };
@@ -169,6 +178,7 @@ const Sidebar = () => {
     // { imageSrc: "/icons/manage-email.svg", text: "Manage Emails", to: "/dashboard/manage-emails" },
     { imageSrc: "/icons/social.svg", text: "Buy Social Accounts", to: "/dashboard/accounts" },
     { imageSrc: "/icons/checklist.png", text: "Account History", to: "/dashboard/manage-orders" },
+    { imageSrc: "/icons/orders.svg", text: "Gifts Shop", to: "/shop" },
   ];
   const transactionsMenu = [
     { imageSrc: "/icons/wallet.svg", text: "Wallet", to: "/dashboard/wallet" },
