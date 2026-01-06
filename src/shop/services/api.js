@@ -180,6 +180,14 @@ export const shopApi = {
     },
 
     /**
+     * Get user order statistics
+     */
+    getOrderStats: async () => {
+        const response = await api.get('/products/orders/stats');
+        return response;
+    },
+
+    /**
      * Get single order by ID
      * @param {string} id - The Group Order ID (e.g., ORD_GRP_...)
      */

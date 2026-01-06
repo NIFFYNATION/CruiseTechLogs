@@ -10,19 +10,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 // --- Components ---
 
-const OrderStats = ({ orders }) => {
-    const stats = useMemo(() => {
-        const total = orders.length;
-        const active = orders.filter(o => ['pending', 'processing', 'shipped'].includes(o.status?.toLowerCase())).length;
-        const completed = orders.filter(o => ['completed', 'delivered'].includes(o.status?.toLowerCase())).length;
-        const spent = orders.filter(o => {
-            const isPaid = (o.payment_details?.status === 'success') ||
-                ['processing', 'shipped', 'delivered', 'completed'].includes(o.status?.toLowerCase());
-            return isPaid && !['cancelled', 'failed'].includes(o.status?.toLowerCase());
-        }).reduce((sum, o) => sum + (Number(o.amount) || 0), 0);
-
-        return { total, active, completed, spent };
-    }, [orders]);
+const OrderStats = ({ stats }) => {
+    const {
+        no_of_orders = 0,
+        active_orders = 0,
+        completed_order = 0,
+        total_spent = 0
+    } = stats || {};
 
     return (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -34,7 +28,7 @@ const OrderStats = ({ orders }) => {
                     <div className="p-2 bg-gray-50 rounded-lg w-fit mb-3 text-gray-900">
                         <FiPackage />
                     </div>
-                    <span className="text-2xl font-black text-gray-900 block">{stats.total}</span>
+                    <span className="text-2xl font-black text-gray-900 block">{no_of_orders}</span>
                     <span className="text-xs text-gray-500 font-bold uppercase tracking-wider">Total Orders</span>
                 </div>
             </div>
@@ -47,7 +41,7 @@ const OrderStats = ({ orders }) => {
                     <div className="p-2 bg-blue-50 rounded-lg w-fit mb-3 text-blue-600">
                         <FiClock />
                     </div>
-                    <span className="text-2xl font-black text-gray-900 block">{stats.active}</span>
+                    <span className="text-2xl font-black text-gray-900 block">{active_orders}</span>
                     <span className="text-xs text-gray-500 font-bold uppercase tracking-wider">Active</span>
                 </div>
             </div>
@@ -60,7 +54,7 @@ const OrderStats = ({ orders }) => {
                     <div className="p-2 bg-green-50 rounded-lg w-fit mb-3 text-green-600">
                         <FiCheckCircle />
                     </div>
-                    <span className="text-2xl font-black text-gray-900 block">{stats.completed}</span>
+                    <span className="text-2xl font-black text-gray-900 block">{completed_order}</span>
                     <span className="text-xs text-gray-500 font-bold uppercase tracking-wider">Completed</span>
                 </div>
             </div>
@@ -73,8 +67,8 @@ const OrderStats = ({ orders }) => {
                     <div className="p-2 bg-orange-50 rounded-lg w-fit mb-3 text-orange-500">
                         <FiShoppingBag />
                     </div>
-                    <span className="text-xl md:text-2xl font-black text-gray-900 block truncate" title={formatPrice(stats.spent)}>
-                        {formatPrice(stats.spent)}
+                    <span className="text-xl md:text-2xl font-black text-gray-900 block truncate" title={formatPrice(total_spent)}>
+                        {formatPrice(total_spent)}
                     </span>
                     <span className="text-xs text-gray-500 font-bold uppercase tracking-wider">Total Spent</span>
                 </div>
@@ -202,6 +196,7 @@ const OrderCard = ({ order, onClick }) => {
 const ShopOrders = () => {
     const navigate = useNavigate();
     const [orders, setOrders] = useState([]);
+    const [stats, setStats] = useState(null);
     const [filteredOrders, setFilteredOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -240,7 +235,20 @@ const ShopOrders = () => {
                 setLoading(false);
             }
         };
+
+        const fetchStats = async () => {
+            try {
+                const res = await shopApi.getOrderStats();
+                if (res.status === 'success') {
+                    setStats(res.data);
+                }
+            } catch (err) {
+                console.error("Failed to fetch order stats", err);
+            }
+        };
+
         fetchOrders();
+        fetchStats();
     }, []);
 
     useEffect(() => {
@@ -311,7 +319,7 @@ const ShopOrders = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
                 >
-                    <OrderStats orders={orders} />
+                    <OrderStats stats={stats} />
                 </motion.div>
             )}
 

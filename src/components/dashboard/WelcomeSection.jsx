@@ -5,12 +5,15 @@ import WhatsAppBanner from '../WhatsAppBanner';
 import { useUser } from '../../contexts/UserContext';
 import ShopAnnouncementModal from './ShopAnnouncementModal';
 import { hasDebugAccess } from '../../utils/featureAccess';
+import { motion } from 'framer-motion';
+import { useShopData } from '../../shop/hooks/useShopData';
 
 const WelcomeSection = () => {
   const navigate = useNavigate();
   const { user } = useUser();
   const [referralCode, setReferralCode] = useState('');
   const [showShopModal, setShowShopModal] = useState(false);
+  const { categories } = useShopData();
 
   useEffect(() => {
     // Get referral code from UserContext
@@ -20,7 +23,7 @@ const WelcomeSection = () => {
 
     // Show shop announcement modal once per session, ONLY for debug access users
     const hasSeenAnnouncement = sessionStorage.getItem('hasSeenShopAnnouncement');
-    if (!hasSeenAnnouncement && user?.email && hasDebugAccess(user.email)) {
+    if (!hasSeenAnnouncement && user?.email) {
       const timer = setTimeout(() => {
         setShowShopModal(true);
       }, 1500);
@@ -32,6 +35,7 @@ const WelcomeSection = () => {
     setShowShopModal(false);
     sessionStorage.setItem('hasSeenShopAnnouncement', 'true');
   };
+  const displayCategories = categories.filter(cat => cat.id !== 'all').slice(0, 8);
   return (
     <div className="mb-6 mt-6">
       {/* Welcome Text */}
@@ -167,11 +171,64 @@ const WelcomeSection = () => {
               </div>
             </div>
           </div>
+          <div className="relative overflow-hidden bg-white rounded-[15px] border border-gray-100 px-6 pt-6 pb-5 shadow-[0_6px_24px_rgba(0,0,0,0.06)] flex-1 h-full">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#ff6a00] via-[#4caf50] to-[#2196f3]" />
+          <div className="absolute top-2 right-2 opacity-10">
+            <span className="material-symbols-outlined text-5xl">shopping_basket</span>
+          </div>
+          <div className="absolute top-2 right-2 z-10">
+            <span className="bg-quaternary text-white text-[10px] px-2 py-0.5 rounded-full font-medium">NEW</span>
+          </div>
+          <div className="w-full">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-[#ff6a00]/10 text-[#ff6a00] flex items-center justify-center">
+                  <span className="material-symbols-outlined text-base">card_giftcard</span>
+                  </div>
+                  <h3 className="text-text-primary text-lg font-semibold">Cruise Gifts Shop</h3>
+                </div>
+              </div>
+              <p className="text-sm text-text-secondary">
+                Send premium gifts and products worldwide with free shipping on all items.
+              </p>
+              <button
+                onClick={() => navigate('/shop')}
+                className="px-4 py-2 bg-[#015C67] text-white text-sm rounded-full font-medium hover:bg-[#014a54] transition-colors mt-4 mb-3"
+              >
+                Visit Shop
+              </button>
+              {displayCategories.length > 0 && (
+                <div className="relative overflow-hidden w-full" style={{ maskImage: 'linear-gradient(to right, transparent, black 12%, black 88%, transparent)' }}>
+                  <motion.div
+                    className="flex gap-3 w-max"
+                    animate={{ x: [0, '-50%'] }}
+                    transition={{ repeat: Infinity, ease: 'linear', duration: 40 }}
+                  >
+                    {[...displayCategories, ...displayCategories].map((cat, idx) => (
+                      <button
+                        key={`${cat.id}-${idx}`}
+                        onClick={() => navigate(`/shop/products?category=${cat.id}`)}
+                        className="group relative flex-shrink-0 px-1 py-1 bg-white rounded-full border border-gray-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300"
+                      >
+                        <div className="relative flex items-center gap-2 pl-1 pr-4 py-1">
+                          <div
+                            className="size-6 rounded-full bg-gray-100 bg-cover bg-center ring-2 ring-white"
+                            style={{ backgroundImage: `url('${cat.image || ''}')` }}
+                          ></div>
+                          <span className="text-[11px] font-bold text-gray-700 group-hover:text-[#ff6a00] whitespace-nowrap">{cat.name}</span>
+                        </div>
+                      </button>
+                    ))}
+                  </motion.div>
+                </div>
+              )}
+            </div>
+          </div>
           {/* Referral Program Card - Mobile Only */}
           <div className="block md:hidden bg-gradient-to-br from-quaternary-light to-orange-50 rounded-[15px] border-b-quaternary border-b-2 px-6 pt-6 pb-4 shadow-[0_4px_20px_rgba(0,0,0,0.05)] flex-1 relative overflow-hidden h-full">
-            <div className="absolute top-2 right-2">
+            {/* <div className="absolute top-2 right-2">
               <span className="bg-quaternary text-white text-xs px-2 py-1 rounded-full font-medium">NEW</span>
-            </div>
+            </div> */}
             <div className="flex items-end justify-between mt-auto">
               <div className="">
                 <h3 className="text-text-primary text-lg font-semibold mb-2">Referral Program</h3>
