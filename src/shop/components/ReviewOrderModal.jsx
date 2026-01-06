@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import CustomModal from '../../components/common/CustomModal';
 import { formatPrice } from '../shop.config';
+import parse, { domToReact } from 'html-react-parser';
 
 const ReviewOrderModal = ({
     open,
@@ -30,6 +31,40 @@ const ReviewOrderModal = ({
     handleBack
 }) => {
 
+    const renderSafeHtml = (html) => {
+        if (!html || typeof html !== 'string') return null;
+        const options = {
+            replace: (node) => {
+                if (!node) return;
+                // Drop unsafe nodes
+                if (node.name === 'script' || node.name === 'style') {
+                    return <></>;
+                }
+                // Secure anchors
+                if (node.name === 'a') {
+                    const href = node.attribs?.href || '';
+                    const isHttp = /^https?:\/\//i.test(href);
+                    const children = domToReact(node.children, options);
+                    if (!isHttp) {
+                        return <span>{children}</span>;
+                    }
+                    return (
+                        <a
+                            href={href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[#ff6a00] underline font-bold hover:opacity-80"
+                        >
+                            {children}
+                        </a>
+                    );
+                }
+                return undefined;
+            }
+        };
+        return parse(html, options);
+    };
+
     // Helper to render individual form fields
     const renderFieldInput = (field) => {
         const value = customFieldValues?.[field.label] || '';
@@ -56,41 +91,40 @@ const ReviewOrderModal = ({
                     </select>
                 );
             case 'checkbox':
-                // Checkbox can have multiple options, but usually 'checkbox' type in simplified schemas 
-                // might act as proper multi-select or single boolean if no options.
-                // Based on "Render multiple checkboxes from options", we need an array.
-                const currentValues = Array.isArray(value) ? value : [];
-                const toggleOption = (opt) => {
-                    let newValues;
-                    if (currentValues.includes(opt)) {
-                        newValues = currentValues.filter(v => v !== opt);
-                    } else {
-                        newValues = [...currentValues, opt];
-                    }
-                    handleChange(newValues);
-                };
+                {
+                    const currentValues = Array.isArray(value) ? value : [];
+                    const toggleOption = (opt) => {
+                        let newValues;
+                        if (currentValues.includes(opt)) {
+                            newValues = currentValues.filter(v => v !== opt);
+                        } else {
+                            newValues = [...currentValues, opt];
+                        }
+                        handleChange(newValues);
+                    };
 
-                if (!field.options) return null;
+                    if (!field.options) return null;
 
-                return (
-                    <div className="flex flex-wrap gap-2">
-                        {field.options.split(',').map(opt => {
-                            const trimmedOpt = opt.trim();
-                            const isChecked = currentValues.includes(trimmedOpt);
-                            return (
-                                <label key={trimmedOpt} className={`flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition-all ${isChecked ? 'bg-black text-white border-black' : 'bg-white border-gray-200 text-gray-700'}`}>
-                                    <input
-                                        type="checkbox"
-                                        className="hidden"
-                                        checked={isChecked}
-                                        onChange={() => toggleOption(trimmedOpt)}
-                                    />
-                                    <span className="text-sm font-medium">{trimmedOpt}</span>
-                                </label>
-                            );
-                        })}
-                    </div>
-                );
+                    return (
+                        <div className="flex flex-wrap gap-2">
+                            {field.options.split(',').map(opt => {
+                                const trimmedOpt = opt.trim();
+                                const isChecked = currentValues.includes(trimmedOpt);
+                                return (
+                                    <label key={trimmedOpt} className={`flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition-all ${isChecked ? 'bg-black text-white border-black' : 'bg-white border-gray-200 text-gray-700'}`}>
+                                        <input
+                                            type="checkbox"
+                                            className="hidden"
+                                            checked={isChecked}
+                                            onChange={() => toggleOption(trimmedOpt)}
+                                        />
+                                        <span className="text-sm font-medium">{trimmedOpt}</span>
+                                    </label>
+                                );
+                            })}
+                        </div>
+                    );
+                }
             case 'textarea':
                 return (
                     <textarea
@@ -390,7 +424,11 @@ const ReviewOrderModal = ({
                                 <label className="block text-sm font-bold text-gray-700">
                                     {field.label} {field.required && <span className="text-red-500">*</span>}
                                 </label>
-                                {field.description && <p className="text-xs text-gray-500 mb-1">{field.description}</p>}
+                                {field.description && (
+                                    <div className="text-xs text-gray-600 mb-1">
+                                        {renderSafeHtml(field.description)}
+                                    </div>
+                                )}
                                 {renderFieldInput(field)}
                             </div>
                         ))}
