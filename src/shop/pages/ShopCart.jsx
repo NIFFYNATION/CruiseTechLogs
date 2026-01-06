@@ -134,56 +134,15 @@ const ShopCart = () => {
             if (res.status === 'success') {
                 const orderData = res.data;
                 const paymentUrl = orderData.payment_url || orderData.payment_data?.pay_url;
-
-                setModalConfig({
-                    isOpen: true,
-                    title: 'Order Placed Successfully!',
-                    message: null,
-                    type: 'success',
-                    customContent: (
-                        <div className="text-center">
-                            <p className="text-gray-600 mb-6">Order placed successfully. Please proceed to payment.</p>
-
-                            <div className="bg-gray-50 rounded-xl p-4 mb-6 text-left space-y-2 border border-gray-100">
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-500 text-sm font-medium">Order ID:</span>
-                                    <span className="font-mono font-bold text-black bg-white px-2 py-0.5 rounded border border-gray-100">{orderData.orderID}</span>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-500 text-sm font-medium">Amount:</span>
-                                    <span className="font-black text-black text-lg">{formatPrice(orderData.total_amount)}</span>
-                                </div>
-                            </div>
-
-                            <a
-                                href={paymentUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="block w-full bg-black text-white font-bold py-4 rounded-xl hover:bg-gray-800 transition-all hover:shadow-lg hover:shadow-black/20 flex items-center justify-center gap-2"
-                                onClick={() => {
-                                    setModalConfig(prev => ({ ...prev, isOpen: false }));
-                                    fetchCart();
-                                    cacheService.clear('active_discount');
-                                }}
-                            >
-                                Pay Now
-                                <FiArrowRight />
-                            </a>
-
-                            {/* <button
-                                onClick={() => {
-                                    setModalConfig(prev => ({ ...prev, isOpen: false }));
-                                    fetchCart();
-                                    navigate('/shop/dashboard');
-                                }}
-                                className="w-full mt-3 py-3 text-gray-500 font-bold hover:text-black transition-colors"
-                            >
-                                I'll pay later
-                            </button> */}
-                        </div>
-                    ),
-                    action: null
-                });
+                if (!paymentUrl) {
+                    throw new Error('Payment link unavailable');
+                }
+                const win = window.open(paymentUrl, '_blank');
+                if (win) {
+                    win.opener = null;
+                }
+                fetchCart();
+                cacheService.clear('active_discount');
             } else {
                 throw new Error(res.message || 'Checkout failed');
             }
