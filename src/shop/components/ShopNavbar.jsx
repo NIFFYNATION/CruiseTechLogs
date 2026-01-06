@@ -55,7 +55,7 @@ const ShopNavbar = () => {
         {/* Logo Area */}
         <div className={`p-6 ${effectiveCollapsed ? 'lg:p-4 justify-center' : 'lg:p-8'} flex items-center gap-3 transition-all duration-300`}>
           <div className="flex items-center justify-center size-10 flex-shrink-0 rounded-xl bg-gradient-to-br from-[#ff6a00] to-[#ff4081] text-white shadow-lg shadow-orange-500/20">
-            <span className="material-symbols-outlined text-[24px] text-orange-500 font-bold">redeem</span>
+            <span className="material-symbols-outlined text-[24px] text-white font-bold">redeem</span>
           </div>
           {!effectiveCollapsed && (
             <span className="text-xl font-black tracking-tight text-[#0f1115] whitespace-nowrap overflow-hidden transition-all duration-300">
