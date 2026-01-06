@@ -54,6 +54,7 @@ const ShopCart = () => {
     const [discountLoading, setDiscountLoading] = useState(false);
     const [discountError, setDiscountError] = useState(null);
     const [activeDiscount, setActiveDiscount] = useState(null);
+    const [redirecting, setRedirecting] = useState(false);
 
     // Modal state for success/error/confirmation
     const [modalConfig, setModalConfig] = useState({
@@ -137,11 +138,8 @@ const ShopCart = () => {
                 if (!paymentUrl) {
                     throw new Error('Payment link unavailable');
                 }
-                const win = window.open(paymentUrl, '_blank');
-                if (win) {
-                    win.opener = null;
-                }
-                fetchCart();
+                setRedirecting(true);
+                window.location.assign(paymentUrl);
                 cacheService.clear('active_discount');
             } else {
                 throw new Error(res.message || 'Checkout failed');
@@ -450,6 +448,16 @@ const ShopCart = () => {
                     </div>
                 )}
             </main>
+
+            {redirecting && (
+                <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center">
+                    <div className="bg-white rounded-2xl p-8 shadow-xl text-center max-w-sm w-full mx-4">
+                        <div className="mx-auto mb-4 animate-spin rounded-full h-12 w-12 border-4 border-[#ff6a00] border-t-transparent"></div>
+                        <h3 className="text-lg font-black text-[#0f1115] mb-1">Redirecting to payment...</h3>
+                        <p className="text-gray-500 font-medium">Please wait</p>
+                    </div>
+                </div>
+            )}
 
             <CustomModal
                 open={modalConfig.isOpen}

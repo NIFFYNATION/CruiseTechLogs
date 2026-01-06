@@ -97,7 +97,7 @@ const WelcomeModal = ({ isOpen, onClose, userName }) => {
                         <RibbonAnimation />
 
                         {/* Header / Banner */}
-                        <div className="bg-gradient-to-br from-[#ff6a00] to-[#ff4081] p-6 text-white relative">
+                        <div className="p-6 text-white relative">
                             <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
                                 <span className="material-symbols-outlined text-8xl">celebration</span>
                             </div>
