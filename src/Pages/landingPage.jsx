@@ -138,7 +138,7 @@ export default function LandingPage() {
                   fullWidth
                   className="sm:w-auto mb-4"
                 >
-                 Rent Number & logs
+                 Rentals and logs
                 </Button>
                 <Button
                   variant="primary"
