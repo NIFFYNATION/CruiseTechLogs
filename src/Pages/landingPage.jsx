@@ -130,7 +130,7 @@ export default function LandingPage() {
               </p>
 
               {/* Get Started Button */}
-              <div className="flex justify-center lg:justify-start gap-3">
+              <div className="sm:flex justify-center lg:justify-start gap-3">
                 <Button
                   variant="quinary"
                   size="lg"
@@ -138,16 +138,16 @@ export default function LandingPage() {
                   fullWidth
                   className="sm:w-auto mb-4"
                 >
-                  Start Now!
+                 Rent Number & logs
                 </Button>
                 <Button
                   variant="primary"
-                  size="lg"
+                  size="md"
                   to="/shop"
                   fullWidth
                   className="sm:w-auto text-white mb-4"
                 >
-                  Visit Shop
+                  Visit Gift Shop
                 </Button>
               </div>
             </div>
