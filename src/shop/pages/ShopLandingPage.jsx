@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import ProductCard from '../components/ProductCard';
 import CategoryCard from '../components/CategoryCard';
 import ReviewOrderModal from '../components/ReviewOrderModal';
+import LoginPromptModal from '../components/LoginPromptModal';
 import WelcomeModal from '../components/landing/WelcomeModal';
 import { useShopData } from '../hooks/useShopData';
 import { useOrderModal } from '../hooks/useOrderModal';
@@ -57,20 +58,20 @@ const FeaturedSection = ({ section, orderModal }) => {
 
   useEffect(() => {
     const load = async () => {
-      console.log('🔍 Loading section:', section.ID, section.title);
+      // console.log('🔍 Loading section:', section.ID, section.title);
       try {
         const data = await fetchSectionDetail(section.ID);
-        console.log('📦 Section data received:', JSON.stringify(data, null, 2));
+        // console.log('📦 Section data received:', JSON.stringify(data, null, 2));
 
         if (!data) {
-          console.error('❌ Section data is null or undefined');
+          // console.error('❌ Section data is null or undefined');
           setLoading(false);
           return;
         }
 
         // Check if products exist in the data
         const productsArray = data.products || [];
-        console.log('✅ Products array:', productsArray.length, 'products');
+        // console.log('✅ Products array:', productsArray.length, 'products');
 
         if (productsArray.length === 0) {
           console.warn('⚠️ No products in section data');
@@ -99,7 +100,7 @@ const FeaturedSection = ({ section, orderModal }) => {
             badge: pMappedTags.some(t => t.name === 'Featured') ? 'Featured' : pMappedTags.some(t => t.name === 'New') ? 'New' : pMappedTags.some(t => t.name === 'Sale') ? 'Sale' : null
           };
         });
-        console.log('🎨 Formatted products:', formatted.length, formatted);
+        // console.log('🎨 Formatted products:', formatted.length, formatted);
         setProducts(formatted);
       } catch (error) {
         console.error('💥 Error loading section:', error);

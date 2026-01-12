@@ -54,7 +54,7 @@ const BalanceCard = ({ isSimple = false }) => {
               />
             </button>
           </div>
-          <h2 className="text-white font-bold text-4xl md:text-5xl mt-1">
+          <h2 className="text-white font-bold text-4xl md:text-5xl mt-1 mb-3">
             {money_format(user.balance)}
           </h2>
         </div>
