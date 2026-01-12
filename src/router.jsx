@@ -43,6 +43,7 @@ import ShopCategories from './shop/pages/ShopCategories';
 import { Navigate } from 'react-router-dom';
 import PrivacyPolicy from './Pages/PrivacyPolicy';
 import Terms from './Pages/Terms';
+import ErrorPage from './Pages/ErrorPage';
 
 // Wrapper to pass orderId param to ManageNumbers
 const ManageNumbersWithOrderId = (props) => {
@@ -56,6 +57,7 @@ export const router = createBrowserRouter([
   {
     path: '/',
     element: <App />,
+    errorElement: <ErrorPage />,
     children: [
       {
         path: '/',
@@ -66,6 +68,8 @@ export const router = createBrowserRouter([
         path: '/login',
         element: <Login />
       },
+      { path: '/forgot-password', element: <ForgotPassword /> },
+      { path: '/reset-password', element: <ResetPassword /> },
       {
         path: '/signup',
         element: <Signup />
@@ -149,8 +153,7 @@ export const router = createBrowserRouter([
           }
         ]
       },
-      { path: '/forgot-password', element: <ForgotPassword /> },
-      { path: '/reset-password', element: <ResetPassword /> },
+      
       { path: '*', element: <NotFoundPage /> },
     ],
   },

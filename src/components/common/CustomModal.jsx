@@ -217,7 +217,7 @@ const CustomModal = ({
                   <button
                     onClick={handleClose}
                     aria-label="Close"
-                    className="shadow-md p-1.5 rounded-full bg-quaternary/5 hover:bg-quaternary/10 dark:bg-quaternary/50 dark:hover:bg-quaternary/10 backdrop-blur-md text-white-500"
+                    className="shadow-md p-1.5 rounded-full bg-quaternary/50 hover:bg-quaternary/50 dark:bg-quaternary/50 dark:hover:bg-quaternary/50 backdrop-blur-md text-white-500"
                   >
                     <IoClose className="text-2xl text-white" />
                   </button>

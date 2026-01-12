@@ -4,7 +4,7 @@ import { isUserLoggedIn } from '../controllers/userController'; // Import userCo
 
 const ProtectedRoute = ({ children }) => {
   const location = useLocation();
-  const isAuthPage = ['/login', '/signup', '/registration', '/'].includes(location.pathname) || location.pathname.startsWith('/signup/');
+  const isAuthPage = ['/login', '/signup', '/registration', '/', '/forgot-password', '/reset-password', 'shop'].includes(location.pathname) || location.pathname.startsWith('/signup/');
 
   if (!isUserLoggedIn() && !isAuthPage) {
     return <Navigate to="/login" replace state={{ from: location }} />; // Redirect to login if user is not logged in

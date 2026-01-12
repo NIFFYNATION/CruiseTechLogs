@@ -5,8 +5,8 @@ import { ThemeToggle } from './components/common/ThemeToggle'
 import Tabs from './components/MobileTab'
 import { UserProvider } from './contexts/UserContext';
 import { SidebarProvider } from './contexts/SidebarContext';
-import ProtectedRoute from './routes/ProtectedRoute';
 import PageSpinner from './components/dashboard/PageSpinner';
+import { isUserLoggedIn } from './controllers/userController';
 
 
 // ScrollToTop component to handle scrolling to top on route changes
@@ -22,6 +22,7 @@ function ScrollToTop() {
 
 function App() {
   const [initialLoading, setInitialLoading] = useState(true);
+  const location = useLocation();
 
   useEffect(() => {
     // Simulate initial loading (replace with real data loading if needed)
@@ -48,9 +49,7 @@ function App() {
             <Outlet />
             {/* Mobile Tab Navigation */}
             <div className="md:hidden pt-32">
-              <ProtectedRoute>
-              <Tabs />
-              </ProtectedRoute>
+              {isUserLoggedIn() && <Tabs />}
             </div>
           </div>
         </ThemeProvider>

@@ -311,6 +311,101 @@ const ShopOrderDetails = () => {
     const [showPayModal, setShowPayModal] = useState(false);
 
     useEffect(() => {
+        const parseOrderData = (data) => {
+            let orderData = { ...data };
+            
+            // Map fields based on new API structure
+            // items is an array of detailed item objects
+            const items = Array.isArray(orderData.items) ? orderData.items : [];
+
+            // Parse product_image if it's a string JSON
+            const parsedItems = items.map(item => {
+                let images = [];
+                try {
+                    if (typeof item.product_image === 'string') {
+                        images = JSON.parse(item.product_image);
+                    } else if (Array.isArray(item.product_image)) {
+                        images = item.product_image;
+                    }
+                } catch (e) {
+                    images = [];
+                }
+
+                let customData = {};
+                try {
+                    if (item.custom_datas) {
+                        customData = typeof item.custom_datas === 'string'
+                            ? JSON.parse(item.custom_datas)
+                            : item.custom_datas;
+                    } else if (item.custom_data) {
+                        customData = typeof item.custom_data === 'string'
+                            ? JSON.parse(item.custom_data)
+                            : item.custom_data;
+                    }
+                } catch (e) {
+                    console.error("Error parsing custom_datas", e);
+                }
+
+                return {
+                    ...item,
+                    item_id: item.ID, // Preserve original item ID
+                    product_name: item.product_title || item.product_name,
+                    image: item.cover_image || (images.length > 0 ? images[0] : null),
+                    price: Number(item.amount || item.price),
+                    quantity: Number(item.quantity || item.no_of_orders) || 1,
+                    status: item.status || 'pending',
+                    updated_at: item.updated_at,
+                    delivery_range: item.delivery_range,
+                    custom_data: customData,
+                    tracking_code: item.tracking_code || item.tracking_number || item.tracking_id || item.tracking,
+                    courier: item.courier || item.shipping_courier || item.shipping_company,
+                    shipping: {
+                        name: item.shipping_name,
+                        address: item.shipping_address,
+                        city: item.shipping_city,
+                        state: item.shipping_state,
+                        country: item.shipping_country,
+                        zip: item.shipping_zip,
+                        phone: item.shipping_phone
+                    }
+                };
+            });
+
+            // Parse payment metadata if available
+            let paymentMeta = {};
+            try {
+                if (orderData.payment_details?.meta_data) {
+                    paymentMeta = typeof orderData.payment_details.meta_data === 'string'
+                        ? JSON.parse(orderData.payment_details.meta_data)
+                        : orderData.payment_details.meta_data;
+                }
+            } catch (e) {
+                console.error("Failed to parse payment metadata", e);
+            }
+
+            return {
+                ...orderData,
+                id: orderData.ID || orderData.id,
+                order_id: orderData.ID || orderData.order_id || orderData.id,
+                amount: orderData.total_amount || orderData.amount,
+                shipping_cost: orderData.shipping_cost || 0,
+                date: orderData.date || orderData.created_at,
+                last_updated: orderData.last_updated,
+                customer: orderData.customer || {
+                    name: orderData.customer_name || orderData.name,
+                    email: orderData.customer_email || orderData.email,
+                    phone: orderData.customer_phone || orderData.phone
+                },
+                items: parsedItems,
+                // Payment details might be nested in data or separate
+                payment_details: {
+                    ...orderData.payment_details,
+                    meta: paymentMeta
+                } || null,
+                payment_url: (orderData.payment_details && orderData.payment_details.pay_url) ? orderData.payment_details.pay_url : orderData.payment_url
+            };
+        };
+
         const fetchOrder = async () => {
             try {
                 setLoading(true);
@@ -318,103 +413,26 @@ const ShopOrderDetails = () => {
                 const orderRes = await shopApi.getOrder(id);
 
                 if (orderRes.status === 'success' && orderRes.data) {
-                    let orderData = orderRes.data;
+                    let finalOrder = parseOrderData(orderRes.data);
 
-                    // Map fields based on new API structure
-                    // items is an array of detailed item objects
-                    const items = Array.isArray(orderData.items) ? orderData.items : [];
-
-                    // Parse product_image if it's a string JSON
-                    const parsedItems = items.map(item => {
-                        let images = [];
+                    // Check for payment validation
+                    // Only validate if tx_ref exists and status is NOT success
+                    if (finalOrder.payment_details?.tx_ref && finalOrder.payment_details.status !== 'success') {
                         try {
-                            if (typeof item.product_image === 'string') {
-                                images = JSON.parse(item.product_image);
-                            } else if (Array.isArray(item.product_image)) {
-                                images = item.product_image;
+                            const validateRes = await shopApi.validatePayment(finalOrder.payment_details.tx_ref);
+                            if (validateRes.status === 'success') {
+                                // Payment was successful, fetch updated order details
+                                const updatedRes = await shopApi.getOrder(id);
+                                if (updatedRes.status === 'success' && updatedRes.data) {
+                                    finalOrder = parseOrderData(updatedRes.data);
+                                }
                             }
-                        } catch (e) {
-                            images = [];
+                        } catch (validationErr) {
+                            console.warn("Background payment validation failed", validationErr);
                         }
-
-                        let customData = {};
-                        try {
-                            if (item.custom_datas) {
-                                customData = typeof item.custom_datas === 'string'
-                                    ? JSON.parse(item.custom_datas)
-                                    : item.custom_datas;
-                            } else if (item.custom_data) {
-                                customData = typeof item.custom_data === 'string'
-                                    ? JSON.parse(item.custom_data)
-                                    : item.custom_data;
-                            }
-                        } catch (e) {
-                            console.error("Error parsing custom_datas", e);
-                        }
-
-                        return {
-                            ...item,
-                            item_id: item.ID, // Preserve original item ID
-                            product_name: item.product_title || item.product_name,
-                            image: item.cover_image || (images.length > 0 ? images[0] : null),
-                            price: Number(item.amount || item.price),
-                            quantity: Number(item.quantity || item.no_of_orders) || 1,
-                            status: item.status || 'pending',
-                            updated_at: item.updated_at,
-                            delivery_range: item.delivery_range,
-                            custom_data: customData,
-                            tracking_code: item.tracking_code || item.tracking_number || item.tracking_id || item.tracking,
-                            courier: item.courier || item.shipping_courier || item.shipping_company,
-                            shipping: {
-                                name: item.shipping_name,
-                                address: item.shipping_address,
-                                city: item.shipping_city,
-                                state: item.shipping_state,
-                                country: item.shipping_country,
-                                zip: item.shipping_zip,
-                                phone: item.shipping_phone
-                            }
-                        };
-                    });
-
-                    // Parse payment metadata if available
-                    let paymentMeta = {};
-                    try {
-                        if (orderData.payment_details?.meta_data) {
-                            paymentMeta = typeof orderData.payment_details.meta_data === 'string'
-                                ? JSON.parse(orderData.payment_details.meta_data)
-                                : orderData.payment_details.meta_data;
-                        }
-                    } catch (e) {
-                        console.error("Failed to parse payment metadata", e);
                     }
 
-                    orderData = {
-                        ...orderData,
-                        id: orderData.ID || orderData.id,
-                        order_id: orderData.ID || orderData.order_id || orderData.id,
-                        amount: orderData.total_amount || orderData.amount,
-                        shipping_cost: orderData.shipping_cost || 0,
-                        date: orderData.date || orderData.created_at,
-                        last_updated: orderData.last_updated,
-                        customer: orderData.customer || {
-                            name: orderData.customer_name || orderData.name,
-                            email: orderData.customer_email || orderData.email,
-                            phone: orderData.customer_phone || orderData.phone
-                        },
-                        items: parsedItems,
-                        // Payment details might be nested in data or separate
-                        payment_details: {
-                            ...orderData.payment_details,
-                            meta: paymentMeta
-                        } || null
-                    };
-
-                    if (orderData.payment_details && orderData.payment_details.pay_url) {
-                        orderData.payment_url = orderData.payment_details.pay_url;
-                    }
-
-                    setOrder(orderData);
+                    setOrder(finalOrder);
                 } else {
                     setError('Order not found');
                 }

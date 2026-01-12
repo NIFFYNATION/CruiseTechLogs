@@ -19,6 +19,7 @@ export const useOrderModal = () => {
     const [isAddingAddress, setIsAddingAddress] = useState(false);
     const [addressLoading, setAddressLoading] = useState(false);
     const [orderProcessing, setOrderProcessing] = useState(false);
+    const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
     const [newAddress, setNewAddress] = useState({
         full_name: '',
@@ -215,6 +216,20 @@ export const useOrderModal = () => {
         }
     };
 
+    const closeLoginPrompt = () => {
+        setShowLoginPrompt(false);
+    };
+
+    const handleLogin = () => {
+        setShowLoginPrompt(false);
+        navigate('/login', { state: { from: location } });
+    };
+
+    const handleSignup = () => {
+        setShowLoginPrompt(false);
+        navigate('/signup', { state: { from: location } });
+    };
+
     return {
         open,
         product,
@@ -239,6 +254,10 @@ export const useOrderModal = () => {
         handleProceedToShipping,
         handleProceedFromShipping,
         handleAddToCartAction,
-        handleBack
+        handleBack,
+        showLoginPrompt,
+        closeLoginPrompt,
+        handleLogin,
+        handleSignup
     };
 };
