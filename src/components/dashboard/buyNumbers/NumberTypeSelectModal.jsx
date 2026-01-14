@@ -19,6 +19,7 @@ const NumberTypeSelectModal = ({ open, onClose, onSelect }) => {
               type: item.type,
               network: item.network,
               title: item.title,
+              badge: item.badge,
             }))
           );
         } else {
@@ -43,18 +44,31 @@ const NumberTypeSelectModal = ({ open, onClose, onSelect }) => {
       renderItem={(type, idx) => (
         <React.Fragment key={type.value}>
           <button
-            className="w-full text-left py-4 px-2 hover:bg-[#F7F7F7] transition rounded"
+            className="w-full flex items-center justify-between py-4 px-2 hover:bg-[#F7F7F7] transition rounded"
             onClick={() => {
               if (
-                (type.label && type.label.trim() !== "") &&
-                (type.value && String(type.value).trim() !== "")
+                type.label &&
+                type.label.trim() !== "" &&
+                type.value &&
+                String(type.value).trim() !== ""
               ) {
                 onSelect(type);
                 onClose();
               }
             }}
           >
-            <span className="font-medium">{type.label }</span>
+            <span className="font-medium">{type.label}</span>
+            {type.badge && type.badge.title && (
+              <span
+                className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold capitalize"
+                style={{
+                  backgroundColor: type.badge.background || "#E5E7EB",
+                  color: "#ffffff",
+                }}
+              >
+                {type.badge.title}
+              </span>
+            )}
           </button>
           {idx !== numberTypes.length - 1 && (
             <hr className="border-t border-[#E5E7EB]" />
