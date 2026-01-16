@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Add navigation for redirection
+import { useNavigate } from 'react-router-dom';
 import WelcomeSection from '../components/dashboard/WelcomeSection';
 import ProductCard from '../components/dashboard/ProductCard';
 import TransactionsTable from '../components/dashboard/TransactionsTable';
 import ProductSection from '../components/dashboard/ProductSection';
 import { isUserLoggedIn, fetchUserDetails } from '../controllers/userController'; // Import userController
 import Transactions from '../components/dashboard/wallet/Transactions';
+import { shopApi } from '../shop/services/api';
 import { useUser } from '../contexts/UserContext';
 import Joyride from 'react-joyride';
 
@@ -15,6 +16,7 @@ const Dashboard = () => {
   const [runTour, setRunTour] = useState(false);
   const { user } = useUser();
   const navigate = useNavigate();
+  const [unresolvedDisputes, setUnresolvedDisputes] = useState([]);
 
   // Joyride steps
   const tourSteps = [
@@ -99,6 +101,19 @@ const Dashboard = () => {
       setRunTour(true);
       localStorage.setItem(tourKey, 'true');
     }
+    const loadDisputes = async () => {
+      try {
+        const res = await shopApi.getUnresolvedDisputes();
+        if (res.status === 'success' && Array.isArray(res.data)) {
+          setUnresolvedDisputes(res.data);
+        } else {
+          setUnresolvedDisputes([]);
+        }
+      } catch {
+        setUnresolvedDisputes([]);
+      }
+    };
+    loadDisputes();
   }, []);
 
   return (
@@ -169,7 +184,30 @@ const Dashboard = () => {
           }
         }}
       />
+       {unresolvedDisputes.length > 0 && (
+        <div className="mt-4 bg-red-50 border border-red-200 rounded-2xl p-4 flex items-start gap-3">
+          <div className="mt-1 text-red-500">
+            <span className="material-symbols-outlined text-lg">error</span>
+          </div>
+          <div className="flex-1">
+            <h3 className="text-sm font-bold text-red-700 mb-1">
+              You have unresolved shop order disputes
+            </h3>
+            <p className="text-xs text-red-600 mb-2">
+              Please check your shop orders and respond to support so we can resolve your disputes.
+            </p>
+            <button
+              onClick={() => navigate('/shop/dashboard')}
+              className="inline-flex items-center gap-1 text-xs font-bold text-red-700 hover:text-red-800"
+            >
+              Go to Shop Dashboard
+              <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+            </button>
+          </div>
+        </div>
+      )}
       <WelcomeSection />
+     
       {/* Transactions Table */}
       <div className="transactions-tour">
         <Transactions isRecent={true} title='Recent Transactions'/>
