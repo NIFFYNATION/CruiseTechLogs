@@ -4,7 +4,7 @@ import { shopApi } from '../services/api';
 import { formatPrice } from '../shop.config';
 import {
     FiSearch, FiPackage, FiClock,
-    FiCheckCircle, FiXCircle, FiArrowRight, FiShoppingBag
+    FiCheckCircle, FiXCircle, FiArrowRight, FiShoppingBag, FiAlertTriangle
 } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -150,7 +150,7 @@ const OrderCard = ({ order, onClick }) => {
                 </div>
 
                 {/* Content */}
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-4">
                     {/* Product Preview Stack */}
                     <div className="flex -space-x-3">
                         {order.items?.slice(0, 4).map((item, idx) => (
@@ -178,13 +178,21 @@ const OrderCard = ({ order, onClick }) => {
                         )}
                     </div>
 
-                    {/* Action Button */}
-                    <div className="flex items-center gap-2">
-                        <span className="hidden md:block text-sm font-bold text-gray-300 group-hover:text-black transition-colors">
-                            View Details
-                        </span>
-                        <div className="w-10 h-10 rounded-full bg-gray-50 group-hover:bg-black group-hover:text-white transition-all flex items-center justify-center">
-                            <FiArrowRight />
+                    {/* Right Side: Dispute + Action */}
+                    <div className="flex items-center gap-3">
+                        {Number(order.has_active_disputes) === 1 && (
+                            <div className="flex items-center gap-1 text-[11px] font-bold text-red-600 bg-red-50 px-2 py-1 rounded-full border border-red-100">
+                                <FiAlertTriangle className="text-xs" />
+                                <span>Dispute active</span>
+                            </div>
+                        )}
+                        <div className="flex items-center gap-2">
+                            <span className="hidden md:block text-sm font-bold text-gray-300 group-hover:text-black transition-colors">
+                                View Details
+                            </span>
+                            <div className="w-10 h-10 rounded-full bg-gray-50 group-hover:bg-black group-hover:text-white transition-all flex items-center justify-center">
+                                <FiArrowRight />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -218,6 +226,9 @@ const ShopOrders = () => {
                             order_id: order.ID || order.order_id || order.id,
                             amount: order.total_amount || order.amount,
                             date: order.date || order.created_at,
+                            has_active_disputes: typeof order.has_active_disputes !== 'undefined'
+                                ? Number(order.has_active_disputes)
+                                : 0,
                             items: order.items?.map(item => ({
                                 ...item,
                                 product_name: item.product_title || item.product_name,

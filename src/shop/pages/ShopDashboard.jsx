@@ -14,7 +14,8 @@ import {
     FiTrendingUp,
     FiActivity,
     FiUser,
-    FiCheckCircle
+    FiCheckCircle,
+    FiAlertTriangle
 } from 'react-icons/fi';
 
 // --- Components ---
@@ -119,7 +120,7 @@ const ActivityChart = ({ orders }) => {
 
 const DashboardOrderCard = ({ order }) => (
     <Link to={`/shop/orders/${order.id || order.order_id}`} className="block group">
-        <div className="bg-white rounded-2xl p-3 sm:p-4 border border-gray-100 shadow-sm hover:shadow-md hover:border-blue-100 transition-all duration-300 flex items-center gap-3 sm:gap-4 overflow-hidden">
+        <div className="bg-white rounded-2xl p-3 sm:p-4 border border-gray-100 shadow-sm hover:shadow-md hover:border-blue-100 transition-all duration-300 flex items-center gap-3 sm:gap-4 overflow-hidden relative">
             {/* Icon/Image */}
             <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden relative">
                 {order.items && order.items.length > 0 && (order.items[0].image || order.items[0].product_image) ? (
@@ -156,6 +157,15 @@ const DashboardOrderCard = ({ order }) => (
                     </span>
                     <span className="w-1 h-1 rounded-full bg-gray-300 flex-shrink-0"></span>
                     <span className="text-gray-900 font-bold flex-shrink-0">{formatPrice(order.amount)}</span>
+                    {Number(order.has_active_disputes) === 1 && (
+                        <>
+                            <span className="w-1 h-1 rounded-full bg-gray-300 flex-shrink-0"></span>
+                            <span className="flex items-center gap-1 text-[10px] font-bold text-red-600">
+                                <FiAlertTriangle className="text-xs" />
+                                Dispute active
+                            </span>
+                        </>
+                    )}
                 </div>
             </div>
 
@@ -180,6 +190,7 @@ const ShopDashboard = () => {
         cartCount: 0
     });
     const [error, setError] = useState(null);
+    const [unresolvedDisputes, setUnresolvedDisputes] = useState([]);
 
     useEffect(() => {
         const fetchDashboardData = async () => {
@@ -262,6 +273,13 @@ const ShopDashboard = () => {
                     ...statsData,
                     cartCount: cartItemsCount
                 });
+
+                const unresolvedRes = await shopApi.getUnresolvedDisputes();
+                if (unresolvedRes.status === 'success' && Array.isArray(unresolvedRes.data)) {
+                    setUnresolvedDisputes(unresolvedRes.data);
+                } else {
+                    setUnresolvedDisputes([]);
+                }
 
             } catch (err) {
                 console.error("Dashboard data fetch failed:", err);
@@ -353,6 +371,45 @@ const ShopDashboard = () => {
                     </button>
                 </motion.div>
             </div>
+
+            {unresolvedDisputes.length > 0 && (
+                <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-start gap-3">
+                    <div className="mt-1 text-red-500">
+                        <FiAlertTriangle />
+                    </div>
+                    <div className="flex-1">
+                        <h3 className="text-sm font-bold text-red-700 mb-1">
+                            You have unresolved order disputes
+                        </h3>
+                        <p className="text-xs text-red-600 mb-2">
+                            Please review the latest messages from support and respond to keep your orders moving smoothly.
+                        </p>
+                        <ul className="text-xs text-red-700 space-y-1">
+                            {unresolvedDisputes.slice(0, 3).map((d) => (
+                                <li key={d.orderID} className="flex justify-between gap-2">
+                                    <span className="font-semibold truncate">
+                                        Order {d.orderID}
+                                    </span>
+                                    {d.last_message && (
+                                        <span className="truncate text-[11px] text-red-600 max-w-[220px]">
+                                            “{d.last_message}”
+                                        </span>
+                                    )}
+                                </li>
+                            ))}
+                        </ul>
+                        <div className="mt-3">
+                            <Link
+                                to="/shop/orders"
+                                className="inline-flex items-center gap-1 text-xs font-bold text-red-700 hover:text-red-800"
+                            >
+                                View orders
+                                <FiArrowRight className="text-[13px]" />
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

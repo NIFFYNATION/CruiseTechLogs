@@ -257,6 +257,43 @@ export const shopApi = {
     validatePayment: async (reference) => {
         const response = await api.get(`/deposit/validate?txref=${reference}`);
         return response;
+    },
+
+    /**
+     * Check if user has any active disputes across orders
+     */
+    getHasActiveDisputes: async () => {
+        const response = await api.get('/products/order/disputes/has-active');
+        return response;
+    },
+
+    /**
+     * Get dispute messages for a specific order
+     * @param {string} orderID
+     */
+    getDisputeMessages: async (orderID) => {
+        const response = await api.get(`/products/order/disputes?orderID=${encodeURIComponent(orderID)}`);
+        return response;
+    },
+
+    /**
+     * Start or reply to a dispute for an order
+     * @param {Object} data
+     * @param {string} data.orderID
+     * @param {string} data.message
+     * @param {number} [data.parent_id]
+     */
+    startDispute: async (data) => {
+        const response = await api.post('/products/order/disputes/start', data);
+        return response;
+    },
+
+    /**
+     * Get unresolved disputes where admin has replied and user has not resolved it
+     */
+    getUnresolvedDisputes: async () => {
+        const response = await api.get('/products/order/disputes/unresolved');
+        return response;
     }
 };
 

@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { shopApi } from '../services/api';
 import { formatPrice } from '../shop.config';
-import { FiArrowLeft, FiMapPin, FiCreditCard, FiPackage, FiClock, FiCheckCircle, FiXCircle, FiTruck, FiShoppingBag, FiUser, FiChevronDown, FiChevronUp, FiCopy, FiCheck } from 'react-icons/fi';
+import { linkifyHtml } from '../../utils/formatUtils';
+import parse from 'html-react-parser';
+import { FiArrowLeft, FiMapPin, FiCreditCard, FiPackage, FiClock, FiCheckCircle, FiXCircle, FiTruck, FiShoppingBag, FiUser, FiChevronDown, FiChevronUp, FiCopy, FiCheck, FiAlertTriangle, FiMessageCircle, FiSend, FiMaximize2, FiMinimize2 } from 'react-icons/fi';
 import CustomModal from '../../components/common/CustomModal';
 
 // Helper Copy Button Component
@@ -309,6 +311,13 @@ const ShopOrderDetails = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showPayModal, setShowPayModal] = useState(false);
+    const [disputes, setDisputes] = useState([]);
+    const [disputesLoading, setDisputesLoading] = useState(false);
+    const [disputeError, setDisputeError] = useState(null);
+    const [disputeMessage, setDisputeMessage] = useState('');
+    const [startingDispute, setStartingDispute] = useState(false);
+    const [isChatExpanded, setIsChatExpanded] = useState(false);
+    const disputeSectionRef = useRef(null);
 
     useEffect(() => {
         const parseOrderData = (data) => {
@@ -449,6 +458,82 @@ const ShopOrderDetails = () => {
         }
     }, [id]);
 
+    useEffect(() => {
+        const fetchDisputes = async () => {
+            if (!order?.order_id && !order?.id) return;
+            const orderID = order.order_id || order.id;
+            try {
+                setDisputesLoading(true);
+                setDisputeError(null);
+                const res = await shopApi.getDisputeMessages(orderID);
+                if (res.status === 'success' && Array.isArray(res.data)) {
+                    setDisputes(res.data);
+                } else {
+                    setDisputes([]);
+                }
+            } catch (err) {
+                console.error('Failed to fetch disputes', err);
+                setDisputeError('Failed to load dispute messages.');
+            } finally {
+                setDisputesLoading(false);
+            }
+        };
+
+        if (order) {
+            fetchDisputes();
+        }
+    }, [order]);
+
+    const userMessageStreak = (() => {
+        let count = 0;
+        for (let i = disputes.length - 1; i >= 0; i--) {
+            const msg = disputes[i];
+            if (msg.sender_type === 'admin') {
+                break;
+            }
+            count += 1;
+        }
+        return count;
+    })();
+
+    const hasReachedUserMessageLimit = userMessageStreak >= 3;
+
+    const scrollToDisputeSection = () => {
+        if (disputeSectionRef.current) {
+            disputeSectionRef.current.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    };
+
+    const handleStartDispute = async () => {
+        if (hasReachedUserMessageLimit) {
+            setDisputeError('You have sent 3 messages in a row. Please wait for support to reply.');
+            return;
+        }
+        if (!disputeMessage.trim() || (!order?.order_id && !order?.id)) return;
+        const orderID = order.order_id || order.id;
+        try {
+            setStartingDispute(true);
+            setDisputeError(null);
+            await shopApi.startDispute({
+                orderID,
+                message: disputeMessage.trim()
+            });
+            setDisputeMessage('');
+            const res = await shopApi.getDisputeMessages(orderID);
+            if (res.status === 'success' && Array.isArray(res.data)) {
+                setDisputes(res.data);
+            }
+        } catch (err) {
+            console.error('Failed to start dispute', err);
+            setDisputeError('Unable to send dispute message. Please try again.');
+        } finally {
+            setStartingDispute(false);
+        }
+    };
+
     if (loading) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh]">
@@ -515,12 +600,24 @@ const ShopOrderDetails = () => {
                                 {order.status}
                             </span>
                         </div>
-                        <p className="text-gray-500 flex flex-wrap items-center gap-4 font-medium">
-                            <span className="flex items-center gap-2">
-                                <FiClock className="text-gray-400" />
-                                Placed on {formatDate(order.created_at || order.date)}
-                            </span>
-                        </p>
+                        <div className="flex flex-wrap items-center gap-4 justify-between">
+                            <p className="text-gray-500 flex flex-wrap items-center gap-4 font-medium">
+                                <span className="flex items-center gap-2">
+                                    <FiClock className="text-gray-400" />
+                                    Placed on {formatDate(order.created_at || order.date)}
+                                </span>
+                            </p>
+                            {disputes.length > 0 && (
+                                <button
+                                    type="button"
+                                    onClick={scrollToDisputeSection}
+                                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-red-50 text-red-700 hover:bg-red-100 border border-red-100"
+                                >
+                                    <FiMessageCircle className="text-sm" />
+                                    View Dispute
+                                </button>
+                            )}
+                        </div>
                     </div>
 
                     {(order.status === 'pending' && order.payment_url) && (
@@ -694,11 +791,116 @@ const ShopOrderDetails = () => {
                             )}
 
                             <div className="border-t border-dashed border-gray-200 pt-4 mt-4 flex justify-between items-end">
-                                <span className="text-gray-900 font-bold">Total Paid</span>
-                                <span className="text-2xl font-black text-black">
+                            <span className="text-gray-900 font-bold">Total Paid</span>
+                            <span className="text-2xl font-black text-black">
                                     {formatPrice(Number(order.payment_details?.amount ?? order.amount))}
                                 </span>
                             </div>
+                        </div>
+                    </div>
+
+                    {/* Dispute Section */}
+                    <div
+                        ref={disputeSectionRef}
+                        className="bg-white rounded-3xl border border-gray-100 shadow-sm p-4 space-y-4"
+                    >
+                        <div className="flex items-center justify-between gap-2 mb-2">
+                            <div className="flex items-center gap-2">
+                                <FiAlertTriangle className="text-red-500" />
+                                <h2 className="text-lg font-bold">Order Dispute</h2>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setIsChatExpanded((prev) => !prev)}
+                                className="p-1.5 rounded-full border border-gray-200 text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition-colors"
+                                title={isChatExpanded ? 'Collapse chat' : 'Expand chat'}
+                            >
+                                {isChatExpanded ? <FiMinimize2 size={16} /> : <FiMaximize2 size={16} />}
+                            </button>
+                        </div>
+                        {disputes.length === 0 && (
+                            <p className="text-sm text-gray-500">
+                                If there is an issue with this order, you can open a dispute. Our team will review your messages and respond here.
+                            </p>
+                        )}
+
+                        <div
+                            className={`space-y-3 overflow-y-auto border border-gray-100 p-3 bg-gray-50/60 rounded-2xl ${
+                                isChatExpanded ? 'max-h-[70vh]' : 'max-h-80'
+                            }`}
+                        >
+                            {disputesLoading ? (
+                                <div className="text-sm text-gray-400">Loading dispute messages...</div>
+                            ) : disputes.length === 0 ? (
+                                <div className="text-sm text-gray-400">
+                                    No dispute opened for this order yet.
+                                </div>
+                            ) : (
+                                disputes.map(msg => (
+                                    <div
+                                        key={msg.ID}
+                                        className={`flex ${msg.sender_type === 'admin' ? 'justify-start' : 'justify-end'}`}
+                                    >
+                                        <div
+                                            className={`max-w-[80%] rounded-2xl px-3 py-2 text-xs ${
+                                                msg.sender_type === 'admin'
+                                                    ? 'bg-black-50 text-black-800 border border-black-100'
+                                                    : 'bg-blue-50 text-blue-800 border border-blue-100'
+                                            }`}
+                                        >
+                                            <div className="flex items-center gap-1 mb-1">
+                                                <FiMessageCircle className="text-[10px]" />
+                                                <span className="font-bold uppercase tracking-wide">
+                                                    {msg.sender_type === 'admin' ? 'Support' : 'You'}
+                                                </span>
+                                            </div>
+                                            <p className="whitespace-pre-wrap break-words">
+                                                {parse(linkifyHtml(msg.message, 'text-blue-700 underline'))}
+                                            </p>
+                                            {msg.created_at && (
+                                                <div className="mt-1 text-[10px] text-gray-400">
+                                                    {new Date(msg.created_at).toLocaleString()}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+
+                        {disputeError && (
+                            <div className="text-xs text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-2">
+                                {disputeError}
+                            </div>
+                        )}
+
+                        <div className="space-y-2">
+                            <textarea
+                                value={disputeMessage}
+                                onChange={(e) => setDisputeMessage(e.target.value)}
+                                rows={3}
+                                placeholder={
+                                    hasReachedUserMessageLimit
+                                        ? 'You have sent 3 messages. Please wait for support to reply.'
+                                        : 'Describe the issue with this order...'
+                                }
+                                disabled={hasReachedUserMessageLimit}
+                                className={`w-full border border-gray-200 rounded-2xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500/40 focus:border-red-400 resize-none ${
+                                    hasReachedUserMessageLimit ? 'bg-gray-100 cursor-not-allowed' : ''
+                                }`}
+                            />
+                            <button
+                                onClick={handleStartDispute}
+                                disabled={startingDispute || !disputeMessage.trim() || hasReachedUserMessageLimit}
+                                className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-2xl text-sm font-bold transition-colors ${
+                                    startingDispute || !disputeMessage.trim() || hasReachedUserMessageLimit
+                                        ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                                        : 'bg-red-500 text-white hover:bg-red-600'
+                                }`}
+                            >
+                                <FiSend className="text-sm" />
+                                {startingDispute ? 'Sending...' : disputes.length === 0 ? 'Start Dispute' : 'Reply to Dispute'}
+                            </button>
                         </div>
                     </div>
 
