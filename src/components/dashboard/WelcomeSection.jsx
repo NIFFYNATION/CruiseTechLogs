@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import BalanceCard from './cards/BalanceCard'; // <-- Make sure this import exists and the file is present
+import BalanceCard from './cards/BalanceCard';
 import { useNavigate } from "react-router-dom";
 import WhatsAppBanner from '../WhatsAppBanner';
 import { useUser } from '../../contexts/UserContext';
@@ -7,21 +7,21 @@ import ShopAnnouncementModal from './ShopAnnouncementModal';
 import { hasDebugAccess } from '../../utils/featureAccess';
 import { motion } from 'framer-motion';
 import { useShopData } from '../../shop/hooks/useShopData';
+import { shopApi } from '../../shop/services/api';
 
 const WelcomeSection = () => {
   const navigate = useNavigate();
   const { user } = useUser();
   const [referralCode, setReferralCode] = useState('');
   const [showShopModal, setShowShopModal] = useState(false);
+  const [unresolvedDisputes, setUnresolvedDisputes] = useState([]);
   const { categories } = useShopData();
 
   useEffect(() => {
-    // Get referral code from UserContext
     if (user && user.referral_code) {
       setReferralCode(user.referral_code);
     }
 
-    // Show shop announcement modal once per session, ONLY for debug access users
     const hasSeenAnnouncement = sessionStorage.getItem('hasSeenShopAnnouncement');
     if (!hasSeenAnnouncement && user?.email) {
       const timer = setTimeout(() => {
@@ -29,6 +29,19 @@ const WelcomeSection = () => {
       }, 1500);
       return () => clearTimeout(timer);
     }
+    const loadDisputes = async () => {
+      try {
+        const res = await shopApi.getUnresolvedDisputes();
+        if (res.status === 'success' && Array.isArray(res.data)) {
+          setUnresolvedDisputes(res.data);
+        } else {
+          setUnresolvedDisputes([]);
+        }
+      } catch {
+        setUnresolvedDisputes([]);
+      }
+    };
+    loadDisputes();
   }, [user]);
 
   const handleCloseModal = () => {
@@ -40,6 +53,28 @@ const WelcomeSection = () => {
     <div className="mb-6 mt-6">
       {/* Welcome Text */}
       <h1 className="text-2xl font-semibold text-text-primary mb-4">Welcome back!</h1>
+      {unresolvedDisputes.length > 0 && (
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-start gap-3 mb-4">
+          <div className="mt-1 text-red-500">
+            <span className="material-symbols-outlined text-lg">error</span>
+          </div>
+          <div className="flex-1">
+            <h3 className="text-sm font-bold text-red-700 mb-1">
+              You have unresolved shop order disputes
+            </h3>
+            <p className="text-xs text-red-600 mb-2">
+              Please check your shop orders and respond to support so we can resolve your disputes.
+            </p>
+            <button
+              onClick={() => navigate('/shop/orders/dispute')}
+              className="inline-flex items-center gap-1 text-xs font-bold text-red-700 hover:text-red-800"
+            >
+              View dispute orders
+              <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+            </button>
+          </div>
+        </div>
+      )}
       {/* Refund Information */}
       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-6 text-sm text-yellow-800">
         <p className="mb-1">
