@@ -145,6 +145,7 @@ export const router = createBrowserRouter([
             ),
             children: [
               { path: 'dashboard', element: <ShopDashboard /> },
+              { path: 'orders/dispute', element: <ShopOrders /> },
               { path: 'orders', element: <ShopOrders /> },
               { path: 'orders/:id', element: <ShopOrderDetails /> },
               { path: 'addresses', element: <ShopAddresses /> },

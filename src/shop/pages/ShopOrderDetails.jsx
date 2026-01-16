@@ -498,6 +498,14 @@ const ShopOrderDetails = () => {
 
     const hasReachedUserMessageLimit = userMessageStreak >= 3;
 
+    const maskEmail = (email) => {
+        if (!email) return '';
+        const [local, domain] = email.split('@');
+        if (!domain) return email;
+        const visible = local.slice(0, 3);
+        return `${visible}${local.length > 3 ? '***' : ''}@${domain}`;
+    };
+
     const scrollToDisputeSection = () => {
         if (disputeSectionRef.current) {
             disputeSectionRef.current.scrollIntoView({
@@ -618,7 +626,18 @@ const ShopOrderDetails = () => {
                                 </button>
                             )}
                         </div>
-                    </div>
+                        {disputes.length == 0 && (
+                            <p className="text-sm text-gray-500 mt-3 text-red-500">
+                                Got any Issue with this order? <button
+                                    type="button"
+                                    onClick={scrollToDisputeSection}
+                                    className="text-red-600 hover:text-red-700 font-semibold underline ml-1"
+                                >
+                                    Start a dispute
+                                </button>
+                            </p>
+                        )}
+                        </div>
 
                     {(order.status === 'pending' && order.payment_url) && (
                         <button
@@ -820,7 +839,16 @@ const ShopOrderDetails = () => {
                         </div>
                         {disputes.length === 0 && (
                             <p className="text-sm text-gray-500">
-                                If there is an issue with this order, you can open a dispute. Our team will review your messages and respond here.
+                                If there is an issue with this order, you can open a dispute. Our team will review your messages and respond here. We might also notify you by email 
+                                {order.customer?.email && (
+                                    <>
+                                        {' '} at{' '}
+                                        <span className="font-semibold">
+                                            {maskEmail(order.customer.email)}
+                                        </span>
+                                        .
+                                    </>
+                                )}
                             </p>
                         )}
 

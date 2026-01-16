@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { shopApi } from '../services/api';
 import { formatPrice } from '../shop.config';
 import {
@@ -203,19 +203,25 @@ const OrderCard = ({ order, onClick }) => {
 
 const ShopOrders = () => {
     const navigate = useNavigate();
+    const location = useLocation();
+    const isDisputeRoute = location.pathname?.endsWith('/dispute');
     const [orders, setOrders] = useState([]);
     const [stats, setStats] = useState(null);
     const [filteredOrders, setFilteredOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
-    const [sortOrder, setSortOrder] = useState('newest'); // 'newest', 'oldest', 'amount-high', 'amount-low'
+    const [sortOrder, setSortOrder] = useState('newest');
 
     useEffect(() => {
         const fetchOrders = async () => {
             try {
                 setLoading(true);
-                const res = await shopApi.getOrders({ limit: 100 });
+                const params = { limit: 100 };
+                if (isDisputeRoute) {
+                    params.dispute = 'active';
+                }
+                const res = await shopApi.getOrders(params);
                 if (res.status === 'success') {
                     const data = res.data;
                     let ordersList = [];
@@ -260,7 +266,7 @@ const ShopOrders = () => {
 
         fetchOrders();
         fetchStats();
-    }, []);
+    }, [isDisputeRoute]);
 
     useEffect(() => {
         let result = [...orders];
@@ -310,8 +316,14 @@ const ShopOrders = () => {
                     className="flex flex-col md:flex-row md:items-end justify-between gap-6"
                 >
                     <div>
-                        <h1 className="text-4xl font-black text-[#0f1115] tracking-tight mb-3">Your Orders</h1>
-                        <p className="text-gray-500 text-lg">Track your packages and view purchase history.</p>
+                        <h1 className="text-4xl font-black text-[#0f1115] tracking-tight mb-3">
+                            {isDisputeRoute ? 'Orders with active disputes' : 'Your Orders'}
+                        </h1>
+                        <p className="text-gray-500 text-lg">
+                            {isDisputeRoute
+                                ? 'Review and respond to orders that currently have active disputes.'
+                                : 'Track your packages and view purchase history.'}
+                        </p>
                     </div>
                     <button
                         onClick={() => navigate('/shop/products')}
@@ -324,7 +336,7 @@ const ShopOrders = () => {
             </div>
 
             {/* Stats Overview */}
-            {!loading && orders.length > 0 && (
+            {!loading && orders.length > 0 && !isDisputeRoute && (
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -336,6 +348,19 @@ const ShopOrders = () => {
 
             {/* Filters & Controls */}
             <div className="sticky top-4 z-10 bg-white/80 backdrop-blur-md p-2 rounded-2xl border border-gray-100 shadow-sm mb-8">
+                {isDisputeRoute && (
+                    <div className="px-2 pt-1 pb-3 text-xs text-amber-700 flex items-center justify-between gap-3">
+                        <span>
+                            You are viewing only orders that currently have an active dispute.
+                        </span>
+                        <button
+                            onClick={() => navigate('/shop/orders')}
+                            className="text-xs font-bold text-black hover:underline whitespace-nowrap"
+                        >
+                            See all orders
+                        </button>
+                    </div>
+                )}
                 <div className="flex flex-col md:flex-row gap-3">
                     {/* Search */}
                     <div className="relative flex-1">
@@ -349,21 +374,32 @@ const ShopOrders = () => {
                         />
                     </div>
 
-                    {/* Status Tabs */}
-                    <div className="flex bg-gray-100 p-1.5 rounded-xl overflow-x-auto scrollbar-hide">
-                        {['all', 'pending', 'processing', 'completed', 'cancelled'].map((status) => (
+                    {/* Status Tabs / All orders button */}
+                    {isDisputeRoute ? (
+                        <div className="flex items-center">
                             <button
-                                key={status}
-                                onClick={() => setStatusFilter(status)}
-                                className={`px-4 py-2 rounded-lg text-sm font-bold capitalize transition-all whitespace-nowrap ${statusFilter === status
-                                    ? 'bg-white text-black shadow-sm'
-                                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50'
-                                    }`}
+                                onClick={() => navigate('/shop/orders')}
+                                className="px-4 py-2 rounded-lg text-sm font-bold bg-black text-white shadow-sm whitespace-nowrap hover:bg-gray-900 transition-colors"
                             >
-                                {status}
+                                View all orders
                             </button>
-                        ))}
-                    </div>
+                        </div>
+                    ) : (
+                        <div className="flex bg-gray-100 p-1.5 rounded-xl overflow-x-auto scrollbar-hide">
+                            {['all', 'pending', 'processing', 'completed', 'cancelled'].map((status) => (
+                                <button
+                                    key={status}
+                                    onClick={() => setStatusFilter(status)}
+                                    className={`px-4 py-2 rounded-lg text-sm font-bold capitalize transition-all whitespace-nowrap ${statusFilter === status
+                                        ? 'bg-white text-black shadow-sm'
+                                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50'
+                                        }`}
+                                >
+                                    {status}
+                                </button>
+                            ))}
+                        </div>
+                    )}
 
                     {/* Sort Dropdown */}
                     <select
@@ -394,11 +430,15 @@ const ShopOrders = () => {
                     <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-sm mb-6">
                         <FiPackage className="text-4xl text-gray-300" />
                     </div>
-                    <h3 className="text-2xl font-black text-gray-900 mb-2">No orders found</h3>
+                    <h3 className="text-2xl font-black text-gray-900 mb-2">
+                        {isDisputeRoute ? 'No orders with active disputes' : 'No orders found'}
+                    </h3>
                     <p className="text-gray-500 max-w-md mx-auto mb-8">
                         {searchTerm || statusFilter !== 'all'
                             ? "We couldn't find any orders matching your filters. Try adjusting your search criteria."
-                            : "You haven't placed any orders yet. Start shopping to fill this page!"}
+                            : isDisputeRoute
+                                ? "None of your orders currently have active disputes."
+                                : "You haven't placed any orders yet. Start shopping to fill this page!"}
                     </p>
                     {searchTerm || statusFilter !== 'all' ? (
                         <button
@@ -408,12 +448,21 @@ const ShopOrders = () => {
                             Clear all filters
                         </button>
                     ) : (
-                        <button
-                            onClick={() => navigate('/shop/products')}
-                            className="bg-black text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-black/10 hover:shadow-xl transition-all"
-                        >
-                            Browse Products
-                        </button>
+                        isDisputeRoute ? (
+                            <button
+                                onClick={() => navigate('/shop/orders')}
+                                className="bg-black text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-black/10 hover:shadow-xl transition-all"
+                            >
+                                View all orders
+                            </button>
+                        ) : (
+                            <button
+                                onClick={() => navigate('/shop/products')}
+                                className="bg-black text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-black/10 hover:shadow-xl transition-all"
+                            >
+                                Browse Products
+                            </button>
+                        )
                     )}
                 </motion.div>
             ) : (

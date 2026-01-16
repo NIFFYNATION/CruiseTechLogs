@@ -174,6 +174,7 @@ export const shopApi = {
         const queryParams = new URLSearchParams();
         if (params.start) queryParams.append('start', params.start);
         if (params.limit) queryParams.append('limit', params.limit);
+        if (params.dispute) queryParams.append('dispute', params.dispute);
 
         const response = await api.get(`/products/orders?${queryParams.toString()}`);
         return response;

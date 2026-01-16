@@ -400,10 +400,10 @@ const ShopDashboard = () => {
                         </ul>
                         <div className="mt-3">
                             <Link
-                                to="/shop/orders"
+                                to="/shop/orders/dispute"
                                 className="inline-flex items-center gap-1 text-xs font-bold text-red-700 hover:text-red-800"
                             >
-                                View orders
+                                View dispute orders
                                 <FiArrowRight className="text-[13px]" />
                             </Link>
                         </div>
