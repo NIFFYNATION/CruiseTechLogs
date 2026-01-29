@@ -4,7 +4,6 @@ import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import ProductCard from '../components/ProductCard';
 import ReviewOrderModal from '../components/ReviewOrderModal';
-import LoginPromptModal from '../components/LoginPromptModal';
 import { shopApi } from '../services/api';
 import cacheService from '../services/cacheService';
 import { formatPrice, cleanDescription } from '../shop.config';
@@ -633,13 +632,6 @@ const ShopProductDetails = () => {
                         setCustomFieldValues={orderModal.setCustomFieldValues}
                         getCustomFields={orderModal.getCustomFields}
                         handleProceedFromShipping={orderModal.handleProceedFromShipping}
-                    />
-
-                    <LoginPromptModal
-                        open={orderModal.showLoginPrompt}
-                        onClose={orderModal.closeLoginPrompt}
-                        onLogin={orderModal.handleLogin}
-                        onSignup={orderModal.handleSignup}
                     />
                 </div>
             </div>
