@@ -552,13 +552,6 @@ const ShopProducts = () => {
         getCustomFields={orderModal.getCustomFields}
         handleProceedFromShipping={orderModal.handleProceedFromShipping}
       />
-
-      <LoginPromptModal 
-        open={orderModal.showLoginPrompt} 
-        onClose={orderModal.closeLoginPrompt} 
-        onLogin={orderModal.handleLogin} 
-        onSignup={orderModal.handleSignup} 
-      />
     </div>
   );
 };

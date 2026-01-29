@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import ProductCard from '../components/ProductCard';
 import CategoryCard from '../components/CategoryCard';
 import ReviewOrderModal from '../components/ReviewOrderModal';
-import LoginPromptModal from '../components/LoginPromptModal';
 import WelcomeModal from '../components/landing/WelcomeModal';
 import { useShopData } from '../hooks/useShopData';
 import { useOrderModal } from '../hooks/useOrderModal';
