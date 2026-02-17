@@ -242,20 +242,19 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Platforms Section */}
+        {/* Platforms Section (temporarily hidden) */}
+        {/*
         <section className="bg- py-16">
           <div className="container-fluid mx-auto">
-            {/* Section Header */}
             <div className="text-center mb-12">
               <h2 className="text-2xl font-bold mb-2 text-text-secondary">Platforms</h2>
               <p className="text-text-primary text-lg">We sell account for all your favourite Platforms. Below are some of them</p>
             </div>
 
-            {/* First Row - Left to Right */}
             <div className="mb-8 ">
               <Marquee
                 gradient={true}
-                gradientColor={[243, 244, 246]} // matches bg-secondary
+                gradientColor={[243, 244, 246]}
                 speed={40}
               >
                 <div className="flex gap-4 text-center">
@@ -273,7 +272,6 @@ export default function LandingPage() {
                     <span className="text-sm font-medium text-text-secondary">Twitter</span>
                   </div>
 
-
                   <div className="bg-background p-8 w-40 h-40 rounded-lg shadow-sm flex flex-col items-center justify-center mx-4">
                     <img src="/icons/tiktok.svg" alt="TikTok" className="w-8 h-8 mb-2" />
                     <span className="text-sm font-medium text-text-secondary">TikTok</span>
@@ -290,22 +288,19 @@ export default function LandingPage() {
                   </div>
 
                   <div className="bg-background p-8 w-40 h-40 rounded-lg shadow-sm flex flex-col items-center justify-center mx-4">
-                    <div className=" p-2 rounded-lg transform">
+                    <div className="p-2 rounded-lg transform">
                       <img src="/icons/facebook.svg" alt="Facebook" className="w-8 h-8 mb-2" />
-
                     </div>
-
                     <span className="text-sm font-medium text-text-secondary">Facebook</span>
                   </div>
                 </div>
               </Marquee>
             </div>
 
-            {/* Second Row - Right to Left */}
             <div>
               <Marquee
                 gradient={true}
-                gradientColor={[243, 244, 246]} // matches bg-secondary
+                gradientColor={[243, 244, 246]}
                 speed={40}
                 direction="right"
               >
@@ -336,11 +331,6 @@ export default function LandingPage() {
                   </div>
 
                   <div className="bg-background p-8 w-40 h-40 rounded-lg shadow-sm flex flex-col items-center justify-center mx-4">
-                    <img src="/icons/cyberghost.svg" alt="CyberGhost VPN" className="w-8 h-8 mb-2" />
-                    <span className="text-sm font-medium text-text-secondary">CyberGhost VPN</span>
-                  </div>
-
-                  <div className="bg-background p-8 w-40 h-40 rounded-lg shadow-sm flex flex-col items-center justify-center mx-4">
                     <img src="/icons/adguard.svg" alt="AdGuard VPN" className="w-8 h-8 mb-2" />
                     <span className="text-sm font-medium text-text-secondary">AdGuard VPN</span>
                   </div>
@@ -349,6 +339,7 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
+        */}
 
         <section className="container mx-auto px-4 sm:px-6 lg:px-16 py-16">
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 mb-8">
