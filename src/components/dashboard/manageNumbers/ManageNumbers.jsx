@@ -1,15 +1,16 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { FaSearch, FaTrash, FaChevronDown } from "react-icons/fa";
 import { AiFillEye } from 'react-icons/ai'
-import { FiMail, FiPhone } from "react-icons/fi";
+import { FiMail, FiPhone, FiCopy } from "react-icons/fi";
 import NumberDetailsModal from './NumberDetailsModal';
-import { fetchNumbers, fetchNumberCode } from "../../../services/numberService";
+import { fetchNumbers, fetchNumberCode, renewNumber } from "../../../services/numberService";
 import { getEmails, getEmailCode } from "../../../services/emailService";
 import { useParams, useNavigate } from "react-router-dom";
 import SectionHeader from "../../common/SectionHeader";
 import { SkeletonTableRow } from "../../common/Skeletons";
 import { useUser } from "../../../contexts/UserContext";
-import { triggerRentalCronjob } from "../../../services/rentalService";
+import { triggerRentalCronjob, fetchRenewPrice } from "../../../services/rentalService";
+import CustomModal from "../../common/CustomModal";
 
 const ManageNumbers = ({ orderId }) => {
   const [activeTab, setActiveTab] = useState("Active");
@@ -19,6 +20,44 @@ const ManageNumbers = ({ orderId }) => {
   const [buyDropdownOpen, setBuyDropdownOpen] = useState(false);
   const [refundRefreshing, setRefundRefreshing] = useState(false);
   const { user } = useUser();
+
+  const [renewModalOpen, setRenewModalOpen] = useState(false);
+  const [renewModalLoading, setRenewModalLoading] = useState(false);
+  const [renewModalMessage, setRenewModalMessage] = useState("");
+  const [renewModalPrice, setRenewModalPrice] = useState(null);
+  const [renewModalOrderId, setRenewModalOrderId] = useState(null);
+  const [renewingOrderId, setRenewingOrderId] = useState(null);
+  const [renewPriceId, setRenewPriceId] = useState(null);
+  const [renewSubmitLoading, setRenewSubmitLoading] = useState(false);
+
+  const handleRenewProceed = async () => {
+    if (!renewModalOrderId || !renewPriceId || renewSubmitLoading) return;
+    setRenewSubmitLoading(true);
+    try {
+      const result = await renewNumber(renewModalOrderId, renewPriceId);
+      const nextOrderId = result?.data?.ID || result?.ID || null;
+      const nextNumberData = result?.data || result || null;
+      if (nextNumberData) {
+        setSelectedNumber(nextNumberData);
+        setModalOpen(true);
+        setActiveTab("Active");
+      }
+      setRenewModalOpen(false);
+      setRenewModalLoading(false);
+      setRenewModalMessage("");
+      setRenewModalPrice(null);
+      setRenewModalOrderId(null);
+      setRenewPriceId(null);
+      if (nextOrderId) {
+        window.location.href = `/dashboard/manage-numbers/${nextOrderId}`;
+      }
+    } catch (error) {
+      setRenewModalMessage(error.message || "Failed to renew number");
+      setRenewModalPrice(null);
+    } finally {
+      setRenewSubmitLoading(false);
+    }
+  };
 
   // Separate state for active/inactive numbers and pagination
   const [activeNumbers, setActiveNumbers] = useState([]);
@@ -384,6 +423,51 @@ const ManageNumbers = ({ orderId }) => {
     return expiration > 0 && expiration < 3600;
   }
 
+  function formatTypeLabel(type) {
+    if (!type) return "N/A";
+    return String(type).replace(/_/g, " ");
+  }
+
+  function formatAmount(amount) {
+    const num = Number(amount);
+    if (Number.isNaN(num)) return amount || "0";
+    return new Intl.NumberFormat(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(num);
+  }
+
+  const handleOpenRenew = async (item) => {
+    if (!item) return;
+    if (item.status === 1) return;
+    if (item.type === "email" || String(item.number || "").includes("@")) return;
+    if (!item.ID) return;
+    if (renewingOrderId) return;
+
+    setRenewModalLoading(true);
+    setRenewModalOrderId(item.ID);
+    setRenewModalMessage("");
+    setRenewModalPrice(null);
+    setRenewPriceId(null);
+    setRenewingOrderId(item.ID);
+
+    try {
+      const res = await fetchRenewPrice(item.ID);
+      if (res && res.status === "success") {
+        setRenewModalPrice(res.data?.price ?? null);
+        setRenewModalMessage(res.message || "");
+        setRenewPriceId(res.data?.ID ?? null);
+      } else {
+        setRenewModalPrice(null);
+        setRenewModalMessage(res?.message || "Not renewable number.");
+      }
+      setRenewModalOpen(true);
+    } finally {
+      setRenewModalLoading(false);
+      setRenewingOrderId(null);
+    }
+  };
+
   // Custom Buy Dropdown Component
   const BuyDropdown = () => {
     const dropdownRef = useRef(null);
@@ -442,7 +526,7 @@ const ManageNumbers = ({ orderId }) => {
   };
 
   return (
-    <div className="px-2 sm:px-6 lg:px-6 ml-6">
+    <div className="sm:px-2 sm:px-6 lg:px-6 sm:ml-6">
       {/* Unified Responsive Table */}
       <div className="mt-4 sm:mt-6">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 ms-3">
@@ -513,220 +597,648 @@ const ManageNumbers = ({ orderId }) => {
             </div>
           </div>
         </div>
-        {/* Responsive Table */}
-        <div
-          className="bg-background rounded-2xl shadow-lg p-3 sm:p-4 lg:p-6 overflow-x-auto thin-scrollbar ms-3"
-          style={{ maxHeight: "70vh", minHeight: 200, overflowY: "hidden" }}
-        >
-          {/* Active Table */}
-          <div
-            ref={activeListRef}
-            className="thin-scrollbar"
-            style={{ display: activeTab === "Active" ? "block" : "none", maxHeight: "70vh", overflowY: "auto" }}
-          >
-            <table className="w-full thin-scrollbar">
-              <thead className="sticky top-0 z-10 bg-background">
-                <tr className="text-left text-xs sm:text-sm">
-                  <th className="py-3 px-2 sm:px-3 font-semibold text-gray-700">Type</th>
-                  <th className="py-3 px-2 sm:px-3 font-semibold text-gray-700">Number/Email</th>
-                  <th className="py-3 px-2 sm:px-3 font-semibold text-gray-700">Expiration</th>
-                  <th className="py-3 px-2 sm:px-3 font-semibold text-gray-700">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
+
+        <div className="ms-3">
+          <div className="md:hidden space-y-4">
+            {activeTab === "Active" && (
+              <div className="space-y-3">
                 {activeLoading ? (
-                  <>
-                    {Array.from({ length: 3 }).map((_, i) => (
-                      <SkeletonTableRow key={i} cols={4} />
-                    ))}
-                  </>
+                  Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="h-24 rounded-xl bg-gray-100 animate-pulse" />
+                  ))
                 ) : filteredActiveNumbers.length === 0 ? (
-                  <tr>
-                    <td colSpan={4} className="text-center text-grey py-8">
-                      <div className="flex flex-col items-center gap-4">
-                        <span>No active rentals found.</span>
-                        <div className="flex gap-2 w-full justify-center items-center">
-                          <button
-                            className="bg-quinary hover:bg-[#ff8c1a] text-white font-semibold rounded-full px-4 py-1.5 text-sm flex items-center gap-2 transition-colors"
-                            onClick={() => setBuyDropdownOpen(true)}
-                          >
-                            + Start Renting
-                          </button>
-                          <button
-                            className="bg-quaternary-light text-quinary font-semibold rounded-full px-4 py-1.5 text-sm flex items-center gap-2 border border-quaternary transition-colors hover:bg-quaternary-light"
-                            style={{ background: "none" }}
-                            onClick={() => setActiveTab("Inactive")}
-                          >
-                            View Inactive Rentals
-                          </button>
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
+                  <div className="flex flex-col items-center gap-4 bg-background rounded-2xl p-4 border border-dashed border-gray-200">
+                    <span className="text-sm text-text-secondary">No active rentals found.</span>
+                    <div className="flex flex-col sm:flex-row gap-2 w-full justify-center items-center">
+                      <button
+                        className="w-full sm:w-auto bg-quinary hover:bg-[#ff8c1a] text-white font-semibold rounded-full px-4 py-2 text-sm flex items-center justify-center gap-2 transition-colors"
+                        onClick={() => setBuyDropdownOpen(true)}
+                      >
+                        + Start Renting
+                      </button>
+                      <button
+                        className="w-full sm:w-auto bg-quaternary-light text-quinary font-semibold rounded-full px-4 py-2 text-sm flex items-center justify-center gap-2 border border-quaternary transition-colors hover:bg-quaternary-light"
+                        style={{ background: "none" }}
+                        onClick={() => setActiveTab("Inactive")}
+                      >
+                        View Inactive Rentals
+                      </button>
+                    </div>
+                  </div>
                 ) : (
                   filteredActiveNumbers.map((item) => (
-                    <tr
+                    <div
                       key={item.ID}
-                      className="border-b last:border-b-0 border-text-grey text-sm md:text-base"
+                      className="bg-white border border-gray-200 rounded-xl shadow-sm p-3 flex flex-col gap-3"
                     >
-                      <td className="py-3 px-2 sm:px-3 font-medium text-text-primary">
+                      <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-2">
-                          {item.type === 'email' ? (
+                          {item.type === "email" ? (
                             <>
-                              <FiMail className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500 flex-shrink-0" />
-                              <span className="text-xs sm:text-sm text-blue-600 font-medium hidden sm:inline">Email</span>
+                              <FiMail className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                              <span className="text-xs font-medium text-blue-600">Email</span>
                             </>
                           ) : (
                             <>
-                              <FiPhone className="h-4 w-4 sm:h-5 sm:w-5 text-green-500 flex-shrink-0" />
-                              <span className="text-xs sm:text-sm text-green-600 font-medium hidden sm:inline">Number</span>
+                              <FiPhone className="h-4 w-4 text-green-500 flex-shrink-0" />
+                              <span className="text-xs font-medium text-green-600">Number</span>
                             </>
                           )}
                         </div>
-                      </td>
-                      <td className="py-3 px-2 sm:px-3 font-medium text-text-primary">
-                        <div className="min-w-0">
-                          <div className="font-mono text-sm sm:text-base truncate">{item.number}</div>
-                          <div className="text-xs text-text-grey mt-1 truncate max-w-[120px] sm:max-w-[180px]">
-                            {item.serviceName && item.serviceName.length > 15
-                              ? item.serviceName.slice(0, 15) + "..."
-                              : item.serviceName}
+                        <div className="text-right">
+                          <div
+                            className={`text-xs font-semibold ${isLessThanOneHour(item.expiration) ? "text-danger" : "text-success"}`}
+                          >
+                            {formatExpiration(item.expiration)}
+                          </div>
+                          <div className="text-[11px] text-text-grey">Time left</div>
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex items-center justify-between gap-2">
+                          <div
+                            className={`font-mono font-semibold text-text-primary break-all ${
+                              String(item.number || "").includes("@") ? "text-base" : "text-[20px]"
+                            }`}
+                          >
+                            {item.number}
+                          </div>
+                          <button
+                            type="button"
+                            className="ml-2 px-2 py-1 rounded-full border border-gray-200 text-[10px] text-text-secondary flex items-center gap-1 active:scale-95"
+                            onClick={() => {
+                              if (item.number) navigator.clipboard.writeText(item.number);
+                            }}
+                          >
+                            <FiCopy className="h-3 w-3" />
+                            <span>Copy</span>
+                          </button>
+                        </div>
+                        <div className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] text-text-grey">
+                          <div>
+                            <div className="uppercase tracking-wide">Service</div>
+                            <div className="text-[11px] text-text-primary font-medium">
+                              {item.serviceName || item.serviceCode || "N/A"}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="uppercase tracking-wide">Type</div>
+                            <div className="text-[11px] text-text-primary font-medium">
+                              {formatTypeLabel(item.type)}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="uppercase tracking-wide">Amount</div>
+                            <div className="text-[11px] text-text-primary font-medium">
+                              {formatAmount(item.amount)}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="uppercase tracking-wide">Order ID</div>
+                            <button
+                              type="button"
+                              className="text-[11px] text-text-primary font-medium break-all underline decoration-dotted"
+                              onClick={() => {
+                                if (item.ID) navigator.clipboard.writeText(item.ID);
+                              }}
+                            >
+                              {item.ID}
+                            </button>
                           </div>
                         </div>
-                      </td>
-                      <td className="py-3 px-2 sm:px-3 font-semibold">
-                        <span className={`text-sm sm:text-base ${isLessThanOneHour(item.expiration) ? "text-danger" : "text-success"
-                          }`}>
-                          {formatExpiration(item.expiration)}
-                        </span>
-                      </td>
-                      <td className="py-3 px-2 sm:px-3">
+                      </div>
+                    <div className="flex gap-2">
+                        {item.type !== "email" &&
+                          !String(item.number || "").includes("@") &&
+                          item.status !== 1 &&
+                          item.canrenew === 1 && (
+                            <button
+                              className="flex-1 bg-white text-quinary border border-quinary font-semibold rounded-full px-3 py-2 flex items-center justify-center gap-1 text-xs hover:bg-quaternary-light transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                              type="button"
+                              disabled={renewingOrderId === item.ID}
+                              onClick={() => handleOpenRenew(item)}
+                            >
+                              {renewingOrderId === item.ID ? (
+                                <>
+                                  <svg
+                                    className="animate-spin h-3 w-3 text-quinary"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <circle
+                                      className="opacity-25"
+                                      cx="12"
+                                      cy="12"
+                                      r="10"
+                                      stroke="currentColor"
+                                      strokeWidth="4"
+                                      fill="none"
+                                    />
+                                    <path
+                                      className="opacity-75"
+                                      fill="currentColor"
+                                      d="M4 12a8 8 0 018-8v8z"
+                                    />
+                                  </svg>
+                                  <span>Checking...</span>
+                                </>
+                              ) : (
+                                <span>Re-new</span>
+                              )}
+                            </button>
+                          )}
                         <button
-                          className="bg-quaternary-light text-quinary font-semibold rounded-full px-3 py-2 flex items-center gap-1 text-xs sm:text-sm hover:bg-quaternary transition-colors min-h-[36px] min-w-[36px]"
+                          className="flex-1 bg-quaternary-light text-quinary font-semibold rounded-full px-3 py-2 flex items-center justify-center gap-1 text-xs hover:bg-quaternary transition-colors"
                           onClick={() => handleView(item)}
                         >
-                          <span className="hidden sm:inline">View</span>
-                          <AiFillEye className="h-4 w-4 sm:hidden" />
+                          <AiFillEye className="h-4 w-4" />
+                          <span>View details</span>
                         </button>
-                      </td>
-                    </tr>
+                      </div>
+                    </div>
                   ))
                 )}
-              </tbody>
-            </table>
-            {activeLoadingMore && (
-              <div className="flex justify-center items-center py-4">
-                <svg className="animate-spin h-6 w-6 text-quinary" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                </svg>
-                <span className="ml-2 text-quinary font-semibold">Loading more...</span>
+              </div>
+            )}
+
+            {activeTab === "Inactive" && (
+              <div className="space-y-3">
+                {inactiveLoading ? (
+                  Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="h-24 rounded-xl bg-gray-100 animate-pulse" />
+                  ))
+                ) : filteredInactiveNumbers.length === 0 ? (
+                  <div className="flex flex-col items-center gap-4 bg-background rounded-2xl p-4 border border-dashed border-gray-200">
+                    <span className="text-sm text-text-secondary">No inactive rentals found.</span>
+                    <div className="flex flex-col sm:flex-row gap-2 w-full justify-center items-center">
+                      <button
+                        className="w-full sm:w-auto bg-quinary hover:bg-[#ff8c1a] text-white font-semibold rounded-full px-4 py-2 text-sm flex items-center justify-center gap-2 transition-colors"
+                        onClick={() => setBuyDropdownOpen(true)}
+                      >
+                        + Start Renting
+                      </button>
+                      <button
+                        className="w-full sm:w-auto bg-quaternary-light text-quinary font-semibold rounded-full px-4 py-2 text-sm flex items-center justify-center gap-2 border border-quaternary transition-colors hover:bg-quaternary-light"
+                        style={{ background: "none" }}
+                        onClick={() => setActiveTab("Active")}
+                      >
+                        View Active Rentals
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  filteredInactiveNumbers.map((item) => (
+                    <div
+                      key={item.ID}
+                      className="bg-white border border-gray-200 rounded-xl shadow-sm p-3 flex flex-col gap-3"
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2">
+                          {item.type === "email" ? (
+                            <>
+                              <FiMail className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                              <span className="text-xs font-medium text-blue-600">Email</span>
+                            </>
+                          ) : (
+                            <>
+                              <FiPhone className="h-4 w-4 text-green-500 flex-shrink-0" />
+                              <span className="text-xs font-medium text-green-600">Number</span>
+                            </>
+                          )}
+                        </div>
+                        <div className="text-right">
+                          {/* <div className="text-xs text-gray-600">
+                            {item.date}
+                          </div> */}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex items-center justify-between gap-2">
+                          <div
+                            className={`font-mono font-semibold text-text-primary break-all ${
+                              String(item.number || "").includes("@") ? "text-base" : "text-[20px]"
+                            }`}
+                          >
+                            {item.number}
+                          </div>
+                          <button
+                            type="button"
+                            className="ml-2 px-2 py-1 rounded-full border border-gray-200 text-[10px] text-text-secondary flex items-center gap-1 active:scale-95"
+                            onClick={() => {
+                              if (item.number) navigator.clipboard.writeText(item.number);
+                            }}
+                          >
+                            <FiCopy className="h-3 w-3" />
+                            <span>Copy</span>
+                          </button>
+                        </div>
+                        <div className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] text-text-grey">
+                          <div>
+                            <div className="uppercase tracking-wide">Service</div>
+                            <div className="text-[11px] text-text-primary font-medium">
+                              {item.serviceName || item.serviceCode || "N/A"}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="uppercase tracking-wide">Type</div>
+                            <div className="text-[11px] text-text-primary font-medium">
+                              {formatTypeLabel(item.type)}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="uppercase tracking-wide">Amount</div>
+                            <div className="text-[11px] text-text-primary font-medium">
+                              {formatAmount(item.amount)}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="uppercase tracking-wide">Order ID</div>
+                            <button
+                              type="button"
+                              className="text-[11px] text-text-primary font-medium break-all underline decoration-dotted"
+                              onClick={() => {
+                                if (item.ID) navigator.clipboard.writeText(item.ID);
+                              }}
+                            >
+                              {item.ID}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        {item.type !== "email" &&
+                          !String(item.number || "").includes("@") &&
+                          item.canrenew === 1 && (
+                            <button
+                              className="flex-1 bg-white text-quinary border border-quinary font-semibold rounded-full px-3 py-2 flex items-center justify-center gap-1 text-xs hover:bg-quaternary-light transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                              type="button"
+                              disabled={renewingOrderId === item.ID}
+                              onClick={() => handleOpenRenew(item)}
+                            >
+                              {renewingOrderId === item.ID ? (
+                                <>
+                                  <svg
+                                    className="animate-spin h-3 w-3 text-quinary"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <circle
+                                      className="opacity-25"
+                                      cx="12"
+                                      cy="12"
+                                      r="10"
+                                      stroke="currentColor"
+                                      strokeWidth="4"
+                                      fill="none"
+                                    />
+                                    <path
+                                      className="opacity-75"
+                                      fill="currentColor"
+                                      d="M4 12a8 8 0 018-8v8z"
+                                    />
+                                  </svg>
+                                  <span>Checking...</span>
+                                </>
+                              ) : (
+                                <span>Re-new</span>
+                              )}
+                            </button>
+                          )}
+                        <button
+                          className="flex-1 bg-quaternary-light text-quinary font-semibold rounded-full px-3 py-2 flex items-center justify-center gap-1 text-xs hover:bg-quaternary transition-colors"
+                          onClick={() => handleView(item)}
+                        >
+                          <AiFillEye className="h-4 w-4" />
+                          <span>View details</span>
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             )}
           </div>
-          {/* Inactive Table */}
+
           <div
-            ref={inactiveListRef}
-            style={{ display: activeTab === "Inactive" ? "block" : "none", maxHeight: "70vh", overflowY: "auto" }}
+            className="hidden md:block bg-background rounded-2xl shadow-lg p-3 sm:p-4 lg:p-6 overflow-x-auto thin-scrollbar"
+            style={{ maxHeight: "70vh", minHeight: 200, overflowY: "hidden" }}
           >
-            <table className="w-full thin-scrollbar">
-              <thead className="sticky top-0 z-10 bg-background">
-                <tr className="text-left text-xs sm:text-sm">
-                  <th className="py-3 px-2 sm:px-3 font-semibold text-gray-700">Type</th>
-                  <th className="py-3 px-2 sm:px-3 font-semibold text-gray-700">Number/Email</th>
-                  <th className="py-3 px-2 sm:px-3 font-semibold text-gray-700">Date</th>
-                  <th className="py-3 px-2 sm:px-3 font-semibold text-gray-700">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {inactiveLoading ? (
-                  <>
-                    {Array.from({ length: 3 }).map((_, i) => (
-                      <SkeletonTableRow key={i} cols={4} />
-                    ))}
-                  </>
-                ) : filteredInactiveNumbers.length === 0 ? (
-                  <tr>
-                    <td colSpan={4} className="text-center text-grey py-8">
-                      <div className="flex flex-col items-center gap-4">
-                        <span>No inactive rentals found.</span>
-                        <div className="flex gap-2 w-full justify-center items-center">
-                          <button
-                            className="bg-quinary hover:bg-[#ff8c1a] text-white font-semibold rounded-full px-4 py-1.5 text-sm flex items-center gap-2 transition-colors"
-                            onClick={() => setBuyDropdownOpen(true)}
-                          >
-                            + Start Renting
-                          </button>
-                          <button
-                            className="bg-quaternary-light text-quinary font-semibold rounded-full px-4 py-1.5 text-sm flex items-center gap-2 border border-quaternary transition-colors hover:bg-quaternary-light"
-                            style={{ background: "none" }}
-                            onClick={() => setActiveTab("Active")}
-                          >
-                            View Active Rentals
-                          </button>
-                        </div>
-                      </div>
-                    </td>
+            <div
+              ref={activeListRef}
+              className="thin-scrollbar"
+              style={{ display: activeTab === "Active" ? "block" : "none", maxHeight: "70vh", overflowY: "auto" }}
+            >
+              <table className="w-full thin-scrollbar">
+                <thead className="sticky top-0 z-10 bg-background">
+                  <tr className="text-left text-xs sm:text-sm">
+                    <th className="py-3 px-2 sm:px-3 font-semibold text-gray-700">Type</th>
+                    <th className="py-3 px-2 sm:px-3 font-semibold text-gray-700">Number/Email</th>
+                    <th className="py-3 px-2 sm:px-3 font-semibold text-gray-700">Expiration</th>
+                    <th className="py-3 px-2 sm:px-3 font-semibold text-gray-700">Actions</th>
                   </tr>
-                ) : (
-                  filteredInactiveNumbers.map((item) => (
-                    <tr
-                      key={item.ID}
-                      className="border-b last:border-b-0 border-text-grey text-sm md:text-base"
-                    >
-                      <td className="py-3 px-2 sm:px-3 font-medium text-text-primary">
-                        <div className="flex items-center gap-2">
-                          {item.type === 'email' ? (
-                            <>
-                              <FiMail className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500 flex-shrink-0" />
-                              <span className="text-xs sm:text-sm text-blue-600 font-medium hidden sm:inline">Email</span>
-                            </>
-                          ) : (
-                            <>
-                              <FiPhone className="h-4 w-4 sm:h-5 sm:w-5 text-green-500 flex-shrink-0" />
-                              <span className="text-xs sm:text-sm text-green-600 font-medium hidden sm:inline">Number</span>
-                            </>
-                          )}
-                        </div>
-                      </td>
-                      <td className="py-3 px-2 sm:px-3 font-medium text-text-primary">
-                        <div className="min-w-0">
-                          <div className="font-mono text-sm sm:text-base truncate">{item.number}</div>
-                          <div className="text-xs text-text-grey mt-1 truncate max-w-[120px] sm:max-w-[180px]">
-                            {item.serviceName && item.serviceName.length > 15
-                              ? item.serviceName.slice(0, 15) + "..."
-                              : item.serviceName}
+                </thead>
+                <tbody>
+                  {activeLoading ? (
+                    <>
+                      {Array.from({ length: 3 }).map((_, i) => (
+                        <SkeletonTableRow key={i} cols={4} />
+                      ))}
+                    </>
+                  ) : filteredActiveNumbers.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="text-center text-grey py-8">
+                        <div className="flex flex-col items-center gap-4">
+                          <span>No active rentals found.</span>
+                          <div className="flex gap-2 w-full justify-center items-center">
+                            <button
+                              className="bg-quinary hover:bg-[#ff8c1a] text-white font-semibold rounded-full px-4 py-1.5 text-sm flex items-center gap-2 transition-colors"
+                              onClick={() => setBuyDropdownOpen(true)}
+                            >
+                              + Start Renting
+                            </button>
+                            <button
+                              className="bg-quaternary-light text-quinary font-semibold rounded-full px-4 py-1.5 text-sm flex items-center gap-2 border border-quaternary transition-colors hover:bg-quaternary-light"
+                              style={{ background: "none" }}
+                              onClick={() => setActiveTab("Inactive")}
+                            >
+                              View Inactive Rentals
+                            </button>
                           </div>
                         </div>
                       </td>
-                      <td className="py-3 px-2 sm:px-3 font-semibold">
-                        <span className="text-xs sm:text-sm text-gray-600">
-                          {item.date}
-                        </span>
-                      </td>
-                      <td className="py-3 px-2 sm:px-3">
-                        <button
-                          className="bg-quaternary-light text-quinary font-semibold rounded-full px-3 py-2 flex items-center gap-1 text-xs sm:text-sm hover:bg-quaternary transition-colors min-h-[36px] min-w-[36px]"
-                          onClick={() => handleView(item)}
-                        >
-                          <span className="hidden sm:inline">View</span>
-                          <AiFillEye className="h-4 w-4 sm:hidden" />
-                        </button>
+                    </tr>
+                  ) : (
+                    filteredActiveNumbers.map((item) => (
+                      <tr
+                        key={item.ID}
+                        className="border-b last:border-b-0 border-text-grey text-sm md:text-base"
+                      >
+                        <td className="py-3 px-2 sm:px-3 font-medium text-text-primary">
+                          <div className="flex items-center gap-2">
+                            {item.type === "email" ? (
+                              <>
+                                <FiMail className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500 flex-shrink-0" />
+                                <span className="text-xs sm:text-sm text-blue-600 font-medium hidden sm:inline">Email</span>
+                              </>
+                            ) : (
+                              <>
+                                <FiPhone className="h-4 w-4 sm:h-5 sm:w-5 text-green-500 flex-shrink-0" />
+                                <span className="text-xs sm:text-sm text-green-600 font-medium hidden sm:inline">Number</span>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                        <td className="py-3 px-2 sm:px-3 font-medium text-text-primary">
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <div className="font-mono text-sm sm:text-base truncate">{item.number}</div>
+                              <button
+                                type="button"
+                                className="px-2 py-1 rounded-full border border-gray-200 text-[10px] text-text-secondary flex items-center gap-1 active:scale-95"
+                                onClick={() => {
+                                  if (item.number) navigator.clipboard.writeText(item.number);
+                                }}
+                              >
+                                <FiCopy className="h-3 w-3" />
+                                <span>Copy</span>
+                              </button>
+                            </div>
+                            <div className="text-xs text-text-grey mt-1 truncate max-w-[120px] sm:max-w-[180px]">
+                              {(item.serviceName || item.serviceCode || "").length > 15
+                                ? (item.serviceName || item.serviceCode || "").slice(0, 15) + "..."
+                                : (item.serviceName || item.serviceCode || "")}
+                            </div>
+                            <div className="mt-1 text-[11px] text-text-grey flex flex-wrap gap-x-2 gap-y-0.5">
+                              <span>
+                                Type:{" "}
+                                <span className="text-text-primary">
+                                  {formatTypeLabel(item.type)}
+                                </span>
+                              </span>
+                              <span>
+                                Amount:{" "}
+                                <span className="text-text-primary">
+                                  {formatAmount(item.amount)}
+                                </span>
+                              </span>
+                              <span className="hidden lg:inline">
+                                ID:{" "}
+                                <button
+                                  type="button"
+                                  className="text-text-primary break-all underline decoration-dotted"
+                                  onClick={() => {
+                                    if (item.ID) navigator.clipboard.writeText(item.ID);
+                                  }}
+                                >
+                                  {item.ID}
+                                </button>
+                              </span>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-3 px-2 sm:px-3 font-semibold">
+                          <span className={`text-sm sm:text-base ${isLessThanOneHour(item.expiration) ? "text-danger" : "text-success"}`}>
+                            {formatExpiration(item.expiration)}
+                          </span>
+                        </td>
+                        <td className="py-3 px-2 sm:px-3">
+                          <button
+                            className="bg-quaternary-light text-quinary font-semibold rounded-full px-3 py-2 flex items-center gap-1 text-xs sm:text-sm hover:bg-quaternary transition-colors min-h-[36px] min-w-[36px]"
+                            onClick={() => handleView(item)}
+                          >
+                            <span className="hidden sm:inline">View</span>
+                            <AiFillEye className="h-4 w-4 sm:hidden" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+              {activeLoadingMore && (
+                <div className="flex justify-center items-center py-4">
+                  <svg className="animate-spin h-6 w-6 text-quinary" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                  </svg>
+                  <span className="ml-2 text-quinary font-semibold">Loading more...</span>
+                </div>
+              )}
+            </div>
+
+            <div
+              ref={inactiveListRef}
+              style={{ display: activeTab === "Inactive" ? "block" : "none", maxHeight: "70vh", overflowY: "auto" }}
+            >
+              <table className="w-full thin-scrollbar">
+                <thead className="sticky top-0 z-10 bg-background">
+                  <tr className="text-left text-xs sm:text-sm">
+                    <th className="py-3 px-2 sm:px-3 font-semibold text-gray-700">Type</th>
+                    <th className="py-3 px-2 sm:px-3 font-semibold text-gray-700">Number/Email</th>
+                    <th className="py-3 px-2 sm:px-3 font-semibold text-gray-700">Date</th>
+                    <th className="py-3 px-2 sm:px-3 font-semibold text-gray-700">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {inactiveLoading ? (
+                    <>
+                      {Array.from({ length: 3 }).map((_, i) => (
+                        <SkeletonTableRow key={i} cols={4} />
+                      ))}
+                    </>
+                  ) : filteredInactiveNumbers.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="text-center text-grey py-8">
+                        <div className="flex flex-col items-center gap-4">
+                          <span>No inactive rentals found.</span>
+                          <div className="flex gap-2 w-full justify-center items-center">
+                            <button
+                              className="bg-quinary hover:bg-[#ff8c1a] text-white font-semibold rounded-full px-4 py-1.5 text-sm flex items-center gap-2 transition-colors"
+                              onClick={() => setBuyDropdownOpen(true)}
+                            >
+                              + Start Renting
+                            </button>
+                            <button
+                              className="bg-quaternary-light text-quinary font-semibold rounded-full px-4 py-1.5 text-sm flex items-center gap-2 border border-quaternary transition-colors hover:bg-quaternary-light"
+                              style={{ background: "none" }}
+                              onClick={() => setActiveTab("Active")}
+                            >
+                              View Active Rentals
+                            </button>
+                          </div>
+                        </div>
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-            {inactiveLoadingMore && (
-              <div className="flex justify-center items-center py-4">
-                <svg className="animate-spin h-6 w-6 text-quinary" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                </svg>
-                <span className="ml-2 text-quinary font-semibold">Loading more...</span>
-              </div>
-            )}
+                  ) : (
+                    filteredInactiveNumbers.map((item) => (
+                      <tr
+                        key={item.ID}
+                        className="border-b last:border-b-0 border-text-grey text-sm md:text-base"
+                      >
+                        <td className="py-3 px-2 sm:px-3 font-medium text-text-primary">
+                          <div className="flex items-center gap-2">
+                            {item.type === "email" ? (
+                              <>
+                                <FiMail className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500 flex-shrink-0" />
+                                <span className="text-xs sm:text-sm text-blue-600 font-medium hidden sm:inline">Email</span>
+                              </>
+                            ) : (
+                              <>
+                                <FiPhone className="h-4 w-4 sm:h-5 sm:w-5 text-green-500 flex-shrink-0" />
+                                <span className="text-xs sm:text-sm text-green-600 font-medium hidden sm:inline">Number</span>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                        <td className="py-3 px-2 sm:px-3 font-medium text-text-primary">
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <div className="font-mono text-sm sm:text-base truncate">{item.number}</div>
+                              <button
+                                type="button"
+                                className="px-2 py-1 rounded-full border border-gray-200 text-[10px] text-text-secondary flex items-center gap-1 active:scale-95"
+                                onClick={() => {
+                                  if (item.number) navigator.clipboard.writeText(item.number);
+                                }}
+                              >
+                                <FiCopy className="h-3 w-3" />
+                                <span>Copy</span>
+                              </button>
+                            </div>
+                            <div className="text-xs text-text-grey mt-1 truncate max-w-[120px] sm:max-w-[180px]">
+                              {(item.serviceName || item.serviceCode || "").length > 15
+                                ? (item.serviceName || item.serviceCode || "").slice(0, 15) + "..."
+                                : (item.serviceName || item.serviceCode || "")}
+                            </div>
+                            <div className="mt-1 text-[11px] text-text-grey flex flex-wrap gap-x-2 gap-y-0.5">
+                              <span>
+                                Type:{" "}
+                                <span className="text-text-primary">
+                                  {formatTypeLabel(item.type)}
+                                </span>
+                              </span>
+                              <span>
+                                Amount:{" "}
+                                <span className="text-text-primary">
+                                  {formatAmount(item.amount)}
+                                </span>
+                              </span>
+                              <span className="hidden lg:inline">
+                                ID:{" "}
+                                <span className="text-text-primary break-all">
+                                  {item.ID}
+                                </span>
+                              </span>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-3 px-2 sm:px-3 font-semibold">
+                          <span className="text-xs sm:text-sm text-gray-600">
+                            {item.date}
+                          </span>
+                        </td>
+                        <td className="py-3 px-2 sm:px-3">
+                          <div className="flex gap-2">
+                            {item.type !== "email" &&
+                              !String(item.number || "").includes("@") &&
+                              item.status !== 1 &&
+                              item.canrenew === 1 && (
+                                <button
+                                  className="bg-white text-quinary border border-quinary font-semibold rounded-full px-3 py-2 flex items-center gap-1 text-xs sm:text-sm hover:bg-quaternary-light transition-colors min-h-[36px] disabled:opacity-60 disabled:cursor-not-allowed"
+                                  type="button"
+                                  disabled={renewingOrderId === item.ID}
+                                  onClick={() => handleOpenRenew(item)}
+                                >
+                                  {renewingOrderId === item.ID ? (
+                                    <>
+                                      <svg
+                                        className="animate-spin h-3 w-3 text-quinary"
+                                        viewBox="0 0 24 24"
+                                      >
+                                        <circle
+                                          className="opacity-25"
+                                          cx="12"
+                                          cy="12"
+                                          r="10"
+                                          stroke="currentColor"
+                                          strokeWidth="4"
+                                          fill="none"
+                                        />
+                                        <path
+                                          className="opacity-75"
+                                          fill="currentColor"
+                                          d="M4 12a8 8 0 018-8v8z"
+                                        />
+                                      </svg>
+                                      <span>Checking...</span>
+                                    </>
+                                  ) : (
+                                    <span>Re-new</span>
+                                  )}
+                                </button>
+                              )}
+                            <button
+                              className="bg-quaternary-light text-quinary font-semibold rounded-full px-3 py-2 flex items-center gap-1 text-xs sm:text-sm hover:bg-quaternary transition-colors min-h-[36px] min-w-[36px]"
+                              onClick={() => handleView(item)}
+                            >
+                              <span className="hidden sm:inline">View</span>
+                              <AiFillEye className="h-4 w-4 sm:hidden" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+              {inactiveLoadingMore && (
+                <div className="flex justify-center items-center py-4">
+                  <svg className="animate-spin h-6 w-6 text-quinary" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                  </svg>
+                  <span className="ml-2 text-quinary font-semibold">Loading more...</span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -735,7 +1247,6 @@ const ManageNumbers = ({ orderId }) => {
         open={modalOpen}
         onClose={() => {
           setModalOpen(false);
-          // Remove orderId from URL if present
           if (orderIdParam) {
             navigate("/dashboard/manage-numbers", { replace: true });
           }
@@ -761,7 +1272,91 @@ const ManageNumbers = ({ orderId }) => {
         onNumberClosed={handleNumberClosed}
         type={selectedNumber?.type || 'number'}
         reactive={selectedNumber?.reactive}
+        canrenew={selectedNumber?.canrenew}
+        onRenew={() => {
+          if (selectedNumber) {
+            return handleOpenRenew(selectedNumber);
+          }
+          return null;
+        }}
       />
+      <CustomModal
+        open={renewModalOpen}
+        onClose={() => {
+          setRenewModalOpen(false);
+          setRenewModalLoading(false);
+          setRenewModalMessage("");
+          setRenewModalPrice(null);
+          setRenewModalOrderId(null);
+          setRenewPriceId(null);
+          setRenewSubmitLoading(false);
+        }}
+        title="Renew rental"
+        showFooter={true}
+        footerContent={
+          <div className="flex justify-end gap-3 px-6 py-3 border-t border-border-grey bg-bgLayout/60">
+            <button
+              type="button"
+              className="border border-quinary text-quinary rounded-full px-4 py-2 text-sm font-semibold hover:bg-quinary hover:text-white transition"
+              onClick={() => {
+                setRenewModalOpen(false);
+                setRenewModalLoading(false);
+                setRenewModalMessage("");
+                setRenewModalPrice(null);
+                setRenewModalOrderId(null);
+                setRenewPriceId(null);
+                setRenewSubmitLoading(false);
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="bg-quinary text-white rounded-full px-4 py-2 text-sm font-semibold hover:bg-[#ff8c1a] transition disabled:opacity-60"
+              disabled={renewModalLoading || renewSubmitLoading || !renewModalOrderId || !renewPriceId}
+              onClick={handleRenewProceed}
+            >
+              {renewSubmitLoading ? "Processing..." : "Proceed"}
+            </button>
+          </div>
+        }
+      >
+        <div className="px-6 py-4">
+          {renewModalLoading ? (
+            <div className="flex items-center gap-2 text-sm text-text-secondary">
+              <svg className="animate-spin h-4 w-4 text-quinary" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+              </svg>
+              <span>Checking renewal price...</span>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {renewModalPrice != null && (
+                <>
+                  <p className="text-sm text-text-primary">
+                    This number may be renewed.
+                  </p>
+                  <p className="text-sm text-text-secondary text-[20px]">
+                    Renewal price:{" "}
+                    <span className="font-semibold text-text-primary">
+                      {formatAmount(renewModalPrice)}
+                    </span>
+                  </p>
+                  <p className="text-xs text-text-grey">
+                    Click Proceed to continue (the renewal amount will be deducted from your balance) or Cancel to close.
+                  </p>
+                </>
+              )}
+              {renewModalPrice == null && renewModalMessage && (
+                <p className="text-sm text-danger">
+                  {renewModalMessage}
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      </CustomModal>
     </div>
   );
 };

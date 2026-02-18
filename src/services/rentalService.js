@@ -30,6 +30,40 @@ export const triggerRentalCronjob = async (userID) => {
 };
 
 /**
+ * Fetch renewal price for a rental by order ID.
+ * GET rentals/renew/price/:orderID
+ * @param {string} orderID
+ * @returns {Promise<object>} API response object
+ */
+export const fetchRenewPrice = async (orderID) => {
+  if (!orderID || typeof orderID !== 'string') {
+    throw new Error('Order ID is required');
+  }
+
+  try {
+    const url = `${API_URLS.RENTALS_RENEW_PRICE}/${encodeURIComponent(orderID)}`;
+    const response = await axiosInstance.get(url, {
+      timeout: 15000,
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    return {
+      code: error.response?.status || 500,
+      status: 'error',
+      message:
+        error.response?.data?.message ||
+        error.message ||
+        'Failed to fetch renewal price',
+      data: null,
+    };
+  }
+};
+
+/**
  * Reactivate a number/order by ID.
  * Makes authenticated GET request to rentals/active/:orderID
  * @param {string} orderID - The order ID to reactivate

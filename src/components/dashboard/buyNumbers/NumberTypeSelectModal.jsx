@@ -20,6 +20,7 @@ const NumberTypeSelectModal = ({ open, onClose, onSelect }) => {
               network: item.network,
               title: item.title,
               badge: item.badge,
+              time: Array.isArray(item.time) ? item.time : undefined,
             }))
           );
         } else {

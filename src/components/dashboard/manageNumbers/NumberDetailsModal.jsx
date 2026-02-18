@@ -90,6 +90,8 @@ const NumberDetailsModal = ({
   verificationCode: initialVerificationCode,
   type = 'number', // type of contact: 'number' or 'email'
   reactive = false, // whether reactivation is allowed (true or 1)
+  canrenew,
+  onRenew,
 }) => {
   const [messages, setMessages] = useState([]);
   const [codeLoading, setCodeLoading] = useState(false);
@@ -107,6 +109,7 @@ const NumberDetailsModal = ({
   const [reactivateLoading, setReactivateLoading] = useState(false);
   const [reactivateDisabledUntil, setReactivateDisabledUntil] = useState(null);
   const [reactivated, setReactivated] = useState(false);
+  const [renewButtonLoading, setRenewButtonLoading] = useState(false);
 
   // Determine if number is still active based on countdown
   // status === 1 or status === "active", and secondsLeft > 0 means not expired
@@ -120,6 +123,8 @@ const NumberDetailsModal = ({
   const canReactivate = ((reactive === true || reactive === 1));
   const isWhatsAppService = (serviceName?.toLowerCase() === 'whatsapp' || serviceCode?.toLowerCase() === 'wa');
   const showReactivateInstruction = (!isActiveForUI && canReactivate);
+  const canRenewFromApi = Number(canrenew) === 1;
+  const showRenewButton = type !== 'email' && canRenewFromApi && !isActiveForUI && secondsLeft <= 0;
   // console.log(reactive);
   //   && !reactivateLoading
   //   && (!reactivateDisabledUntil || Date.now() >= reactivateDisabledUntil);
@@ -446,6 +451,23 @@ const NumberDetailsModal = ({
                 disabled
               >
                 Reactivate available in 3 mins
+              </button>
+            )}
+            {showRenewButton && onRenew && (
+              <button
+                className="ml-4 bg-white text-quinary border border-quinary rounded-full px-4 py-1 text-xs font-semibold hover:bg-quinary/10 transition disabled:opacity-50"
+                onClick={async () => {
+                  if (renewButtonLoading) return;
+                  setRenewButtonLoading(true);
+                  try {
+                    await onRenew();
+                  } finally {
+                    setRenewButtonLoading(false);
+                  }
+                }}
+                disabled={renewButtonLoading}
+              >
+                {renewButtonLoading ? "Checking..." : "Re-new"}
               </button>
             )}
           </div>

@@ -12,6 +12,8 @@ export const API_URLS = {
   GET_NUMBER_CODE: `${API_BASE_URL}/rentals/getcode`,
   // Reactivate rental endpoint (GET rentals/active/:orderID)
   RENTALS_ACTIVATE: `${API_BASE_URL}/rentals/active`,
+  // Rental renew price endpoint (GET rentals/renew/price/:orderID)
+  RENTALS_RENEW_PRICE: `${API_BASE_URL}/rentals/renew/price`,
   
   // Email rental endpoints
   EMAIL_TYPES: `${API_BASE_URL}/rentals/email/types`,

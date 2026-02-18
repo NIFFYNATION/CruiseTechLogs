@@ -42,16 +42,6 @@ const BuyNumbers = () => {
   const [selectedTime, setSelectedTime] = useState(null);
   const [timeModalOpen, setTimeModalOpen] = useState(false);
 
-  // Time options for long_term network 4
-  const timeOptions = [
-    { label: "1 Day", value: 24 },
-    { label: "7 Days", value: 168 },
-    { label: "30 Days", value: 720 },
-    { label: "90 Days", value: 2160 },
-    { label: "180 Days", value: 4320 },
-    { label: "360 Days (1 Year)", value: 8640 },
-  ];
-
   // Helper: does this type require country selection?  
   const typeNeedsCountry = (type) =>
     type &&
@@ -62,7 +52,11 @@ const BuyNumbers = () => {
       (type.type === "long_term" && type.network == 4)
     );
   const typeNeedsTime = (type) =>
-    type && type.type === "long_term" && type.network == 4;
+    type && type.type === "long_term" && Array.isArray(type.time) && type.time.length > 0;
+
+  const currentTimeOptions = typeNeedsTime(selectedNumberType)
+    ? selectedNumberType.time
+    : [];
   // Fetch services when number type or country changes
   useEffect(() => {
     // Don't fetch until a type is selected
@@ -540,15 +534,17 @@ const BuyNumbers = () => {
         onBuy={handleBuyNumber}
       />
 
-      <TimeSelectModal
-        open={timeModalOpen}
-        onClose={() => setTimeModalOpen(false)}
-        onSelect={(time) => {
-          setSelectedTime(time);
-          setTimeModalOpen(false);
-        }}
-        timeOptions={timeOptions}
-      />
+        {typeNeedsTime(selectedNumberType) && (
+          <TimeSelectModal
+            open={timeModalOpen}
+            onClose={() => setTimeModalOpen(false)}
+            onSelect={(time) => {
+              setSelectedTime(time);
+              setTimeModalOpen(false);
+            }}
+            timeOptions={currentTimeOptions}
+          />
+        )}
       {/* Redirect to manage-numbers before showing modal */}
       {pendingNumber && shouldShowModal && (
         <NumberDetailsModal
