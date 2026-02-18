@@ -437,6 +437,13 @@ const ManageNumbers = ({ orderId }) => {
     }).format(num);
   }
 
+  function canShowRenew(item) {
+    if (!item) return false;
+    if (item.type === "email") return false;
+    if (String(item.number || "").includes("@")) return false;
+    return Number(item.canrenew) === 1;
+  }
+
   const handleOpenRenew = async (item) => {
     if (!item) return;
     if (item.status === 1) return;
@@ -708,10 +715,7 @@ const ManageNumbers = ({ orderId }) => {
                         </div>
                       </div>
                     <div className="flex gap-2">
-                        {item.type !== "email" &&
-                          !String(item.number || "").includes("@") &&
-                          item.status !== 1 &&
-                          item.canrenew === 1 && (
+                        {canShowRenew(item) && (
                             <button
                               className="flex-1 bg-white text-quinary border border-quinary font-semibold rounded-full px-3 py-2 flex items-center justify-center gap-1 text-xs hover:bg-quaternary-light transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                               type="button"
@@ -865,9 +869,7 @@ const ManageNumbers = ({ orderId }) => {
                         </div>
                       </div>
                       <div className="flex gap-2">
-                        {item.type !== "email" &&
-                          !String(item.number || "").includes("@") &&
-                          item.canrenew === 1 && (
+                        {canShowRenew(item) && (
                             <button
                               className="flex-1 bg-white text-quinary border border-quinary font-semibold rounded-full px-3 py-2 flex items-center justify-center gap-1 text-xs hover:bg-quaternary-light transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                               type="button"
@@ -1177,10 +1179,7 @@ const ManageNumbers = ({ orderId }) => {
                         </td>
                         <td className="py-3 px-2 sm:px-3">
                           <div className="flex gap-2">
-                            {item.type !== "email" &&
-                              !String(item.number || "").includes("@") &&
-                              item.status !== 1 &&
-                              item.canrenew === 1 && (
+                            {canShowRenew(item) && (
                                 <button
                                   className="bg-white text-quinary border border-quinary font-semibold rounded-full px-3 py-2 flex items-center gap-1 text-xs sm:text-sm hover:bg-quaternary-light transition-colors min-h-[36px] disabled:opacity-60 disabled:cursor-not-allowed"
                                   type="button"
