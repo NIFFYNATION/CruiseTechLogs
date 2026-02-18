@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { DateTime } from "luxon";
 import { FaSearch, FaTrash, FaChevronDown } from "react-icons/fa";
 import { AiFillEye } from 'react-icons/ai'
 import { FiMail, FiPhone, FiCopy } from "react-icons/fi";
@@ -70,6 +71,7 @@ const ManageNumbers = ({ orderId }) => {
   const [inactiveLoading, setInactiveLoading] = useState(false);
   const [activeLoadingMore, setActiveLoadingMore] = useState(false);
   const [inactiveLoadingMore, setInactiveLoadingMore] = useState(false);
+  const [countdownTick, setCountdownTick] = useState(0);
 
   const activeListRef = useRef(null);
   const inactiveListRef = useRef(null);
@@ -439,27 +441,51 @@ const ManageNumbers = ({ orderId }) => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setActiveNumbers(prev =>
-        prev.map(item => {
-          const exp = Number(item.expiration);
-          if (!Number.isFinite(exp) || exp <= 0) return item;
-          return { ...item, expiration: exp - 1 };
-        })
-      );
-      setInactiveNumbers(prev =>
-        prev.map(item => {
-          const exp = Number(item.expiration);
-          if (!Number.isFinite(exp) || exp <= 0) return item;
-          return { ...item, expiration: exp - 1 };
-        })
-      );
+      setCountdownTick((t) => t + 1);
     }, 1000);
     return () => clearInterval(interval);
   }, []);
 
+  function parseDateToTimestamp(dateStr) {
+    if (!dateStr) return null;
+    if (typeof dateStr === "number") return dateStr;
+    const str = String(dateStr);
+    return new Date(str.replace(" ", "T")).getTime() / 1000;
+  }
+
+  function getNowLagosSeconds() {
+    const lagosMillis = DateTime.now().setZone("Africa/Lagos").toMillis();
+    return Math.floor(lagosMillis / 1000);
+  }
+
+  function getSecondsLeftForItem(item, _tick) {
+    if (!item) return 0;
+    let secs = 0;
+    const baseDate = item.date || item.create_timestamp;
+    const expiration = item.expiration;
+    if (baseDate && expiration) {
+      const startTs = parseDateToTimestamp(baseDate);
+      if (startTs != null) {
+        const expireTs = startTs + Number(expiration);
+        const nowLagos = getNowLagosSeconds();
+        secs = expireTs - nowLagos;
+      }
+    } else if (item.expire_date) {
+      const expireTs = parseDateToTimestamp(item.expire_date);
+      if (expireTs != null) {
+        const nowLagos = getNowLagosSeconds();
+        secs = expireTs - nowLagos;
+      }
+    } else {
+      const raw = Number(item.expiration);
+      if (Number.isFinite(raw)) secs = raw;
+    }
+    return secs > 0 ? secs : 0;
+  }
+
   function hasActiveCountdown(item) {
-    const secs = Number(item?.expiration);
-    return Number.isFinite(secs) && secs > 0;
+    const secs = getSecondsLeftForItem(item, countdownTick);
+    return secs > 0;
   }
 
   function canShowRenew(item) {
@@ -660,7 +686,9 @@ const ManageNumbers = ({ orderId }) => {
                     </div>
                   </div>
                 ) : (
-                  filteredActiveNumbers.map((item) => (
+                  filteredActiveNumbers.map((item) => {
+                    const secsLeft = getSecondsLeftForItem(item, countdownTick);
+                    return (
                     <div
                       key={item.ID}
                       className="bg-white border border-gray-200 rounded-lg shadow-sm p-2.5 flex flex-col gap-2"
@@ -681,9 +709,9 @@ const ManageNumbers = ({ orderId }) => {
                         </div>
                         <div className="text-right">
                           <div
-                            className={`text-xs font-semibold ${isLessThanOneHour(item.expiration) ? "text-danger" : "text-success"}`}
+                            className={`text-xs font-semibold ${isLessThanOneHour(secsLeft) ? "text-danger" : "text-success"}`}
                           >
-                            {formatExpiration(item.expiration)}
+                            {formatExpiration(secsLeft)}
                           </div>
                           <div className="text-[11px] text-text-grey">Time left</div>
                         </div>
@@ -786,7 +814,7 @@ const ManageNumbers = ({ orderId }) => {
                         </button>
                       </div>
                     </div>
-                  ))
+                  )})
                 )}
               </div>
             )}
@@ -1064,8 +1092,8 @@ const ManageNumbers = ({ orderId }) => {
                           </div>
                         </td>
                         <td className="py-3 px-2 sm:px-3 font-semibold">
-                          <span className={`text-sm sm:text-base ${isLessThanOneHour(item.expiration) ? "text-danger" : "text-success"}`}>
-                            {formatExpiration(item.expiration)}
+                          <span className={`text-sm sm:text-base ${isLessThanOneHour(getSecondsLeftForItem(item, countdownTick)) ? "text-danger" : "text-success"}`}>
+                            {formatExpiration(getSecondsLeftForItem(item, countdownTick))}
                           </span>
                         </td>
                         <td className="py-3 px-2 sm:px-3">
