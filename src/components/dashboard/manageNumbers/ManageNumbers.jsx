@@ -7,7 +7,7 @@ import { fetchNumbers, fetchNumberCode, renewNumber } from "../../../services/nu
 import { getEmails, getEmailCode } from "../../../services/emailService";
 import { useParams, useNavigate } from "react-router-dom";
 import SectionHeader from "../../common/SectionHeader";
-import { SkeletonTableRow } from "../../common/Skeletons";
+import { SkeletonTableRow, SkeletonNumberCard } from "../../common/Skeletons";
 import { useUser } from "../../../contexts/UserContext";
 import { triggerRentalCronjob, fetchRenewPrice } from "../../../services/rentalService";
 import CustomModal from "../../common/CustomModal";
@@ -437,11 +437,38 @@ const ManageNumbers = ({ orderId }) => {
     }).format(num);
   }
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveNumbers(prev =>
+        prev.map(item => {
+          const exp = Number(item.expiration);
+          if (!Number.isFinite(exp) || exp <= 0) return item;
+          return { ...item, expiration: exp - 1 };
+        })
+      );
+      setInactiveNumbers(prev =>
+        prev.map(item => {
+          const exp = Number(item.expiration);
+          if (!Number.isFinite(exp) || exp <= 0) return item;
+          return { ...item, expiration: exp - 1 };
+        })
+      );
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  function hasActiveCountdown(item) {
+    const secs = Number(item?.expiration);
+    return Number.isFinite(secs) && secs > 0;
+  }
+
   function canShowRenew(item) {
     if (!item) return false;
     if (item.type === "email") return false;
     if (String(item.number || "").includes("@")) return false;
-    return Number(item.canrenew) === 1;
+    if (Number(item.canrenew) !== 1) return false;
+    if (item.status === 1 && hasActiveCountdown(item)) return false;
+    return true;
   }
 
   const handleOpenRenew = async (item) => {
@@ -533,26 +560,26 @@ const ManageNumbers = ({ orderId }) => {
   };
 
   return (
-    <div className="sm:px-2 sm:px-6 lg:px-6 sm:ml-6">
+    <div className="px-2 sm:px-4 lg:px-6 sm:ml-4">
       {/* Unified Responsive Table */}
-      <div className="mt-4 sm:mt-6">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 ms-3">
-          <div className="flex justify-between">
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-text-primary">Manage Rentals</h1>
+      <div className="mt-3 sm:mt-5">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4 ms-2">
+          <div className="flex justify-between items-center">
+            <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-text-primary">Manage Rentals</h1>
             <BuyDropdown />
           </div>
         </div>
 
-        <div className="ms-3">
+        <div className="ms-2">
 
 
           {/* Tabs and Search */}
-          <div className="flex flex-col lg:flex-row lg:justify-between gap-4 border-b border-[#ECECEC] mb-6 lg:mb-10">
-            <div className="flex gap-6 sm:gap-8">
+          <div className="flex flex-col lg:flex-row lg:justify-between gap-3 border-b border-[#ECECEC] mb-4 lg:mb-6">
+            <div className="flex gap-4 sm:gap-6">
               {["Active", "Inactive"].map((tab) => (
                 <button
                   key={tab}
-                  className={`pb-3 text-base sm:text-lg font-medium transition-colors min-h-[44px] ${activeTab === tab
+                  className={`pb-2 text-sm sm:text-base font-medium transition-colors min-h-[36px] ${activeTab === tab
                       ? "border-b-2 lg:border-b-3 border-primary text-primary"
                       : "text-text-grey hover:text-text-primary"
                     }`}
@@ -562,7 +589,7 @@ const ManageNumbers = ({ orderId }) => {
                 </button>
               ))}
             </div>
-            <div className="flex bg-background rounded-lg border border-gray-200 px-3 py-2 items-center w-full sm:max-w-xs lg:max-w-sm">
+            <div className="flex bg-background rounded-lg border border-gray-200 px-2 py-1.5 items-center w-full sm:max-w-xs lg:max-w-sm">
               <FaSearch className="text-text-grey mr-2 flex-shrink-0" />
               <input
                 type="text"
@@ -575,8 +602,8 @@ const ManageNumbers = ({ orderId }) => {
           </div>
 
           {/* Refund Information */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 text-sm text-blue-800">
-            <div className="items-center justify-between gap-3">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-2.5 mb-3 text-xs sm:text-sm text-blue-800">
+            <div className="items-center justify-between gap-2">
               <p className="mb-0">
                 <strong>Refund Information:</strong> If your refund seems delayed, use the refresh button to update your refund status.
               </p>
@@ -605,26 +632,26 @@ const ManageNumbers = ({ orderId }) => {
           </div>
         </div>
 
-        <div className="ms-3">
-          <div className="md:hidden space-y-4">
+        <div className="ms-2">
+          <div className="md:hidden space-y-3">
             {activeTab === "Active" && (
               <div className="space-y-3">
                 {activeLoading ? (
                   Array.from({ length: 3 }).map((_, i) => (
-                    <div key={i} className="h-24 rounded-xl bg-gray-100 animate-pulse" />
+                    <SkeletonNumberCard key={i} />
                   ))
                 ) : filteredActiveNumbers.length === 0 ? (
-                  <div className="flex flex-col items-center gap-4 bg-background rounded-2xl p-4 border border-dashed border-gray-200">
+                  <div className="flex flex-col items-center gap-3 bg-background rounded-xl p-3 border border-dashed border-gray-200">
                     <span className="text-sm text-text-secondary">No active rentals found.</span>
                     <div className="flex flex-col sm:flex-row gap-2 w-full justify-center items-center">
                       <button
-                        className="w-full sm:w-auto bg-quinary hover:bg-[#ff8c1a] text-white font-semibold rounded-full px-4 py-2 text-sm flex items-center justify-center gap-2 transition-colors"
+                        className="w-full sm:w-auto bg-quinary hover:bg-[#ff8c1a] text-white font-semibold rounded-full px-3 py-1.5 text-sm flex items-center justify-center gap-2 transition-colors"
                         onClick={() => setBuyDropdownOpen(true)}
                       >
                         + Start Renting
                       </button>
                       <button
-                        className="w-full sm:w-auto bg-quaternary-light text-quinary font-semibold rounded-full px-4 py-2 text-sm flex items-center justify-center gap-2 border border-quaternary transition-colors hover:bg-quaternary-light"
+                        className="w-full sm:w-auto bg-quaternary-light text-quinary font-semibold rounded-full px-3 py-1.5 text-sm flex items-center justify-center gap-2 border border-quaternary transition-colors hover:bg-quaternary-light"
                         style={{ background: "none" }}
                         onClick={() => setActiveTab("Inactive")}
                       >
@@ -636,7 +663,7 @@ const ManageNumbers = ({ orderId }) => {
                   filteredActiveNumbers.map((item) => (
                     <div
                       key={item.ID}
-                      className="bg-white border border-gray-200 rounded-xl shadow-sm p-3 flex flex-col gap-3"
+                      className="bg-white border border-gray-200 rounded-lg shadow-sm p-2.5 flex flex-col gap-2"
                     >
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-2">
@@ -768,7 +795,7 @@ const ManageNumbers = ({ orderId }) => {
               <div className="space-y-3">
                 {inactiveLoading ? (
                   Array.from({ length: 3 }).map((_, i) => (
-                    <div key={i} className="h-24 rounded-xl bg-gray-100 animate-pulse" />
+                    <SkeletonNumberCard key={i} />
                   ))
                 ) : filteredInactiveNumbers.length === 0 ? (
                   <div className="flex flex-col items-center gap-4 bg-background rounded-2xl p-4 border border-dashed border-gray-200">
