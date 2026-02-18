@@ -137,12 +137,6 @@ export const fetchServices = async ({ type, network, countryID = "", time, force
   }
 };
 
-/**
- * Book a number/account for a service.
- * @param {string} id - The service id (e.g. cXZ8fHNob3J0X3Rlcm18fDJ8fDV8fDU=)
- * @param {string} priceID - Optional price ID for services with multiple costs
- * @returns {Promise<object>} - API response object
- */
 export const bookNumber = async (id, priceID = null) => {
   if (!id) throw new Error("Service id is required");
   try {
@@ -158,6 +152,23 @@ export const bookNumber = async (id, priceID = null) => {
     return response.data;
   } catch (error) {
     throw new Error( error.response?.data?.message || error.message || "Failed to book number");
+  }
+};
+
+export const renewNumber = async (orderID, id) => {
+  if (!orderID) throw new Error("Order id is required");
+  if (!id) throw new Error("Renew id is required");
+
+  try {
+    let url = `${API_URLS.BOOKNUMBER}?id=${encodeURIComponent(id)}&renew=true&orderID=${encodeURIComponent(orderID)}`;
+    const response = await axiosInstance.get(url);
+    if (response.status !== 200) {
+      const message = response.data?.message || "Failed to renew number";
+      throw new Error(message);
+    }
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || error.message || "Failed to renew number");
   }
 };
 
