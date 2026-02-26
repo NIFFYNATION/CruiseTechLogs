@@ -193,9 +193,9 @@ const BuyNumbers = () => {
       {/* Header */}
       <div className="mb-6">
         <h2 className="text-xl md:text-2xl font-semibold mb-2">Buy Number</h2>
-        {typeNeedsTime(selectedNumberType) ? (
+        {selectedNumberType?.notice ? (
           <p className="text-yellow-600 font-bold text-sm md:text-base bg-yellow-50 border border-red-200 rounded p-2 inline-block">
-            ⚠️ NOTICE: This Long Term Number is NON-REFUNDABLE once purchased.
+            ⚠️ NOTICE: {selectedNumberType.notice}
           </p>
         ) : (
           <p className="text-text-secondary font-semibold text-sm md:text-base">

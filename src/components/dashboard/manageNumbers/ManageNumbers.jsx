@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { DateTime } from "luxon";
-import { FaSearch, FaTrash, FaChevronDown } from "react-icons/fa";
+import { FaSearch, FaTrash, FaChevronDown, FaFilter, FaTimes } from "react-icons/fa";
 import { AiFillEye } from 'react-icons/ai'
 import { FiMail, FiPhone, FiCopy } from "react-icons/fi";
 import NumberDetailsModal from './NumberDetailsModal';
@@ -30,6 +30,7 @@ const ManageNumbers = ({ orderId }) => {
   const [renewingOrderId, setRenewingOrderId] = useState(null);
   const [renewPriceId, setRenewPriceId] = useState(null);
   const [renewSubmitLoading, setRenewSubmitLoading] = useState(false);
+  const [filterModalOpen, setFilterModalOpen] = useState(false);
 
   const handleRenewProceed = async () => {
     if (!renewModalOrderId || !renewPriceId || renewSubmitLoading) return;
@@ -85,34 +86,97 @@ const ManageNumbers = ({ orderId }) => {
   // Dummy verification code for demo
   const verificationCode = "1234";
 
-  // Fetch numbers and emails for active tab (only once)
+  // Actual filters used for fetching
+  const [filters, setFilters] = useState({
+    s: "",
+    type: "",
+    canrenew: "",
+    contact: "",
+    start_date: "",
+    end_date: ""
+  });
+
+  // Pending filters for UI inputs (before Apply)
+  const [tempFilters, setTempFilters] = useState({
+    type: "",
+    canrenew: "",
+    contact: "",
+    start_date: "",
+    end_date: ""
+  });
+
+  // Apply filters
+  const applyFilters = () => {
+    setFilters(prev => ({ ...prev, ...tempFilters }));
+    setFilterModalOpen(false);
+  };
+
+  // Clear filters
+  const clearFilters = () => {
+    const cleared = {
+      type: "",
+      canrenew: "",
+      contact: "",
+      start_date: "",
+      end_date: ""
+    };
+    setTempFilters(cleared);
+    setFilters(prev => ({ ...prev, ...cleared }));
+    setFilterModalOpen(false);
+  };
+
+  // Sync temp filters with active filters when modal opens
   useEffect(() => {
-    if (activeNumbers.length === 0 && activeEmails.length === 0) {
-      setActiveLoading(true);
+    if (filterModalOpen) {
+      setTempFilters({
+        type: filters.type,
+        canrenew: filters.canrenew,
+        contact: filters.contact,
+        start_date: filters.start_date,
+        end_date: filters.end_date
+      });
+    }
+  }, [filterModalOpen]);
 
-      // Fetch active numbers
-      const fetchActiveNumbers = fetchNumbers({ status: "active", start: 0 })
-        .then(({ numbers, next }) => {
-          // Mark each number with type='number' if not already set
-          const numbersWithType = numbers.map(num => ({
-            ...num,
-            type: num.type || 'number'
-          }));
-          setActiveNumbers(numbersWithType);
-          setActiveNext(next);
-          return numbersWithType;
-        })
-        .catch(err => {
-          console.error("Error fetching active numbers:", err);
-          return [];
-        });
+  // Debounce search update to filters
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setFilters(prev => ({ ...prev, s: search }));
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [search]);
 
-      // Fetch active emails
-      const fetchActiveEmails = getEmails()
+  // Fetch numbers and emails for active tab when filters change
+  useEffect(() => {
+    // Reset and fetch active
+    setActiveLoading(true);
+    setActiveNumbers([]);
+    setActiveEmails([]); // Clear emails to avoid stale data
+    setActiveNext(0);
+
+    // Fetch active numbers
+    const fetchActiveNumbers = fetchNumbers({ status: "active", start: 0, ...filters })
+      .then(({ numbers, next }) => {
+        const numbersWithType = numbers.map(num => ({
+          ...num,
+          type: num.type || 'number'
+        }));
+        setActiveNumbers(numbersWithType);
+        setActiveNext(next);
+        return numbersWithType;
+      })
+      .catch(err => {
+        console.error("Error fetching active numbers:", err);
+        return [];
+      });
+
+    // Fetch active emails (only if contact filter allows)
+    let fetchActiveEmails = Promise.resolve([]);
+    if (filters.contact !== 'number') {
+      fetchActiveEmails = getEmails()
         .then(response => {
           if (response.status === "success" && Array.isArray(response.data)) {
-            // Filter for active emails and format them to match number structure
-            const activeEmailsData = response.data
+            let activeEmailsData = response.data
               .filter(email => email.status === "active")
               .map(email => ({
                 ID: email.id || email.ID,
@@ -128,6 +192,17 @@ const ManageNumbers = ({ orderId }) => {
                 create_timestamp: email.create_timestamp,
                 date: email.date
               }));
+            
+            // Client-side filtering for emails
+            if (filters.s) {
+              const s = filters.s.toLowerCase();
+              activeEmailsData = activeEmailsData.filter(e => 
+                (e.number && e.number.toLowerCase().includes(s)) || 
+                (e.serviceName && e.serviceName.toLowerCase().includes(s))
+              );
+            }
+            // Date filtering for emails could be added here if needed
+            
             setActiveEmails(activeEmailsData);
             return activeEmailsData;
           }
@@ -137,42 +212,44 @@ const ManageNumbers = ({ orderId }) => {
           console.error("Error fetching active emails:", err);
           return [];
         });
-
-      // When both fetches complete, update loading state
-      Promise.all([fetchActiveNumbers, fetchActiveEmails])
-        .then(() => setActiveLoading(false));
     }
-    // eslint-disable-next-line
-  }, []);
 
-  // Fetch inactive numbers and emails (only once)
+    Promise.all([fetchActiveNumbers, fetchActiveEmails])
+      .then(() => setActiveLoading(false));
+
+  }, [filters]); // Re-run when filters change
+
+  // Fetch inactive numbers and emails when filters change
   useEffect(() => {
-    if (inactiveNumbers.length === 0 && inactiveEmails.length === 0) {
-      setInactiveLoading(true);
+    // Reset and fetch inactive
+    setInactiveLoading(true);
+    setInactiveNumbers([]);
+    setInactiveEmails([]);
+    setInactiveNext(0);
 
-      // Fetch inactive numbers
-      const fetchInactiveNumbers = fetchNumbers({ status: "inactive", start: 0 })
-        .then(({ numbers, next }) => {
-          // Mark each number with type='number' if not already set
-          const numbersWithType = numbers.map(num => ({
-            ...num,
-            type: num.type || 'number'
-          }));
-          setInactiveNumbers(numbersWithType);
-          setInactiveNext(next);
-          return numbersWithType;
-        })
-        .catch(err => {
-          console.error("Error fetching inactive numbers:", err);
-          return [];
-        });
+    // Fetch inactive numbers
+    const fetchInactiveNumbers = fetchNumbers({ status: "inactive", start: 0, ...filters })
+      .then(({ numbers, next }) => {
+        const numbersWithType = numbers.map(num => ({
+          ...num,
+          type: num.type || 'number'
+        }));
+        setInactiveNumbers(numbersWithType);
+        setInactiveNext(next);
+        return numbersWithType;
+      })
+      .catch(err => {
+        console.error("Error fetching inactive numbers:", err);
+        return [];
+      });
 
-      // Fetch inactive emails
-      const fetchInactiveEmails = getEmails()
+    // Fetch inactive emails
+    let fetchInactiveEmails = Promise.resolve([]);
+    if (filters.contact !== 'number') {
+      fetchInactiveEmails = getEmails()
         .then(response => {
           if (response.status === "success" && Array.isArray(response.data)) {
-            // Filter for inactive emails and format them to match number structure
-            const inactiveEmailsData = response.data
+            let inactiveEmailsData = response.data
               .filter(email => email.status !== "active")
               .map(email => ({
                 ID: email.id || email.ID,
@@ -188,6 +265,16 @@ const ManageNumbers = ({ orderId }) => {
                 create_timestamp: email.create_timestamp,
                 date: email.date
               }));
+
+            // Client-side filtering for emails
+            if (filters.s) {
+              const s = filters.s.toLowerCase();
+              inactiveEmailsData = inactiveEmailsData.filter(e => 
+                (e.number && e.number.toLowerCase().includes(s)) || 
+                (e.serviceName && e.serviceName.toLowerCase().includes(s))
+              );
+            }
+
             setInactiveEmails(inactiveEmailsData);
             return inactiveEmailsData;
           }
@@ -197,12 +284,11 @@ const ManageNumbers = ({ orderId }) => {
           console.error("Error fetching inactive emails:", err);
           return [];
         });
-
-      // When both fetches complete, update loading state
-      Promise.all([fetchInactiveNumbers, fetchInactiveEmails])
-        .then(() => setInactiveLoading(false));
     }
-  }, [inactiveNumbers.length, inactiveEmails.length]);
+
+    Promise.all([fetchInactiveNumbers, fetchInactiveEmails])
+      .then(() => setInactiveLoading(false));
+  }, [filters]);
 
   // --- Auto-open modal if orderId param is present ---
   useEffect(() => {
@@ -225,14 +311,18 @@ const ManageNumbers = ({ orderId }) => {
     const { scrollTop, scrollHeight, clientHeight } = el;
     if (scrollHeight - scrollTop - clientHeight < 80) {
       setActiveLoadingMore(true);
-      fetchNumbers({ status: "active", start: activeNext })
+      fetchNumbers({ status: "active", start: activeNext, ...filters })
         .then(({ numbers: moreNumbers, next: newNext }) => {
-          setActiveNumbers(prev => [...prev, ...moreNumbers]);
+          const numbersWithType = moreNumbers.map(num => ({
+            ...num,
+            type: num.type || 'number'
+          }));
+          setActiveNumbers(prev => [...prev, ...numbersWithType]);
           setActiveNext(newNext);
         })
         .finally(() => setActiveLoadingMore(false));
     }
-  }, [activeLoadingMore, activeLoading, activeNext]);
+  }, [activeLoadingMore, activeLoading, activeNext, filters]);
 
   // Infinite scroll handler for inactive
   const handleInactiveScroll = useCallback(() => {
@@ -242,14 +332,18 @@ const ManageNumbers = ({ orderId }) => {
     const { scrollTop, scrollHeight, clientHeight } = el;
     if (scrollHeight - scrollTop - clientHeight < 80) {
       setInactiveLoadingMore(true);
-      fetchNumbers({ status: "inactive", start: inactiveNext })
+      fetchNumbers({ status: "inactive", start: inactiveNext, ...filters })
         .then(({ numbers: moreNumbers, next: newNext }) => {
-          setInactiveNumbers(prev => [...prev, ...moreNumbers]);
+          const numbersWithType = moreNumbers.map(num => ({
+            ...num,
+            type: num.type || 'number'
+          }));
+          setInactiveNumbers(prev => [...prev, ...numbersWithType]);
           setInactiveNext(newNext);
         })
         .finally(() => setInactiveLoadingMore(false));
     }
-  }, [inactiveLoadingMore, inactiveLoading, inactiveNext]);
+  }, [inactiveLoadingMore, inactiveLoading, inactiveNext, filters]);
 
   // Attach scroll event to the table container for active
   useEffect(() => {
@@ -277,14 +371,18 @@ const ManageNumbers = ({ orderId }) => {
     if (!el || activeLoading || activeLoadingMore) return;
     if (activeNext != null && el.scrollHeight <= el.clientHeight + 10) {
       setActiveLoadingMore(true);
-      fetchNumbers({ status: "active", start: activeNext })
+      fetchNumbers({ status: "active", start: activeNext, ...filters })
         .then(({ numbers: moreNumbers, next: newNext }) => {
-          setActiveNumbers(prev => [...prev, ...moreNumbers]);
+          const numbersWithType = moreNumbers.map(num => ({
+            ...num,
+            type: num.type || 'number'
+          }));
+          setActiveNumbers(prev => [...prev, ...numbersWithType]);
           setActiveNext(newNext);
         })
         .finally(() => setActiveLoadingMore(false));
     }
-  }, [activeNumbers, activeNext, activeLoading, activeLoadingMore]);
+  }, [activeNumbers, activeNext, activeLoading, activeLoadingMore, filters]);
 
   // Auto-load next batch if content is not scrollable but more data exists (inactive)
   useEffect(() => {
@@ -292,42 +390,22 @@ const ManageNumbers = ({ orderId }) => {
     if (!el || inactiveLoading || inactiveLoadingMore) return;
     if (inactiveNext != null && el.scrollHeight <= el.clientHeight + 10) {
       setInactiveLoadingMore(true);
-      fetchNumbers({ status: "inactive", start: inactiveNext })
+      fetchNumbers({ status: "inactive", start: inactiveNext, ...filters })
         .then(({ numbers: moreNumbers, next: newNext }) => {
-          setInactiveNumbers(prev => [...prev, ...moreNumbers]);
+          const numbersWithType = moreNumbers.map(num => ({
+            ...num,
+            type: num.type || 'number'
+          }));
+          setInactiveNumbers(prev => [...prev, ...numbersWithType]);
           setInactiveNext(newNext);
         })
         .finally(() => setInactiveLoadingMore(false));
     }
-  }, [inactiveNumbers, inactiveNext, inactiveLoading, inactiveLoadingMore]);
+  }, [inactiveNumbers, inactiveNext, inactiveLoading, inactiveLoadingMore, filters]);
 
-  // Filtering (apply search to both active and inactive numbers and emails)
-  const filteredActiveNumbers = [...activeNumbers, ...activeEmails].filter((n) => {
-    const numStr = n.number?.toString() || "";
-    const serviceStr = n.serviceName?.toLowerCase() || "";
-    const typeStr = n.type?.toLowerCase() || "";
-    const searchStr = search.toLowerCase();
-    return (
-      n.status === 1 &&
-      (searchStr === "" ||
-        numStr.includes(searchStr) ||
-        serviceStr.includes(searchStr) ||
-        typeStr.includes(searchStr))
-    );
-  });
-  const filteredInactiveNumbers = [...inactiveNumbers, ...inactiveEmails].filter((n) => {
-    const numStr = n.number?.toString() || "";
-    const serviceStr = n.serviceName?.toLowerCase() || "";
-    const typeStr = n.type?.toLowerCase() || "";
-    const searchStr = search.toLowerCase();
-    return (
-      n.status !== 1 &&
-      (searchStr === "" ||
-        numStr.includes(searchStr) ||
-        serviceStr.includes(searchStr) ||
-        typeStr.includes(searchStr))
-    );
-  });
+  // Filtering (handled by API + useEffect for emails, so just combine)
+  const filteredActiveNumbers = [...activeNumbers, ...activeEmails];
+  const filteredInactiveNumbers = [...inactiveNumbers, ...inactiveEmails];
 
   // Handler for "View" button
   const handleView = async (item) => {
@@ -548,12 +626,12 @@ const ManageNumbers = ({ orderId }) => {
     return (
       <div className="relative" ref={dropdownRef}>
         <button
-          className="bg-quinary hover:bg-[#ff8c1a] text-white font-semibold rounded-lg px-3 py-2 sm:px-4 sm:py-2 text-sm flex items-center gap-2 transition-colors min-h-[40px] sm:min-h-[44px] touch-manipulation"
+          className="bg-quinary hover:bg-[#ff8c1a] text-white font-medium rounded-lg px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm flex items-center gap-2 transition-all shadow-sm hover:shadow-md active:scale-95 h-8 sm:h-10 mt-1 sm:mt-0"
           onClick={() => setBuyDropdownOpen(!buyDropdownOpen)}
         >
-          <span className="hidden xs:inline text-xs sm:text-sm">Buy</span>
-          <span className="xs:hidden text-lg">+Rent</span>
-          <FaChevronDown className={`transition-transform text-xs sm:text-sm ${buyDropdownOpen ? 'rotate-180' : ''}`} />
+          <span className="hidden xs:inline">+ New Rental</span>
+          <span className="xs:hidden">+ Rent</span>
+          <FaChevronDown className={`transition-transform text-xs ${buyDropdownOpen ? 'rotate-180' : ''}`} />
         </button>
         {buyDropdownOpen && (
           <div className="absolute right-0 mt-2 w-44 sm:w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-50 overflow-hidden">
@@ -615,15 +693,29 @@ const ManageNumbers = ({ orderId }) => {
                 </button>
               ))}
             </div>
-            <div className="flex bg-background rounded-lg border border-gray-200 px-2 py-1.5 items-center w-full sm:max-w-xs lg:max-w-sm">
-              <FaSearch className="text-text-grey mr-2 flex-shrink-0" />
-              <input
-                type="text"
-                placeholder="Search numbers, emails or services"
-                className="outline-none bg-transparent text-sm text-text-secondary w-full min-w-0"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <div className="flex items-center flex-1 sm:min-w-[280px] h-10 bg-gray-50 border border-gray-200 rounded-lg px-3 focus-within:border-transparent focus-within:ring-0 focus-within:outline-none transition-all">
+                <FaSearch className="text-gray-400 mr-2 flex-shrink-0" />
+                <input
+                  type="text"
+                  placeholder="Search rentals..."
+                  className="w-full bg-transparent border-none outline-none ring-0 focus:ring-0 text-sm text-gray-700 placeholder-gray-500"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </div>
+              <button 
+                className={`flex items-center gap-2 px-4 h-10 rounded-lg border font-medium text-sm transition-all active:scale-95 ${
+                  Object.values(filters).some(val => val !== "" && typeof val === "string" && val !== filters.s)
+                    ? "bg-primary text-white border-primary shadow-sm hover:bg-primary-dark" 
+                    : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300"
+                }`}
+                onClick={() => setFilterModalOpen(true)}
+                title="Filter Rentals"
+              >
+                <FaFilter className={Object.values(filters).some(val => val !== "" && typeof val === "string" && val !== filters.s) ? "text-white" : "text-gray-500"} />
+                <span className="hidden sm:inline">Filters</span>
+              </button>
             </div>
           </div>
 
@@ -691,7 +783,7 @@ const ManageNumbers = ({ orderId }) => {
                     return (
                     <div
                       key={item.ID}
-                      className="bg-white border border-gray-200 rounded-lg shadow-sm p-2.5 flex flex-col gap-2"
+                      className="bg-white border border-gray-200 rounded-lg shadow-sm p-4 flex flex-col gap-4"
                     >
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-2">
@@ -736,7 +828,7 @@ const ManageNumbers = ({ orderId }) => {
                             <span>Copy</span>
                           </button>
                         </div>
-                        <div className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] text-text-grey">
+                        <div className="mt-2 grid grid-cols-3 gap-x-3 gap-y-1 text-[11px] text-text-grey">
                           <div>
                             <div className="uppercase tracking-wide">Service</div>
                             <div className="text-[11px] text-text-primary font-medium">
@@ -750,12 +842,23 @@ const ManageNumbers = ({ orderId }) => {
                             </div>
                           </div>
                           <div>
+                            <div className="uppercase tracking-wide">Date</div>
+                            <div className="text-[11px] text-text-primary font-medium">
+                              {(() => {
+                                if (!item.date) return "N/A";
+                                let dt = DateTime.fromISO(item.date);
+                                if (!dt.isValid) dt = DateTime.fromSQL(item.date);
+                                return dt.isValid ? dt.toFormat("MMM dd, yyyy") : item.date;
+                              })()}
+                            </div>
+                          </div>
+                          <div>
                             <div className="uppercase tracking-wide">Amount</div>
                             <div className="text-[11px] text-text-primary font-medium">
                               {formatAmount(item.amount)}
                             </div>
                           </div>
-                          <div>
+                          <div className="col-span-2">
                             <div className="uppercase tracking-wide">Order ID</div>
                             <button
                               type="button"
@@ -848,7 +951,7 @@ const ManageNumbers = ({ orderId }) => {
                   filteredInactiveNumbers.map((item) => (
                     <div
                       key={item.ID}
-                      className="bg-white border border-gray-200 rounded-xl shadow-sm p-3 flex flex-col gap-3"
+                      className="bg-white border border-gray-200 rounded-xl shadow-sm p-4 flex flex-col gap-4"
                     >
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-2">
@@ -890,7 +993,7 @@ const ManageNumbers = ({ orderId }) => {
                             <span>Copy</span>
                           </button>
                         </div>
-                        <div className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] text-text-grey">
+                        <div className="mt-2 grid grid-cols-3 gap-x-3 gap-y-1 text-[11px] text-text-grey">
                           <div>
                             <div className="uppercase tracking-wide">Service</div>
                             <div className="text-[11px] text-text-primary font-medium">
@@ -904,12 +1007,23 @@ const ManageNumbers = ({ orderId }) => {
                             </div>
                           </div>
                           <div>
+                            <div className="uppercase tracking-wide">Date</div>
+                            <div className="text-[11px] text-text-primary font-medium">
+                              {(() => {
+                                if (!item.date) return "N/A";
+                                let dt = DateTime.fromISO(item.date);
+                                if (!dt.isValid) dt = DateTime.fromSQL(item.date);
+                                return dt.isValid ? dt.toFormat("MMM dd, yyyy") : item.date;
+                              })()}
+                            </div>
+                          </div>
+                          <div>
                             <div className="uppercase tracking-wide">Amount</div>
                             <div className="text-[11px] text-text-primary font-medium">
                               {formatAmount(item.amount)}
                             </div>
                           </div>
-                          <div>
+                          <div className="col-span-2">
                             <div className="uppercase tracking-wide">Order ID</div>
                             <button
                               type="button"
@@ -1409,6 +1523,94 @@ const ManageNumbers = ({ orderId }) => {
               )}
             </div>
           )}
+        </div>
+      </CustomModal>
+      {/* Filter Modal */}
+      <CustomModal
+        open={filterModalOpen}
+        onClose={() => setFilterModalOpen(false)}
+        title="Filter Rentals"
+        headerIcon={<FaFilter className="text-primary text-sm" />}
+        showFooter={true}
+        footerContent={
+          <div className="flex gap-3 px-6 py-3 border-t border-border-grey bg-bgLayout/60 w-full">
+            <button
+              className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-white hover:border-gray-400 transition-all active:scale-[0.98]"
+              onClick={clearFilters}
+            >
+              Clear
+            </button>
+            <button
+              className="flex-[2] px-4 py-2.5 bg-primary text-white font-medium rounded-lg hover:bg-primary-dark shadow-sm hover:shadow transition-all active:scale-[0.98]"
+              onClick={applyFilters}
+            >
+              Apply Filters
+            </button>
+          </div>
+        }
+      >
+        <div className="p-4 space-y-4">
+          <div>
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Contact Method</label>
+            <select
+              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm bg-white outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+              value={tempFilters.contact}
+              onChange={(e) => setTempFilters(prev => ({ ...prev, contact: e.target.value }))}
+            >
+              <option value="">All Contacts</option>
+              <option value="number">Number Only</option>
+              <option value="email">Email Only</option>
+            </select>
+          </div>
+
+          <div className={tempFilters.contact === "email" ? "opacity-50 pointer-events-none" : ""}>
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Rental Type</label>
+            <select
+              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm bg-white outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all disabled:bg-gray-100"
+              value={tempFilters.type}
+              onChange={(e) => setTempFilters(prev => ({ ...prev, type: e.target.value }))}
+              disabled={tempFilters.contact === "email"}
+            >
+              <option value="">All Types</option>
+              <option value="short_term">Short Term</option>
+              <option value="long_term">Long Term</option>
+            </select>
+          </div>
+
+          <div className={tempFilters.contact === "email" ? "opacity-50 pointer-events-none" : ""}>
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Renewable Status</label>
+            <select
+              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm bg-white outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all disabled:bg-gray-100"
+              value={tempFilters.canrenew}
+              onChange={(e) => setTempFilters(prev => ({ ...prev, canrenew: e.target.value }))}
+              disabled={tempFilters.contact === "email"}
+            >
+              <option value="">Any Status</option>
+              <option value="1">Renewable Only</option>
+              <option value="0">Non-Renewable Only</option>
+            </select>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">From Date</label>
+              <input
+                type="date"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm bg-white outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                value={tempFilters.start_date}
+                onChange={(e) => setTempFilters(prev => ({ ...prev, start_date: e.target.value }))}
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">To Date</label>
+              <input
+                type="date"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm bg-white outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                value={tempFilters.end_date}
+                onChange={(e) => setTempFilters(prev => ({ ...prev, end_date: e.target.value }))}
+              />
+            </div>
+          </div>
         </div>
       </CustomModal>
     </div>
