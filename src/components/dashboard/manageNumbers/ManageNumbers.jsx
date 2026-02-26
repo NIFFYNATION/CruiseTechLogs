@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { DateTime } from "luxon";
 import { FaSearch, FaTrash, FaChevronDown, FaFilter, FaTimes } from "react-icons/fa";
 import { AiFillEye } from 'react-icons/ai'
-import { FiMail, FiPhone, FiCopy } from "react-icons/fi";
+import { FiMail, FiPhone, FiCopy, FiX } from "react-icons/fi";
 import NumberDetailsModal from './NumberDetailsModal';
 import { fetchNumbers, fetchNumberCode, renewNumber } from "../../../services/numberService";
 import { getEmails, getEmailCode } from "../../../services/emailService";
@@ -141,7 +141,11 @@ const ManageNumbers = ({ orderId }) => {
   // Debounce search update to filters
   useEffect(() => {
     const timer = setTimeout(() => {
-      setFilters(prev => ({ ...prev, s: search }));
+      setFilters(prev => {
+        // Prevent update if search term hasn't changed to avoid double fetch
+        if (prev.s === search) return prev;
+        return { ...prev, s: search };
+      });
     }, 500);
     return () => clearTimeout(timer);
   }, [search]);
@@ -606,10 +610,54 @@ const ManageNumbers = ({ orderId }) => {
     }
   };
 
+  const [searchFocused, setSearchFocused] = useState(false);
+  const searchSuggestions = ["WhatsApp", "Telegram", "Facebook", "Instagram"];
+
+  const handleClearSearch = () => {
+    setSearch("");
+  };
+
+  const handleImmediateSearch = (term) => {
+    setSearch(term);
+    setFilters(prev => ({ ...prev, s: term }));
+  };
+
+  const removeFilter = (key) => {
+    const newFilters = { ...filters, [key]: "" };
+    setFilters(newFilters);
+    setTempFilters(newFilters);
+  };
+
+  const getActiveFilters = () => {
+    const active = [];
+    // Service/Contact filter
+    if (filters.contact) active.push({ key: "contact", label: `Service: ${filters.contact === 'number' ? 'Phone Number' : 'Email'}` });
+    
+    // Type filter
+    if (filters.type) {
+      let typeLabel = filters.type;
+      if (filters.type === "1") typeLabel = "Number";
+      else if (filters.type === "2") typeLabel = "Email";
+      else if (filters.type === "number") typeLabel = "Number";
+      else if (filters.type === "email") typeLabel = "Email";
+      
+      active.push({ key: "type", label: `Type: ${typeLabel}` });
+    }
+    
+    // Status/CanRenew filter
+    if (filters.canrenew) active.push({ key: "canrenew", label: `Renewable: ${filters.canrenew === "1" ? "Yes" : "No"}` });
+    
+    // Date Range
+    if (filters.start_date) active.push({ key: "start_date", label: `From: ${filters.start_date}` });
+    if (filters.end_date) active.push({ key: "end_date", label: `To: ${filters.end_date}` });
+    
+    return active;
+  };
+
   // Custom Buy Dropdown Component
   const BuyDropdown = () => {
-    const dropdownRef = useRef(null);
 
+    const dropdownRef = useRef(null);
     useEffect(() => {
       const handleClickOutside = (event) => {
         if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -678,7 +726,7 @@ const ManageNumbers = ({ orderId }) => {
 
 
           {/* Tabs and Search */}
-          <div className="flex flex-col lg:flex-row lg:justify-between gap-3 border-b border-[#ECECEC] mb-4 lg:mb-6">
+          <div className="flex flex-col lg:flex-row lg:flex-wrap lg:justify-between gap-3 border-b border-[#ECECEC] mb-4 lg:mb-6 relative">
             <div className="flex gap-4 sm:gap-6">
               {["Active", "Inactive"].map((tab) => (
                 <button
@@ -694,7 +742,7 @@ const ManageNumbers = ({ orderId }) => {
               ))}
             </div>
             <div className="flex items-center gap-3 w-full sm:w-auto">
-              <div className="flex items-center flex-1 sm:min-w-[280px] h-10 bg-gray-50 border border-gray-200 rounded-lg px-3 focus-within:border-transparent focus-within:ring-0 focus-within:outline-none transition-all">
+              <div className="flex items-center flex-1 sm:min-w-[280px] h-10 bg-gray-50 border border-gray-200 rounded-lg px-3 focus-within:border-transparent focus-within:ring-0 focus-within:outline-none transition-all relative">
                 <FaSearch className="text-gray-400 mr-2 flex-shrink-0" />
                 <input
                   type="text"
@@ -702,7 +750,22 @@ const ManageNumbers = ({ orderId }) => {
                   className="w-full bg-transparent border-none outline-none ring-0 focus:ring-0 text-sm text-gray-700 placeholder-gray-500"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
+                  onFocus={() => setSearchFocused(true)}
+                  onBlur={() => setTimeout(() => setSearchFocused(false), 200)}
                 />
+                {(activeLoading || inactiveLoading) && search ? (
+                  <svg className="animate-spin h-4 w-4 text-gray-400 flex-shrink-0" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                  </svg>
+                ) : search ? (
+                  <button 
+                    onClick={handleClearSearch}
+                    className="text-gray-400 hover:text-gray-600 p-1"
+                  >
+                    <FiX className="h-4 w-4" />
+                  </button>
+                ) : null}
               </div>
               <button 
                 className={`flex items-center gap-2 px-4 h-10 rounded-lg border font-medium text-sm transition-all active:scale-95 ${
@@ -713,41 +776,97 @@ const ManageNumbers = ({ orderId }) => {
                 onClick={() => setFilterModalOpen(true)}
                 title="Filter Rentals"
               >
-                <FaFilter className={Object.values(filters).some(val => val !== "" && typeof val === "string" && val !== filters.s) ? "text-white" : "text-gray-500"} />
+                <div className="relative">
+                  <FaFilter className={Object.values(filters).some(val => val !== "" && typeof val === "string" && val !== filters.s) ? "text-white" : "text-gray-500"} />
+                  {Object.keys(filters).some(key => key !== 's' && filters[key]) && (
+                    <span className="absolute -top-1 -right-1.5 h-2.5 w-2.5 bg-red-500 rounded-full border border-white"></span>
+                  )}
+                </div>
                 <span className="hidden sm:inline">Filters</span>
               </button>
             </div>
+
+            {/* Search Suggestions (now above filters) */}
+            {searchFocused && !search && (
+              <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-b-lg shadow-lg z-50 p-2 mt-1">
+                <div className="flex gap-2 overflow-x-auto thin-scrollbar pb-1">
+                  {searchSuggestions.map((suggestion) => (
+                    <button
+                      key={suggestion}
+                      className="px-4 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-full text-xs sm:text-sm text-gray-700 font-medium transition-colors whitespace-nowrap active:bg-gray-200 active:scale-95"
+                      onClick={() => handleImmediateSearch(suggestion)}
+                    >
+                      {suggestion}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Active Filter Badges */}
+            {getActiveFilters().length > 0 && (
+              <div className="w-full flex flex-wrap items-center gap-1.5 mt-2 pb-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                <span className="text-xs text-gray-500 font-medium mr-1">Active:</span>
+                {getActiveFilters().map((filter) => {
+                  const [label, value] = filter.label.split(': ');
+                  return (
+                    <div 
+                      key={filter.key} 
+                      className="flex items-center gap-1 px-2 py-0.5 bg-white border border-gray-200 rounded-full text-[10px] sm:text-xs shadow-sm hover:border-primary/30 hover:shadow-md transition-all group"
+                    >
+                      <span className="font-medium text-gray-500">{label}:</span>
+                      <span className="font-semibold text-gray-900">{value}</span>
+                      <button
+                        onClick={() => removeFilter(filter.key)}
+                        className="ml-0.5 p-0.5 rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors focus:outline-none"
+                        title={`Remove ${label} filter`}
+                      >
+                        <FiX className="h-3 w-3" />
+                      </button>
+                    </div>
+                  );
+                })}
+                <button
+                  onClick={clearFilters}
+                  className="text-[10px] sm:text-xs text-red-500 hover:text-red-700 font-medium hover:underline decoration-dotted ml-auto sm:ml-2 px-1.5 py-0.5 rounded hover:bg-red-50 transition-colors"
+                >
+                  Clear all
+                </button>
+              </div>
+            )}
           </div>
 
-          {/* Refund Information */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-2.5 mb-3 text-xs sm:text-sm text-blue-800">
-            <div className="items-center justify-between gap-2">
-              <p className="mb-0">
-                <strong>Refund Information:</strong> If your refund seems delayed, use the refresh button to update your refund status.
-              </p>
-              <button
-                type="button"
-                className="flex mt-3 items-center gap-1 px-3 py-1 bg-quinary text-white rounded-full text-xs font-medium hover:bg-quinary-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-                onClick={async () => {
-                  if (refundRefreshing) return;
-                  const uid = user?.userID || user?.ID;
-                  if (!uid) return;
-                  setRefundRefreshing(true);
-                  const ok = await triggerRentalCronjob(uid);
-                  if (ok) {
-                    window.location.reload();
-                  } else {
-                    setRefundRefreshing(false);
-                  }
-                }}
-                disabled={refundRefreshing}
-                title="Refresh balance and refund status"
-              >
-                <img src="/icons/reload.svg" alt="Refresh" className={`h-4 w-4 ${refundRefreshing ? "animate-spin" : ""}`} />
-                {refundRefreshing ? "Refreshing" : "Refresh Balance"}
-              </button>
+          {/* Refund Information - Hidden when filters are active */}
+          {getActiveFilters().length === 0 && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-2.5 mb-3 text-xs sm:text-sm text-blue-800">
+              <div className="items-center justify-between gap-2">
+                <p className="mb-0">
+                  <strong>Refund Information:</strong> If your refund seems delayed, use the refresh button to update your refund status.
+                </p>
+                <button
+                  type="button"
+                  className="flex mt-3 items-center gap-1 px-3 py-1 bg-quinary text-white rounded-full text-xs font-medium hover:bg-quinary-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                  onClick={async () => {
+                    if (refundRefreshing) return;
+                    const uid = user?.userID || user?.ID;
+                    if (!uid) return;
+                    setRefundRefreshing(true);
+                    const ok = await triggerRentalCronjob(uid);
+                    if (ok) {
+                      window.location.reload();
+                    } else {
+                      setRefundRefreshing(false);
+                    }
+                  }}
+                  disabled={refundRefreshing}
+                  title="Refresh balance and refund status"
+                >
+                  <img src="/icons/reload.svg" alt="Refresh" className={`h-4 w-4 ${refundRefreshing ? "animate-spin" : ""}`} />
+                  {refundRefreshing ? "Refreshing" : "Refresh Balance"}
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         <div className="ms-2">
