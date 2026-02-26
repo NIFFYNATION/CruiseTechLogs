@@ -177,9 +177,16 @@ export const renewNumber = async (orderID, id) => {
  * @param {Object} params - { status: string, start: number }
  * @returns {Promise<{numbers: Array, next: number}>}
  */
-export const fetchNumbers = async ({ status = "active", start = 0 } = {}) => {
+export const fetchNumbers = async ({ status = "active", start = 0, s = "", type = "", canrenew = "", contact = "", start_date = "", end_date = "" } = {}) => {
   try {
-    const url = `${API_URLS.GET_NUMBERS}?status=${status}&start=${start}`;
+    let url = `${API_URLS.GET_NUMBERS}?status=${status}&start=${start}`;
+    if (s) url += `&s=${encodeURIComponent(s)}`;
+    if (type) url += `&type=${encodeURIComponent(type)}`;
+    if (canrenew) url += `&canrenew=${encodeURIComponent(canrenew)}`;
+    if (contact) url += `&contact=${encodeURIComponent(contact)}`;
+    if (start_date) url += `&start_date=${encodeURIComponent(start_date)}`;
+    if (end_date) url += `&end_date=${encodeURIComponent(end_date)}`;
+
     const response = await axiosInstance.get(url, { timeout: 15000 });
     if (response.status !== 200) {
       throw new Error(response.data?.message || "Failed to fetch numbers");

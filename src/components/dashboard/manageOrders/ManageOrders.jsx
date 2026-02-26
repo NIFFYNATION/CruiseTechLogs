@@ -6,6 +6,7 @@ import { fetchOrders } from '../../../services/socialAccountService';
 import Toast from '../../common/Toast';
 import { SkeletonTableRow } from "../../common/Skeletons";
 import { formatDate, money_format } from '../../../utils/formatUtils';
+import { FaSearch } from "react-icons/fa";
 
 const ManageOrders = () => {
   const [orders, setOrders] = useState([]);
@@ -270,18 +271,14 @@ const ManageOrders = () => {
       <div className="bg-background rounded-2xl shadow p-4 md:p-8 mx-auto">
         {/* Search Bar */}
         <div className="flex justify-center sm:justify-end mb-6">
-          <div className="relative w-full md:max-w-xs">
+          <div className="flex items-center w-full md:max-w-xs h-10 bg-gray-50 border border-gray-200 rounded-lg px-3 focus-within:border-transparent focus-within:ring-0 focus-within:outline-none transition-all">
+            <FaSearch className="text-gray-400 mr-2 flex-shrink-0" />
             <input
               type="text"
               placeholder="Search by account title, order id, or paste multiple links"
-              className="w-full border border-border-grey rounded-lg pl-12 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full bg-transparent border-none outline-none ring-0 focus:ring-0 text-sm text-gray-700 placeholder-gray-500"
               value={search}
               onChange={e => setSearch(e.target.value)}
-            />
-            <img
-              src="/icons/search.svg"
-              alt="search"
-              className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-tertiary"
             />
           </div>
         </div>
