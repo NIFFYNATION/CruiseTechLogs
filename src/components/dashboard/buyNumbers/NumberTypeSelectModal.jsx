@@ -22,6 +22,7 @@ const NumberTypeSelectModal = ({ open, onClose, onSelect }) => {
               badge: item.badge,
               time: Array.isArray(item.time) ? item.time : undefined,
               notice: item.notice,
+              duration: item.duration,
             }))
           );
         } else {
