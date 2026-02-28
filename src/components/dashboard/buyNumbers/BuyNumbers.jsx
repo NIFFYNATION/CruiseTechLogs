@@ -220,9 +220,9 @@ const BuyNumbers = () => {
               <h3 className="font-medium">
                 {selectedNumberType?.label || "Select a category"}
               </h3>
-              <p className={`text-xs ${selectedNumberType?.duration ? "text-quinary" : "text-text-grey"}`}>
+              <p className={`text-xs text-text-grey`}>
                 {selectedNumberType?.duration
-                  ? `(${selectedNumberType.duration})`
+                  ? `${selectedNumberType.duration}`
                   : "(Up to 10 - 25 minutes)"}
               </p>
             </div>
