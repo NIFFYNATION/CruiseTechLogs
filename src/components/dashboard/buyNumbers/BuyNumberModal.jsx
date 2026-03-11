@@ -11,6 +11,8 @@ const BuyNumberModal = ({
   onClose,
   service,
   country,
+  selectedType,
+  selectedOption,
   selectedPriceKey,
   onBuy,
 }) => {
@@ -18,11 +20,52 @@ const BuyNumberModal = ({
   const [toast, setToast] = useState(null);
   const [errorMsg, setErrorMsg] = useState(""); // For highlighted error line
   const [modalSelectedPriceKey, setModalSelectedPriceKey] = useState(selectedPriceKey);
+  const [onBuyValues, setOnBuyValues] = useState({});
 
   // Update modal selected price when prop changes
   React.useEffect(() => {
     setModalSelectedPriceKey(selectedPriceKey);
   }, [selectedPriceKey]);
+
+  // Initialize onBuy values when modal opens or selectedType/selectedOption changes
+  React.useEffect(() => {
+    if (!open) return;
+    const schema = selectedOption?.onbuy || selectedType?.onbuy || null;
+    if (!schema || typeof schema !== 'object') {
+      setOnBuyValues({});
+      return;
+    }
+    const initial = {};
+    Object.entries(schema).forEach(([key, val]) => {
+      // default empty; don't auto-pick to force intentional choice when required
+      initial[key] = "";
+    });
+    setOnBuyValues(initial);
+  }, [open, selectedType, selectedOption]);
+
+  const handleOnBuyChange = (key, value) => {
+    setOnBuyValues(prev => ({ ...prev, [key]: value }));
+  };
+
+  // Helper: check if field should be shown based on conditions
+  const shouldShowField = (fieldVal) => {
+    if (!fieldVal?.show_if) return true;
+    const { countryID } = fieldVal.show_if;
+    
+    // Check country condition
+    if (countryID) {
+       if (!country) return false;
+       const matches = 
+           country.value === countryID || 
+           String(country.id) === String(countryID) ||
+           country.name === countryID ||
+           (countryID === 'USA' && country.value === 'US'); // Handle common alias
+       
+       if (!matches) return false;
+    }
+    
+    return true;
+  };
 
   // Helper: get default price for service with multiple costs
   const getDefaultPrice = (costObj) => {
@@ -77,7 +120,9 @@ const BuyNumberModal = ({
     setErrorMsg("");
     setLoading(true);
     try {
-      if (!service?.id) {
+      // Validate base inputs
+      const serviceId = service?.id || service?.ID;
+      if (!serviceId) {
         setErrorMsg("Invalid service selected. Please try again.");
         setLoading(false);
         return;
@@ -93,8 +138,33 @@ const BuyNumberModal = ({
       // Prevent double click
       if (loading) return;
 
-      // Book number with price ID if available
-      const result = await bookNumber(service.id, modalSelectedPriceKey);
+      // Validate on-buy dynamic fields if present
+      const schema = selectedOption?.onbuy || selectedType?.onbuy || null;
+      if (schema && typeof schema === 'object') {
+        const missing = [];
+        Object.entries(schema).forEach(([key, val]) => {
+          if (!shouldShowField(val)) return; // Skip validation if field is hidden
+          const required = Boolean(val?.is_required) || Boolean(val?.is_requied);
+          const v = onBuyValues?.[key];
+          if (required && (v === undefined || v === null || String(v).trim() === "")) {
+            missing.push(key);
+          }
+        });
+        if (missing.length > 0) {
+          setErrorMsg(`Please fill required fields: ${missing.join(", ")}`);
+          setLoading(false);
+          return;
+        }
+      }
+
+      // Prepare meta params (combine onBuyValues and selectedOption)
+      const metaParams = { ...onBuyValues };
+      if (selectedOption?.value) {
+        metaParams.option = selectedOption.value;
+      }
+
+      // Book number with price ID and on-buy meta if available
+      const result = await bookNumber(serviceId, modalSelectedPriceKey, metaParams);
 
       setToast({
         type: "success",
@@ -228,6 +298,125 @@ const BuyNumberModal = ({
             </div>
           </div>
         )}
+        {/* Dynamic On-Buy Options */}
+        {(() => {
+           const schema = selectedOption?.onbuy || selectedType?.onbuy;
+           if (!schema || typeof schema !== 'object') return null;
+
+           const visibleEntries = Object.entries(schema).filter(([key, val]) => shouldShowField(val));
+           
+           if (visibleEntries.length === 0) return null;
+
+           return (
+            <div className="px-6 pb-4">
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-5 shadow-sm">
+                <h4 className="font-semibold text-primary mb-4 text-lg">Additional Options</h4>
+                <div className="grid grid-cols-1 gap-5">
+                  {visibleEntries.map(([key, val]) => {
+                    const isObjWithData = val && typeof val === 'object' && Array.isArray(val.data);
+                    const isArray = Array.isArray(val);
+                    const required = Boolean(val?.is_required) || Boolean(val?.is_requied);
+                    const description = val?.description;
+  
+                    // Format label: "camelCase" -> "Camel Case"
+                    let label = key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').replace(/\s+/g, ' ').trim();
+                    label = label.charAt(0).toUpperCase() + label.slice(1);
+  
+                    return (
+                      <div key={key} className="flex flex-col group">
+                        <div className="mb-2">
+                          <label className="block text-sm font-medium text-gray-700 group-hover:text-primary transition-colors">
+                            {label}
+                            {required && <span className="text-red-500 ml-1" title="Required field">*</span>}
+                          </label>
+                          {description && (
+                            <p className="text-xs text-gray-500 mt-1 leading-relaxed">{description}</p>
+                          )}
+                        </div>
+  
+                        {/* Render Input Control based on type */}
+                        {(isObjWithData || isArray) ? (
+                          <div className="relative">
+                            <select
+                              className="w-full appearance-none bg-white border border-gray-300 text-gray-700 py-2.5 px-4 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-quinary/50 focus:border-quinary transition-all shadow-sm hover:border-gray-400"
+                              value={onBuyValues[key] ?? ""}
+                              onChange={(e) => handleOnBuyChange(key, e.target.value)}
+                              required={required}
+                            >
+                              <option value="" disabled>Select {label}</option>
+                              {(isObjWithData ? val.data : val).map((opt, idx) => (
+                                <option key={idx} value={opt}>{String(opt)}</option>
+                              ))}
+                            </select>
+                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                              <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                              </svg>
+                            </div>
+                          </div>
+                        ) : (
+                          (() => {
+                            // Check if it's an object acting as a map (like carrier example)
+                            // Exclude keys like 'description', 'is_required', etc.
+                            const possibleOptions = typeof val === 'object' && val !== null ? Object.entries(val).filter(([k]) => !['description', 'is_required', 'is_requied', 'show_if'].includes(k)) : [];
+                            
+                            if (possibleOptions.length > 0) {
+                               return (
+                                  <div className="relative">
+                                    <select
+                                      className="w-full appearance-none bg-white border border-gray-300 text-gray-700 py-2.5 px-4 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-quinary/50 focus:border-quinary transition-all shadow-sm hover:border-gray-400"
+                                      value={onBuyValues[key] ?? ""}
+                                      onChange={(e) => handleOnBuyChange(key, e.target.value)}
+                                      required={required}
+                                    >
+                                      <option value="" disabled>Select {label}</option>
+                                      {possibleOptions.map(([optKey, optVal]) => (
+                                        <option key={optKey} value={optKey}>{String(optVal)}</option>
+                                      ))}
+                                    </select>
+                                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                      <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                                      </svg>
+                                    </div>
+                                  </div>
+                               );
+                            }
+  
+                            const isLongText = typeof val === 'string' && val.length === 0 && /remark|note|comment|description/i.test(key);
+                            if (isLongText) {
+                              return (
+                                <textarea
+                                  className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-quinary/50 focus:border-quinary transition-all shadow-sm resize-y min-h-[80px] hover:border-gray-400"
+                                  rows={3}
+                                  placeholder={`Enter ${label}...`}
+                                  value={onBuyValues[key] ?? ""}
+                                  onChange={(e) => handleOnBuyChange(key, e.target.value)}
+                                  required={required}
+                                />
+                              );
+                            }
+                            return (
+                              <input
+                                type="text"
+                                className="w-full border border-gray-300 text-gray-700 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-quinary/50 focus:border-quinary transition-all shadow-sm hover:border-gray-400"
+                                placeholder={`Enter ${label}`}
+                                value={onBuyValues[key] ?? ""}
+                                onChange={(e) => handleOnBuyChange(key, e.target.value)}
+                                required={required}
+                              />
+                            );
+                          })()
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+           );
+        })()}
+
         {/* Info Notice */}
         <div className="px-6 pb-4">
           <div className="flex items-center gap-2 bg-[#FFF4ED] border border-quinary rounded-lg px-4 py-3">

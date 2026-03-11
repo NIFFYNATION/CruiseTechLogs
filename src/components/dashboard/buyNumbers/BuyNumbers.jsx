@@ -5,6 +5,7 @@ import CountrySelectModal from "../buyNumbers/CountrySelectModal";
 import CountryFlag from "react-country-flag";
 import NumberTypeSelectModal from "./NumberTypeSelectModal";
 import TimeSelectModal from "./TimeSelectModal";
+import OptionSelectModal from "./OptionSelectModal";
 import BuyNumberModal from "./BuyNumberModal";
 import { fetchServices } from '../../../services/numberService';
 import { useNavigate } from "react-router-dom";
@@ -41,11 +42,14 @@ const BuyNumbers = () => {
   const [toast, setToast] = useState({ show: false, message: '', type: 'info' });
   const [selectedTime, setSelectedTime] = useState(null);
   const [timeModalOpen, setTimeModalOpen] = useState(false);
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [optionModalOpen, setOptionModalOpen] = useState(false);
 
   // Helper: does this type require country selection?  
   const typeNeedsCountry = (type) =>
     type &&
     (
+      type.isallcountries ||
       type.value === "short_term_3" ||
       type.value === "short_term_5" ||
       type.value === "short_term_6" ||
@@ -53,10 +57,18 @@ const BuyNumbers = () => {
     );
   const typeNeedsTime = (type) =>
     type && type.type === "long_term" && Array.isArray(type.time) && type.time.length > 0;
+  const typeNeedsOption = (type) => {
+    // console.log("Checking options for type:", type);
+    return type && Array.isArray(type.options) && type.options.length > 0;
+  }
 
   const currentTimeOptions = typeNeedsTime(selectedNumberType)
     ? selectedNumberType.time
     : [];
+  const currentOptions = typeNeedsOption(selectedNumberType)
+    ? selectedNumberType.options
+    : [];
+
   // Fetch services when number type or country changes
   useEffect(() => {
     // Don't fetch until a type is selected
@@ -64,16 +76,31 @@ const BuyNumbers = () => {
 
     // If type requires country, wait for country to be selected
     if (typeNeedsCountry(selectedNumberType)) {
-      if (!selectedCountry || !selectedCountry.id) return;
+      if (!selectedCountry || !selectedCountry.id) {
+        setServices([]);
+        return;
+      }
     }
 
     // If type requires time, wait for time to be selected
     if (typeNeedsTime(selectedNumberType)) {
-      if (!selectedTime) return;
+      if (!selectedTime) {
+        setServices([]);
+        return;
+      }
+    }
+
+    // If type requires option, wait for option to be selected
+    if (typeNeedsOption(selectedNumberType)) {
+      if (!selectedOption) {
+        setServices([]);
+        return;
+      }
     }
 
     // Fetch services
     setServicesLoading(true);
+    setServices([]); // Clear current services to show loading state
     fetchServices({
       type: selectedNumberType.type || selectedNumberType.value || "",
       network: selectedNumberType.network,
@@ -81,6 +108,8 @@ const BuyNumbers = () => {
         ? selectedCountry?.id
         : undefined,
       time: typeNeedsTime(selectedNumberType) ? selectedTime?.value : undefined,
+      option: typeNeedsOption(selectedNumberType) ? selectedOption?.value : undefined,
+      forceRefresh: true,
     })
       .then((data) => {
         const servicesArray = Array.isArray(data) ? data : [];
@@ -89,20 +118,23 @@ const BuyNumbers = () => {
       .catch(() => setServices([]))
       .finally(() => setServicesLoading(false));
     // eslint-disable-next-line
-  }, [selectedNumberType, selectedCountry, selectedTime]);
+  }, [selectedNumberType, selectedCountry, selectedTime, selectedOption]);
 
   // Add manual refresh function to fetch latest services and pricing from API
   const refreshServices = () => {
     if (!selectedNumberType) return;
     if (typeNeedsCountry(selectedNumberType) && (!selectedCountry || !selectedCountry.id)) return;
     if (typeNeedsTime(selectedNumberType) && !selectedTime) return;
+    if (typeNeedsOption(selectedNumberType) && !selectedOption) return;
 
     setServicesLoading(true);
+    setServices([]); // Clear current services to show loading state
     fetchServices({
       type: selectedNumberType.type || selectedNumberType.value || "",
       network: selectedNumberType.network,
       countryID: typeNeedsCountry(selectedNumberType) ? selectedCountry?.id : undefined,
       time: typeNeedsTime(selectedNumberType) ? selectedTime?.value : undefined,
+      option: typeNeedsOption(selectedNumberType) ? selectedOption?.value : undefined,
       forceRefresh: true,
     })
       .then((data) => {
@@ -184,6 +216,10 @@ const BuyNumbers = () => {
         setSelectedTime(null);
         setTimeModalOpen(true);
       }
+      if (typeNeedsOption(selectedNumberType)) {
+        setSelectedOption(null);
+        setOptionModalOpen(true);
+      }
     }
     // eslint-disable-next-line
   }, [selectedNumberType]);
@@ -249,7 +285,7 @@ const BuyNumbers = () => {
                 <h3 className="font-medium">
                   {selectedCountry.name} {selectedCountry.code && `(${selectedCountry.code})`}
                 </h3>
-                <p className="text-xs text-text-grey">(up to 200 countries)</p>
+                {/* <p className="text-xs text-text-grey">(up to 200 countries)</p> */}
               </div>
             </div>
             <img src="/icons/arrow-down.svg" alt="arrow" className="w-5 h-5" />
@@ -278,6 +314,29 @@ const BuyNumbers = () => {
             <img src="/icons/arrow-down.svg" alt="arrow" className="w-5 h-5" />
           </button>
         )}
+
+        {/* Only render option filter for specific number type values */}
+        {typeNeedsOption(selectedNumberType) && (
+          <button
+            className="flex-1 flex items-center justify-between bg-white border border-border-grey rounded-sm px-4 py-1 md:py-3 text-left text-sm md:text-base"
+            onClick={() => setOptionModalOpen(true)}
+          >
+            <div className="flex items-center gap-2">
+              <img
+                src="/icons/hourglass-low.svg"
+                alt="Option"
+                className="w-6 h-6 mr-2"
+              />
+              <div className="items-center">
+                <h3 className="font-medium">
+                  {selectedOption ? (selectedOption.label || selectedOption.title || selectedOption.name || selectedOption.value) : "Select Option"}
+                </h3>
+                <p className="text-xs text-text-grey">(Required)</p>
+              </div>
+            </div>
+            <img src="/icons/arrow-down.svg" alt="arrow" className="w-5 h-5" />
+          </button>
+        )}
         {/* <button className="flex-1 flex items-center justify-between bg-white border border-border-grey  rounded-sm px-4 py-1 md:py-3 text-left text-sm md:text-base">
            <div className="flex items-center gap-2">
            <img src="/icons/hourglass-full.svg" alt="USA" className="w-6 h-6 mr-2" />
@@ -299,7 +358,7 @@ const BuyNumbers = () => {
             <button
               className="inline-flex items-center gap-2 text-quinary text-sm font-semibold hover:underline disabled:opacity-50"
               onClick={refreshServices}
-              disabled={servicesLoading || !selectedNumberType || (typeNeedsCountry(selectedNumberType) && !selectedCountry?.id)}
+              disabled={servicesLoading || !selectedNumberType || (typeNeedsCountry(selectedNumberType) && !selectedCountry?.id) || (typeNeedsTime(selectedNumberType) && !selectedTime) || (typeNeedsOption(selectedNumberType) && !selectedOption)}
             >
               {servicesLoading ? (
                 <>
@@ -397,7 +456,7 @@ const BuyNumbers = () => {
                 <button
                   className="mt-3 inline-flex items-center gap-2 text-quinary text-sm font-semibold hover:underline disabled:opacity-50"
                   onClick={refreshServices}
-                  disabled={servicesLoading || !selectedNumberType || (typeNeedsCountry(selectedNumberType) && !selectedCountry?.id) || (typeNeedsTime(selectedNumberType) && !selectedTime)}
+                  disabled={servicesLoading || !selectedNumberType || (typeNeedsCountry(selectedNumberType) && !selectedCountry?.id) || (typeNeedsTime(selectedNumberType) && !selectedTime) || (typeNeedsOption(selectedNumberType) && !selectedOption)}
                 >
                   {servicesLoading ? (
                     <>
@@ -530,6 +589,8 @@ const BuyNumbers = () => {
         onClose={() => setBuyModalOpen(false)}
         service={selectedService}
         country={selectedCountry}
+        selectedType={selectedNumberType}
+        selectedOption={selectedOption}
         selectedPriceKey={selectedService ? null : null} // Price selection is handled in modal
         onBuy={handleBuyNumber}
       />
@@ -543,6 +604,18 @@ const BuyNumbers = () => {
               setTimeModalOpen(false);
             }}
             timeOptions={currentTimeOptions}
+          />
+        )}
+
+        {typeNeedsOption(selectedNumberType) && (
+          <OptionSelectModal
+            open={optionModalOpen}
+            onClose={() => setOptionModalOpen(false)}
+            onSelect={(option) => {
+              setSelectedOption(option);
+              setOptionModalOpen(false);
+            }}
+            options={currentOptions}
           />
         )}
       {/* Redirect to manage-numbers before showing modal */}

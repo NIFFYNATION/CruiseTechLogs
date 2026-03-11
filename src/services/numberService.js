@@ -85,10 +85,10 @@ export const fetchCountries = async (typeObj) => {
   return fetchCountries._pending[cacheKey];
 };
 
-export const fetchServices = async ({ type, network, countryID = "", time, forceRefresh = false }) => {
+export const fetchServices = async ({ type, network, countryID = "", time, option, forceRefresh = false }) => {
   if (!type || !network) return [];
   // Build cache key
-  const cacheKey = `services_${type}_${network}${countryID ? `_${countryID}` : ""}${time ? `_${time}` : ""}`;
+  const cacheKey = `services_${type}_${network}${countryID ? `_${countryID}` : ""}${time ? `_${time}` : ""}${option ? `_${option}` : ""}`;
   // Check localStorage for cached data and expiry (skip if forceRefresh)
   if (!forceRefresh) {
     try {
@@ -111,6 +111,7 @@ export const fetchServices = async ({ type, network, countryID = "", time, force
   let url = `${API_URLS.NUMBERSERVICES}?type=${type}&network=${network}`;
   if (countryID) url += `&countryID=${countryID}`;
   if (time) url += `&time=${time}`;
+  if (option) url += `&option=${option}`;
   if (forceRefresh) url += `&refresh=true`;
 
   try {
@@ -137,12 +138,18 @@ export const fetchServices = async ({ type, network, countryID = "", time, force
   }
 };
 
-export const bookNumber = async (id, priceID = null) => {
+export const bookNumber = async (id, priceID = null, metaParams = null) => {
   if (!id) throw new Error("Service id is required");
   try {
     let url = `${API_URLS.BOOKNUMBER}?id=${encodeURIComponent(id)}`;
     if (priceID) {
       url += `&priceID=${encodeURIComponent(priceID)}`;
+    }
+    if (metaParams && typeof metaParams === 'object') {
+      Object.entries(metaParams).forEach(([key, value]) => {
+        if (value === undefined || value === null || String(value).trim() === "") return;
+        url += `&${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`;
+      });
     }
     const response = await axiosInstance.get(url);
     if (response.status !== 200) {

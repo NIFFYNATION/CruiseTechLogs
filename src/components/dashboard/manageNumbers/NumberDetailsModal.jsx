@@ -9,6 +9,7 @@ const ENABLE_WHATSAPP_CHECK = false;
 import ToastPortal from "../common/ToastPortal";
 import ConfirmDialog from "../../common/ConfirmDialog";
 import { DateTime } from 'luxon';
+import he from 'he';
 
 // Helper: parse date string to UTC timestamp (seconds)
 function parseDateToTimestamp(dateStr) {
@@ -72,6 +73,15 @@ const extractOtp = (msg) => {
   return match ? match[0] : "";
 };
 
+const decodeHtmlEntities = (input) => {
+  if (input === undefined || input === null) return "";
+  try {
+    return he.decode(String(input));
+  } catch {
+    return String(input);
+  }
+};
+
 const NumberDetailsModal = ({
   open,
   onClose,
@@ -87,7 +97,6 @@ const NumberDetailsModal = ({
   onReload,
   onCopyNumber,
   onCopyCode,
-  verificationCode: initialVerificationCode,
   type = 'number', // type of contact: 'number' or 'email'
   reactive = false, // whether reactivation is allowed (true or 1)
   canrenew,
@@ -101,13 +110,11 @@ const NumberDetailsModal = ({
   const [secondsLeft, setSecondsLeft] = useState(0);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [closeLoading, setCloseLoading] = useState(false);
-  const [reloadDisabled, setReloadDisabled] = useState(false);
   const [whatsappStatus, setWhatsappStatus] = useState(null);
   const [whatsappLoading, setWhatsappLoading] = useState(false);
   const intervalRef = useRef();
   const countdownRef = useRef();
   const [reactivateLoading, setReactivateLoading] = useState(false);
-  const [reactivateDisabledUntil, setReactivateDisabledUntil] = useState(null);
   const [reactivated, setReactivated] = useState(false);
   const [renewButtonLoading, setRenewButtonLoading] = useState(false);
 
@@ -228,11 +235,9 @@ const NumberDetailsModal = ({
 
   // Reload handler
   const handleReload = async () => {
-    setReloadDisabled(true);
     setIsBackground(false);
     if (onReload) onReload();
     await fetchCode(false);
-    setReloadDisabled(false);
   };
 
   // Reactivate handler
@@ -245,8 +250,6 @@ const NumberDetailsModal = ({
       if (isSuccess) {
         setToast({ type: "success", message: res.message || "Number reactivated successfully." });
         setReactivated(true);
-        // Disable button for 3 minutes
-        setReactivateDisabledUntil(Date.now() + 3 * 60 * 1000);
         // Optionally refresh number details
         if (onReload) onReload();
         setIsBackground(false);
@@ -278,7 +281,7 @@ const NumberDetailsModal = ({
 
   // Copy full message handler
   const handleCopyMessage = (msg) => {
-    if (msg) navigator.clipboard.writeText(msg);
+    if (msg) navigator.clipboard.writeText(decodeHtmlEntities(msg));
   };
 
   // Handle close number
@@ -318,7 +321,7 @@ const NumberDetailsModal = ({
       try {
         const result = await checkWhatsAppNumber(number);
         setWhatsappStatus(result);
-      } catch (error) {
+      } catch {
         setWhatsappStatus({
           code: 500,
           status: "error",
@@ -514,7 +517,8 @@ const NumberDetailsModal = ({
               </div>
             ) : (
               messages.map((msgObj, idx) => {
-                const otp = extractOtp(msgObj.message || "");
+                const decodedMessage = decodeHtmlEntities(msgObj.message || "");
+                const otp = extractOtp(decodedMessage);
                 return (
                   <div
                     key={msgObj.ID || idx}
@@ -532,10 +536,10 @@ const NumberDetailsModal = ({
                           </span>
                         )}
                         <span className="text-xs text-text-secondary break-all flex-1">
-                          {msgObj.message}
+                          {decodedMessage}
                           <button
                             className="ml-2 bg-quinary/10 hover:bg-quinary/20 rounded-full p-1 transition align-middle"
-                            onClick={() => handleCopyMessage(msgObj.message)}
+                            onClick={() => handleCopyMessage(decodedMessage)}
                             title="Copy full message"
                           >
                             <img src="/icons/copy-bold.svg" alt="Copy message" className="w-4 h-4" />
