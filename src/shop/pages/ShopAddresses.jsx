@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { shopApi } from '../services/api';
 import CustomModal from '../../components/common/CustomModal';
@@ -50,6 +50,7 @@ const AddressCard = ({ address, onEdit, onDelete, index }) => (
 
         <div className="space-y-1 text-gray-600 text-sm pl-16 border-l-2 border-gray-50 ml-6 py-1">
             <p className="font-medium text-gray-900">{address.address_line1}</p>
+            {address.address_line2 && <p className="font-medium text-gray-900">{address.address_line2}</p>}
             <p>{address.city}, {address.state} {address.postal_code}</p>
             <p>{address.country}</p>
         </div>
@@ -68,12 +69,215 @@ const ShopAddresses = () => {
         full_name: '',
         phone_number: '',
         address_line1: '',
+        address_line2: '',
         city: '',
         state: '',
         country: '',
         postal_code: ''
     });
     const [processing, setProcessing] = useState(false);
+    
+    // Replace with your actual Google Maps API Key or set VITE_GOOGLE_MAPS_API_KEY in .env
+    const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "YOUR_GOOGLE_MAPS_API_KEY";
+
+    // Manually load Google Maps script to ensure it's available
+    const [isMapsLoaded, setIsMapsLoaded] = useState(false);
+    const searchInputRef = useRef(null);
+    const autoCompleteRef = useRef(null);
+    const cityInputRef = useRef(null);
+    const cityAutoCompleteRef = useRef(null);
+
+    useEffect(() => {
+        const loadGoogleMapsScript = () => {
+            if (window.google && window.google.maps && window.google.maps.places) {
+                console.log("✅ Google Maps Places API is already loaded.");
+                setIsMapsLoaded(true);
+                return;
+            }
+
+            const existingScript = document.querySelector('script[src*="maps.googleapis.com/maps/api/js"]');
+            if (existingScript) {
+                console.log("⏳ Google Maps script already in DOM, waiting for load...");
+                existingScript.addEventListener('load', () => setIsMapsLoaded(true));
+                return;
+            }
+
+            console.log("🚀 Loading Google Maps API script...");
+            const script = document.createElement('script');
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places&loading=async`;
+            script.async = true;
+            script.defer = true;
+            script.onload = () => {
+                console.log("✅ Google Maps Script Loaded Successfully");
+                setIsMapsLoaded(true);
+            };
+            script.onerror = (err) => console.error("❌ Google Maps Script Load Error:", err);
+            document.head.appendChild(script);
+        };
+
+        if (GOOGLE_MAPS_API_KEY && GOOGLE_MAPS_API_KEY !== "YOUR_GOOGLE_MAPS_API_KEY") {
+             loadGoogleMapsScript();
+        } else {
+            console.error("❌ Google Maps API Key is missing or invalid.");
+        }
+    }, [GOOGLE_MAPS_API_KEY]);
+
+    // Initialize Autocomplete when script is loaded and modal is shown
+    useEffect(() => {
+        if (!isMapsLoaded) {
+            console.log("⏳ Waiting for Maps to load...");
+            return;
+        }
+        
+        // Wait for modal transition/render
+        if (!showAddModal) {
+             console.log("🙈 Modal is closed, skipping Autocomplete init.");
+             return;
+        }
+
+        // Slight delay to ensure DOM is ready
+        const initTimer = setTimeout(() => {
+            if (!searchInputRef.current) {
+                console.warn("⚠️ Search input ref is NULL. Retrying in 500ms...");
+                // Retry once
+                setTimeout(() => {
+                    if (searchInputRef.current && window.google) {
+                        initAutocomplete();
+                    } else {
+                        console.error("❌ Search input ref is STILL NULL after retry. Check conditional rendering.");
+                    }
+                }, 500);
+                return;
+            }
+            initAutocomplete();
+            initCityAutocomplete();
+        }, 100);
+
+        return () => clearTimeout(initTimer);
+
+    }, [isMapsLoaded, showAddModal]);
+
+    const initAutocomplete = () => {
+         if (!searchInputRef.current || !window.google) return;
+         console.log("🛠️ Initializing Google Maps Autocomplete on element:", searchInputRef.current);
+        
+        try {
+            // Clear previous instance listeners if any (though new instance usually handles this)
+            if (autoCompleteRef.current) {
+                 window.google.maps.event.clearInstanceListeners(autoCompleteRef.current);
+            }
+
+            autoCompleteRef.current = new window.google.maps.places.Autocomplete(searchInputRef.current, {
+                types: ["address"],
+                fields: ["address_components", "geometry", "formatted_address"]
+            });
+
+            autoCompleteRef.current.addListener("place_changed", () => {
+                const place = autoCompleteRef.current.getPlace();
+                console.log("📍 Place Selected:", place);
+                
+                if (!place || !place.address_components) {
+                    console.warn("⚠️ No address components found in place object");
+                    return;
+                }
+
+                const addressComponents = place.address_components;
+                let streetNumber = '';
+                let route = '';
+                let city = '';
+                let state = '';
+                let country = '';
+                let postalCode = '';
+                let subpremise = '';
+
+                addressComponents.forEach(component => {
+                    const types = component.types;
+                    if (types.includes('street_number')) streetNumber = component.long_name;
+                    if (types.includes('route')) route = component.long_name;
+                    if (types.includes('locality')) city = component.long_name;
+                    if (types.includes('administrative_area_level_1')) state = component.long_name;
+                    if (types.includes('country')) country = component.long_name;
+                    if (types.includes('postal_code')) postalCode = component.long_name;
+                    if (types.includes('subpremise') || types.includes('floor') || types.includes('room')) subpremise = component.long_name;
+                });
+
+                // If city is empty, try sublocality or neighborhood
+                if (!city) {
+                    const sublocality = addressComponents.find(c => c.types.includes('sublocality_level_1'));
+                    if (sublocality) city = sublocality.long_name;
+                }
+
+                console.log("📝 Auto-filling address:", {
+                    address_line1: `${streetNumber} ${route}`.trim(),
+                    address_line2: subpremise,
+                    city, state, country, postalCode
+                });
+
+                setNewAddress(prev => ({
+                    ...prev,
+                    address_line1: `${streetNumber} ${route}`.trim(),
+                    address_line2: subpremise,
+                    city: city,
+                    state: state,
+                    country: country,
+                    postal_code: postalCode
+                }));
+            });
+        } catch (error) {
+            console.error("❌ Error initializing Autocomplete:", error);
+        }
+    };
+
+    const initCityAutocomplete = () => {
+        if (!cityInputRef.current || !window.google) return;
+        console.log("🛠️ Initializing City Autocomplete on element:", cityInputRef.current);
+
+        try {
+            if (cityAutoCompleteRef.current) {
+                window.google.maps.event.clearInstanceListeners(cityAutoCompleteRef.current);
+            }
+
+            cityAutoCompleteRef.current = new window.google.maps.places.Autocomplete(cityInputRef.current, {
+                types: ["(cities)"],
+                fields: ["address_components", "geometry", "formatted_address"]
+            });
+
+            cityAutoCompleteRef.current.addListener("place_changed", () => {
+                const place = cityAutoCompleteRef.current.getPlace();
+                console.log("📍 City Place Selected:", place);
+
+                if (!place || !place.address_components) return;
+
+                let city = '';
+                let state = '';
+                let country = '';
+
+                place.address_components.forEach(component => {
+                    const types = component.types;
+                    if (types.includes('locality')) city = component.long_name;
+                    if (types.includes('administrative_area_level_1')) state = component.long_name;
+                    if (types.includes('country')) country = component.long_name;
+                });
+
+                // If city is empty, try sublocality
+                if (!city) {
+                    const sublocality = place.address_components.find(c => c.types.includes('sublocality_level_1'));
+                    if (sublocality) city = sublocality.long_name;
+                }
+
+                setNewAddress(prev => ({
+                    ...prev,
+                    city: city || prev.city,
+                    state: state || prev.state,
+                    country: country || prev.country
+                }));
+            });
+        } catch (error) {
+             console.error("❌ Error initializing City Autocomplete:", error);
+        }
+    };
+
+    // Removed the previous useEffect check as we now have a dedicated loader logic above
 
     const fetchAddresses = async () => {
         try {
@@ -99,6 +303,7 @@ const ShopAddresses = () => {
             full_name: '',
             phone_number: '',
             address_line1: '',
+            address_line2: '',
             city: '',
             state: '',
             country: '',
@@ -108,6 +313,25 @@ const ShopAddresses = () => {
 
     const handleSaveAddress = async (e) => {
         e.preventDefault();
+        const requiredFields = [
+            ['country', 'Country'],
+            ['state', 'State / Province'],
+            ['full_name', 'Full Name'],
+            ['phone_number', 'Phone Number'],
+            ['address_line1', 'Street Address'],
+            ['city', 'City'],
+            ['postal_code', 'Zip / Postal Code'],
+        ];
+
+        const missingFields = requiredFields
+            .filter(([key]) => !String(newAddress?.[key] || '').trim())
+            .map(([, label]) => label);
+
+        if (missingFields.length > 0) {
+            alert(`Please fill in: ${missingFields.join(', ')}`);
+            return;
+        }
+
         setProcessing(true);
         console.log('Saving address...', newAddress, 'Editing ID:', editingId);
         try {
@@ -151,6 +375,7 @@ const ShopAddresses = () => {
             full_name: addr.full_name || '',
             phone_number: addr.phone_number || '',
             address_line1: addr.address_line1 || '',
+            address_line2: addr.address_line2 || '',
             city: addr.city || '',
             state: addr.state || '',
             country: addr.country || '',
@@ -261,7 +486,61 @@ const ShopAddresses = () => {
                 title={editingId ? "Edit Address" : "Add New Address"}
                 className="max-w-2xl"
             >
+                {/* Fix for Google Places Autocomplete dropdown z-index */}
+                <style>{`
+                    .pac-container {
+                        z-index: 2147483647 !important; /* Max z-index to match modal */
+                    }
+                `}</style>
                 <form onSubmit={handleSaveAddress} className="space-y-6 p-6">
+                    <div className="space-y-1">
+                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Search Address (Auto-fill)</label>
+                        <div className="relative">
+                            <FiMapPin className="absolute left-4 top-3.5 text-gray-400" />
+                            <input
+                                ref={searchInputRef}
+                                type="text"
+                                name="search_address_input"
+                                id="search_address_input"
+                                autoComplete="new-password"
+                                data-lpignore="true"
+                                className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:border-[#ff6a00] focus:ring-4 focus:ring-[#ff6a00]/10 outline-none transition-all font-medium"
+                                placeholder="Start typing to search address..."
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-6">
+                        <div className="space-y-1">
+                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Country</label>
+                            <input
+                                type="text"
+                                name="country"
+                                value={newAddress.country}
+                                onChange={handleInputChange}
+                                required
+                                autoComplete="new-password"
+                                data-lpignore="true"
+                                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[#ff6a00] focus:ring-4 focus:ring-[#ff6a00]/10 outline-none transition-all font-medium"
+                                placeholder="United States"
+                            />
+                        </div>
+                        <div className="space-y-1">
+                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">State / Province</label>
+                            <input
+                                type="text"
+                                name="state"
+                                value={newAddress.state}
+                                onChange={handleInputChange}
+                                required
+                                autoComplete="new-password"
+                                data-lpignore="true"
+                                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[#ff6a00] focus:ring-4 focus:ring-[#ff6a00]/10 outline-none transition-all font-medium"
+                                placeholder="NY"
+                            />
+                        </div>
+                    </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-1">
                             <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Full Name</label>
@@ -273,6 +552,8 @@ const ShopAddresses = () => {
                                     value={newAddress.full_name}
                                     onChange={handleInputChange}
                                     required
+                                    autoComplete="new-password"
+                                    data-lpignore="true"
                                     className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:border-[#ff6a00] focus:ring-4 focus:ring-[#ff6a00]/10 outline-none transition-all font-medium"
                                     placeholder="John Doe"
                                 />
@@ -288,6 +569,8 @@ const ShopAddresses = () => {
                                     value={newAddress.phone_number}
                                     onChange={handleInputChange}
                                     required
+                                    autoComplete="new-password"
+                                    data-lpignore="true"
                                     className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:border-[#ff6a00] focus:ring-4 focus:ring-[#ff6a00]/10 outline-none transition-all font-medium"
                                     placeholder="+1 234 567 890"
                                 />
@@ -296,7 +579,7 @@ const ShopAddresses = () => {
                     </div>
 
                     <div className="space-y-1">
-                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Address Line 1</label>
+                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Address Line 1 (Street Address)</label>
                         <div className="relative">
                             <FiMapPin className="absolute left-4 top-3.5 text-gray-400" />
                             <input
@@ -305,8 +588,27 @@ const ShopAddresses = () => {
                                 value={newAddress.address_line1}
                                 onChange={handleInputChange}
                                 required
+                                autoComplete="new-password"
+                                data-lpignore="true"
                                 className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:border-[#ff6a00] focus:ring-4 focus:ring-[#ff6a00]/10 outline-none transition-all font-medium"
-                                placeholder="123 Main St, Apt 4B"
+                                placeholder="123 Main St"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="space-y-1">
+                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Address Line 2 (Unit, Suite, etc.)</label>
+                        <div className="relative">
+                            <FiHome className="absolute left-4 top-3.5 text-gray-400" />
+                            <input
+                                type="text"
+                                name="address_line2"
+                                value={newAddress.address_line2}
+                                onChange={handleInputChange}
+                                autoComplete="new-password"
+                                data-lpignore="true"
+                                className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:border-[#ff6a00] focus:ring-4 focus:ring-[#ff6a00]/10 outline-none transition-all font-medium"
+                                placeholder="Apt 4B"
                             />
                         </div>
                     </div>
@@ -315,74 +617,56 @@ const ShopAddresses = () => {
                         <div className="space-y-1">
                             <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">City</label>
                             <input
+                                ref={cityInputRef}
                                 type="text"
                                 name="city"
                                 value={newAddress.city}
                                 onChange={handleInputChange}
                                 required
+                                autoComplete="new-password"
+                                data-lpignore="true"
                                 className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[#ff6a00] focus:ring-4 focus:ring-[#ff6a00]/10 outline-none transition-all font-medium"
                                 placeholder="New York"
                             />
                         </div>
                         <div className="space-y-1">
-                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">State / Province</label>
-                            <input
-                                type="text"
-                                name="state"
-                                value={newAddress.state}
-                                onChange={handleInputChange}
-                                required
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[#ff6a00] focus:ring-4 focus:ring-[#ff6a00]/10 outline-none transition-all font-medium"
-                                placeholder="NY"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-6">
-                        <div className="space-y-1">
-                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Country</label>
-                            <input
-                                type="text"
-                                name="country"
-                                value={newAddress.country}
-                                onChange={handleInputChange}
-                                required
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[#ff6a00] focus:ring-4 focus:ring-[#ff6a00]/10 outline-none transition-all font-medium"
-                                placeholder="United States"
-                            />
-                        </div>
-                        <div className="space-y-1">
-                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Postal Code</label>
+                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Zip / Postal Code</label>
                             <input
                                 type="text"
                                 name="postal_code"
                                 value={newAddress.postal_code}
                                 onChange={handleInputChange}
                                 required
+                                autoComplete="new-password"
+                                data-lpignore="true"
                                 className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[#ff6a00] focus:ring-4 focus:ring-[#ff6a00]/10 outline-none transition-all font-medium"
                                 placeholder="10001"
                             />
                         </div>
                     </div>
 
-                    <div className="pt-4 flex gap-4">
+                    <div className="flex gap-4 pt-4">
                         <button
                             type="button"
                             onClick={closeModal}
-                            className="flex-1 bg-gray-100 text-gray-700 font-bold py-3.5 rounded-xl hover:bg-gray-200 transition-colors"
+                            className="flex-1 py-4 rounded-xl font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={processing}
-                            className="flex-1 bg-[#ff6a00] text-white font-bold py-3.5 rounded-xl hover:bg-[#e55f00] transition-all hover:shadow-lg hover:shadow-[#ff6a00]/30 disabled:opacity-70 flex justify-center items-center gap-2"
+                            className="flex-1 py-4 rounded-xl font-bold text-white bg-[#0f1115] hover:bg-[#ff6a00] transition-all shadow-lg hover:shadow-orange-500/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                         >
                             {processing ? (
-                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                                <>
+                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    Saving...
+                                </>
                             ) : (
                                 <>
-                                    <FiCheck /> Save Address
+                                    <FiCheck className="text-lg" />
+                                    Save Address
                                 </>
                             )}
                         </button>

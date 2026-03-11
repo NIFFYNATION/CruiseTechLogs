@@ -23,6 +23,54 @@ const NumberTypeSelectModal = ({ open, onClose, onSelect }) => {
               time: Array.isArray(item.time) ? item.time : undefined,
               notice: item.notice,
               duration: item.duration,
+              isallcountries: item.isallcountries,
+              onbuy: item.onbuy,
+              options: (() => {
+                let raw = item.options || item.Options || item.option || item.Option || [];
+                if (typeof raw === 'string') {
+                  try {
+                    raw = JSON.parse(raw);
+                  } catch (e) {
+                    console.error("Failed to parse options JSON", e);
+                    raw = [];
+                  }
+                }
+                
+                // Case 1: raw is array
+                if (Array.isArray(raw)) return raw;
+
+                // Case 2: raw has .data property (common in this API)
+                if (raw && typeof raw === 'object' && raw.data) {
+                  const data = raw.data;
+                  if (Array.isArray(data)) return data;
+                  if (typeof data === 'object' && data !== null) {
+                    // Map object keys to array
+                    // e.g. "data": { "1": { title: "..." }, "2": { ... } }
+                    return Object.entries(data).map(([key, val]) => {
+                       // If val is object, merge key as value. If string, use as label/value
+                       if (typeof val === 'object' && val !== null) {
+                         return { value: key, ...val };
+                       }
+                       return { value: key, label: val };
+                    });
+                  }
+                }
+
+                // Case 3: raw is object but might be the map itself?
+                // Only if it looks like a map of options (keys are IDs)
+                if (raw && typeof raw === 'object' && raw !== null && Object.keys(raw).length > 0) {
+                   // heuristic: check if keys are numeric or look like IDs
+                   // For now, let's treat it as a map if it has keys
+                   return Object.entries(raw).map(([key, val]) => {
+                      if (typeof val === 'object' && val !== null) {
+                        return { value: key, ...val };
+                      }
+                      return { value: key, label: val };
+                   });
+                }
+                
+                return [];
+              })(),
             }))
           );
         } else {
