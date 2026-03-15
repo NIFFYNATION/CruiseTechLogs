@@ -178,6 +178,39 @@ const WelcomeSection = () => {
 
             </div>
           </div>
+
+          {/* Marketing Ads Card */}
+          <div className="relative overflow-hidden bg-white rounded-[15px] border-b-quinary border-b-2 px-6 pt-6 pb-5 shadow-[0_6px_24px_rgba(0,0,0,0.06)] flex-1 h-full dashboard-marketing-ads">
+            <div className="absolute -top-4 -right-4 w-24 h-24 bg-quinary/5 rounded-full blur-2xl" />
+            <div className="absolute top-2 right-2 z-10">
+              <span className="bg-quinary text-white text-[10px] px-2 py-0.5 rounded-full font-medium">HOT</span>
+            </div>
+            <div className="w-full">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-quinary/10 text-quinary flex items-center justify-center">
+                    <span className="material-symbols-outlined text-base">campaign</span>
+                  </div>
+                  <h3 className="text-text-primary text-lg font-semibold">Marketing & Ads</h3>
+                </div>
+              </div>
+              <p className="text-sm text-text-secondary">
+                Promote your business on Social Media (IG, FB, TikTok) or our platform.
+              </p>
+              <div className="flex items-center justify-between mt-4">
+                <button
+                  onClick={() => navigate('/dashboard/marketplace')}
+                  className="px-6 py-2.5 bg-quinary text-white text-sm rounded-full font-medium hover:bg-quaternary transition-colors"
+                >
+                  Book Ads Now
+                </button>
+                <div className="opacity-20">
+                  <span className="material-symbols-outlined text-4xl">ads_click</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* buy account section */}
           <div className="block px-6 rounded-[15px] border-b-quinary border-b-2 pl-6 pt-6 pb-4 shadow-[0_4px_20px_rgba(0,0,0,0.05)] flex-1 buy-account-tour h-full"
             style={{

@@ -1,8 +1,8 @@
 import React from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { FaFacebookF, FaTwitter, FaTelegram, FaInstagram, FaThumbsUp } from 'react-icons/fa'
+ import { Link, useNavigate } from 'react-router-dom'
+import { FaFacebookF, FaTwitter, FaTelegram, FaInstagram, FaThumbsUp, FaBullhorn, FaUsers, FaChartLine, FaCheckCircle, FaArrowRight, FaShoppingBag, FaBullseye } from 'react-icons/fa'
 import { FaTiktok } from 'react-icons/fa6'
-import { MdEmail } from 'react-icons/md'
+import { MdEmail, MdAdsClick } from 'react-icons/md'
 import Marquee from 'react-fast-marquee'
 import { Button } from '../components/common/Button'
 import { isUserLoggedIn, getUserData } from '../controllers/userController'
@@ -130,25 +130,37 @@ export default function LandingPage() {
               </p>
 
               {/* Get Started Button */}
-              <div className="sm:flex justify-center lg:justify-start gap-3">
+              <div className="flex flex-col sm:flex-row flex-wrap justify-center lg:justify-start gap-4">
                 <Button
                   variant="quinary"
                   size="lg"
                   to="/signup"
-                  fullWidth
-                  className="sm:w-auto mb-4"
+                  className="rounded-full shadow-lg shadow-quinary/20 hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2 group"
                 >
-                 Rentals and logs
+                  <span>Rentals & Logs</span>
+                  <FaArrowRight className="text-sm group-hover:translate-x-1 transition-transform" />
                 </Button>
+                
                 <Button
                   variant="primary"
-                  size="md"
+                  size="lg"
                   to="/shop"
-                  fullWidth
-                  className="sm:w-auto text-white mb-4"
+                  className="rounded-full shadow-lg shadow-primary/20 hover:scale-105 transition-all duration-300 text-white flex items-center justify-center gap-2 group"
                 >
-                  Visit Gift Shop
+                  <span>Visit Gift Shop</span>
+                  <FaShoppingBag className="text-sm group-hover:scale-110 transition-transform" />
                 </Button>
+
+                <button
+                  onClick={() => {
+                    const el = document.getElementById('marketing-ads');
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="px-8 py-3.5 border-2 border-quinary text-quinary hover:bg-quinary hover:text-white rounded-full font-bold shadow-lg hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2 group"
+                >
+                  <span>Marketing & Ads</span>
+                  <FaBullseye className="text-sm group-hover:rotate-45 transition-transform" />
+                </button>
               </div>
             </div>
 
@@ -237,6 +249,118 @@ export default function LandingPage() {
                 <p className="text-text-primary text-sm leading-relaxed">
                   Gain access to detailed engagement metrics and audience insights, helping you make informed, data-driven decisions.
                 </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Marketing & Ads Marketplace Section */}
+        <section id="marketing-ads" className="bg-white py-16 sm:py-24 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-quinary/5 rounded-full blur-3xl -mr-32 -mt-32" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#D9700A]/5 rounded-full blur-3xl -ml-32 -mb-32" />
+          
+          <div className="container mx-auto px-4 sm:px-6 lg:px-16 relative z-10">
+            <div className="text-center max-w-3xl mx-auto mb-16">
+              <h2 className="text-3xl sm:text-4xl font-bold text-text-secondary mb-4">Marketing & Ads Marketplace</h2>
+              <p className="text-text-primary text-lg">
+                Scale your business with precision-targeted advertising. Reach thousands of potential customers across top social platforms and the CruiseTech ecosystem.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              {/* Left Side: Feature List */}
+              <div className="space-y-8">
+                <div className="flex gap-4">
+                  <div className="shrink-0 w-12 h-12 rounded-2xl bg-quinary/10 flex items-center justify-center text-quinary">
+                    <FaBullhorn size={24} />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-text-secondary mb-2">Multi-Platform Reach</h3>
+                    <p className="text-text-primary">Run coordinated campaigns across Instagram, Facebook, TikTok, and our exclusive platform to maximize your brand visibility.</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <div className="shrink-0 w-12 h-12 rounded-2xl bg-[#D9700A]/10 flex items-center justify-center text-[#D9700A]">
+                    <FaUsers size={24} />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-text-secondary mb-2">Targeted Audience</h3>
+                    <p className="text-text-primary">Define your ideal customer profile by location, interests, and demographics to ensure your ads are seen by those who matter most.</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <div className="shrink-0 w-12 h-12 rounded-2xl bg-green-500/10 flex items-center justify-center text-green-600">
+                    <FaChartLine size={24} />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-text-secondary mb-2">Transparent Performance</h3>
+                    <p className="text-text-primary">Receive regular updates and performance metrics via your preferred channel (Email, WhatsApp, or In-App) to track your ROI.</p>
+                  </div>
+                </div>
+
+                <div className="pt-4">
+                  <Button 
+                    variant="quinary" 
+                    size="lg" 
+                    to="/signup"
+                    className="shadow-xl shadow-quinary/20"
+                  >
+                    Launch Your Campaign
+                  </Button>
+                </div>
+              </div>
+
+              {/* Right Side: Visual Element/Preview */}
+              <div className="relative">
+                <div className="bg-gradient-to-br from-quinary to-[#014a54] rounded-[2.5rem] p-1 shadow-2xl overflow-hidden group">
+                  <div className="bg-white rounded-[2.3rem] p-6 sm:p-8">
+                    <div className="flex items-center justify-between mb-8">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-quinary">
+                          <MdAdsClick size={24} />
+                        </div>
+                        <span className="font-bold text-text-secondary">Ad Campaign Preview</span>
+                      </div>
+                      <div className="flex gap-1">
+                        <div className="w-2 h-2 rounded-full bg-red-400" />
+                        <div className="w-2 h-2 rounded-full bg-yellow-400" />
+                        <div className="w-2 h-2 rounded-full bg-green-400" />
+                      </div>
+                    </div>
+
+                    <div className="space-y-6">
+                      <div className="h-4 bg-gray-100 rounded-full w-3/4 animate-pulse" />
+                      <div className="space-y-3">
+                        <div className="h-32 bg-gray-50 rounded-2xl border border-dashed border-gray-200 flex items-center justify-center">
+                          <span className="text-gray-400 text-sm font-medium">Your Ad Creative Here</span>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="p-4 bg-quinary/5 rounded-2xl border border-quinary/10">
+                          <div className="text-[10px] font-bold text-quinary uppercase mb-1">Status</div>
+                          <div className="text-sm font-bold text-text-secondary flex items-center gap-1">
+                            <FaCheckCircle className="text-green-500" /> Live
+                          </div>
+                        </div>
+                        <div className="p-4 bg-[#D9700A]/5 rounded-2xl border border-[#D9700A]/10">
+                          <div className="text-[10px] font-bold text-[#D9700A] uppercase mb-1">Engagement</div>
+                          <div className="text-sm font-bold text-text-secondary">+12.5%</div>
+                        </div>
+                      </div>
+                      <div className="pt-4 flex justify-center">
+                        <div className="px-8 py-3 bg-gray-100 rounded-full text-xs font-bold text-gray-500">
+                          Platform: Social Media & CruiseTech
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Decorative Elements */}
+                <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-[#D9700A] rounded-2xl rotate-12 -z-10 shadow-lg" />
+                <div className="absolute -top-6 -left-6 w-24 h-24 bg-quinary rounded-full -z-10 shadow-lg" />
               </div>
             </div>
           </div>

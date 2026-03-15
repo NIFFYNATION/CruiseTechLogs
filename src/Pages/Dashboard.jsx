@@ -70,6 +70,16 @@ const Dashboard = () => {
       ),
     },
     {
+      target: '.dashboard-marketing-ads',
+      title: '📣 Marketing & Ads',
+      content: (
+        <span>
+          <span className="animate-pulse inline-block mr-2">🎯</span>
+          Grow your business by booking advertisements on social media and our platform.
+        </span>
+      ),
+    },
+    {
       target: '.dashboard-tabmenu',
       title: '🗂️ Tab Menu',
       content: (

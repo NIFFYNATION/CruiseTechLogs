@@ -26,6 +26,10 @@ import ResetPassword from './Pages/login/ResetPassword';
 import ProtectedRoute from './routes/ProtectedRoute';
 import StagesPage from './components/dashboard/stages/StagesPage';
 import ReferralPage from './components/dashboard/ReferralPage';
+import Marketplace from './components/dashboard/marketplace/Marketplace';
+import ManageCampaigns from './components/dashboard/marketplace/ManageCampaigns';
+import ViewCampaign from './components/dashboard/marketplace/ViewCampaign';
+import EditCampaign from './components/dashboard/marketplace/EditCampaign';
 import NotFoundPage from './Pages/NotFoundPage';
 import ShopRootLayout from './shop/layout/ShopRootLayout';
 import ShopLayout from './shop/layout/ShopLayout';
@@ -114,6 +118,10 @@ export const router = createBrowserRouter([
           { path: 'profile-settings', element: <ProfileSettings /> },
           { path: 'help-center', element: <HelpCenter /> },
           { path: 'stages', element: <StagesPage /> },
+          { path: 'marketplace', element: <Marketplace /> },
+          { path: 'manage-campaigns', element: <ManageCampaigns /> },
+          { path: 'campaign/:id', element: <ViewCampaign /> },
+          { path: 'campaign/:id/edit', element: <EditCampaign /> },
           { path: 'referral', element: <ReferralPage /> },
           { path: 'referrals', element: <ReferralPage /> },
         ],

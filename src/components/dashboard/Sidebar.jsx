@@ -178,6 +178,8 @@ const Sidebar = () => {
     // { imageSrc: "/icons/manage-email.svg", text: "Manage Emails", to: "/dashboard/manage-emails" },
     { imageSrc: "/icons/social.svg", text: "Buy Social Accounts", to: "/dashboard/accounts" },
     { imageSrc: "/icons/checklist.png", text: "Account History", to: "/dashboard/manage-orders" },
+    { imageSrc: "/icons/cart.svg", text: "Marketplace", to: "/dashboard/marketplace" },
+    { imageSrc: "/icons/orders.svg", text: "My Campaigns", to: "/dashboard/manage-campaigns" },
     { imageSrc: "/icons/orders.svg", text: "Gifts Shop", to: "/shop" },
   ];
   const transactionsMenu = [
