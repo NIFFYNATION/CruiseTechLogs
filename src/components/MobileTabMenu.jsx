@@ -207,6 +207,8 @@ const MobileTabMenu = ({ onClose }) => {
 
           <div className="grid grid-cols-3 gap-2">
             <QuickAction icon="/icons/wallet.svg" label="Fund Wallet" onClick={() => handleNavigate('/dashboard/wallet')} />
+            <QuickAction icon="/icons/cart.svg" label="Marketplace" onClick={() => handleNavigate('/dashboard/marketplace')} />
+            <QuickAction icon="/icons/orders.svg" label="Campaigns" onClick={() => handleNavigate('/dashboard/manage-campaigns')} />
             <QuickAction icon="/icons/buy-number.svg" label="Numbers" onClick={() => handleNavigate('/dashboard/manage-numbers')} />
             <QuickAction icon="/icons/social-media.svg" label="Accounts" onClick={() => handleNavigate('/dashboard/manage-orders')} />
         </div>

@@ -51,6 +51,11 @@ export const API_URLS = {
   REFERRAL_TRANSFER: `${API_BASE_URL}/referral/transfer`,
   REFERRAL_SETTINGS: `${API_BASE_URL}/content/referral/settings`,
   
+  // Marketing endpoints
+  MARKETING_NEW: `${API_BASE_URL}/marketing/new`,
+  MARKETING_MY: `${API_BASE_URL}/marketing/my`,
+  MARKETING_UPDATE: `${API_BASE_URL}/marketing/update`,
+  
   // WhatsApp verification endpoint
   WHATSAPP_CHECK: `${API_BASE_URL}/check/whatsapp`,
   // Add other endpoints as needed

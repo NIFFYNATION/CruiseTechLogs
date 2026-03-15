@@ -188,3 +188,57 @@ export const generateApiKey = async (password) => {
   }
 };
 
+/**
+ * Submit a new marketing campaign booking.
+ * @param {Object} data - Full campaign data including consent and preferences
+ * @returns {Promise<Object>} Response object
+ */
+export const createMarketingCampaign = async (data) => {
+  try {
+    const response = await axiosInstance.post(API_URLS.MARKETING_NEW, data);
+    if (response.status === 200 && response.data?.status === 'success') {
+      return { success: true, data: response.data.data };
+    } else {
+      return { success: false, message: response.data?.message || 'Failed to submit campaign.' };
+    }
+  } catch (error) {
+    return { success: false, message: error.message || 'Failed to submit campaign.' };
+  }
+};
+
+/**
+ * Fetch authenticated user's marketing campaigns with optional filters.
+ * @param {Object} params - Query parameters for filtering
+ * @returns {Promise<Object>}
+ */
+export const fetchMyCampaigns = async (params = {}) => {
+  try {
+    const response = await axiosInstance.get(API_URLS.MARKETING_MY, { params });
+    if (response.status === 200 && response.data?.status === 'success') {
+      return { success: true, campaigns: response.data.data.campaigns || [] };
+    } else {
+      return { success: false, message: response.data?.message || 'Failed to fetch campaigns.' };
+    }
+  } catch (error) {
+    return { success: false, message: error.message || 'Failed to fetch campaigns.' };
+  }
+};
+
+/**
+ * Update an existing marketing campaign.
+ * @param {Object} data - Campaign update data including campaignID
+ * @returns {Promise<Object>}
+ */
+export const updateMarketingCampaign = async (data) => {
+  try {
+    const response = await axiosInstance.post(API_URLS.MARKETING_UPDATE, data);
+    if (response.status === 200 && response.data?.status === 'success') {
+      return { success: true, message: response.data.message };
+    } else {
+      return { success: false, message: response.data?.message || 'Failed to update campaign.' };
+    }
+  } catch (error) {
+    return { success: false, message: error.message || 'Failed to update campaign.' };
+  }
+};
+
