@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { useUser } from '../../../contexts/UserContext';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiUser, FiBriefcase, FiTarget, FiCalendar, FiDollarSign, FiLink, FiInfo, FiExternalLink, FiPlus, FiGlobe, FiMapPin, FiMousePointer, FiPhone, FiMail, FiMessageSquare, FiBell, FiCheckSquare, FiSquare, FiFileText, FiShield } from 'react-icons/fi';
+import { FiUser, FiBriefcase, FiTarget, FiCalendar, FiLink, FiInfo, FiExternalLink, FiPlus, FiGlobe, FiMapPin, FiMousePointer, FiPhone, FiMail, FiMessageSquare, FiBell, FiCheckSquare, FiSquare, FiFileText, FiShield } from 'react-icons/fi';
 import { FaWhatsapp } from 'react-icons/fa';
+import { FaNairaSign } from 'react-icons/fa6';
 import Toast from '../../common/Toast';
 import { createMarketingCampaign } from '../../../services/userService';
 
@@ -34,6 +35,7 @@ const Marketplace = () => {
 
   const [toast, setToast] = useState({ show: false, message: '', type: 'info' });
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({ transferLink: '' });
 
   const contactPreferences = [
     { id: 'email', label: 'Email', icon: <FiMail /> },
@@ -83,9 +85,30 @@ const Marketplace = () => {
     'Other'
   ];
 
+  const MIN_CAMPAIGN_BUDGET = 50000;
+  const transferNowLinkPattern = /^https:\/\/www\.transfernow\.net\/dl\/[A-Za-z0-9]+\/[A-Za-z0-9]+$/;
+  const transferNowExample = 'https://www.transfernow.net/dl/20260317Ou78/opipnhIM';
+  const transferNowErrorMessage = `TransferNow link must look like: ${transferNowExample}`;
+
+  const getTransferLinkError = (input) => {
+    if (input?.validity?.valueMissing) return 'Please provide the TransferNow link for ads materials.';
+    if (input?.validity?.patternMismatch) return transferNowErrorMessage;
+    return '';
+  };
+
+  const handleTransferLinkInvalid = (e) => {
+    e.preventDefault();
+    const message = getTransferLinkError(e.target);
+    setErrors(prev => ({ ...prev, transferLink: message }));
+    if (message) setToast({ show: true, message, type: 'error' });
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    if (name === 'transferLink' && errors.transferLink) {
+      setErrors(prev => ({ ...prev, transferLink: '' }));
+    }
   };
 
   const toggleSocialPlatform = (platform) => {
@@ -118,13 +141,26 @@ const Marketplace = () => {
     e.preventDefault();
     
     // Validation
-    if (parseFloat(formData.budget) > (user?.balance || 0)) {
+    const budgetValue = Number(formData.budget);
+    if (!Number.isFinite(budgetValue) || budgetValue < MIN_CAMPAIGN_BUDGET) {
+      setToast({ show: true, message: `Minimum campaign budget is ₦${MIN_CAMPAIGN_BUDGET.toLocaleString()}.`, type: 'error' });
+      return;
+    }
+
+    if (budgetValue > (user?.balance || 0)) {
       setToast({ show: true, message: 'Insufficient balance for this budget.', type: 'error' });
       return;
     }
 
     if (!formData.transferLink) {
+      setErrors(prev => ({ ...prev, transferLink: 'Please provide the TransferNow link for ads materials.' }));
       setToast({ show: true, message: 'Please provide the TransferNow link for ads materials.', type: 'error' });
+      return;
+    }
+
+    if (!transferNowLinkPattern.test(formData.transferLink.trim())) {
+      setErrors(prev => ({ ...prev, transferLink: transferNowErrorMessage }));
+      setToast({ show: true, message: transferNowErrorMessage, type: 'error' });
       return;
     }
 
@@ -147,6 +183,7 @@ const Marketplace = () => {
     
     const payload = {
       ...formData,
+      transferLink: formData.transferLink.trim(),
       acceptedAt: new Date().toISOString()
     };
 
@@ -419,13 +456,15 @@ const Marketplace = () => {
                   name="budget"
                   value={formData.budget}
                   onChange={handleInputChange}
-                  placeholder="0.00"
+                  placeholder="50000"
                   className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-quinary/20 focus:border-quinary outline-none transition-all"
                   required
+                  min="50000"
+                  step="1000"
                 />
               </div>
               <div className="flex justify-between items-center px-1">
-                <span className="text-[10px] text-gray-400">Set your total spend for this duration.</span>
+                <span className="text-[10px] text-gray-400">Minimum budget: ₦{MIN_CAMPAIGN_BUDGET.toLocaleString()}.</span>
                 <span className={`text-xs font-bold ${parseFloat(formData.budget) > (user?.balance || 0) ? 'text-red-500' : 'text-green-500'}`}>
                   Balance: ₦{(user?.balance || 0).toLocaleString()}
                 </span>
@@ -525,10 +564,20 @@ const Marketplace = () => {
                 name="transferLink"
                 value={formData.transferLink}
                 onChange={handleInputChange}
-                placeholder="Paste your TransferNow link here (e.g. https://www.transfernow.net/dl/xyz)"
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-quinary/20 focus:border-quinary outline-none transition-all bg-white"
+                onInvalid={handleTransferLinkInvalid}
+                placeholder={transferNowExample}
+                className={`w-full px-4 py-3 rounded-xl border outline-none transition-all bg-white ${errors.transferLink ? 'border-red-300 focus:ring-2 focus:ring-red-200 focus:border-red-400' : 'border-gray-200 focus:ring-2 focus:ring-quinary/20 focus:border-quinary'}`}
                 required
+                pattern="https://www\.transfernow\.net/dl/[A-Za-z0-9]+/[A-Za-z0-9]+"
+                title={`Use a TransferNow download link like: ${transferNowExample}`}
+                aria-invalid={!!errors.transferLink}
+                aria-describedby={errors.transferLink ? 'transferLinkError' : undefined}
               />
+              {errors.transferLink && (
+                <p id="transferLinkError" className="text-xs font-semibold text-red-600">
+                  {errors.transferLink}
+                </p>
+              )}
             </div>
           </div>
 
@@ -556,7 +605,7 @@ const Marketplace = () => {
               </p>
 
               <h3 className="font-bold text-gray-800 flex items-center gap-2">
-                <FiDollarSign /> 3. Payments and Budgets
+                <FaNairaSign /> 3. Payments and Budgets
               </h3>
               <p>
                 Ad campaign budgets must be covered by your available wallet balance. Once a campaign is submitted and approved, the corresponding budget will be deducted. Campaigns are non-refundable once they have been initiated.

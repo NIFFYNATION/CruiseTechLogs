@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  FiSearch, FiFilter, FiCalendar, FiDollarSign, FiClock, FiCheckCircle, 
+  FiSearch, FiFilter, FiCalendar, FiClock, FiCheckCircle, 
   FiAlertCircle, FiEdit2, FiMoreVertical, FiArrowRight, FiX, FiBriefcase,
   FiTarget, FiMapPin, FiGlobe, FiMousePointer, FiPlus
 } from 'react-icons/fi';
+import { FaNairaSign } from 'react-icons/fa6';
 import { fetchMyCampaigns } from '../../../services/userService';
 import Toast from '../../common/Toast';
 import { useNavigate } from 'react-router-dom';
@@ -255,7 +256,7 @@ const ManageCampaigns = () => {
 
                 <div className="grid grid-cols-2 gap-4 mb-6">
                   <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <FiDollarSign className="text-quinary" />
+                    <FaNairaSign className="text-quinary" />
                     <span className="font-bold">₦{parseFloat(campaign.budget).toLocaleString()}</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-gray-600">
@@ -328,4 +329,3 @@ const ManageCampaigns = () => {
 };
 
 export default ManageCampaigns;
-

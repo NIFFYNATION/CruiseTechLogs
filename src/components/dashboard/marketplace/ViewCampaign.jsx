@@ -3,11 +3,12 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   FiX, FiBriefcase, FiGlobe, FiPhone, FiTarget, FiMapPin, 
-  FiMousePointer, FiCalendar, FiClock, FiDollarSign, 
+  FiMousePointer, FiCalendar, FiClock, 
   FiLink, FiExternalLink, FiBell, FiShield, FiFileText, FiInfo,
   FiArrowLeft, FiEdit2
 } from 'react-icons/fi';
 import { FaWhatsapp } from 'react-icons/fa';
+import { FaNairaSign } from 'react-icons/fa6';
 import { fetchMyCampaigns } from '../../../services/userService';
 import Toast from '../../common/Toast';
 
@@ -170,7 +171,7 @@ const ViewCampaign = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               <DetailItem icon={FiCalendar} label="Start Date" value={new Date(campaign.preferredStartDate).toLocaleDateString()} />
               <DetailItem icon={FiClock} label="Duration" value={`${campaign.adsDuration} Days`} />
-              <DetailItem icon={FiDollarSign} label="Budget" value={`₦${parseFloat(campaign.budget).toLocaleString()}`} />
+              <DetailItem icon={FaNairaSign} label="Budget" value={`₦${parseFloat(campaign.budget).toLocaleString()}`} />
               <DetailItem icon={FiGlobe} label="Platform" value={campaign.platformType === 'social_media' ? campaign.socialPlatforms?.join(', ') : 'Our Platform'} />
             </div>
           </section>
