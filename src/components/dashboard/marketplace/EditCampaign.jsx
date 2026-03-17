@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   FiArrowLeft, FiEdit2, FiX, FiBriefcase, FiTarget, FiCalendar, 
-  FiDollarSign, FiLink, FiExternalLink, FiBell, FiShield, 
+  FiLink, FiExternalLink, FiBell, FiShield, 
   FiFileText, FiInfo, FiAlertCircle, FiMousePointer, FiGlobe, FiMapPin,
   FiMail, FiMessageSquare, FiPhone
 } from 'react-icons/fi';
@@ -360,7 +360,7 @@ const EditCampaign = () => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Budget (₦)</label>
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Budget (₦) (Min ₦{MIN_CAMPAIGN_BUDGET.toLocaleString()})</label>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">₦</span>
                   <input 

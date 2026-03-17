@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { useUser } from '../../../contexts/UserContext';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiUser, FiBriefcase, FiTarget, FiCalendar, FiDollarSign, FiLink, FiInfo, FiExternalLink, FiPlus, FiGlobe, FiMapPin, FiMousePointer, FiPhone, FiMail, FiMessageSquare, FiBell, FiCheckSquare, FiSquare, FiFileText, FiShield } from 'react-icons/fi';
+import { FiUser, FiBriefcase, FiTarget, FiCalendar, FiLink, FiInfo, FiExternalLink, FiPlus, FiGlobe, FiMapPin, FiMousePointer, FiPhone, FiMail, FiMessageSquare, FiBell, FiCheckSquare, FiSquare, FiFileText, FiShield } from 'react-icons/fi';
 import { FaWhatsapp } from 'react-icons/fa';
+import { FaNairaSign } from 'react-icons/fa6';
 import Toast from '../../common/Toast';
 import { createMarketingCampaign } from '../../../services/userService';
 
@@ -463,7 +464,7 @@ const Marketplace = () => {
                 />
               </div>
               <div className="flex justify-between items-center px-1">
-                <span className="text-[10px] text-gray-400">Set your total spend for this duration.</span>
+                <span className="text-[10px] text-gray-400">Minimum budget: ₦{MIN_CAMPAIGN_BUDGET.toLocaleString()}.</span>
                 <span className={`text-xs font-bold ${parseFloat(formData.budget) > (user?.balance || 0) ? 'text-red-500' : 'text-green-500'}`}>
                   Balance: ₦{(user?.balance || 0).toLocaleString()}
                 </span>
@@ -604,7 +605,7 @@ const Marketplace = () => {
               </p>
 
               <h3 className="font-bold text-gray-800 flex items-center gap-2">
-                <FiDollarSign /> 3. Payments and Budgets
+                <FaNairaSign /> 3. Payments and Budgets
               </h3>
               <p>
                 Ad campaign budgets must be covered by your available wallet balance. Once a campaign is submitted and approved, the corresponding budget will be deducted. Campaigns are non-refundable once they have been initiated.
