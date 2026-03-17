@@ -20,6 +20,7 @@ const EditCampaign = () => {
   const [updateLoading, setUpdateLoading] = useState(false);
   const [editingCampaign, setEditingCampaign] = useState(null);
   const [toast, setToast] = useState({ show: false, message: '', type: 'info' });
+  const [errors, setErrors] = useState({ transferLink: '' });
 
   const businessTypes = [
     'E-commerce',
@@ -56,6 +57,24 @@ const EditCampaign = () => {
     'Event Promotion',
     'Other'
   ];
+
+  const MIN_CAMPAIGN_BUDGET = 50000;
+  const transferNowLinkPattern = /^https:\/\/www\.transfernow\.net\/dl\/[A-Za-z0-9]+\/[A-Za-z0-9]+$/;
+  const transferNowExample = 'https://www.transfernow.net/dl/20260317H6n2yEUp/zrPpnhIM';
+  const transferNowErrorMessage = `TransferNow link must look like: ${transferNowExample}`;
+
+  const getTransferLinkError = (input) => {
+    if (input?.validity?.valueMissing) return 'Please provide the TransferNow link for ads materials.';
+    if (input?.validity?.patternMismatch) return transferNowErrorMessage;
+    return '';
+  };
+
+  const handleTransferLinkInvalid = (e) => {
+    e.preventDefault();
+    const message = getTransferLinkError(e.target);
+    setErrors(prev => ({ ...prev, transferLink: message }));
+    if (message) setToast({ show: true, message, type: 'error' });
+  };
 
   const contactPreferences = [
     { id: 'email', label: 'Email', icon: <FiMail /> },
@@ -96,6 +115,9 @@ const EditCampaign = () => {
   const handleEditChange = (e) => {
     const { name, value } = e.target;
     setEditingCampaign(prev => ({ ...prev, [name]: value }));
+    if (name === 'transferLink' && errors.transferLink) {
+      setErrors(prev => ({ ...prev, transferLink: '' }));
+    }
   };
 
   const handlePreferenceSelect = (prefId) => {
@@ -126,6 +148,18 @@ const EditCampaign = () => {
 
   const handleUpdate = async (e) => {
     e.preventDefault();
+    const budgetValue = Number(editingCampaign.budget);
+    if (!Number.isFinite(budgetValue) || budgetValue < MIN_CAMPAIGN_BUDGET) {
+      setToast({ show: true, message: `Minimum campaign budget is ₦${MIN_CAMPAIGN_BUDGET.toLocaleString()}.`, type: 'error' });
+      return;
+    }
+
+    if (!transferNowLinkPattern.test((editingCampaign.transferLink || '').trim())) {
+      setErrors(prev => ({ ...prev, transferLink: transferNowErrorMessage }));
+      setToast({ show: true, message: transferNowErrorMessage, type: 'error' });
+      return;
+    }
+
     setUpdateLoading(true);
     const res = await updateMarketingCampaign(editingCampaign);
     if (res.success) {
@@ -336,6 +370,8 @@ const EditCampaign = () => {
                     onChange={handleEditChange}
                     className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-quinary/20 focus:border-quinary transition-all bg-gray-50/50"
                     required
+                    min="50000"
+                    step="1000"
                   />
                 </div>
               </div>
@@ -402,10 +438,20 @@ const EditCampaign = () => {
                   name="transferLink"
                   value={editingCampaign.transferLink}
                   onChange={handleEditChange}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-quinary/20 focus:border-quinary transition-all bg-gray-50/50"
-                  placeholder="https://www.transfernow.net/dl/..."
+                  onInvalid={handleTransferLinkInvalid}
+                  className={`w-full px-4 py-3 rounded-xl border outline-none transition-all bg-gray-50/50 ${errors.transferLink ? 'border-red-300 focus:ring-2 focus:ring-red-200 focus:border-red-400' : 'border-gray-200 focus:ring-2 focus:ring-quinary/20 focus:border-quinary'}`}
+                  placeholder={transferNowExample}
                   required
+                  pattern="https://www\.transfernow\.net/dl/[A-Za-z0-9]+/[A-Za-z0-9]+"
+                  title={`Use a TransferNow download link like: ${transferNowExample}`}
+                  aria-invalid={!!errors.transferLink}
+                  aria-describedby={errors.transferLink ? 'editTransferLinkError' : undefined}
                 />
+                {errors.transferLink && (
+                  <p id="editTransferLinkError" className="text-xs font-semibold text-red-600">
+                    {errors.transferLink}
+                  </p>
+                )}
               </div>
               
               <div className="space-y-4">
