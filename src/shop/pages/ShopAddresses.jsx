@@ -104,7 +104,7 @@ const ShopAddresses = () => {
 
             console.log("🚀 Loading Google Maps API script...");
             const script = document.createElement('script');
-            script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places&loading=async`;
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places&v=weekly`;
             script.async = true;
             script.defer = true;
             script.onload = () => {
@@ -121,6 +121,19 @@ const ShopAddresses = () => {
             console.error("❌ Google Maps API Key is missing or invalid.");
         }
     }, [GOOGLE_MAPS_API_KEY]);
+
+    // Helper to wait until places library is present
+    const ensurePlacesReady = (cb, attempt = 0) => {
+        if (window.google && window.google.maps && window.google.maps.places) {
+            cb();
+            return;
+        }
+        if (attempt > 10) {
+            console.error("❌ Google Places library not ready after retries");
+            return;
+        }
+        setTimeout(() => ensurePlacesReady(cb, attempt + 1), 300);
+    };
 
     // Initialize Autocomplete when script is loaded and modal is shown
     useEffect(() => {
@@ -142,15 +155,20 @@ const ShopAddresses = () => {
                 // Retry once
                 setTimeout(() => {
                     if (searchInputRef.current && window.google) {
-                        initAutocomplete();
+                        ensurePlacesReady(() => {
+                            initAutocomplete();
+                            initCityAutocomplete();
+                        });
                     } else {
                         console.error("❌ Search input ref is STILL NULL after retry. Check conditional rendering.");
                     }
                 }, 500);
                 return;
             }
-            initAutocomplete();
-            initCityAutocomplete();
+            ensurePlacesReady(() => {
+                initAutocomplete();
+                initCityAutocomplete();
+            });
         }, 100);
 
         return () => clearTimeout(initTimer);
@@ -158,7 +176,10 @@ const ShopAddresses = () => {
     }, [isMapsLoaded, showAddModal]);
 
     const initAutocomplete = () => {
-         if (!searchInputRef.current || !window.google) return;
+         if (!searchInputRef.current || !(window.google && window.google.maps && window.google.maps.places)) {
+             console.warn("⚠️ Autocomplete init canceled: places library not ready");
+             return;
+         }
          console.log("🛠️ Initializing Google Maps Autocomplete on element:", searchInputRef.current);
         
         try {
@@ -229,7 +250,10 @@ const ShopAddresses = () => {
     };
 
     const initCityAutocomplete = () => {
-        if (!cityInputRef.current || !window.google) return;
+        if (!cityInputRef.current || !(window.google && window.google.maps && window.google.maps.places)) {
+            console.warn("⚠️ City Autocomplete init canceled: places library not ready");
+            return;
+        }
         console.log("🛠️ Initializing City Autocomplete on element:", cityInputRef.current);
 
         try {
