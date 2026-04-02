@@ -68,7 +68,7 @@ const ApiPage = () => {
           generate a new key.
           <br />
           <span className="text-quaternary font-medium cursor-pointer hover:underline">
-            Click here
+            <a href='https://documenter.getpostman.com/view/16591249/2sAYHxm3sE#81eff191-4399-4889-964f-8fdd43a7fef3'>Click here</a>
           </span>{" "}
           to view API documentation
         </p>
