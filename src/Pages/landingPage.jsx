@@ -862,6 +862,8 @@ export default function LandingPage() {
             <a href="/terms" className="transition-colors">Terms and conditions</a>
             <span className="hidden md:inline">|</span>
             <a href="/shop/categories" className="transition-colors">Browse Categories</a>
+            <span className="hidden md:inline">|</span>
+            <a href="https://documenter.getpostman.com/view/16591249/2sAYHxm3sE#81eff191-4399-4889-964f-8fdd43a7fef3" className="transition-colors">API documentation</a>
           </div>
         </div>
       </footer>
